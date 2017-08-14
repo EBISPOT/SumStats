@@ -50,18 +50,3 @@ study_group.create_dataset('snps', data=snparray)
 study_group.create_dataset('pvals', data=pvals)
 study_group.create_dataset('chr', data=chr)
 
-
-''' for i in range(1,22):
-    # get the array slice where chromosome position == i
-    # from that slice keep the first column, i.e. the snpvalues (we know the chromosome)
-    chr_mask = [myarray[:,1] == i]
-    chr = myarray[chr_mask][:,0]
-    snps = snparray[chr_mask]
-    if (chr.size != 0):
-        chrom_group = trait_group[str(i)]
-        try:
-            snpgroup.create_dataset(snps[j], data = chr[j])
-        except ValueError:
-            print snps[j] + " already exists!"
-
- '''
