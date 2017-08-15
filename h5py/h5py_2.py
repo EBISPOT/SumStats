@@ -19,6 +19,7 @@ trait = args.trait_name
 
 pvalarray = genfromtxt(csvf, delimiter = '\t', usecols=(1,2))
 snparray = genfromtxt(csvf, delimiter = '\t', usecols=(0), dtype=object)
+ramdom_blocks_for_chr = genfromtxt(csvf, delimiter = '\t', usecols=(3))
 
 print "Loaded csv file: ", csvf
 
@@ -26,16 +27,14 @@ f = h5py.File(h5file, 'a')
 
 if trait in f:
     trait_group = f[trait]
-    if study in trait_group:
-        study_group = trait_group[study]
-    else:
-        study_group = trait_group.create_group(study)
 else:
-    study_group = f.create_group(trait + "/" + study)
+    trait_group = f.create_group(trait)
 
 for i in range(1,22):
     try:
-        trait_group.create_group(str(i))
+        cg = trait_group.create_group(str(i))
+        for j in range(0, 8):
+            cg.create_group((str(j)))
     except ValueError:
         print "Chromosomes already exist"
 
@@ -43,14 +42,34 @@ for i in range(1,22):
     # get the array slice where chromosome position == i
     # from that slice keep the first column, i.e. the snpvalues (we know the chromosome)
     chr_mask = [pvalarray[:,1] == i]
-    vals = pvalarray[chr_mask][:,0]
-    snps = snparray[chr_mask]
-    if (vals.size != 0):
-        chrom_group = trait_group[str(i)]
-        for j in range(0,len(snps)):
-            try:
-                chrom_group.create_dataset(snps[j], data = vals[j])
-            except ValueError:
-                print snps[j] + " already exists!"
+    vals_chr = pvalarray[chr_mask][:,0]
+    snps_chr = snparray[chr_mask]
+    blocks = ramdom_blocks_for_chr[chr_mask]
+    chrom_group = trait_group[str(i)]
 
- 
+    for b in range(0, 8):
+        # get the array slice for chr i where block == b
+        block_mask = blocks == b
+        vals = vals_chr[block_mask]
+        snps = snps_chr[block_mask]
+        if (vals.size != 0):
+            block_group = chrom_group[str(b)]
+            
+            for j in range(0,len(snps)):
+                try:
+                    snp_group = block_group.create_group(snps[j])
+                    d = np.array([1, vals[j]])
+                    snp_group.create_dataset('pvals', data=d, maxshape = (None,))
+                    d = np.array(['s', study])
+                    snp_group.create_dataset('studies', data=d, maxshape = (None,)) 
+                except ValueError:
+                    snp_group = block_group[snps[j]]
+                    pvals_dset = snp_group['pvals']
+                    studies_dset = snp_group['studies']
+                    
+                    pvals_dset.resize((pvals_dset.shape[0] + 1,))
+                    pvals_dset[-1] = vals[j]
+                    studies_dset.resize((studies_dset.shape[0] + 1,))
+                    studies_dset[-1] = study
+
+
