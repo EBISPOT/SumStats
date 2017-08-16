@@ -20,7 +20,6 @@ trait = args.trait_name
 pvals = genfromtxt(csvf, delimiter = '\t', usecols=(1))
 chr = genfromtxt(csvf, delimiter = '\t', usecols=(2))
 snparray = genfromtxt(csvf, delimiter = '\t', usecols=(0), dtype=None)
-print snparray
 
 print "Loaded csv file: ", csvf
 
@@ -49,4 +48,4 @@ else:
 study_group.create_dataset('snps', data=snparray)
 study_group.create_dataset('pvals', data=pvals)
 study_group.create_dataset('chr', data=chr)
-
+study_group.create_dataset('or', data=or)
