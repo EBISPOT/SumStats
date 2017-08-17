@@ -19,8 +19,7 @@ snp = args.snp
 f = h5py.File(h5file, 'r')
 
 def snp_hash(snp):
-    p = 53
-    N = 1123
+    p = 67
 
     # Map A -> 0 ... a -> 26 ... z -> 51
     SNP = [int(c) if c.isdigit() else ord(c) - ord('A') if c.islower() else ord(c) - ord('A') - 6 for c in snp]
@@ -31,9 +30,11 @@ def snp_hash(snp):
 
 
 dataset = f.get("hash_table")
+N = dataset.shape[0]
+print "N is: %s" % (N)
 snp_h = snp_hash(snp)
-
+print "snp_h is: %s" % (snp_h)
 array = dataset[snp_h]
-snp = array[array["snp"] == "rs76947912"]
+snp = array[array["snp"] == snp]
 
 print snp

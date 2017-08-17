@@ -20,7 +20,10 @@ trait = args.trait_name
 pvals = genfromtxt(csvf, delimiter = '\t', usecols=(1))
 chr = genfromtxt(csvf, delimiter = '\t', usecols=(2))
 snparray = genfromtxt(csvf, delimiter = '\t', usecols=(0), dtype=None)
+<<<<<<< HEAD
+=======
 orarray = genfromtxt(csvf, delimiter = '\t', usecols=(3))
+>>>>>>> a02ee817ec780901f0e7cde5f51476f60481d3cd
 
 print "Loaded csv file: ", csvf
 
