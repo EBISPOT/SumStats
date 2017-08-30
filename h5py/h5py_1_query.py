@@ -50,49 +50,56 @@ def main():
             print "input: query number (3) and snp id"
             exit(1)
         else:
-            all_info_for_snp(f, args.snp, args.under, args.over)
+            all_info_for_snp(f, args.snp, None, args.under, args.over)
     elif args.query == "4":
         if args.chr is None:
             print "Query 4 -- Retrieve all information for SNPs that belong to a chromosome -- "
             print "input: query number (4) and chromosome"
             exit(1)
         else:
-            all_chromosome_info(f, args.chr, args.under, args.over)
+            all_chromosome_info(f, args.chr, None, args.under, args.over)
+    elif args.query == "5":
+        if args.trait is None or args.snp is None:
+            print "Query 5 -- Retrieve all information for a trait and a single SNP -- "
+            print "input: query number (5), trait and snp id"
+            exit(1)
+        else:
+            info_for_snp_and_trait(f, args.snp, args.trait, args.under, args.over)
+    elif args.query == "6":
+        if args.trait is None or args.chr is None:
+            print "Query 6 -- Retrieve all information for SNPs that belong to a chromosome and a specific trait -- "
+            print "input: query number (6), chromosome and trait"
+            exit(1)
+        else:
+            info_for_chromosome_and_trait(f, args.chr, args.trait, args.under, args.over)
     else:
-        print "ummmm"
+        print "Wrong input"
+
+
+def info_for_chromosome_and_trait(f, chromosome, trait, under, over):
+    all_chromosome_info(f, chromosome, trait, under, over)
+
+
+def info_for_snp_and_trait(f, snp, trait, under, over):
+    all_info_for_snp(f, snp, trait, under, over)
 
 
 def all_trait_info(f, trait, under, over):
     print "Retrieving info for trait:", trait
-    trait_group = f.get(trait)
-    if trait_group is not None:
-        snps = []
-        pvals = []
-        chr = []
-        orvals = []
 
-        print "looping through trait"
-        for x, study_group in trait_group.iteritems():
-            snps.extend(study_group["snps"][:])
-            pvals.extend(study_group["pvals"][:])
-            chr.extend(study_group["chr"][:])
-            orvals.extend(study_group["or"][:])
+    snps, pvals, chr, orvals, belongs_to = retrieve_all_info_for_trait(f, trait)
+    # Convert to numpy arrays as to apply boolean masking to them
+    # TODO: might be too big if the dataset gets large and we have the data twice, once as list, once as numpy array
 
-        print "studies that belong to this trait: ", trait_group.keys()
-        print ""
-        # Convert to numpy arrays as to apply boolean masking to them
-        # TODO: might be too big if the dataset gets large and we have the data twice, once as list, once as numpy array
+    snps_np = np.asarray(snps)
+    pv_np = np.asarray(pvals)
+    chr_np = np.asarray(chr)
+    or_np = np.asarray(orvals)
+    belongs_to_np = np.asarray(belongs_to)
 
-        snps_np = np.asarray(snps)
-        pv_np = np.asarray(pvals)
-        chr_np = np.asarray(chr)
-        or_np = np.asarray(orvals)
-
-        info_array = np.column_stack((snps_np, pv_np, chr_np, or_np))
-        info_array = filter_all_info(info_array, pv_np, under, over)
-        print_all_info(info_array)
-    else:
-        print "Trait does not exist!"
+    info_array = np.column_stack((snps_np, pv_np, chr_np, or_np, belongs_to_np))
+    info_array = filter_all_info(info_array, pv_np, under, over)
+    print_all_info(info_array)
 
 
 def all_study_info(f, trait, study, under, over):
@@ -111,9 +118,12 @@ def all_study_info(f, trait, study, under, over):
         print "Not valid trait/study combination"
 
 
-def all_info_for_snp(f, snp, under, over):
+def all_info_for_snp(f, snp, trait, under, over):
     print "Retrieving info for snp:", snp
-    snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
+    if trait is None:
+        snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
+    else:
+        snps, pvals, chr, orvals, belongs_to = retrieve_all_info_for_trait(f, trait)
 
     # Convert to numpy arrays as to apply boolean masking to them
     # TODO: might be too big if the dataset gets large and we have the data twice, once as list, once as numpy array
@@ -127,9 +137,12 @@ def all_info_for_snp(f, snp, under, over):
     print_all_info(info_array)
 
 
-def all_chromosome_info(f, chromosome, under, over):
+def all_chromosome_info(f, chromosome, trait, under, over):
     print "Retrieving info for chromosome:", chromosome
-    snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
+    if trait is None:
+        snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
+    else:
+        snps, pvals, chr, orvals, belongs_to = retrieve_all_info_for_trait(f, trait)
 
     # Convert to numpy arrays as to apply boolean masking to them
     # TODO: might be too big if the dataset gets large and we have the data twice, once as list, once as numpy array
@@ -141,6 +154,29 @@ def all_chromosome_info(f, chromosome, under, over):
     info_array = np.column_stack((snps_np, pv_np, chr_np, or_np, belongs_to_np))
     info_array = filter_all_info(info_array, pv_np, under, over)
     print_all_info(info_array)
+
+def retrieve_all_info_for_trait(f, trait):
+    trait_group = f.get(trait)
+    if trait_group is not None:
+        snps = []
+        pvals = []
+        chr = []
+        orvals = []
+        belongs_to = np.array([], dtype = None)
+
+        print "looping through trait"
+        for x, study_group in trait_group.iteritems():
+            snps_temp = study_group["snps"][:]
+            snps.extend(snps_temp)
+            pvals.extend(study_group["pvals"][:])
+            chr.extend(study_group["chr"][:])
+            orvals.extend(study_group["or"][:])
+            for i in xrange(len(snps_temp)):
+                belongs_to = np.append(belongs_to, study_group.name)
+        return snps, pvals, chr, orvals, belongs_to
+    else:
+        print "Trait does not exist", trait
+        exit(1)
 
 
 def retrieve_all_info(f):
