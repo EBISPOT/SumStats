@@ -92,7 +92,6 @@ def table_row_expander():
 
 def create_table_with_empty_elements(N,M):
     emptydt = (None, 0., None)
-    #table = np.array([[emptydt for i in xrange(M)] for j in xrange(N)], dtype = dt)
     table = np.empty((N,M), dtype = dt)
     for i in xrange(N):
         for j in xrange(M):
@@ -129,6 +128,7 @@ else:
 
     print "Loaded dataset shape: "
     print hash_table.shape
+
 print "Start loading data..."
 for i in xrange(0, len(snparray)):
     if i % 1000000 == 0:

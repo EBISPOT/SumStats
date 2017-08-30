@@ -49,4 +49,4 @@ else:
 study_group.create_dataset('snps', data=snparray)
 study_group.create_dataset('pvals', data=pvals)
 study_group.create_dataset('chr', data=chr)
-study_group.create_dataset('or', data=or)
+study_group.create_dataset('or', data=orarray)
