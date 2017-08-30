@@ -37,37 +37,37 @@ M = 10000
 N = 4007
 # set to true if resize is needed
 resize = False
+
 def snp_hash(snp):
     # p is the first prime after the max number of characters I can get [a-zA-Z0-9] makes 62 unique chars
     p = 67
 
-    # Map A -> 0 ... a -> 26 ... z -> 51
-    SNP = [int(c) if c.isdigit() else ord(c) - ord('A') if c.islower() else ord(c) - ord('A') - 6 for c in snp]
+    # Map A -> 10 ... a -> 36 ... z -> 61
+    SNP = [int(c) if c.isdigit() else ord(c) - ord('A') + 10 if c.islower() else ord(c) - ord('A') - 6 + 10 for c in snp]
 
-    h = sum(pow(p, i) * s for i, s in enumerate(SNP))
+    h = sum(pow(p, i) * c for i, c in enumerate(SNP))
 
     return h % N #MODULO
 
 def next_N_prime(n):
     print "calculating next prime"
-    primes = np.array([4007, 8017, 16057, 32117, 64237, 128477, 256957, 513917, 10280863])
-    for i in xrange(len(primes)):
-        if primes[i] == n:
-            if ((i + 1) != len(primes)):
-                return primes[i + 1]
-            else:
-                print "We do not support growing the table over 10280863 rows"
-                print "Consider expanding the primes table or creating a different file"
-                exit()
+    primes = [4007, 8017, 16057, 32117, 64237, 128477, 256957, 513917, 10280863]
+    idx = primes.index(n)
+    if idx == len(primes) - 1:
+        print "We do not support growing the table over 10280863 rows"
+        print "Consider expanding the primes table or creating a different file"
+        exit()
+    else:
+        return primes[idx + 1]
 
 
 def table_row_expander():
     print "Table will soon be out of bounds, expanding rows and re-organizing data starting..."
     # a row is reaching it's capacity of M entries, need to expand rows and re-distribute the snps
-    print "N before: %s" % (N)
+    print "N before:", N
     global N
     N = next_N_prime(N)
-    print "N after: %s" % (N)
+    print "N after:", N
     new_hash_table = create_table_with_empty_elements(N, M)
     new_hash_table_indexer = np.zeros((N), dtype = int)
     for row in hash_table:
@@ -92,6 +92,7 @@ def table_row_expander():
 
 def create_table_with_empty_elements(N,M):
     emptydt = (None, 0., None)
+    #table = np.array([[emptydt for i in xrange(M)] for j in xrange(N)], dtype = dt)
     table = np.empty((N,M), dtype = dt)
     for i in xrange(N):
         for j in xrange(M):
@@ -119,10 +120,8 @@ else:
     hash_table = dataset[:]
     # set current N
     N = hash_table.shape[0]
-    # initialize the table indexer to keep the current number of populated columns in each row
-    hash_table_indexer = np.zeros((N), dtype = int)
     #for each row in hash_table create the row index that holds the number of columns it has filled
-    hash_table_indexer = create_table_row_indexer(dataset)
+    hash_table_indexer = create_table_row_indexer(hash_table)
     # if the number of columns is full we need to double the rows of hash_table and recalculate the hashes
     max_cols = max(hash_table_indexer)
     if (len(snparray) / N) + max_cols >= M:
@@ -131,7 +130,7 @@ else:
     print "Loaded dataset shape: "
     print hash_table.shape
 print "Start loading data..."
-for i in range(0, len(snparray)):
+for i in xrange(0, len(snparray)):
     if i % 1000000 == 0:
         print "Loaded %s so far..." % (i)
     snp = snparray[i]
