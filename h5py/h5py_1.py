@@ -1,9 +1,22 @@
+"""
+    Stores the data in the hierarchy of Trait/Study/DATA
+    where DATA:
+    under each directory we store 3 (or more) vectors
+    snparray will hold the snp ids
+    pvals will hold each snps pvalue for this study
+    chr will hold each snps position
+    or_array will hold each snps odds ratio for this study
+    we can add any other information that we want
+
+    the positions in the vectors correspond to each other
+    snparray[0], pvals[0], chr[0], and or_array[0] hold the information for SNP 0
+
+"""
+
+
 import h5py
-import numpy as np
 from numpy import genfromtxt
 import argparse
-import hashlib
-from operator import itemgetter
 
 parser = argparse.ArgumentParser()
 parser.add_argument('CSV_input_file', help = 'The file to be loaded')
@@ -17,13 +30,15 @@ h5file = args.HDF5_output_file
 study = args.study_name
 trait = args.trait_name
 
-pvals = genfromtxt(csvf, delimiter = '\t', usecols=(1))
-chr = genfromtxt(csvf, delimiter = '\t', usecols=(2))
-snparray = genfromtxt(csvf, delimiter = '\t', usecols=(0), dtype=None)
-orarray = genfromtxt(csvf, delimiter = '\t', usecols=(3))
+# snp id is a string, so dtype = None
+snparray = genfromtxt(csvf, delimiter = '\t', usecols = (0), dtype = None)
+pvals = genfromtxt(csvf, delimiter = '\t', usecols = (1), dtype = float)
+chr = genfromtxt(csvf, delimiter = '\t', usecols = (2), dtype = int)
+or_array = genfromtxt(csvf, delimiter = '\t', usecols = (3), dtype = float)
 
 print "Loaded csv file: ", csvf
 
+# Open the file with read/write permissions and create if it doesn't exist
 f = h5py.File(h5file, 'a')
 
 if trait in f:
@@ -35,18 +50,8 @@ if trait in f:
 else:
     study_group = f.create_group(trait + "/" + study)
 
-#TODO: sort by chromosome store the whole dataset
-#srted = sorted(myarray, key = itemgetter(2))
-
-# sort the chrom positions
-#chr.sort()
-
-# sort pvals and snps accordingly
-
-#snparray = snparray[chr]
-#pvals = pvals[chr]
 
 study_group.create_dataset('snps', data=snparray)
 study_group.create_dataset('pvals', data=pvals)
 study_group.create_dataset('chr', data=chr)
-study_group.create_dataset('or', data=orarray)
+study_group.create_dataset('or', data=or_array)
