@@ -1,10 +1,5 @@
 import h5py
-import numpy as np
-from numpy import genfromtxt
 import argparse
-import hashlib
-from operator import itemgetter
-import math
 
 parser = argparse.ArgumentParser()
 parser.add_argument('HDF5_output_file', help = 'The name of the HDF5 file to be created/updated')
