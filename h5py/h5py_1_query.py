@@ -36,73 +36,69 @@ def main():
             print "input: query number (1) and trait name"
             exit(1)
         else:
-            all_trait_info(f, args.trait, args.under, args.over)
+            info_array = all_trait_info(f, args.trait)
     elif args.query == "2":
         if args.study is None or args.trait is None:
             print "Query 2 -- Retrieve all the information for a specific study --"
             print "input: query number (2), study name and trait name"
             exit(1)
         else:
-            all_study_info(f, args.trait, args.study, args.under, args.over)
+            info_array = all_study_info(f, args.trait, args.study)
     elif args.query == "3":
         if args.snp is None:
             print "Query 3 -- Retrieve all information for a single SNP -- "
             print "input: query number (3) and snp id"
             exit(1)
         else:
-            all_info_for_snp(f, args.snp, None, args.under, args.over)
+            info_array = all_snp_info(f, args.snp, None)
     elif args.query == "4":
         if args.chr is None:
             print "Query 4 -- Retrieve all information for SNPs that belong to a chromosome -- "
             print "input: query number (4) and chromosome"
             exit(1)
         else:
-            all_chromosome_info(f, args.chr, None, args.under, args.over)
+            info_array = all_chromosome_info(f, args.chr, None)
     elif args.query == "5":
         if args.trait is None or args.snp is None:
             print "Query 5 -- Retrieve all information for a trait and a single SNP -- "
             print "input: query number (5), trait and snp id"
             exit(1)
         else:
-            info_for_snp_and_trait(f, args.snp, args.trait, args.under, args.over)
+            info_array = all_snp_and_trait_info(f, args.snp, args.trait)
     elif args.query == "6":
         if args.trait is None or args.chr is None:
             print "Query 6 -- Retrieve all information for SNPs that belong to a chromosome and a specific trait -- "
             print "input: query number (6), chromosome and trait"
             exit(1)
         else:
-            info_for_chromosome_and_trait(f, args.chr, args.trait, args.under, args.over)
+            info_array = all_chromosome_and_trait_info(f, args.chr, args.trait)
     else:
         print "Wrong input"
+        exit(1)
 
-
-def info_for_chromosome_and_trait(f, chromosome, trait, under, over):
-    all_chromosome_info(f, chromosome, trait, under, over)
-
-
-def info_for_snp_and_trait(f, snp, trait, under, over):
-    all_info_for_snp(f, snp, trait, under, over)
-
-
-def all_trait_info(f, trait, under, over):
-    print "Retrieving info for trait:", trait
-
-    snps, pvals, chr, orvals, belongs_to = retrieve_all_info_for_trait(f, trait)
-    # Convert to numpy arrays as to apply boolean masking to them
-    # TODO: might be too big if the dataset gets large and we have the data twice, once as list, once as numpy array
-
-    snps_np = np.asarray(snps)
-    pv_np = np.asarray(pvals)
-    chr_np = np.asarray(chr)
-    or_np = np.asarray(orvals)
-    belongs_to_np = np.asarray(belongs_to)
-
-    info_array = np.column_stack((snps_np, pv_np, chr_np, or_np, belongs_to_np))
-    info_array = filter_all_info(info_array, pv_np, under, over)
+    # we assume that they all give back an info_array that contains all the information in a matrix that has gone through column stack
+    # and that the second column has the p-values so we can filter based on that
+    pval_np = np.asarray(info_array[:,1], dtype=float)
+    info_array = filter_all_info(info_array, pval_np, args.under, args.over)
     print_all_info(info_array)
 
 
-def all_study_info(f, trait, study, under, over):
+def all_chromosome_and_trait_info(f, chromosome, trait):
+    return all_chromosome_info(f, chromosome, trait)
+
+
+def all_snp_and_trait_info(f, snp, trait):
+    return all_snp_info(f, snp, trait)
+
+
+def all_trait_info(f, trait):
+    print "Retrieving info for trait:", trait
+
+    snps, pvals, chr, orvals, belongs_to = retrieve_all_info_for_trait(f, trait)
+    return np.column_stack((snps, pvals, chr, orvals, belongs_to))
+
+
+def all_study_info(f, trait, study):
     print "Retrieving info for study:", study
     study_group = f.get(trait + "/" + study)
     if study_group is not None:
@@ -111,49 +107,39 @@ def all_study_info(f, trait, study, under, over):
         chr_np = study_group["chr"][:]
         or_np = study_group["or"][:]
 
-        info_array = np.column_stack((snps_np, pv_np, chr_np, or_np))
-        info_array = filter_all_info(info_array, pv_np, under, over)
-        print_all_info(info_array)
+        return np.column_stack((snps_np, pv_np, chr_np, or_np))
     else:
         print "Not valid trait/study combination"
+        exit(1)
 
 
-def all_info_for_snp(f, snp, trait, under, over):
+def all_snp_info(f, snp, trait):
     print "Retrieving info for snp:", snp
     if trait is None:
         snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
     else:
         snps, pvals, chr, orvals, belongs_to = retrieve_all_info_for_trait(f, trait)
 
-    # Convert to numpy arrays as to apply boolean masking to them
-    # TODO: might be too big if the dataset gets large and we have the data twice, once as list, once as numpy array
-
     snps_np = np.asarray(snps)
     mask = snps_np == snp
-    snps_np, pv_np, chr_np, or_np, belongs_to_np = apply_mask(snps, pvals, chr, orvals, belongs_to, mask)
 
-    info_array = np.column_stack((snps_np, pv_np, chr_np, or_np, belongs_to_np))
-    info_array = filter_all_info(info_array, pv_np, under, over)
-    print_all_info(info_array)
+    info_array = np.column_stack((snps, pvals, chr, orvals, belongs_to))
+    return info_array[mask]
 
 
-def all_chromosome_info(f, chromosome, trait, under, over):
+def all_chromosome_info(f, chromosome, trait):
     print "Retrieving info for chromosome:", chromosome
     if trait is None:
         snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
     else:
         snps, pvals, chr, orvals, belongs_to = retrieve_all_info_for_trait(f, trait)
 
-    # Convert to numpy arrays as to apply boolean masking to them
-    # TODO: might be too big if the dataset gets large and we have the data twice, once as list, once as numpy array
-
     chr_np = np.asarray(chr)
     mask = chr_np == int(chromosome)
-    snps_np, pv_np, chr_np, or_np, belongs_to_np = apply_mask(snps, pvals, chr, orvals, belongs_to, mask)
 
-    info_array = np.column_stack((snps_np, pv_np, chr_np, or_np, belongs_to_np))
-    info_array = filter_all_info(info_array, pv_np, under, over)
-    print_all_info(info_array)
+    info_array = np.column_stack((snps, pvals, chr, orvals, belongs_to))
+    return info_array[mask]
+
 
 def retrieve_all_info_for_trait(f, trait):
     trait_group = f.get(trait)
@@ -199,16 +185,6 @@ def retrieve_all_info(f):
     return snps, pvals, chr, orvals, belongs_to
 
 
-def apply_mask(snps, pvals, chr, orvals, belongs_to, mask):
-    snps_np = np.asarray(snps)[mask]
-    pv_np = np.asarray(pvals)[mask]
-    chr_np = np.asarray(chr)[mask]
-    or_np = np.asarray(orvals)[mask]
-    belongs_to_np = belongs_to[mask]
-
-    return snps_np, pv_np, chr_np, or_np, belongs_to_np
-
-
 def threshold(value, action, pvalues_nparray):
     if action == "u":
         mask = pvalues_nparray <= float(value)
@@ -232,6 +208,7 @@ def filter_all_info(info_array, pv_np, under, over):
 
 
 def print_all_info(info_array):
+    print info_array.shape
     print "snps \n", info_array[:,0]
     print "pvals \n", info_array[:,1]
     print "chr positions \n", info_array[:,2]
