@@ -1,9 +1,17 @@
+"""
+    Stores the data in the hierarchy of Trait/Study/SNP/DATA
+    where DATA:
+
+    vector that has in position 0 the p-value, in position 1 the chromosome, in position 2 the OR value
+    for this study/snp association
+    we can add more data if we want to to this vector
+"""
+
+
 import h5py
-import numpy as np
 from numpy import genfromtxt
 import argparse
-import hashlib
-from operator import itemgetter
+import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument('CSV_input_file', help = 'The file to be loaded')
@@ -17,59 +25,29 @@ h5file = args.HDF5_output_file
 study = args.study_name
 trait = args.trait_name
 
-pvalarray = genfromtxt(csvf, delimiter = '\t', usecols=(1,2))
-snparray = genfromtxt(csvf, delimiter = '\t', usecols=(0), dtype=object)
-ramdom_blocks_for_chr = genfromtxt(csvf, delimiter = '\t', usecols=(3))
+# snp id is a string, so dtype = None
+snparray = genfromtxt(csvf, delimiter = '\t', usecols = (0), dtype = None)
+pvals = genfromtxt(csvf, delimiter = '\t', usecols = (1), dtype = float)
+chr = genfromtxt(csvf, delimiter = '\t', usecols = (2), dtype = int)
+or_array = genfromtxt(csvf, delimiter = '\t', usecols = (3), dtype = float)
 
 print "Loaded csv file: ", csvf
 
+# Open the file with read/write permissions and create if it doesn't exist
 f = h5py.File(h5file, 'a')
 
 if trait in f:
     trait_group = f[trait]
+    if study in trait_group:
+        study_group = trait_group[study]
+    else:
+        study_group = trait_group.create_group(study)
 else:
-    trait_group = f.create_group(trait)
+    study_group = f.create_group(trait + "/" + study)
 
-for i in range(1,22):
-    try:
-        cg = trait_group.create_group(str(i))
-        for j in range(0, 8):
-            cg.create_group((str(j)))
-    except ValueError:
-        print "Chromosomes already exist"
-
-for i in range(1,22):
-    # get the array slice where chromosome position == i
-    # from that slice keep the first column, i.e. the snpvalues (we know the chromosome)
-    chr_mask = [pvalarray[:,1] == i]
-    vals_chr = pvalarray[chr_mask][:,0]
-    snps_chr = snparray[chr_mask]
-    blocks = ramdom_blocks_for_chr[chr_mask]
-    chrom_group = trait_group[str(i)]
-
-    for b in range(0, 8):
-        # get the array slice for chr i where block == b
-        block_mask = blocks == b
-        vals = vals_chr[block_mask]
-        snps = snps_chr[block_mask]
-        if (vals.size != 0):
-            block_group = chrom_group[str(b)]
-            
-            for j in range(0,len(snps)):
-                try:
-                    snp_group = block_group.create_group(snps[j])
-                    d = np.array([1, vals[j]])
-                    snp_group.create_dataset('pvals', data=d, maxshape = (None,))
-                    d = np.array(['s', study])
-                    snp_group.create_dataset('studies', data=d, maxshape = (None,)) 
-                except ValueError:
-                    snp_group = block_group[snps[j]]
-                    pvals_dset = snp_group['pvals']
-                    studies_dset = snp_group['studies']
-                    
-                    pvals_dset.resize((pvals_dset.shape[0] + 1,))
-                    pvals_dset[-1] = vals[j]
-                    studies_dset.resize((studies_dset.shape[0] + 1,))
-                    studies_dset[-1] = study
-
-
+# loop through the snp array and for each SNP
+# 1. create the dataset that will have [pvalue, chromosome, OR] for that SNP/Study/Trait association
+# 2. save that dataset under the SNPs name
+for i in xrange(len(snparray)):
+    dataset = np.array([pvals[i], chr[i], or_array[i]])
+    study_group.create_dataset(snparray[i], data=dataset)

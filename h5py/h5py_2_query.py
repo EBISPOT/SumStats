@@ -1,24 +1,145 @@
+"""
+    Query 1: Retrieve all information for trait: input = query number (1) and trait name
+    Query 2: Retrieve all the information for a study: input = query number (2) and study name and trait name
+    Query 3: Retrieve all information (trait, study, pval, chr, or) for a single SNP: input = query number (3) and snp id
+    Query 4: Retrieve all information (trait, study, pval, chr, or) for a set of SNPs that belong to a chromosome:
+                input = query number (4) and chr (could do this wth other location information)
+    Query 5: Retrieve all information for a trait and a single SNP: input = query number (5), trait and snp id
+    Query 6: Retrieve all information for a trait and a set of SNPs that belong to a chromosome:
+                input = query number (6), trait and chr
+
+    If a p-value threshold is given, all returned values need to be restricted to this threshold
+"""
+
 import h5py
 import numpy as np
-import argparse
+import query_utils as qu
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('HDF5_output_file', help = 'The name of the HDF5 file')
-parser.add_argument('study_name', help = 'The study I am looking for')
-parser.add_argument('trait_name', help = 'The trait I am looking for')
-parser.add_argument('chrp', help = 'The chromosome of the snp I am looking for')
-parser.add_argument('snp', help = 'The SNP I am looking for')
-args = parser.parse_args()
+def main():
 
-h5file = args.HDF5_output_file 
-study = args.study_name 
-trait = args.trait_name
-chr = args.chrp
-snp = args.snp
+    qu.argument_checker()
+    args = qu.argument_parser()
 
-f = h5py.File(h5file, mode = "r")
+    # open h5 file in read mode
+    f = h5py.File(args.h5file, mode="r")
 
-table = f[trait + "/" + study + "/" + str(chr) + "/" + snp]
+    if args.query == "1":
+        trait_group = f.get(args.trait)
+        if trait_group is not None:
+            info_array = retrieve_all_info_for_trait(trait_group)
+        else:
+            print "Trait does not exist!", args.trait
+            exit(1)
+    elif args.query == "2":
+        info_array = all_study_info(f, args.trait, args.study)
+    elif args.query == "3":
+        info_array = all_snp_info(f, args.snp, None)
+    elif args.query == "4":
+        info_array = all_chromosome_info(f, args.chr, None)
+    elif args.query == "5":
+        info_array = all_snp_info(f, args.snp, args.trait)
+    elif args.query == "6":
+        info_array = all_chromosome_info(f, args.chr, args.trait)
 
-print table[...]
+    # we assume that they all give back an info_array that contains all the information in a matrix that has gone
+    # through column stack and that the second column has the p-values so we can filter based on that
+
+    pval_np = np.asarray(info_array[:,1], dtype=float)
+    info_array = qu.filter_all_info(info_array, pval_np, args.under, args.over)
+    qu.print_all_info(info_array)
+
+
+def retrieve_all_info(f):
+    info_array = None
+    for x, trait_group in f.iteritems():
+        if info_array is None:
+            info_array = retrieve_all_info_for_trait(trait_group)
+        else:
+            info_array = np.row_stack((info_array, retrieve_all_info_for_trait(trait_group)))
+    return info_array
+
+
+def retrieve_all_info_for_trait(trait_group):
+    info_array = None
+    print "looping through trait"
+    for x, study_group in trait_group.iteritems():
+        if info_array is None:
+            info_array = collect_all_study_group_info(study_group)
+        else:
+            info_array = np.row_stack((info_array, collect_all_study_group_info(study_group)))
+    return info_array
+
+
+def all_study_info(f, trait, study):
+    print "Retrieving info for study:", study
+    study_group = f.get(trait + "/" + study)
+    if study_group is not None:
+        return collect_all_study_group_info(study_group)
+    else:
+        print "Not valid trait/study combination"
+        exit(1)
+
+
+def all_chromosome_info(f, chromosome, trait):
+    print "Retrieving info for chromosome:", chromosome
+    if trait is None:
+        info_array = retrieve_all_info(f)
+    else:
+        trait_group = f.get(trait)
+        if trait_group is not None:
+            info_array = retrieve_all_info_for_trait(trait_group)
+
+    print info_array[:,2]
+    chr_np = np.array(info_array[:,2], dtype=float)
+    mask = chr_np == float(chromosome)
+
+    return info_array[mask]
+
+
+def all_snp_info(f, snp, trait):
+    info_array = None
+    if trait is None:
+        for x, trait_group in f.iteritems():
+            if info_array is None:
+                info_array = all_snp_info_from_trait(snp, trait_group)
+            else:
+                info_array = np.row_stack((info_array, all_snp_info_from_trait(snp, trait_group)))
+    else:
+        trait_group = f.get(trait)
+        if trait_group is not None:
+            info_array = all_snp_info_from_trait(snp, trait_group)
+        else:
+            print "Trait does not exist"
+            exit(1)
+    return info_array
+
+
+def all_snp_info_from_trait(snp, trait_group):
+    info_array = None
+    for y, study_group in trait_group.iteritems():
+        snp_dataset = study_group.get(snp)
+        names = snp_dataset.name.split("/")
+        if snp_dataset is not None:
+            row = np.array([[names[3], snp_dataset[0], snp_dataset[1], snp_dataset[2], study_group.name]])
+            if info_array is None:
+                info_array = row
+            else:
+                info_array = np.row_stack((info_array, row))
+    return info_array
+
+
+def collect_all_study_group_info(study_group):
+    info_array = None
+    for y, snp_dataset in study_group.iteritems():
+        names = snp_dataset.name.split("/")
+        row = np.array([[names[3], snp_dataset[0], snp_dataset[1], snp_dataset[2], study_group.name]])
+        if info_array is None:
+            info_array = row
+        else:
+            info_array = np.row_stack((info_array, row))
+    return info_array
+
+
+if __name__ == "__main__":
+    main()
