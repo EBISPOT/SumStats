@@ -62,8 +62,7 @@ def all_trait_info(f, trait):
             pvals.extend(study_group["pvals"][:])
             chr.extend(study_group["chr"][:])
             orvals.extend(study_group["or"][:])
-            for i in xrange(len(snps_temp)):
-                belongs_to = np.append(belongs_to, study_group.name)
+            belongs_to = np.append(belongs_to, [study_group.name for i in xrange(len(snps_temp))])
         return np.column_stack((snps, pvals, chr, orvals, belongs_to))
     else:
         print "Trait does not exist", trait
@@ -125,8 +124,7 @@ def retrieve_all_info(f):
             pvals.extend(study_group["pvals"][:])
             chr.extend(study_group["chr"][:])
             orvals.extend(study_group["or"][:])
-            for i in xrange(len(snps_temp)):
-                belongs_to = np.append(belongs_to, study_group.name)
+            belongs_to = np.append(belongs_to, [study_group.name for i in xrange(len(snps_temp))])
 
     return np.column_stack((snps, pvals, chr, orvals, belongs_to))
 

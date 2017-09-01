@@ -75,7 +75,7 @@ def main():
         # set current N
         N = hash_table.shape[0]
         # for each row in hash_table create the row index that holds the number of columns it has filled
-        hash_table_indexer = create_table_row_indexer(hash_table)
+        hash_table_indexer = create_table_row_indexer(hash_table, N)
         # if the number of columns is full we need to double the rows of hash_table and recalculate the hashes
         max_cols = max(hash_table_indexer)
         if (len(snparray) / N) + max_cols >= M:

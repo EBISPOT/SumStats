@@ -1,17 +1,32 @@
+"""
+    Database design looks like:
+    a 2D array where each element is a triple: (SNPid, p-value, study)
+
+    It only makes sense to query for all the info about a SNP
+    Can filter afterwords by study
+    Can apply thresholds to p-value
+"""
+
+
 import h5py
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('HDF5_output_file', help = 'The name of the HDF5 file to be created/updated')
-parser.add_argument('study_name', help = 'The name of the first group this will belong to')
 parser.add_argument('snp', help = 'The SNP I am looking for')
+parser.add_argument('-study', help='The study I am looking for')
+parser.add_argument('-under', help='p-value under this threshold')
+parser.add_argument('-over', help='p-value under this threshold')
 args = parser.parse_args()
 
 h5file = args.HDF5_output_file
-study = args.study_name
 snp = args.snp
+study = args.study
+under = args.under
+over = args.over
 
 f = h5py.File(h5file, 'r')
+
 
 def snp_hash(snp):
     # p is the first prime after the max number of characters I can get [a-zA-Z0-9] makes 62 unique characters
@@ -22,15 +37,30 @@ def snp_hash(snp):
 
     h = sum(pow(p, i) * s for i, s in enumerate(SNP))
 
-    return h % N #MODULO
+    return h % N # MODULO
 
 
 dataset = f.get("hash_table")
 N = dataset.shape[0]
-print "N is: %s" % (N)
+print dataset.shape
 snp_h = snp_hash(snp)
 print "snp_h is: %s" % (snp_h)
-array = dataset[snp_h]
-snp = array[array["snp"] == snp]
 
-print snp
+# get all the elements that exist in this bucket/row
+array = dataset[snp_h]
+
+# filter the SNP we want
+info_array = array[array["snp"] == snp]
+
+# filter the study if it is specified
+if study is not None:
+    info_array = info_array[info_array["study"] == study]
+
+# filter p-value threshold if specified
+if over is not None:
+    info_array = info_array[info_array["pval"] >= float(over)]
+
+if under is not None:
+    info_array = info_array[info_array["pval"] <= float(under)]
+
+print info_array
