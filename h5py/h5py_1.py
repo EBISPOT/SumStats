@@ -18,40 +18,72 @@ import h5py
 from numpy import genfromtxt
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('CSV_input_file', help = 'The file to be loaded')
-parser.add_argument('HDF5_output_file', help = 'The name of the HDF5 file to be created/updated')
-parser.add_argument('study_name', help = 'The name of the first group this will belong to')
-parser.add_argument('trait_name', help = 'The name of the trait the SNPs of this file are related to')
-args = parser.parse_args()
 
-csvf = args.CSV_input_file
-h5file = args.HDF5_output_file
-study = args.study_name
-trait = args.trait_name
+class Loader():
 
-# snp id is a string, so dtype = None
-snparray = genfromtxt(csvf, delimiter = '\t', usecols = (0), dtype = None)
-pvals = genfromtxt(csvf, delimiter = '\t', usecols = (1), dtype = float)
-chr = genfromtxt(csvf, delimiter = '\t', usecols = (2), dtype = int)
-or_array = genfromtxt(csvf, delimiter = '\t', usecols = (3), dtype = float)
+    def __init__(self, csvf, h5file, study, trait, snparray=None, pvals=None, chr=None, or_array=None):
+        self.h5file = h5file
+        self.study = study
+        self.trait = trait
 
-print "Loaded csv file: ", csvf
+        if csvf is None:
+            self.snparray = snparray
+            self.pvals = pvals
+            self.chr = chr
+            self.or_array = or_array
+        else:
+            # snp id is a string, so dtype = None
+            self.snparray = genfromtxt(csvf, delimiter = '\t', usecols = (0), dtype = None)
+            self.pvals = genfromtxt(csvf, delimiter = '\t', usecols = (1), dtype = float)
+            self.chr = genfromtxt(csvf, delimiter = '\t', usecols = (2), dtype = int)
+            self.or_array = genfromtxt(csvf, delimiter = '\t', usecols = (3), dtype = float)
 
-# Open the file with read/write permissions and create if it doesn't exist
-f = h5py.File(h5file, 'a')
+    def load(self):
 
-if trait in f:
-    trait_group = f[trait]
-    if study in trait_group:
-        study_group = trait_group[study]
-    else:
-        study_group = trait_group.create_group(study)
-else:
-    study_group = f.create_group(trait + "/" + study)
+        h5file = self.h5file
+        study = self.study
+        trait = self.trait
+
+        # snp id is a string, so dtype = None
+        snparray = self.snparray
+        pvals = self.pvals
+        chr = self.chr
+        or_array = self.or_array
+
+        # Open the file with read/write permissions and create if it doesn't exist
+        f = h5py.File(h5file, 'a')
+
+        if trait in f:
+            trait_group = f[trait]
+            if study in trait_group:
+                study_group = trait_group[study]
+            else:
+                study_group = trait_group.create_group(study)
+        else:
+            study_group = f.create_group(trait + "/" + study)
 
 
-study_group.create_dataset('snps', data=snparray)
-study_group.create_dataset('pvals', data=pvals)
-study_group.create_dataset('chr', data=chr)
-study_group.create_dataset('or', data=or_array)
+        study_group.create_dataset('snps', data=snparray)
+        study_group.create_dataset('pvals', data=pvals)
+        study_group.create_dataset('chr', data=chr)
+        study_group.create_dataset('or', data=or_array)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('CSV_input_file', help = 'The file to be loaded')
+    parser.add_argument('HDF5_output_file', help = 'The name of the HDF5 file to be created/updated')
+    parser.add_argument('study_name', help = 'The name of the first group this will belong to')
+    parser.add_argument('trait_name', help = 'The name of the trait the SNPs of this file are related to')
+    args = parser.parse_args()
+
+    csvf = args.CSV_input_file
+    h5file = args.HDF5_output_file
+    study = args.study_name
+    trait = args.trait_name
+
+    loader = Loader(csvf, h5file, study, trait)
+    loader.load()
+
+if __name__ == '__main__':
+    main()
