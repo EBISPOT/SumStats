@@ -12,6 +12,7 @@ import h5py
 import numpy as np
 from numpy import genfromtxt
 import argparse
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('CSV_input_file', help = 'The file to be loaded')
@@ -24,6 +25,7 @@ csvf = args.CSV_input_file
 h5file = args.HDF5_output_file
 study = args.study_name
 # trait = args.trait_name
+print(time.strftime('%a %H:%M:%S'))
 
 # snp id is a string, so dtype = None
 snparray = genfromtxt(csvf, delimiter = '\t', usecols = (0), dtype = None)
@@ -32,6 +34,8 @@ chrarray = genfromtxt(csvf, delimiter = '\t', usecols = (2), dtype = int)
 orarray = genfromtxt(csvf, delimiter = '\t', usecols = (3), dtype = float)
 
 print "Loaded csv file: ", csvf
+print(time.strftime('%a %H:%M:%S'))
+
 
 # Open the file with read/write permissions and create if it doesn't exist
 f = h5py.File(h5file, 'a')
@@ -54,7 +58,8 @@ if "Y" not in f:
 if "MT" not in f:
     f.create_group("MT")
 
-for i in range(1,7):
+for i in range(1,2):
+    print(time.strftime('%a %H:%M:%S'))
     print "Chromosome:", i
     # get the array slice where chromosome position == i
     # from that slice keep the first column, i.e. the snpvalues (we know the chromosome)
@@ -68,7 +73,8 @@ for i in range(1,7):
         for j in xrange(len(snps)):
 
             if j % 1000000 == 0:
-                print "Loaded %s so far...", j
+                print "Loaded %s so far..." % (j)
+                print(time.strftime('%a %H:%M:%S'))
 
             snp_group = chrom_group.get(snps[j])
             if snp_group is None:

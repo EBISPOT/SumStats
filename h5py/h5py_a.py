@@ -41,14 +41,14 @@ resize = False
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('CSV_input_file', help='The file to be loaded')
-    parser.add_argument('HDF5_output_file', help='The name of the HDF5 file to be created/updated')
-    parser.add_argument('study_name', help='The name of the first group this will belong to')
+    parser.add_argument('-tsv', help='The file to be loaded', required=True)
+    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated', required=True)
+    parser.add_argument('-study', help='The name of the first group this will belong to', required=True)
     args = parser.parse_args()
 
-    csvf = args.CSV_input_file
-    h5file = args.HDF5_output_file
-    study = args.study_name
+    csvf = args.tsv
+    h5file = args.h5file
+    study = args.study
 
     print(time.strftime('%a %H:%M:%S'))
 

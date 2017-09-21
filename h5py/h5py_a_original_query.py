@@ -39,27 +39,28 @@ def main():
     chr_group = get_chromosome_group(f, chr)
 
     if snp is None:
-        snps = None
-        pvals = None
-        orvals = None
-        studies = None
-
+        snps = []
+        pvals = []
+        orvals = []
+        studies = []
         for name, snp_group in chr_group.iteritems():
-            if snps is None:
-                pvals = snp_group.get("pvals")[:]
-                orvals = snp_group.get("or")[:]
-                studies = snp_group.get("studies")[:]
-                snps = [name for i in xrange(pvals)]
-            else:
-                pvals_tmp = snp_group.get("pvals")[:]
-                snps = np.concatenate(snps, [name for i in xrange(pvals_tmp)])
-                pvals = np.concatenate(pvals, pvals_tmp)
-                orvals = np.concatenate(orvals, snp_group.get("or")[:])
-                studies = np.concatenate(studies, snp_group.get("studies")[:])
+            pvals_tmp = snp_group.get("pvals")[:]
+            pvals.extend(pvals_tmp)
+            orvals.extend(snp_group.get("or")[:])
+            studies.extend(snp_group.get("studies")[:])
+            snps.extend(([name for i in range(0, len(pvals_tmp))]))
+            if len(snps) % 100000 == 0:
+                print "Loaded %s so far..." % (len(snps))
 
-        pvals, orvals, studies, snps = filter_by_study(study, pvals, orvals, studies, snps)
-        pvals, orvals, studies, snps = filter_by_pval_under(under, pvals, orvals, studies, snps)
-        pvals, orvals, studies, snps = filter_by_pval_over(over, pvals, orvals, studies, snps)
+        print "Filtering study starts..."
+        pvals, orvals, studies, snps = filter_by_study(study, np.asarray(pvals), np.asarray(orvals), np.asarray(studies), snps=np.asarray(snps))
+        print "Filtering study done..."
+        print "Filtering under starts..."
+        pvals, orvals, studies, snps = filter_by_pval_under(under, pvals, orvals, studies, snps=snps)
+        print "Filtering under done..."
+        print "Filtering over starts..."
+        pvals, orvals, studies, snps = filter_by_pval_over(over, pvals, orvals, studies, snps=snps)
+        print "Filtering over done..."
 
         print "snps"
         print snps
@@ -114,7 +115,10 @@ def filter_by_study(study, pvals, orvals, studies, snps=None):
         if snps is not None:
             snps = snps[mask]
             return pvals, orvals, studies, snps
-    return pvals, orvals, studies
+    if snps is None:
+        return pvals, orvals, studies
+    else:
+        return pvals, orvals, studies, snps
 
 
 def filter_by_pval_under(under, pvals, orvals, studies, snps=None):
@@ -126,7 +130,10 @@ def filter_by_pval_under(under, pvals, orvals, studies, snps=None):
         if snps is not None:
             snps = snps[mask]
             return pvals, orvals, studies, snps
-    return pvals, orvals, studies
+    if snps is None:
+        return pvals, orvals, studies
+    else:
+        return pvals, orvals, studies, snps
 
 
 def filter_by_pval_over(over, pvals, orvals, studies, snps=None):
@@ -138,7 +145,10 @@ def filter_by_pval_over(over, pvals, orvals, studies, snps=None):
         if snps is not None:
             snps = snps[mask]
             return pvals, orvals, studies, snps
-    return pvals, orvals, studies
+    if snps is None:
+        return pvals, orvals, studies
+    else:
+        return pvals, orvals, studies, snps
 
 
 if __name__ == "__main__":

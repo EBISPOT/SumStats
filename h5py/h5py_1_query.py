@@ -26,8 +26,7 @@
 import h5py
 import numpy as np
 import query_utils as qu
-import pandas as pd
-import codecs, json
+
 
 def main():
 
@@ -77,31 +76,10 @@ def main():
 def all_trait_info(f, trait):
     print "Retrieving info for trait:", trait
     trait_group = f.get(trait)
-    snps = None
-    pvals = None
-    chr = None
-    orvals = None
-    belongs_to = None
-    if trait_group is not None:
-        print "looping through trait"
-        for study_group_name, study_group in trait_group.iteritems():
-            snps_r, pvals_r, chr_r, orvals_r, belongs_to_r = retrieve_all_info_from_study(study_group_name, study_group)
-            if snps is None:
-                snps = snps_r
-                pvals = pvals_r
-                chr = chr_r
-                orvals = orvals_r
-                belongs_to = belongs_to_r
-            else:
-                snps = np.concatenate((snps, snps_r))
-                pvals = np.concatenate((pvals, pvals_r))
-                chr = np.concatenate((chr, chr_r))
-                orvals = np.concatenate((orvals, orvals_r))
-                belongs_to = np.concatenate((belongs_to, belongs_to_r))
-        return snps, pvals, chr, orvals, belongs_to
-    else:
+    if trait_group is None:
         print "Trait does not exist", trait
         exit(1)
+    return retrieve_all_trait_info(trait_group)
 
 
 def all_study_info(f, trait, study):
@@ -123,7 +101,7 @@ def all_snp_info(f, snp, trait=None):
 
     mask = snps == snp
 
-    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(np.asarray(belongs_to, dtype=None), mask)
+    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(belongs_to, mask)
 
 
 def all_chromosome_info(f, chromosome, trait=None):
@@ -135,32 +113,43 @@ def all_chromosome_info(f, chromosome, trait=None):
 
     mask = chr == float(chromosome)
 
-    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(np.asarray(belongs_to, dtype = None), mask)
+    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(belongs_to, mask)
 
 
 def retrieve_all_info(f):
-    snps = None
-    pvals = None
-    chr = None
-    orvals = None
-    belongs_to = None
+    snps = []
+    pvals = []
+    chr = []
+    orvals = []
+    belongs_to = []
     for x, trait_group in f.iteritems():
-        for study_group_name, study_group in trait_group.iteritems():
-            snps_r, pvals_r, chr_r, orvals_r, belongs_to_r = retrieve_all_info_from_study(study_group_name, study_group)
-            if snps is None:
-                snps = snps_r
-                pvals = pvals_r
-                chr = chr_r
-                orvals = orvals_r
-                belongs_to = belongs_to_r
-            else:
-                snps = np.concatenate((snps, snps_r))
-                pvals = np.concatenate((pvals, pvals_r))
-                chr = np.concatenate((chr, chr_r))
-                orvals = np.concatenate((orvals, orvals_r))
-                belongs_to = np.concatenate((belongs_to, belongs_to_r))
+        snps_r, pvals_r, chr_r, orvals_r, belongs_to_r = retrieve_all_trait_info(trait_group)
+        snps.extend(snps_r)
+        pvals.extend(pvals_r)
+        chr.extend(chr_r)
+        orvals.extend(orvals_r)
+        belongs_to.extend(belongs_to_r)
 
-    return snps, pvals, chr, orvals, belongs_to
+    return np.asarray(snps), np.asarray(pvals), np.asarray(chr), np.asarray(orvals), np.asarray(belongs_to)
+
+
+def retrieve_all_trait_info(trait_group):
+    snps = []
+    pvals = []
+    chr = []
+    orvals = []
+    belongs_to = []
+
+    print "looping through trait"
+    for study_group_name, study_group in trait_group.iteritems():
+        snps_r, pvals_r, chr_r, orvals_r, belongs_to_r = retrieve_all_info_from_study(study_group_name, study_group)
+        snps.extend(snps_r)
+        pvals.extend(pvals_r)
+        chr.extend(chr_r)
+        orvals.extend(orvals_r)
+        belongs_to.extend(belongs_to_r)
+
+    return np.asarray(snps), np.asarray(pvals), np.asarray(chr), np.asarray(orvals), np.asarray(belongs_to)
 
 
 def retrieve_all_info_from_study(study_group_name, study_group):
@@ -169,8 +158,7 @@ def retrieve_all_info_from_study(study_group_name, study_group):
     chr = study_group["chr"][:]
     orvals = study_group["or"][:]
     belongs_to = [study_group_name for i in xrange(len(snps))]
-    return snps, pvals, chr, orvals, belongs_to
-
+    return snps, pvals, chr, orvals, np.asarray(belongs_to)
 
 
 if __name__ == "__main__":

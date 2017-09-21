@@ -41,8 +41,8 @@ def argument_checker():
 
 def argument_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('h5file', help='The name of the HDF5 file')
-    parser.add_argument('query', help='The nmber of the query to perform')
+    parser.add_argument('-h5file', help='The name of the HDF5 file', required=True)
+    parser.add_argument('-query', help='The nmber of the query to perform', required=True)
     parser.add_argument('-study', help='The study I am looking for')
     parser.add_argument('-trait', help='The trait I am looking for')
     parser.add_argument('-snp', help='The SNP I am looking for')
