@@ -75,6 +75,25 @@ def filter_all_info(info_array, pv_np, under, over):
     return info_array
 
 
+def filter_vector(vector, mask):
+    vector = vector[mask]
+    return vector
+
+
+def pval_mask(pv_np, under, over):
+    if under is not None:
+        mask_u = threshold(under, "u", pv_np)
+        if over is None:
+            return mask_u
+    if over is not None:
+        mask_o = threshold(over, "o", pv_np)
+        if under is None:
+            return mask_o
+
+        return [all(tup) for tup in zip(mask_u, mask_o)]
+    return
+
+
 def print_all_info(info_array):
     print info_array.shape
     print "snps \n", info_array[:,0]

@@ -29,7 +29,7 @@ import argparse
 
 # Create my compound type triple to be stored in the hash_table
 vlen = h5py.special_dtype(vlen=str)
-dt = np.dtype([("snp", vlen), ("pval", np.float32), ("study", vlen)])
+dt = np.dtype([("snp", vlen), ("pval", np.float32), ("chr", np.int), ("or", np.float32), ("study", vlen)])
 
 # the number of columns for each row, should not change
 M = 10000
@@ -52,8 +52,10 @@ def main():
 
     print(time.strftime('%a %H:%M:%S'))
 
-    pvalarray = genfromtxt(csvf, delimiter='\t', usecols=(1))
     snparray = genfromtxt(csvf, delimiter='\t', usecols=(0), dtype=object)
+    pvalarray = genfromtxt(csvf, delimiter='\t', usecols=(1), dtype = float)
+    chrarray = genfromtxt(csvf, delimiter = '\t', usecols = (2), dtype = int)
+    orarray = genfromtxt(csvf, delimiter = '\t', usecols = (3), dtype = float)
 
     print "Loaded csv file: ", csvf
     print(time.strftime('%a %H:%M:%S'))
@@ -90,6 +92,8 @@ def main():
             print "Loaded %s so far..." % (i)
         snp = snparray[i]
         pval = pvalarray[i]
+        chr = chrarray[i]
+        or_val = orarray[i]
 
         n = snp_hash(snp)
         m = hash_table_indexer[n]
@@ -97,6 +101,8 @@ def main():
         try:
             hash_table[n][m]["snp"] = snp
             hash_table[n][m]["pval"] = pval
+            hash_table[n][m]["chr"] = chr
+            hash_table[n][m]["or"] = or_val
             hash_table[n][m]["study"] = study
             hash_table_indexer[n] += 1
         except IndexError:
@@ -163,6 +169,8 @@ def table_row_expander(hash_table):
             m = new_hash_table_indexer[n]
             new_hash_table[n][m]["snp"] = snp
             new_hash_table[n][m]["pval"] = element["pval"]
+            new_hash_table[n][m]["chr"] = element["chr"]
+            new_hash_table[n][m]["or"] = element["or"]
             new_hash_table[n][m]["study"] = element["study"]
             new_hash_table_indexer[n] += 1
     print "done moving the data"
@@ -173,7 +181,7 @@ def table_row_expander(hash_table):
 
 
 def create_table_with_empty_elements(n, m):
-    emptydt = (None, 0., None)
+    emptydt = (None, 0., 0, 0., None)
     table = np.empty((n, m), dtype=dt)
     for i in xrange(n):
         for j in xrange(m):

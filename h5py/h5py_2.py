@@ -50,4 +50,8 @@ else:
 # 2. save that dataset under the SNPs name
 for i in xrange(len(snparray)):
     dataset = np.array([pvals[i], chr[i], or_array[i]])
-    study_group.create_dataset(snparray[i], data=dataset)
+    snpdset = study_group.get(snparray[i])
+    if snpdset is not None:
+        print "Study has snp more than once", study, snparray[i]
+    else:
+        study_group.create_dataset(snparray[i], data=dataset)

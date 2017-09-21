@@ -26,7 +26,8 @@
 import h5py
 import numpy as np
 import query_utils as qu
-
+import pandas as pd
+import codecs, json
 
 def main():
 
@@ -37,39 +38,67 @@ def main():
     f = h5py.File(args.h5file, mode="r")
 
     if args.query == "1":
-        info_array = all_trait_info(f, args.trait)
+        # info_array = all_trait_info(f, args.trait)
+        snps, pvals, chr, orvals, belong_to = all_trait_info(f, args.trait)
     elif args.query == "2":
-        info_array = all_study_info(f, args.trait, args.study)
+        snps, pvals, chr, orvals, belong_to = all_study_info(f, args.trait, args.study)
     elif args.query == "3":
-        info_array = all_snp_info(f, args.snp)
+        snps, pvals, chr, orvals, belong_to = all_snp_info(f, args.snp)
     elif args.query == "4":
-        info_array = all_chromosome_info(f, args.chr)
+        snps, pvals, chr, orvals, belong_to = all_chromosome_info(f, args.chr)
     elif args.query == "5":
-        info_array = all_snp_info(f, args.snp, args.trait)
+        snps, pvals, chr, orvals, belong_to = all_snp_info(f, args.snp, args.trait)
     elif args.query == "6":
-        info_array = all_chromosome_info(f, args.chr, args.trait)
+        snps, pvals, chr, orvals, belong_to = all_chromosome_info(f, args.chr, args.trait)
 
-    # we assume that they all give back an info_array that contains all the information in a matrix that has gone
-    # through column stack and that the second column has the p-values so we can filter based on that
+    mask = qu.pval_mask(pvals, args.under, args.over)
+    if mask is not None:
+        print qu.filter_vector(snps, mask)
+        print qu.filter_vector(pvals, mask)
+        print qu.filter_vector(chr, mask)
+        print qu.filter_vector(orvals, mask)
+        print qu.filter_vector(np.asarray(belong_to, dtype = None), mask)
+    else:
+        print snps
+        print pvals
+        print chr
+        print orvals
+        print belong_to
 
-    pval_np = np.asarray(info_array[:,1], dtype=float)
-    info_array = qu.filter_all_info(info_array, pval_np, args.under, args.over)
-    qu.print_all_info(info_array)
+    # pval_np = np.asarray(info_array[:,1], dtype=float)
+    # info_array = qu.filter_all_info(info_array, pval_np, args.under, args.over)
+    # b = info_array.tolist()
+    # file_path = "./path.json"
+    # json.dump(b, codecs.open(file_path, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
+
+    # qu.print_all_info(info_array)
 
 
 def all_trait_info(f, trait):
     print "Retrieving info for trait:", trait
     trait_group = f.get(trait)
-    info_array = None
+    snps = None
+    pvals = None
+    chr = None
+    orvals = None
+    belongs_to = None
     if trait_group is not None:
         print "looping through trait"
         for study_group_name, study_group in trait_group.iteritems():
-            array = retrieve_all_info_from_study(study_group_name, study_group)
-            if info_array is None:
-                info_array = array
+            snps_r, pvals_r, chr_r, orvals_r, belongs_to_r = retrieve_all_info_from_study(study_group_name, study_group)
+            if snps is None:
+                snps = snps_r
+                pvals = pvals_r
+                chr = chr_r
+                orvals = orvals_r
+                belongs_to = belongs_to_r
             else:
-                info_array = np.row_stack((info_array, array))
-        return info_array
+                snps = np.concatenate((snps, snps_r))
+                pvals = np.concatenate((pvals, pvals_r))
+                chr = np.concatenate((chr, chr_r))
+                orvals = np.concatenate((orvals, orvals_r))
+                belongs_to = np.concatenate((belongs_to, belongs_to_r))
+        return snps, pvals, chr, orvals, belongs_to
     else:
         print "Trait does not exist", trait
         exit(1)
@@ -88,40 +117,50 @@ def all_study_info(f, trait, study):
 def all_snp_info(f, snp, trait=None):
     print "Retrieving info for snp:", snp
     if trait is None:
-        info_array = retrieve_all_info(f)
+        snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
     else:
-        info_array = all_trait_info(f, trait)
+        snps, pvals, chr, orvals, belongs_to = all_trait_info(f, trait)
 
-    snps_np = np.asarray(info_array[:,0], dtype=None)
-    mask = snps_np == snp
+    mask = snps == snp
 
-    return info_array[mask]
+    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(np.asarray(belongs_to, dtype=None), mask)
 
 
 def all_chromosome_info(f, chromosome, trait=None):
     print "Retrieving info for chromosome:", chromosome
     if trait is None:
-        info_array = retrieve_all_info(f)
+        snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
     else:
-        info_array = all_trait_info(f, trait)
+        snps, pvals, chr, orvals, belongs_to = all_trait_info(f, trait)
 
-    chr_np = np.asarray(info_array[:,2], dtype=float)
-    mask = chr_np == float(chromosome)
+    mask = chr == float(chromosome)
 
-    return info_array[mask]
+    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(np.asarray(belongs_to, dtype = None), mask)
 
 
 def retrieve_all_info(f):
-    info_array = None
+    snps = None
+    pvals = None
+    chr = None
+    orvals = None
+    belongs_to = None
     for x, trait_group in f.iteritems():
         for study_group_name, study_group in trait_group.iteritems():
-            array = retrieve_all_info_from_study(study_group_name, study_group)
-            if info_array is None:
-                info_array = array
+            snps_r, pvals_r, chr_r, orvals_r, belongs_to_r = retrieve_all_info_from_study(study_group_name, study_group)
+            if snps is None:
+                snps = snps_r
+                pvals = pvals_r
+                chr = chr_r
+                orvals = orvals_r
+                belongs_to = belongs_to_r
             else:
-                info_array = np.row_stack((info_array, array))
+                snps = np.concatenate((snps, snps_r))
+                pvals = np.concatenate((pvals, pvals_r))
+                chr = np.concatenate((chr, chr_r))
+                orvals = np.concatenate((orvals, orvals_r))
+                belongs_to = np.concatenate((belongs_to, belongs_to_r))
 
-    return info_array
+    return snps, pvals, chr, orvals, belongs_to
 
 
 def retrieve_all_info_from_study(study_group_name, study_group):
@@ -130,7 +169,8 @@ def retrieve_all_info_from_study(study_group_name, study_group):
     chr = study_group["chr"][:]
     orvals = study_group["or"][:]
     belongs_to = [study_group_name for i in xrange(len(snps))]
-    return np.column_stack((snps, pvals, chr, orvals, belongs_to))
+    return snps, pvals, chr, orvals, belongs_to
+
 
 
 if __name__ == "__main__":
