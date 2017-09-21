@@ -44,21 +44,24 @@ def snp_hash(snp):
 
 
 dataset = f.get("hash_table")
-N = dataset.shape[0]
-print dataset.shape
-snp_h = snp_hash(snp)
-print "snp_h is: %s" % (snp_h)
 
 # get all the elements that exist in this bucket/row
-array = dataset[snp_h]
-
-# filter the chromosome we want
-if chr is not None:
-    info_array = array[array["chr"] == chr]
 
 # filter the SNP we want
 if snp is not None:
+    N = dataset.shape[0]
+    print dataset.shape
+    snp_h = snp_hash(snp)
+    print "snp_h is: %s" % (snp_h)
+    array = dataset[snp_h]
     info_array = array[array["snp"] == snp]
+else:
+    info_array = dataset[:]
+
+# filter the chromosome we want
+if chr is not None:
+    info_array = info_array[info_array["chr"] == chr]
+
 
 # filter the study if it is specified
 if study is not None:
