@@ -3,7 +3,8 @@
     a 2D array where each element is a triple: (SNPid, p-value, study)
 
     It only makes sense to query for all the info about a SNP
-    Can filter afterwords by study
+    (or all the info about a chromosome especially if we split the snps into chromosome groups!)
+    Can filter afterwords by study and or chromosome
     Can apply thresholds to p-value
 """
 
@@ -12,15 +13,17 @@ import h5py
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('HDF5_output_file', help = 'The name of the HDF5 file to be created/updated')
-parser.add_argument('snp', help = 'The SNP I am looking for')
+parser.add_argument('-h5file', help = 'The name of the HDF5 file to be created/updated', required=True)
+parser.add_argument('-snp', help = 'The SNP I am looking for')
+parser.add_argument('-chr', help='The chromosome I am looking for')
 parser.add_argument('-study', help='The study I am looking for')
 parser.add_argument('-under', help='p-value under this threshold')
 parser.add_argument('-over', help='p-value under this threshold')
 args = parser.parse_args()
 
-h5file = args.HDF5_output_file
+h5file = args.h5file
 snp = args.snp
+chr = args.chr
 study = args.study
 under = args.under
 over = args.over
@@ -49,8 +52,13 @@ print "snp_h is: %s" % (snp_h)
 # get all the elements that exist in this bucket/row
 array = dataset[snp_h]
 
+# filter the chromosome we want
+if chr is not None:
+    info_array = array[array["chr"] == chr]
+
 # filter the SNP we want
-info_array = array[array["snp"] == snp]
+if snp is not None:
+    info_array = array[array["snp"] == snp]
 
 # filter the study if it is specified
 if study is not None:
