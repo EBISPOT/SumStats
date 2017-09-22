@@ -78,7 +78,7 @@ def all_trait_info(f, trait):
     trait_group = f.get(trait)
     if trait_group is None:
         print "Trait does not exist", trait
-        exit(1)
+        raise SystemExit(1)
     return retrieve_all_trait_info(trait_group)
 
 
@@ -89,7 +89,7 @@ def all_study_info(f, trait, study):
         return retrieve_all_info_from_study(study, study_group)
     else:
         print "Not valid trait/study combination"
-        exit(1)
+        raise SystemExit(1)
 
 
 def all_snp_info(f, snp, trait=None):

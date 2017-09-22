@@ -99,6 +99,11 @@ def main():
         m = hash_table_indexer[n]
         # Insert inserts a column right before the given indice
         try:
+            if n + 1 >= M:
+                print "expanding mid entry"
+                hash_table, hash_table_indexer = table_row_expander(hash_table)
+                n = snp_hash(snp)
+                m = hash_table_indexer[n]
             hash_table[n][m]["snp"] = snp
             hash_table[n][m]["pval"] = pval
             hash_table[n][m]["chr"] = chr
@@ -107,6 +112,7 @@ def main():
             hash_table_indexer[n] += 1
         except IndexError:
             print "SHOULD NOT BE HERE!"
+            raise SystemExit(1)
 
     print "Done loading the data..."
     print "Start saving the data..."

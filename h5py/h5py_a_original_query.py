@@ -93,7 +93,7 @@ def get_snp_group(chr_group, snp):
     snp_group = chr_group.get(snp)
     if snp_group is None:
         print "snp %s does not exist for chromosome %s" % (snp, chr_group.name)
-        exit(1)
+        raise SystemExit(1)
     return snp_group
 
 
@@ -101,7 +101,7 @@ def get_chromosome_group(f, chr):
     chr_group = f.get(chr)
     if chr_group is None:
         print "Chromosome does not exist in file!"
-        exit(1)
+        raise SystemExit(1)
     return chr_group
 
 

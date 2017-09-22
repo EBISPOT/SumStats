@@ -11,6 +11,7 @@
 
 import h5py
 import argparse
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-h5file', help = 'The name of the HDF5 file to be created/updated', required=True)
@@ -49,19 +50,27 @@ dataset = f.get("hash_table")
 
 # filter the SNP we want
 if snp is not None:
-    N = dataset.shape[0]
-    print dataset.shape
-    snp_h = snp_hash(snp)
-    print "snp_h is: %s" % (snp_h)
-    array = dataset[snp_h]
-    info_array = array[array["snp"] == snp]
-else:
+        N = dataset.shape[0]
+        print dataset.shape
+        snp_h = snp_hash(snp)
+        print "snp_h is: %s" % (snp_h)
+        array = dataset[snp_h]
+        info_array = array[array["snp"] == snp]
+elif chr is not None:
+    print(time.strftime('%a %H:%M:%S'))
+    print "Starting to load whole dataset..."
     info_array = dataset[:]
+    print "Loaded whole dataset done!"
+    print(time.strftime('%a %H:%M:%S'))
 
-# filter the chromosome we want
-if chr is not None:
-    info_array = info_array[info_array["chr"] == chr]
-
+    print "Filtering out chromosome starting..."
+    print(time.strftime('%a %H:%M:%S'))
+    info_array = info_array[info_array["chr"] == int(chr)]
+    print(time.strftime('%a %H:%M:%S'))
+    print "Filtering chromosome done!"
+else:
+    print "You need to define specify chromosome and get all the information for that chromosome back"
+    print "Or you need to specify a SNP and get all the info for that SNP back"
 
 # filter the study if it is specified
 if study is not None:
