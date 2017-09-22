@@ -62,7 +62,6 @@ class Loader():
         else:
             study_group = f.create_group(trait + "/" + study)
 
-
         study_group.create_dataset('snps', data=snparray)
         study_group.create_dataset('pvals', data=pvals)
         study_group.create_dataset('chr', data=chr)
