@@ -38,17 +38,17 @@ def main():
 
     if args.query == "1":
         # info_array = all_trait_info(f, args.trait)
-        snps, pvals, chr, orvals, studies = all_trait_info(f, args.trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_trait_info(f, args.trait)
     elif args.query == "2":
-        snps, pvals, chr, orvals, studies = all_study_info(f, args.trait, args.study)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_study_info(f, args.trait, args.study)
     elif args.query == "3":
-        snps, pvals, chr, orvals, studies = all_snp_info(f, args.snp)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_snp_info(f, args.snp)
     elif args.query == "4":
-        snps, pvals, chr, orvals, studies = all_chromosome_info(f, args.chr)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_chromosome_info(f, args.chr)
     elif args.query == "5":
-        snps, pvals, chr, orvals, studies = all_snp_info(f, args.snp, args.trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_snp_info(f, args.snp, args.trait)
     elif args.query == "6":
-        snps, pvals, chr, orvals, studies = all_chromosome_info(f, args.chr, args.trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_chromosome_info(f, args.chr, args.trait)
 
     mask = qu.pval_mask(pvals, args.under, args.over)
     if mask is not None:
@@ -57,12 +57,18 @@ def main():
         print qu.filter_vector(chr, mask)
         print qu.filter_vector(orvals, mask)
         print qu.filter_vector(np.asarray(studies, dtype = None), mask)
+        print qu.filter_vector(bp, mask)
+        print qu.filter_vector(effect, mask)
+        print qu.filter_vector(other, mask)
     else:
         print snps
         print pvals
         print chr
         print orvals
         print studies
+        print bp
+        print effect
+        print other
 
     # pval_np = np.asarray(info_array[:,1], dtype=float)
     # info_array = qu.filter_all_info(info_array, pval_np, args.under, args.over)
