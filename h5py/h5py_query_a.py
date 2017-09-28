@@ -43,6 +43,7 @@ def query_for_block(chr_group, block_size, block_lower, block_upper):
     bp = []
     effect = []
     other = []
+
     for block_group in block_groups:
         for name, snp_group in block_group.iteritems():
             snps_r, pvals_r, orvals_r, studies_r, bp_r, effect_r, other_r = get_snp_group_info(snp_group, name)

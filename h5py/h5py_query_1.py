@@ -38,17 +38,17 @@ def main():
 
     if args.query == "1":
         # info_array = all_trait_info(f, args.trait)
-        snps, pvals, chr, orvals, belong_to = all_trait_info(f, args.trait)
+        snps, pvals, chr, orvals, studies = all_trait_info(f, args.trait)
     elif args.query == "2":
-        snps, pvals, chr, orvals, belong_to = all_study_info(f, args.trait, args.study)
+        snps, pvals, chr, orvals, studies = all_study_info(f, args.trait, args.study)
     elif args.query == "3":
-        snps, pvals, chr, orvals, belong_to = all_snp_info(f, args.snp)
+        snps, pvals, chr, orvals, studies = all_snp_info(f, args.snp)
     elif args.query == "4":
-        snps, pvals, chr, orvals, belong_to = all_chromosome_info(f, args.chr)
+        snps, pvals, chr, orvals, studies = all_chromosome_info(f, args.chr)
     elif args.query == "5":
-        snps, pvals, chr, orvals, belong_to = all_snp_info(f, args.snp, args.trait)
+        snps, pvals, chr, orvals, studies = all_snp_info(f, args.snp, args.trait)
     elif args.query == "6":
-        snps, pvals, chr, orvals, belong_to = all_chromosome_info(f, args.chr, args.trait)
+        snps, pvals, chr, orvals, studies = all_chromosome_info(f, args.chr, args.trait)
 
     mask = qu.pval_mask(pvals, args.under, args.over)
     if mask is not None:
@@ -56,13 +56,13 @@ def main():
         print qu.filter_vector(pvals, mask)
         print qu.filter_vector(chr, mask)
         print qu.filter_vector(orvals, mask)
-        print qu.filter_vector(np.asarray(belong_to, dtype = None), mask)
+        print qu.filter_vector(np.asarray(studies, dtype = None), mask)
     else:
         print snps
         print pvals
         print chr
         print orvals
-        print belong_to
+        print studies
 
     # pval_np = np.asarray(info_array[:,1], dtype=float)
     # info_array = qu.filter_all_info(info_array, pval_np, args.under, args.over)
@@ -95,25 +95,27 @@ def all_study_info(f, trait, study):
 def all_snp_info(f, snp, trait=None):
     print "Retrieving info for snp:", snp
     if trait is None:
-        snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
+        snps, pvals, chr, orvals, studies, bp, effect, other = retrieve_all_info(f)
     else:
-        snps, pvals, chr, orvals, belongs_to = all_trait_info(f, trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_trait_info(f, trait)
 
     mask = snps == snp
 
-    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(belongs_to, mask)
+    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(studies, mask), \
+           qu.filter_vector(bp, mask), qu.filter_vector(effect, mask), qu.filter_vector(other, mask)
 
 
 def all_chromosome_info(f, chromosome, trait=None):
     print "Retrieving info for chromosome:", chromosome
     if trait is None:
-        snps, pvals, chr, orvals, belongs_to = retrieve_all_info(f)
+        snps, pvals, chr, orvals, studies, bp, effect, other = retrieve_all_info(f)
     else:
-        snps, pvals, chr, orvals, belongs_to = all_trait_info(f, trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_trait_info(f, trait)
 
     mask = chr == float(chromosome)
 
-    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(belongs_to, mask)
+    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(studies, mask), \
+           qu.filter_vector(bp, mask), qu.filter_vector(effect, mask), qu.filter_vector(other, mask)
 
 
 def retrieve_all_info(f):
@@ -121,16 +123,22 @@ def retrieve_all_info(f):
     pvals = []
     chr = []
     orvals = []
-    belongs_to = []
+    studies = []
+    bp = []
+    effect = []
+    other = []
     for x, trait_group in f.iteritems():
-        snps_r, pvals_r, chr_r, orvals_r, belongs_to_r = retrieve_all_trait_info(trait_group)
+        snps_r, pvals_r, chr_r, orvals_r, studies_r, bp_r, effect_r, other_r = retrieve_all_trait_info(trait_group)
         snps.extend(snps_r)
         pvals.extend(pvals_r)
         chr.extend(chr_r)
         orvals.extend(orvals_r)
-        belongs_to.extend(belongs_to_r)
+        studies.extend(studies_r)
+        bp.extend(bp_r)
+        effect.extend(effect_r)
+        other.extend(other_r)
 
-    return np.asarray(snps), np.asarray(pvals), np.asarray(chr), np.asarray(orvals), np.asarray(belongs_to)
+    return np.array(snps), np.array(pvals), np.array(chr), np.array(orvals), np.array(studies), np.array(bp), np.array(effect), np.array(other)
 
 
 def retrieve_all_trait_info(trait_group):
@@ -138,18 +146,24 @@ def retrieve_all_trait_info(trait_group):
     pvals = []
     chr = []
     orvals = []
-    belongs_to = []
+    studies = []
+    bp = []
+    effect = []
+    other = []
 
     print "looping through trait"
     for study_group_name, study_group in trait_group.iteritems():
-        snps_r, pvals_r, chr_r, orvals_r, belongs_to_r = retrieve_all_info_from_study(study_group_name, study_group)
+        snps_r, pvals_r, chr_r, orvals_r, studies_r, bp_r, effect_r, other_r = retrieve_all_info_from_study(study_group_name, study_group)
         snps.extend(snps_r)
         pvals.extend(pvals_r)
         chr.extend(chr_r)
         orvals.extend(orvals_r)
-        belongs_to.extend(belongs_to_r)
+        studies.extend(studies_r)
+        bp.extend(bp_r)
+        effect.extend(effect_r)
+        other.extend(other_r)
 
-    return np.asarray(snps), np.asarray(pvals), np.asarray(chr), np.asarray(orvals), np.asarray(belongs_to)
+    return np.array(snps), np.array(pvals), np.array(chr), np.array(orvals), np.array(studies), np.array(bp), np.array(effect), np.array(other)
 
 
 def retrieve_all_info_from_study(study_group_name, study_group):
@@ -157,9 +171,11 @@ def retrieve_all_info_from_study(study_group_name, study_group):
     pvals = study_group["pval"][:]
     chr = study_group["chr"][:]
     orvals = study_group["or"][:]
-    belongs_to = [study_group_name for i in xrange(len(snps))]
-    return snps, pvals, chr, orvals, np.asarray(belongs_to)
-
+    studies = [study_group_name for i in xrange(len(snps))]
+    bp = study_group["bp"][:]
+    effect = study_group["effect"][:]
+    other = study_group["other"][:]
+    return snps, pvals, chr, orvals, np.array(studies), bp, effect, other
 
 if __name__ == "__main__":
     main()

@@ -33,52 +33,48 @@ class TestFirstApproach(object):
         os.remove(self.h5file)
 
     def test_query_1_retrieve_all_information_for_trait_1(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_trait_info(self.f, "Trait1")
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_trait_info(self.f, "Trait1")
         assert len(snps) == 8
 
-        studies = belongs_to
         study_set = as_string_set(studies)
 
         assert study_set.__len__() == 2
 
     def test_query_1_retrieve_all_information_for_trait_2(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_trait_info(self.f, "Trait2")
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_trait_info(self.f, "Trait2")
         assert len(snps) == 4
 
-        studies = belongs_to
         study_set = as_string_set(studies)
 
         assert study_set.__len__() == 1
 
     def test_query_2_retrieve_all_info_for_study_PM001(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_study_info(self.f, "Trait1", "PM001")
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_study_info(self.f, "Trait1", "PM001")
 
         assert len(snps) == 4
 
-        studies = belongs_to
         study_set = as_string_set(studies)
 
         assert study_set.__len__() == 1
         assert "PM001" in study_set.pop()
 
     def test_query_3_get_info_for_snp_rs185339560(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_snp_info(self.f, "rs185339560")
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_snp_info(self.f, "rs185339560")
         snp_set = as_string_set(snps)
 
         assert snp_set.__len__() == 1
         assert snp_set.pop() == "rs185339560"
 
-        assert len(belongs_to) == 3
+        assert len(studies) == 3
 
         assert pvals[0] == pvals[1] == pvals[2]
 
-        studies = belongs_to
         assert "PM001" in studies
         assert "PM002" in studies
         assert "PM003" in studies
 
     def test_query_4_get_info_for_chromosome_10(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_chromosome_info(self.f, 10)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_chromosome_info(self.f, 10)
         assert len(snps) == 8
 
         assert len(chr) == 8
@@ -91,13 +87,12 @@ class TestFirstApproach(object):
         assert chr[6] == 10
         assert chr[7] == 10
 
-        studies = belongs_to
         assert "PM002" not in studies
         assert "PM001" in studies
         assert "PM003" in studies
 
     def test_query_4_get_info_for_chromosome_9(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_chromosome_info(self.f, 9)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_chromosome_info(self.f, 9)
         assert len(snps) == 4
 
         assert len(chr) == 4
@@ -106,14 +101,12 @@ class TestFirstApproach(object):
         assert chr[2] == 9
         assert chr[3] == 9
 
-        studies = belongs_to
         assert "PM001" not in studies
         assert "PM002" in studies
         assert "PM003" not in studies
 
     def test_query_5_get_all_info_for_snp_rs185339560_and_Trait1(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_snp_info(self.f, "rs185339560", "Trait1")
-        studies = belongs_to
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_snp_info(self.f, "rs185339560", "Trait1")
         # Study - Trait
         # PM001 - Trait1
         # PM002 - Trait1
@@ -133,28 +126,28 @@ class TestFirstApproach(object):
     # PM003 - Trait2 - 10
 
     def test_query_6_all_info_for_chromosome_9_and_trait(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_chromosome_info(self.f, "9", "Trait1")
-        study = belongs_to
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_chromosome_info(self.f, "9", "Trait1")
+        study = studies
         assert "PM002" in study
         assert "PM001" not in study
         assert "PM003" not in study
 
         assert len(snps) == 4
 
-        snps, pvals, chr, orvals, belongs_to = query.all_chromosome_info(self.f, "9", "Trait2")
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_chromosome_info(self.f, "9", "Trait2")
         assert len(snps) == 0
 
     def test_query_6_all_info_for_chromosome_10_and_trait(self):
-        snps, pvals, chr, orvals, belongs_to = query.all_chromosome_info(self.f, "10", "Trait1")
-        study = belongs_to
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_chromosome_info(self.f, "10", "Trait1")
+        study = studies
         assert "PM001" in study
         assert "PM003" not in study
         assert "PM002" not in study
 
         assert len(snps) == 4
 
-        snps, pvals, chr, orvals, belongs_to = query.all_chromosome_info(self.f, "10", "Trait2")
-        study = belongs_to
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.all_chromosome_info(self.f, "10", "Trait2")
+        study = studies
         assert "PM003" in study
         assert "PM001" not in study
         assert "PM002" not in study
@@ -162,10 +155,9 @@ class TestFirstApproach(object):
         assert len(snps) == 4
 
     def test_retrieve_all_info(self):
-        snps, pvals, chr, orvals, belongs_to = query.retrieve_all_info(self.f)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.retrieve_all_info(self.f)
         assert len(snps) == 12
 
-        studies = belongs_to
         assert "PM001" in studies
         assert "PM003" in studies
         assert "PM002" in studies
@@ -178,7 +170,7 @@ class TestFirstApproach(object):
 
     def test_retrieve_all_info_from_study(self):
         study_group = self.f.get("/Trait1/PM001")
-        snps, pvals, chr, orvals, belongs_to = query.retrieve_all_info_from_study("PM001", study_group)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query.retrieve_all_info_from_study("PM001", study_group)
         assert len(snps) == 4
 
     def test_non_existing_trait(self):
