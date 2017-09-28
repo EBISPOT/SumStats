@@ -1,0 +1,15 @@
+*.iml
+.idea
+# Maven
+**/target/**
+
+# Mac specific files
+.DS_Store
+
+# Python specific files
+.pyc
+.cache
+.coverage
+
+# hdf5 specific files
+.h5
