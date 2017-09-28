@@ -1,6 +1,6 @@
 import h5py
 import os
-import h5py_a_original as loader
+import h5py_a as loader
 import pytest
 import numpy as np
 
