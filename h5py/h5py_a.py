@@ -1,171 +1,215 @@
 """
-    This is an alternative design to 1a and 2a
+    Stored as CHR/SNP/DATA
+    Where DATA is:
+    pvals: a vector that holds the p-values for this SNP/Trait association
+    or: a vector that holds the OR value for this SNP/Trait association
+    studies: a vector that holds the studies that correspond to the p-values for this SNP/Trait association
 
-    Instead of duplicating the data with C1/B1/SNP1/2D array of studies we have created
-    a hash function to store each triple of information (SNPid, p-value, study) in a "bucket"
-    (a specific row in the array)
-
-    The bucket/row that each SNP id will be saved into is calculated based on it's SNPid
-
-    Each row may have triples from more than one SNP id but in general the SNP ids should be spread
-    relatively evenly across the array
-
-    M, the number of columns of the array, is constant and won't change. It is set to 10.000
-
-    N, is the number of rows/buckets the array will have. If any row is in danger of overflowing, then
-    N is doubled (next prime after 2*N) and the snps are re-distributed along the array. Worst case
-    scenario, N takes the value of 10 mill - almost the number of unique SNPs in the human genome (I think)
-    In this case, each SNP id will belong to each row, and will have the space of 10.000 studies to fill.
-    If this happens, if there are more than 10.000 studies for each SNP in the array, we might need to
-    think about storing the new data in a different file.
+    can add more information if needed
 """
 
-import time
 import h5py
 import numpy as np
 from numpy import genfromtxt
 import argparse
+import time
 
 
-class Loader:
-    def __init__(self, tsv, h5file, study, snparray=None, pvals=None, chr=None, or_array=None, M=None, N=None):
+def get_chr_mask(chromosome, chrarray):
+    # type: (str, np.array(dtype=int)) -> np.array(dtype=boolean)
+    return chrarray == int(chromosome)
+
+
+def filter_from_mask(vector, mask):
+    # type: (np.array, np.array(dtype=boolean)) -> np.array
+    return vector[mask]
+
+
+def get_chr_group(f, chromosome):
+    chrom_group = f.get(str(chromosome))
+    if chrom_group is None:
+        print "New chromosome?", chromosome
+        raise SystemExit(1)
+    return chrom_group
+
+
+def get_block_mask(block_floor, block_ceil, bp_chr_array):
+    block_mask_c = bp_chr_array <= block_ceil
+    block_mask_f = bp_chr_array >= block_floor
+    return [all(tup) for tup in zip(block_mask_c, block_mask_f)]
+
+
+def create_dataset(group, dset_name, data):
+    """
+    Datasets with maxshape = ((None,)) so they can be extended
+    max actual number of values we can store per array is 2^64 - 1
+    data element needs to be converted to np.array first, otherwise it will
+    be saved as a scalar, and won't be able to be extended later on into an array
+
+    :param group: an hdf5 group
+    :param dset_name: a string with the dataset name
+    :param data: a single data element (string, int, float)
+    """
+    if type(data) is str:
+        vlen = h5py.special_dtype(vlen=str)
+        data = np.array([data], dtype=vlen)
+    else:
+        data = np.array([data])
+    group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
+
+
+def expand_dataset(group, dset_name, data):
+    """
+    Epands the dset_name dataset by 1 element (data)
+    Resizes first by 1 element, and then saves the new data point in the last position
+
+    :param group: and hdf5 group
+    :param dset_name: a string with the dataset name
+    :param data: a single data element (string, int, float)
+    """
+    dset = group.get(dset_name)
+    if dset is None:
+        create_dataset(group, dset_name, data)
+    else:
+        dset.resize((dset.shape[0] + 1,))
+        dset[-1] = data
+
+
+def create_chromosome_groups(f, array_of_chromosomes):
+    for chr in array_of_chromosomes:
+        if str(chr) not in f:
+            f.create_group(str(chr))
+
+
+def save_info_in_block(block_group, study, snps, pvals, orvals, bps, effects, others):
+    # for the block_group, loop through the snps
+    # and save x arrays, one for each piece of information
+    # in the corresponding position so the informaiton is kept in sync
+    # i.e. snp[i] is saved in the 'snps' dataset in the same position as it's corresponding orvals[i]
+    for i in xrange(len(snps)):
+
+        snp_group = block_group.get(snps[i])
+        if snp_group is None:
+            snp_group = block_group.create_group(snps[i])
+
+            create_dataset(snp_group, 'pval', pvals[i])
+            create_dataset(snp_group, 'study', study)
+            create_dataset(snp_group, 'or', orvals[i])
+            create_dataset(snp_group, 'bp', bps[i])
+            create_dataset(snp_group, 'effect', effects[i])
+            create_dataset(snp_group, 'other', others[i])
+        else:
+            # reading the existing datasets and expanding them by 1
+            # the expansion can happen once for every new file/study that we load
+            expand_dataset(snp_group, 'pval', pvals[i])
+            expand_dataset(snp_group, 'study', study)
+            expand_dataset(snp_group, 'or', orvals[i])
+            expand_dataset(snp_group, 'bp', bps[i])
+            expand_dataset(snp_group, 'effect', effects[i])
+            expand_dataset(snp_group, 'other', others[i])
+
+
+class Loader():
+    def __init__(self, tsv, h5file, study, snp_array=None, pval_array=None, chr_array=None, or_array=None, bp_array=None,
+                 effect_array=None, other_array=None):
         self.h5file = h5file
         self.study = study
-        # Create my compound type triple to be stored in the hash_table
-        self.vlen = h5py.special_dtype(vlen=str)
-        self.dt = np.dtype(
-            [("snp", self.vlen), ("pval", np.float32), ("chr", np.int), ("or", np.float32), ("study", self.vlen)])
-
-        # the number of columns for each row, should not change
-        if M is None:
-            self.M = 10000
-        else:
-            self.M = M
-        # the number of rows should double (and go to the next prime) if the columns get full
-        if N is None:
-            self.N = 4007
-        else:
-            self.N = N
-        # set to true if resize is needed
-        self.resize = False
 
         if tsv is None:
-            self.snparray = snparray
-            self.pvals = pvals
-            self.chr = chr
-            self.or_array = or_array
+            loaded = False
+            if snp_array is not None and pval_array is not None and chr_array is not None and or_array is not None and bp_array is not None and effect_array is not None and other_array is not None:
+                if snp_array.size != 0 and pval_array.size != 0 and chr_array.size != 0 and or_array.size != 0 and bp_array.size != 0 and effect_array.size != 0 and other_array.size != 0:
+                    loaded = True
+                    self.snp_array = snp_array
+                    self.pval_array = pval_array
+                    self.chr_array = chr_array
+                    self.or_array = or_array
+                    self.bp_array = bp_array
+                    self.effect_array = effect_array
+                    self.other_array = other_array
+            if not loaded:
+                print "If no tsv file provided, the arrays containing the study info must not be empty or None"
+                raise SystemExit(1)
         else:
+            # trait = args.trait_name
             print(time.strftime('%a %H:%M:%S'))
+
             # snp id is a string, so dtype = None
-            self.snparray = genfromtxt(tsv, delimiter='\t', usecols=(0), dtype=None)
-            self.pvals = genfromtxt(tsv, delimiter='\t', usecols=(1), dtype=float)
-            self.chr = genfromtxt(tsv, delimiter='\t', usecols=(2), dtype=int)
+            # will be ndarrays
+            self.snp_array = genfromtxt(tsv, delimiter='\t', usecols=(0), dtype=None)
+            self.pval_array = genfromtxt(tsv, delimiter='\t', usecols=(1), dtype=float)
+            self.chr_array = genfromtxt(tsv, delimiter='\t', usecols=(2), dtype=int)
             self.or_array = genfromtxt(tsv, delimiter='\t', usecols=(3), dtype=float)
-            print "Loaded csv file: ", tsv
+            self.bp_array = genfromtxt(tsv, delimiter='\t', usecols=(4), dtype=int)
+            self.effect_array = genfromtxt(tsv, delimiter='\t', usecols=(5), dtype=None)
+            self.other_array = genfromtxt(tsv, delimiter='\t', usecols=(6), dtype=None)
+
+            print "Loaded tsv file: ", tsv
             print(time.strftime('%a %H:%M:%S'))
 
     def load(self):
-
+        # Open the file with read/write permissions and create if it doesn't exist
         f = h5py.File(self.h5file, 'a')
 
-        dataset = f.get("hash_table")
+        chromosome_array = [i for i in range(1, 23)]
+        chromosome_array = np.array(chromosome_array)
 
-        snparray = self.snparray
-        pvalarray = self.pvals
-        chrarray = self.chr
-        orarray = self.or_array
+        create_chromosome_groups(f, chromosome_array)
+
         study = self.study
+        block_size = 100000
+        for chromosome in chromosome_array:
+            # print(time.strftime('%a %H:%M:%S'))
+            # print "Chromosome:", chromosome
+            # get the slices from all the arrays where chromosome position == i
+            chr_mask = get_chr_mask(chromosome, self.chr_array)
+            snps_chr = filter_from_mask(self.snp_array, chr_mask)
+            pvals_chr = filter_from_mask(self.pval_array, chr_mask)
+            orvals_chr = filter_from_mask(self.or_array, chr_mask)
+            bp_chr = filter_from_mask(self.bp_array, chr_mask)
+            effect_chr = filter_from_mask(self.effect_array, chr_mask)
+            other_chr = filter_from_mask(self.other_array, chr_mask)
 
-        if dataset is None:
-            hash_table = create_table_with_empty_elements(self.N, self.M, self.dt)
-            # initialize the table indexer to keep the current number of populated columns in each row
-            hash_table_indexer = np.zeros((self.N), dtype=int)
-            print "Initialized dataset shape:"
-            print hash_table.shape
-        else:
-            hash_table = dataset[:]
-            # set current N
-            self.N = hash_table.shape[0]
-            # for each row in hash_table create the row index that holds the number of columns it has filled
-            hash_table_indexer = create_table_row_indexer(hash_table, self.N)
-            # if the number of columns is full we need to double the rows of hash_table and recalculate the hashes
-            max_cols = max(hash_table_indexer)
-            if (len(snparray) / self.N) + max_cols >= self.M:
-                hash_table, hash_table_indexer = self.table_row_expander(hash_table)
+            # print(time.strftime('%a %H:%M:%S'))
+            # print "Filtered chromosome..."
 
-            print "Loaded dataset shape: "
-            print hash_table.shape
+            chrom_group = get_chr_group(f, chromosome)
+            if snps_chr.size > 0:
+                # Filter by BP (Chromosome Position)
+                max_bp = max(bp_chr)
+                print "MAX OF ARRAY:", max_bp
+                block_i_floor = 0
+                block_i_ceil = block_size
+                block_i_mask = get_block_mask(block_i_floor, block_i_ceil, bp_chr)
+                bps = filter_from_mask(bp_chr, block_i_mask)
 
-        print "Start loading data..."
-        for i in xrange(0, len(snparray)):
-            if i % 1000000 == 0:
-                print "Loaded %s so far..." % (i)
-            snp = snparray[i]
-            pval = pvalarray[i]
-            chr = chrarray[i]
-            or_val = orarray[i]
+                while block_i_ceil <= (max_bp + block_size):
+                    # print(time.strftime('%a %H:%M:%S'))
+                    # print "Loading block %s - %s..." % (block_i_floor, block_i_ceil)
 
-            n = snp_hash(snp, self.N)
-            m = hash_table_indexer[n]
-            # Insert inserts a column right before the given indice
-            try:
-                if m + 1 >= self.M:
-                    print "expanding mid entry"
-                    hash_table, hash_table_indexer = self.table_row_expander(hash_table)
-                    n = snp_hash(snp, self.N)
-                    m = hash_table_indexer[n]
-                hash_table[n][m]["snp"] = snp
-                hash_table[n][m]["pval"] = pval
-                hash_table[n][m]["chr"] = chr
-                hash_table[n][m]["or"] = or_val
-                hash_table[n][m]["study"] = study
-                hash_table_indexer[n] += 1
-            except IndexError:
-                print "SHOULD NOT BE HERE!"
-                print m
-                raise SystemExit(1)
+                    if len(bps) > 0:
+                        # filter the info that we want based on the block mask
+                        snps = filter_from_mask(snps_chr, block_i_mask)
+                        pvals = filter_from_mask(pvals_chr, block_i_mask)
+                        orvals = filter_from_mask(orvals_chr, block_i_mask)
+                        effects = filter_from_mask(effect_chr, block_i_mask)
+                        others = filter_from_mask(other_chr, block_i_mask)
 
-        print "Done loading the data..."
-        print "Start saving the data..."
-        print(time.strftime('%a %H:%M:%S'))
+                        # if the block doesn't exist in the chromosome group, create it
+                        block_group = chrom_group.get(str(block_i_ceil))
+                        if block_group is None:
+                            block_group = chrom_group.create_group(str(block_i_ceil))
 
-        if dataset is None:
-            f.create_dataset('hash_table', data=hash_table, maxshape=(None, self.M), dtype=self.dt)
-        else:
-            if self.resize:
-                dataset.resize((self.N, self.M))
-                dataset[:] = hash_table
-                print "resize done"
-            else:
-                dataset[:] = hash_table
-        print(time.strftime('%a %H:%M:%S'))
-        print "Done!"
+                        save_info_in_block(block_group, study, snps, pvals, orvals, bps, effects, others)
 
-    def table_row_expander(self, hash_table):
-        print "Table will soon be out of bounds, expanding rows and re-organizing data starting..."
-        # a row is reaching it's capacity of M entries, need to expand rows and re-distribute the snps
-        print "N before:", self.N
-        self.N = next_N_prime(self.N)
-        print "N after:", self.N
-        new_hash_table = create_table_with_empty_elements(self.N, self.M, self.dt)
-        new_hash_table_indexer = np.zeros((self.N), dtype=int)
-        for row in hash_table:
-            for element in row:
-                snp = element["snp"]
-                if snp is "" or snp is None:
-                    continue
-                n = snp_hash(snp, self.N)
-                m = new_hash_table_indexer[n]
-                new_hash_table[n][m]["snp"] = snp
-                new_hash_table[n][m]["pval"] = element["pval"]
-                new_hash_table[n][m]["chr"] = element["chr"]
-                new_hash_table[n][m]["or"] = element["or"]
-                new_hash_table[n][m]["study"] = element["study"]
-                new_hash_table_indexer[n] += 1
-        print "done moving the data"
-        self.resize = True
-        print "doubled the rows in the table and re-organized tha data..."
-        return new_hash_table, new_hash_table_indexer
+                    # print(time.strftime('%a %H:%M:%S'))
+                    # print "Block %s - %s is loaded..." % (block_i_floor, block_i_ceil)
+
+                    # increment block
+                    block_i_floor = block_i_ceil + 1
+                    block_i_ceil += block_size
+                    block_i_mask = get_block_mask(block_i_floor, block_i_ceil, bp_chr)
+                    bps = filter_from_mask(bp_chr, block_i_mask)
 
 
 def main():
@@ -173,6 +217,7 @@ def main():
     parser.add_argument('-tsv', help='The file to be loaded', required=True)
     parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated', required=True)
     parser.add_argument('-study', help='The name of the first group this will belong to', required=True)
+    # parser.add_argument('trait_name', help = 'The name of the trait the SNPs of this file are related to')
     args = parser.parse_args()
 
     tsv = args.tsv
@@ -181,47 +226,6 @@ def main():
 
     loader = Loader(tsv, h5file, study)
     loader.load()
-
-
-def snp_hash(snp, N):
-    # p is the first prime after the max number of characters I can get [a-zA-Z0-9] makes 62 unique chars
-    p = 67
-
-    # Map A -> 10 ... a -> 36 ... z -> 61
-    SNP = [int(c) if c.isdigit() else ord(c) - ord('A') + 10 if c.islower() else ord(c) - ord('A') - 6 + 10 for c in
-           snp]
-
-    h = sum(pow(p, i) * c for i, c in enumerate(SNP))
-
-    return h % N  # MODULO
-
-
-def next_N_prime(n):
-    print "calculating next prime"
-    primes = [4007, 8017, 16057, 32117, 64237, 128477, 256957, 513917, 10280863]
-    idx = primes.index(n)
-    if idx == len(primes) - 1:
-        print "We do not support growing the table over 10280863 rows"
-        print "Consider expanding the primes table or creating a different file"
-        exit()
-    else:
-        return primes[idx + 1]
-
-
-def create_table_with_empty_elements(n, m, dt):
-    emptydt = (None, 0., 0, 0., None)
-    table = np.empty((n, m), dtype=dt)
-    for i in xrange(n):
-        for j in xrange(m):
-            table[i][j] = emptydt
-    return table
-
-
-def create_table_row_indexer(table, n):
-    hash_table_indexer = np.zeros((n), dtype=int)
-    for i in xrange(len(table)):
-        hash_table_indexer[i] = len(table[i, :][[table[i, :]["pval"] > 0]])
-    return hash_table_indexer
 
 
 if __name__ == "__main__":

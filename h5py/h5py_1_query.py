@@ -25,7 +25,7 @@
 
 import h5py
 import numpy as np
-import query_utils as qu
+import utils_q_1 as qu
 
 
 def main():
