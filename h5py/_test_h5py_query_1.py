@@ -1,7 +1,7 @@
 import h5py
 import os
 import h5py_1 as loader
-import h5py_1_query as query
+import h5py_query_1 as query
 import pytest
 
 
@@ -15,12 +15,15 @@ class TestFirstApproach(object):
         chrarray1 = [10, 10, 10, 10]
         chrarray2 = [9, 9, 9, 9]
         orarray = [0.92090, 1.01440, 0.97385, 0.99302]
+        bparray = [1118275, 1120431, 49129966, 48480252]
+        effectarray = ["A", "B", "C", "D"]
+        otherarray = ["Z", "Y", "X", "W"]
 
-        load = loader.Loader(None, self.h5file, "PM001", "Trait1", snpsarray, pvalsarray, chrarray1, orarray)
+        load = loader.Loader(None, self.h5file, "PM001", "Trait1", snpsarray, pvalsarray, chrarray1, orarray, bparray, effectarray, otherarray)
         load.load()
-        load = loader.Loader(None, self.h5file, "PM002", "Trait1", snpsarray, pvalsarray, chrarray2, orarray)
+        load = loader.Loader(None, self.h5file, "PM002", "Trait1", snpsarray, pvalsarray, chrarray2, orarray, bparray, effectarray, otherarray)
         load.load()
-        load = loader.Loader(None, self.h5file, "PM003", "Trait2", snpsarray, pvalsarray, chrarray1, orarray)
+        load = loader.Loader(None, self.h5file, "PM003", "Trait2", snpsarray, pvalsarray, chrarray1, orarray, bparray, effectarray, otherarray)
         load.load()
 
         # open h5 file in read mode

@@ -153,8 +153,8 @@ def retrieve_all_trait_info(trait_group):
 
 
 def retrieve_all_info_from_study(study_group_name, study_group):
-    snps = study_group["snps"][:]
-    pvals = study_group["pvals"][:]
+    snps = study_group["snp"][:]
+    pvals = study_group["pval"][:]
     chr = study_group["chr"][:]
     orvals = study_group["or"][:]
     belongs_to = [study_group_name for i in xrange(len(snps))]

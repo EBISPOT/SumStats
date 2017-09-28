@@ -114,12 +114,14 @@ def main():
     parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated', required=True)
     parser.add_argument('-query', help='1 for finding block, 2 for finding snp', required=True)
     parser.add_argument('-chr', help='The chromosome I am looking for', required=True)
-    parser.add_argument('-bu', help='The upper limit of the chromosome block I am looking for')
-    parser.add_argument('-bl', help='The lower limit of the chromosome block I am looking for')
+    parser.add_argument('-bu', help='The upper limit of the chromosome block I am looking for (can omit if snp '
+                                    'provided)')
+    parser.add_argument('-bl', help='The lower limit of the chromosome block I am looking for (can omit if snp '
+                                    'provided)')
     parser.add_argument('-snp', help='The SNP I am looking for (can omit if chr and block provided)')
-    parser.add_argument('-study', help='The study I am looking for')
-    parser.add_argument('-pu', help='p-value under this threshold')
-    parser.add_argument('-po', help='p-value over this threshold')
+    parser.add_argument('-study', help='Filter results for a specific study')
+    parser.add_argument('-pu', help='Filter p-value under this threshold')
+    parser.add_argument('-po', help='Filter p-value over this threshold')
     args = parser.parse_args()
 
     chr = args.chr
@@ -138,15 +140,26 @@ def main():
     chr_group = get_chromosome_group(f, chr)
     block_size = 100000
 
-    snp_block = find_snp_block(chr_group)
-    print snp_block
+    if block_upper_limit is None:
+        snp_block = find_snp_block(chr_group)
+        print snp_block
+    else:
+        snp_block = get_block(block_size, block_upper_limit)
 
     if query == "1":
         # finding block
+        if block_upper_limit is None or block_lower_limit is None:
+            print "You need to specify an upper and lower limit for the chromosome block (e.g. -bl 0 -bu 100000)"
+            raise SystemExit(1)
         snps, pvals, orvals, studies, bp, effect, other = query_for_block(chr_group, block_size, block_lower_limit,
                                                                           block_upper_limit)
 
     else:  # query == 2
+        if snp is None:
+            print "You need to provide a snp to be looked up (e.g. -snp rs1234)"
+            print "If you know it, you can also provide the baise pair location of the snp, or an upper limit close " \
+                  "to where you expect it to be (e.g. -bu 123000) "
+            raise SystemExit(1)
         snps, pvals, orvals, studies, bp, effect, other = query_for_snp(chr_group, snp_block, snp)
 
     # start filtering based on study and pval thresholds
