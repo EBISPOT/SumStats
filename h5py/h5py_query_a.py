@@ -27,7 +27,7 @@ def query_for_block(chr_group, block_size, block_lower, block_upper):
     fitted_block_lower = get_block(block_size, block_lower) - block_size
     fitted_block_upper = get_block(block_size, block_upper)
 
-    block_groups = get_block_groups(chr_group, fitted_block_lower, fitted_block_upper, block_size)
+    block_groups = get_block_groups(chr_group, block_size, fitted_block_lower, fitted_block_upper)
 
     # we might need to filter further if they don't fit exactly
     # e.g. we got the snps for range 200-400 now we need to filter 250-350
@@ -76,6 +76,22 @@ def query_for_block(chr_group, block_size, block_lower, block_upper):
         other = filter_by_mask(other, bp_mask)
         print "Filtering BP done..."
 
+    return snps, pvals, orvals, studies, bp, effect, other
+
+
+def get_snp_group_info(snp_group, snp=None):
+    pvals_tmp = snp_group.get("pval")[:]
+    pvals = pvals_tmp
+    orvals = snp_group.get("or")[:]
+    studies = snp_group.get("study")[:]
+    bp = snp_group.get("bp")[:]
+    effect = snp_group.get("effect")[:]
+    other = snp_group.get("other")[:]
+    if snp is not None:
+        # snp id is in the name of the group, not a dataset
+        snps = ([snp for i in range(0, len(pvals_tmp))])
+    else:
+        snps = None
     return snps, pvals, orvals, studies, bp, effect, other
 
 
@@ -184,7 +200,6 @@ def main():
         effect = filter_by_mask(effect, pval_mask)
         other = filter_by_mask(other, pval_mask)
         print "Filtering pval done..."
-
 
     print "snps"
     print snps

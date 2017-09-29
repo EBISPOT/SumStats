@@ -52,17 +52,17 @@ def main():
 
     if args.query == "1":
         # info_array = all_trait_info(f, args.trait)
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_trait_info(f, trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_trait(f, trait)
     elif args.query == "2":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_study_info(f, trait, study)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_study(f, trait, study)
     elif args.query == "3":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_snp_info(f, snp)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_snp(f, snp)
     elif args.query == "4":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_chromosome_info(f, chr)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_chromosome(f, chr)
     elif args.query == "5":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_snp_info(f, snp, trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_snp(f, snp, trait)
     elif args.query == "6":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_chromosome_info(f, chr, trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_chromosome(f, chr, trait)
 
     mask = utils.cutoff_mask(pvals, upper_limit, lower_limit)
 
@@ -86,31 +86,31 @@ def main():
         print other
 
 
-def all_trait_info(f, trait):
+def query_for_trait(f, trait):
     print "Retrieving info for trait:", trait
     trait_group = f.get(trait)
     if trait_group is None:
         print "Trait does not exist", trait
         raise SystemExit(1)
-    return retrieve_all_trait_info(trait_group)
+    return get_trait_info(trait_group)
 
 
-def all_study_info(f, trait, study):
+def query_for_study(f, trait, study):
     print "Retrieving info for study:", study
     study_group = f.get(trait + "/" + study)
     if study_group is not None:
-        return retrieve_all_info_from_study(study, study_group)
+        return get_study_group_info(study, study_group)
     else:
         print "Not valid trait/study combination"
         raise SystemExit(1)
 
 
-def all_snp_info(f, snp, trait=None):
+def query_for_snp(f, snp, trait=None):
     print "Retrieving info for snp:", snp
     if trait is None:
-        snps, pvals, chr, orvals, studies, bp, effect, other = retrieve_all_info(f)
+        snps, pvals, chr, orvals, studies, bp, effect, other = get_file_info(f)
     else:
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_trait_info(f, trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_trait(f, trait)
 
     mask = snps == snp
 
@@ -118,12 +118,12 @@ def all_snp_info(f, snp, trait=None):
            qu.filter_vector(bp, mask), qu.filter_vector(effect, mask), qu.filter_vector(other, mask)
 
 
-def all_chromosome_info(f, chromosome, trait=None):
+def query_for_chromosome(f, chromosome, trait=None):
     print "Retrieving info for chromosome:", chromosome
     if trait is None:
-        snps, pvals, chr, orvals, studies, bp, effect, other = retrieve_all_info(f)
+        snps, pvals, chr, orvals, studies, bp, effect, other = get_file_info(f)
     else:
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_trait_info(f, trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_trait(f, trait)
 
     mask = chr == float(chromosome)
 
@@ -131,7 +131,7 @@ def all_chromosome_info(f, chromosome, trait=None):
            qu.filter_vector(bp, mask), qu.filter_vector(effect, mask), qu.filter_vector(other, mask)
 
 
-def retrieve_all_info(f):
+def get_file_info(f):
     snps = []
     pvals = []
     chr = []
@@ -141,7 +141,7 @@ def retrieve_all_info(f):
     effect = []
     other = []
     for x, trait_group in f.iteritems():
-        snps_r, pvals_r, chr_r, orvals_r, studies_r, bp_r, effect_r, other_r = retrieve_all_trait_info(trait_group)
+        snps_r, pvals_r, chr_r, orvals_r, studies_r, bp_r, effect_r, other_r = get_trait_info(trait_group)
         snps.extend(snps_r)
         pvals.extend(pvals_r)
         chr.extend(chr_r)
@@ -154,7 +154,7 @@ def retrieve_all_info(f):
     return np.array(snps), np.array(pvals), np.array(chr), np.array(orvals), np.array(studies), np.array(bp), np.array(effect), np.array(other)
 
 
-def retrieve_all_trait_info(trait_group):
+def get_trait_info(trait_group):
     snps = []
     pvals = []
     chr = []
@@ -166,7 +166,7 @@ def retrieve_all_trait_info(trait_group):
 
     print "looping through trait"
     for study_group_name, study_group in trait_group.iteritems():
-        snps_r, pvals_r, chr_r, orvals_r, studies_r, bp_r, effect_r, other_r = retrieve_all_info_from_study(study_group_name, study_group)
+        snps_r, pvals_r, chr_r, orvals_r, studies_r, bp_r, effect_r, other_r = get_study_group_info(study_group_name, study_group)
         snps.extend(snps_r)
         pvals.extend(pvals_r)
         chr.extend(chr_r)
@@ -179,7 +179,7 @@ def retrieve_all_trait_info(trait_group):
     return np.array(snps), np.array(pvals), np.array(chr), np.array(orvals), np.array(studies), np.array(bp), np.array(effect), np.array(other)
 
 
-def retrieve_all_info_from_study(study_group_name, study_group):
+def get_study_group_info(study_group_name, study_group):
     snps = study_group["snp"][:]
     pvals = study_group["pval"][:]
     chr = study_group["chr"][:]
@@ -189,6 +189,7 @@ def retrieve_all_info_from_study(study_group_name, study_group):
     effect = study_group["effect"][:]
     other = study_group["other"][:]
     return snps, pvals, chr, orvals, np.array(studies), bp, effect, other
+
 
 if __name__ == "__main__":
     main()
