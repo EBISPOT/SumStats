@@ -13,7 +13,7 @@
 import h5py
 import numpy as np
 import argparse
-from utils_q_a import *
+from utils_q import *
 
 
 def query_for_block(chr_group, block_size, block_lower, block_upper):
@@ -63,31 +63,18 @@ def query_for_block(chr_group, block_size, block_lower, block_upper):
     effect = np.array(effect)
     other = np.array(other)
 
-    bp_under_mask = get_bp_under_mask(bp_under, bp)
-    if bp_under_mask is not None:
-        print "Filtering under BP starts..."
+    bp_mask = cutoff_mask(bp, bp_under, bp_over)
+    if bp_mask is not None:
+        print "Filtering BP starts..."
         if snps is not None:
-            snps = filter_by_mask(snps, bp_under_mask)
-        pvals = filter_by_mask(pvals, bp_under_mask)
-        orvals = filter_by_mask(orvals, bp_under_mask)
-        studies = filter_by_mask(studies, bp_under_mask)
-        bp = filter_by_mask(bp, bp_under_mask)
-        effect = filter_by_mask(effect, bp_under_mask)
-        other = filter_by_mask(other, bp_under_mask)
-        print "Filtering under BP done..."
-
-    bp_over_mask = get_bp_over_mask(bp_over, bp)
-    if bp_over_mask is not None:
-        print "Filtering over BP starts..."
-        if snps is not None:
-            snps = filter_by_mask(snps, bp_over_mask)
-        pvals = filter_by_mask(pvals, bp_over_mask)
-        orvals = filter_by_mask(orvals, bp_over_mask)
-        studies = filter_by_mask(studies, bp_over_mask)
-        bp = filter_by_mask(bp, bp_over_mask)
-        effect = filter_by_mask(effect, bp_over_mask)
-        other = filter_by_mask(other, bp_over_mask)
-        print "Filtering over BP done..."
+            snps = filter_by_mask(snps, bp_mask)
+        pvals = filter_by_mask(pvals, bp_mask)
+        orvals = filter_by_mask(orvals, bp_mask)
+        studies = filter_by_mask(studies, bp_mask)
+        bp = filter_by_mask(bp, bp_mask)
+        effect = filter_by_mask(effect, bp_mask)
+        other = filter_by_mask(other, bp_mask)
+        print "Filtering BP done..."
 
     return snps, pvals, orvals, studies, bp, effect, other
 
@@ -121,18 +108,26 @@ def main():
                                     'provided)')
     parser.add_argument('-snp', help='The SNP I am looking for (can omit if chr and block provided)')
     parser.add_argument('-study', help='Filter results for a specific study')
-    parser.add_argument('-pu', help='Filter p-value under this threshold')
-    parser.add_argument('-po', help='Filter p-value over this threshold')
+    parser.add_argument('-pu', help='The upper limit for the p-value')
+    parser.add_argument('-pl', help='The lower limit for the p-value')
     args = parser.parse_args()
 
-    chr = args.chr
-    query = args.query
+    chr = int(args.chr)
+    query = int(args.query)
     block_upper_limit = args.bu
+    if block_upper_limit is not None:
+        block_upper_limit = int(block_upper_limit)
     block_lower_limit = args.bl
+    if block_lower_limit is not None:
+        block_lower_limit = int(block_lower_limit)
     snp = args.snp
     study = args.study
-    p_under = args.pu
-    p_over = args.po
+    p_upper_limit = args.pu
+    if p_upper_limit is not None:
+        p_upper_limit = float(p_upper_limit)
+    p_lower_limit = args.pl
+    if p_lower_limit is not None:
+        p_lower_limit = float(p_lower_limit)
 
     # open h5 file in read mode
     f = h5py.File(args.h5file, mode="r")
@@ -147,7 +142,7 @@ def main():
     else:
         snp_block = get_block(block_size, block_upper_limit)
 
-    if query == "1":
+    if query == 1:
         # finding block
         if block_upper_limit is None or block_lower_limit is None:
             print "You need to specify an upper and lower limit for the chromosome block (e.g. -bl 0 -bu 100000)"
@@ -164,7 +159,7 @@ def main():
         snps, pvals, orvals, studies, bp, effect, other = query_for_snp(chr_group, snp_block, snp)
 
     # start filtering based on study and pval thresholds
-    study_mask = get_study_mask(study, studies)
+    study_mask = get_equality_mask(study, studies)
     if study_mask is not None:
         print "Filtering study starts..."
         if snps is not None:
@@ -177,31 +172,19 @@ def main():
         other = filter_by_mask(other, study_mask)
         print "Filtering study done..."
 
-    pval_under_mask = get_pval_under_mask(p_under, pvals)
-    if pval_under_mask is not None:
-        print "Filtering under pval starts..."
+    pval_mask = cutoff_mask(pvals, p_upper_limit, p_lower_limit)
+    if pval_mask is not None:
+        print "Filtering starts..."
         if snps is not None:
-            snps = filter_by_mask(snps, pval_under_mask)
-        pvals = filter_by_mask(pvals, pval_under_mask)
-        orvals = filter_by_mask(orvals, pval_under_mask)
-        studies = filter_by_mask(studies, pval_under_mask)
-        bp = filter_by_mask(bp, pval_under_mask)
-        effect = filter_by_mask(effect, pval_under_mask)
-        other = filter_by_mask(other, pval_under_mask)
-        print "Filtering under pval done..."
+            snps = filter_by_mask(snps, pval_mask)
+        pvals = filter_by_mask(pvals, pval_mask)
+        orvals = filter_by_mask(orvals, pval_mask)
+        studies = filter_by_mask(studies, pval_mask)
+        bp = filter_by_mask(bp, pval_mask)
+        effect = filter_by_mask(effect, pval_mask)
+        other = filter_by_mask(other, pval_mask)
+        print "Filtering pval done..."
 
-    pval_over_mask = get_pval_over_mask(p_over, pvals)
-    if pval_over_mask is not None:
-        print "Filtering over pval starts..."
-        if snps is not None:
-            snps = filter_by_mask(snps, pval_over_mask)
-        pvals = filter_by_mask(pvals, pval_over_mask)
-        orvals = filter_by_mask(orvals, pval_over_mask)
-        studies = filter_by_mask(studies, pval_over_mask)
-        bp = filter_by_mask(bp, pval_over_mask)
-        effect = filter_by_mask(effect, pval_over_mask)
-        other = filter_by_mask(other, pval_over_mask)
-        print "Filtering over pval done..."
 
     print "snps"
     print snps

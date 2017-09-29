@@ -47,58 +47,7 @@ def argument_parser():
     parser.add_argument('-trait', help='The trait I am looking for')
     parser.add_argument('-snp', help='The SNP I am looking for')
     parser.add_argument('-chr', help='The chromosome whose SNPs I want')
-    parser.add_argument('-under', help='p-value under this threshold')
-    parser.add_argument('-over', help='p-value under this threshold')
+    parser.add_argument('-pu', help='The upper limit for the p-value')
+    parser.add_argument('-pl', help='The lower limit for the p-value')
 
     return parser.parse_args()
-
-
-def threshold(value, action, pvalues_nparray):
-    if action == "u":
-        mask = pvalues_nparray <= float(value)
-        print "values under:", value
-    elif action == "o":
-        mask = pvalues_nparray >= float(value)
-        print "values over:", value
-
-    return mask
-
-
-def filter_all_info(info_array, pv_np, under, over):
-    if under is not None:
-        under_mask = threshold(under, "u", pv_np)
-        info_array = info_array[under_mask]
-        pv_np = pv_np[under_mask]
-    if over is not None:
-        over_mask = threshold(over, "o", pv_np)
-        info_array = info_array[over_mask]
-    return info_array
-
-
-def filter_vector(vector, mask):
-    vector = vector[mask]
-    return vector
-
-
-def pval_mask(pv_np, under, over):
-    if under is not None:
-        mask_u = threshold(under, "u", pv_np)
-        if over is None:
-            return mask_u
-    if over is not None:
-        mask_o = threshold(over, "o", pv_np)
-        if under is None:
-            return mask_o
-
-        return [all(tup) for tup in zip(mask_u, mask_o)]
-    return
-
-
-def print_all_info(info_array):
-    print info_array.shape
-    print "snps \n", info_array[:,0]
-    print "pvals \n", info_array[:,1]
-    print "chr positions \n", info_array[:,2]
-    print "odds ratio values \n", info_array[:,3]
-    if info_array.shape[1] > 4:
-        print "trait/study \n", info_array[:,4]

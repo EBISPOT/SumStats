@@ -26,6 +26,7 @@
 import h5py
 import numpy as np
 import utils_q_1 as qu
+import utils_q as utils
 
 
 def main():
@@ -36,30 +37,44 @@ def main():
     # open h5 file in read mode
     f = h5py.File(args.h5file, mode="r")
 
+    trait = args.trait
+    study = args.study
+    snp = args.snp
+    chr = args.chr
+    if chr is not None:
+        chr = int(chr)
+    upper_limit = args.pu
+    if upper_limit is not None:
+        upper_limit = float(upper_limit)
+    lower_limit = args.pl
+    if lower_limit is not None:
+        lower_limit = float(lower_limit)
+
     if args.query == "1":
         # info_array = all_trait_info(f, args.trait)
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_trait_info(f, args.trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_trait_info(f, trait)
     elif args.query == "2":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_study_info(f, args.trait, args.study)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_study_info(f, trait, study)
     elif args.query == "3":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_snp_info(f, args.snp)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_snp_info(f, snp)
     elif args.query == "4":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_chromosome_info(f, args.chr)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_chromosome_info(f, chr)
     elif args.query == "5":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_snp_info(f, args.snp, args.trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_snp_info(f, snp, trait)
     elif args.query == "6":
-        snps, pvals, chr, orvals, studies, bp, effect, other = all_chromosome_info(f, args.chr, args.trait)
+        snps, pvals, chr, orvals, studies, bp, effect, other = all_chromosome_info(f, chr, trait)
 
-    mask = qu.pval_mask(pvals, args.under, args.over)
+    mask = utils.cutoff_mask(pvals, upper_limit, lower_limit)
+
     if mask is not None:
-        print qu.filter_vector(snps, mask)
-        print qu.filter_vector(pvals, mask)
-        print qu.filter_vector(chr, mask)
-        print qu.filter_vector(orvals, mask)
-        print qu.filter_vector(np.asarray(studies, dtype = None), mask)
-        print qu.filter_vector(bp, mask)
-        print qu.filter_vector(effect, mask)
-        print qu.filter_vector(other, mask)
+        print utils.filter_by_mask(snps, mask)
+        print utils.filter_by_mask(pvals, mask)
+        print utils.filter_by_mask(chr, mask)
+        print utils.filter_by_mask(orvals, mask)
+        print utils.filter_by_mask(np.asarray(studies, dtype = None), mask)
+        print utils.filter_by_mask(bp, mask)
+        print utils.filter_by_mask(effect, mask)
+        print utils.filter_by_mask(other, mask)
     else:
         print snps
         print pvals
@@ -69,14 +84,6 @@ def main():
         print bp
         print effect
         print other
-
-    # pval_np = np.asarray(info_array[:,1], dtype=float)
-    # info_array = qu.filter_all_info(info_array, pval_np, args.under, args.over)
-    # b = info_array.tolist()
-    # file_path = "./path.json"
-    # json.dump(b, codecs.open(file_path, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
-
-    # qu.print_all_info(info_array)
 
 
 def all_trait_info(f, trait):
