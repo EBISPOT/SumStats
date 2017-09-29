@@ -24,8 +24,8 @@ def query_for_block(chr_group, block_size, block_lower, block_upper):
     # get_block for 250 will give me the upper limit of this block, so 300
     # therefore I am reducing the block lower limit by block size, i.e. 200.
     # for 350 I will get back 400, so now I am searching from 200 to 400
-    fitted_block_lower = get_block(block_size, block_lower) - block_size
-    fitted_block_upper = get_block(block_size, block_upper)
+    fitted_block_lower = get_block_from_bp(block_size, block_lower) - block_size
+    fitted_block_upper = get_block_from_bp(block_size, block_upper)
 
     block_groups = get_block_groups(chr_group, block_size, fitted_block_lower, fitted_block_upper)
 
@@ -156,7 +156,7 @@ def main():
         snp_block = find_snp_block(chr_group)
         print snp_block
     else:
-        snp_block = get_block(block_size, block_upper_limit)
+        snp_block = get_block_from_bp(block_size, block_upper_limit)
 
     if query == 1:
         # finding block
