@@ -33,50 +33,52 @@ class TestFirstApproach(object):
         os.remove(self.h5file)
 
     def test_query_1_retrieve_all_information_for_trait_1(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_trait(self.f, "Trait1")
-        assert len(snps) == 8
+        dictionary_of_dsets = query.query_for_trait(self.f, "Trait1")
+        assert len(dictionary_of_dsets["snp"]) == 8
 
-        study_set = as_string_set(studies)
+        study_set = as_string_set(dictionary_of_dsets["study"])
 
         assert study_set.__len__() == 2
 
     def test_query_1_retrieve_all_information_for_trait_2(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_trait(self.f, "Trait2")
-        assert len(snps) == 4
+        dictionary_of_dsets = query.query_for_trait(self.f, "Trait2")
+        assert len(dictionary_of_dsets["snp"]) == 4
 
-        study_set = as_string_set(studies)
+        study_set = as_string_set(dictionary_of_dsets["study"])
 
         assert study_set.__len__() == 1
 
     def test_query_2_retrieve_all_info_for_study_PM001(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_study(self.f, "Trait1", "PM001")
+        dictionary_of_dsets = query.query_for_study(self.f, "Trait1", "PM001")
 
-        assert len(snps) == 4
+        assert len(dictionary_of_dsets["snp"]) == 4
 
-        study_set = as_string_set(studies)
+        study_set = as_string_set(dictionary_of_dsets["study"])
 
         assert study_set.__len__() == 1
         assert "PM001" in study_set.pop()
 
     def test_query_3_get_info_for_snp_rs185339560(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_snp(self.f, "rs185339560")
-        snp_set = as_string_set(snps)
+        dictionary_of_dsets = query.query_for_snp(self.f, "rs185339560")
+        snp_set = as_string_set(dictionary_of_dsets["snp"])
 
         assert snp_set.__len__() == 1
         assert snp_set.pop() == "rs185339560"
 
-        assert len(studies) == 3
+        assert len(dictionary_of_dsets["study"]) == 3
 
+        pvals = dictionary_of_dsets["pval"]
         assert pvals[0] == pvals[1] == pvals[2]
 
-        assert "PM001" in studies
-        assert "PM002" in studies
-        assert "PM003" in studies
+        assert "PM001" in dictionary_of_dsets["study"]
+        assert "PM002" in dictionary_of_dsets["study"]
+        assert "PM003" in dictionary_of_dsets["study"]
 
     def test_query_4_get_info_for_chromosome_10(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_chromosome(self.f, 10)
-        assert len(snps) == 8
+        dictionary_of_dsets = query.query_for_chromosome(self.f, 10)
+        assert len(dictionary_of_dsets["snp"]) == 8
 
+        chr = dictionary_of_dsets["chr"]
         assert len(chr) == 8
         assert chr[0] == 10
         assert chr[1] == 10
@@ -87,35 +89,36 @@ class TestFirstApproach(object):
         assert chr[6] == 10
         assert chr[7] == 10
 
-        assert "PM002" not in studies
-        assert "PM001" in studies
-        assert "PM003" in studies
+        assert "PM002" not in dictionary_of_dsets["study"]
+        assert "PM001" in dictionary_of_dsets["study"]
+        assert "PM003" in dictionary_of_dsets["study"]
 
     def test_query_4_get_info_for_chromosome_9(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_chromosome(self.f, 9)
-        assert len(snps) == 4
+        dictionary_of_dsets = query.query_for_chromosome(self.f, 9)
+        assert len(dictionary_of_dsets["snp"]) == 4
 
+        chr = dictionary_of_dsets["chr"]
         assert len(chr) == 4
         assert chr[0] == 9
         assert chr[1] == 9
         assert chr[2] == 9
         assert chr[3] == 9
 
-        assert "PM001" not in studies
-        assert "PM002" in studies
-        assert "PM003" not in studies
+        assert "PM001" not in dictionary_of_dsets["study"]
+        assert "PM002" in dictionary_of_dsets["study"]
+        assert "PM003" not in dictionary_of_dsets["study"]
 
     def test_query_5_get_all_info_for_snp_rs185339560_and_Trait1(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_snp(self.f, "rs185339560", "Trait1")
+        dictionary_of_dsets = query.query_for_snp(self.f, "rs185339560", "Trait1")
         # Study - Trait
         # PM001 - Trait1
         # PM002 - Trait1
         # PM003 - Trait2
-        assert "PM003" not in studies
-        assert "PM001" in studies
-        assert "PM002" in studies
+        assert "PM003" not in dictionary_of_dsets["study"]
+        assert "PM001" in dictionary_of_dsets["study"]
+        assert "PM002" in dictionary_of_dsets["study"]
 
-        snp_set = as_string_set(snps)
+        snp_set = as_string_set(dictionary_of_dsets["snp"])
 
         assert snp_set.__len__() == 1
         assert snp_set.pop() == "rs185339560"
@@ -126,52 +129,51 @@ class TestFirstApproach(object):
     # PM003 - Trait2 - 10
 
     def test_query_6_all_info_for_chromosome_9_and_trait(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_chromosome(self.f, "9", "Trait1")
-        study = studies
+        dictionary_of_dsets = query.query_for_chromosome(self.f, "9", "Trait1")
+        study = dictionary_of_dsets["study"]
         assert "PM002" in study
         assert "PM001" not in study
         assert "PM003" not in study
 
-        assert len(snps) == 4
+        assert len(dictionary_of_dsets["snp"]) == 4
 
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_chromosome(self.f, "9", "Trait2")
-        assert len(snps) == 0
+        dictionary_of_dsets = query.query_for_chromosome(self.f, "9", "Trait2")
+        assert len(dictionary_of_dsets["snp"]) == 0
 
     def test_query_6_all_info_for_chromosome_10_and_trait(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_chromosome(self.f, "10", "Trait1")
-        study = studies
+        dictionary_of_dsets = query.query_for_chromosome(self.f, "10", "Trait1")
+        study = dictionary_of_dsets["study"]
         assert "PM001" in study
         assert "PM003" not in study
         assert "PM002" not in study
 
-        assert len(snps) == 4
+        assert len(dictionary_of_dsets["snp"]) == 4
 
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.query_for_chromosome(self.f, "10", "Trait2")
-        study = studies
+        dictionary_of_dsets = query.query_for_chromosome(self.f, "10", "Trait2")
+        study = dictionary_of_dsets["study"]
         assert "PM003" in study
         assert "PM001" not in study
         assert "PM002" not in study
 
-        assert len(snps) == 4
+        assert len(dictionary_of_dsets["snp"]) == 4
 
-    def test_retrieve_all_info(self):
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.get_file_info(self.f)
-        assert len(snps) == 12
-
-        assert "PM001" in studies
-        assert "PM003" in studies
-        assert "PM002" in studies
-
-        assert 9 in chr
-        assert 10 in chr
-
-        snps_set = as_string_set(snps)
-        assert snps_set.__len__() == 4
+    # def test_retrieve_all_info(self):
+    #     dictionary_of_dsets = query.get_dsets_from_file(self.f)
+    #     assert len(dictionary_of_dsets["snp"]) == 12
+    #
+    #     assert "PM001" in dictionary_of_dsets["study"]
+    #     assert "PM003" in dictionary_of_dsets["study"]
+    #     assert "PM002" in dictionary_of_dsets["study"]
+    #
+    #     assert 9 in chr
+    #     assert 10 in chr
+    #
+    #     snps_set = as_string_set(dictionary_of_dsets["snp"])
+    #     assert snps_set.__len__() == 4
 
     def test_retrieve_all_info_from_study(self):
-        study_group = self.f.get("/Trait1/PM001")
-        snps, pvals, chr, orvals, studies, bp, effect, other = query.get_study_group_info("PM001", study_group)
-        assert len(snps) == 4
+        dictionary_of_dsets = query.query_for_study(self.f, "Trait1", "PM001")
+        assert len(dictionary_of_dsets["snp"]) == 4
 
     def test_non_existing_trait(self):
         with pytest.raises(SystemExit):

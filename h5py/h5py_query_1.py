@@ -24,19 +24,62 @@
 """
 
 import h5py
-import numpy as np
-import utils_q_1 as qu
+import utils_q_1 as myutils
 import utils_q as utils
+
+
+def query_for_trait(f, trait):
+    trait_group = utils.get_group_from_parent(f, trait)
+    return myutils.get_dsets_from_trait_group(trait_group, name_of_datasets)
+
+
+def query_for_study(f, trait, study):
+    trait_group = utils.get_group_from_parent(f, trait)
+    study_group = utils.get_group_from_parent(trait_group, study)
+
+    # initialize dictionary of datasets
+    dictionary_of_dsets = {dset_name : [] for dset_name in name_of_datasets}
+
+    for dset_name in name_of_datasets:
+        dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, study_group, study))
+
+    return dictionary_of_dsets
+
+
+def query_for_snp(f, snp, trait=None):
+    if trait is None:
+        dictionary_of_dsets = myutils.get_dsets_from_file(f, name_of_datasets)
+    else:
+        dictionary_of_dsets = query_for_trait(f, trait)
+
+    mask = utils.get_equality_mask(snp, dictionary_of_dsets["snp"])
+
+    return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
+
+
+def query_for_chromosome(f, chromosome, trait=None):
+    if trait is None:
+        dictionary_of_dsets = myutils.get_dsets_from_file(f, name_of_datasets)
+    else:
+        dictionary_of_dsets = query_for_trait(f, trait)
+
+    mask = utils.get_equality_mask(float(chromosome), dictionary_of_dsets["chr"])
+
+    return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
+
+
+name_of_datasets = ["snp", "pval", "chr", "or", "study", "bp", "effect", "other"]
 
 
 def main():
 
-    qu.argument_checker()
-    args = qu.argument_parser()
+    myutils.argument_checker()
+    args = myutils.argument_parser()
 
     # open h5 file in read mode
     f = h5py.File(args.h5file, mode="r")
 
+    query = int(args.query)
     trait = args.trait
     study = args.study
     snp = args.snp
@@ -50,145 +93,28 @@ def main():
     if lower_limit is not None:
         lower_limit = float(lower_limit)
 
-    if args.query == "1":
+    if query == 1:
         # info_array = all_trait_info(f, args.trait)
-        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_trait(f, trait)
-    elif args.query == "2":
-        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_study(f, trait, study)
-    elif args.query == "3":
-        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_snp(f, snp)
-    elif args.query == "4":
-        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_chromosome(f, chr)
-    elif args.query == "5":
-        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_snp(f, snp, trait)
-    elif args.query == "6":
-        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_chromosome(f, chr, trait)
+        dictionary_of_dsets = query_for_trait(f, trait)
+    elif query == 2:
+        dictionary_of_dsets = query_for_study(f, trait, study)
+    elif query == 3:
+        dictionary_of_dsets = query_for_snp(f, snp)
+    elif query == 4:
+        dictionary_of_dsets = query_for_chromosome(f, chr)
+    elif query == 5:
+        dictionary_of_dsets = query_for_snp(f, snp, trait)
+    elif query == 6:
+        dictionary_of_dsets = query_for_chromosome(f, chr, trait)
 
-    mask = utils.cutoff_mask(pvals, upper_limit, lower_limit)
+    mask = utils.cutoff_mask(dictionary_of_dsets["pval"], upper_limit, lower_limit)
 
     if mask is not None:
-        print utils.filter_by_mask(snps, mask)
-        print utils.filter_by_mask(pvals, mask)
-        print utils.filter_by_mask(chr, mask)
-        print utils.filter_by_mask(orvals, mask)
-        print utils.filter_by_mask(np.asarray(studies, dtype = None), mask)
-        print utils.filter_by_mask(bp, mask)
-        print utils.filter_by_mask(effect, mask)
-        print utils.filter_by_mask(other, mask)
-    else:
-        print snps
-        print pvals
-        print chr
-        print orvals
-        print studies
-        print bp
-        print effect
-        print other
+        dictionary_of_dsets = utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
 
-
-def query_for_trait(f, trait):
-    print "Retrieving info for trait:", trait
-    trait_group = f.get(trait)
-    if trait_group is None:
-        print "Trait does not exist", trait
-        raise SystemExit(1)
-    return get_trait_info(trait_group)
-
-
-def query_for_study(f, trait, study):
-    print "Retrieving info for study:", study
-    study_group = f.get(trait + "/" + study)
-    if study_group is not None:
-        return get_study_group_info(study, study_group)
-    else:
-        print "Not valid trait/study combination"
-        raise SystemExit(1)
-
-
-def query_for_snp(f, snp, trait=None):
-    print "Retrieving info for snp:", snp
-    if trait is None:
-        snps, pvals, chr, orvals, studies, bp, effect, other = get_file_info(f)
-    else:
-        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_trait(f, trait)
-
-    mask = snps == snp
-
-    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(studies, mask), \
-           qu.filter_vector(bp, mask), qu.filter_vector(effect, mask), qu.filter_vector(other, mask)
-
-
-def query_for_chromosome(f, chromosome, trait=None):
-    print "Retrieving info for chromosome:", chromosome
-    if trait is None:
-        snps, pvals, chr, orvals, studies, bp, effect, other = get_file_info(f)
-    else:
-        snps, pvals, chr, orvals, studies, bp, effect, other = query_for_trait(f, trait)
-
-    mask = chr == float(chromosome)
-
-    return qu.filter_vector(snps, mask), qu.filter_vector(pvals, mask), qu.filter_vector(chr, mask), qu.filter_vector(orvals, mask), qu.filter_vector(studies, mask), \
-           qu.filter_vector(bp, mask), qu.filter_vector(effect, mask), qu.filter_vector(other, mask)
-
-
-def get_file_info(f):
-    snps = []
-    pvals = []
-    chr = []
-    orvals = []
-    studies = []
-    bp = []
-    effect = []
-    other = []
-    for x, trait_group in f.iteritems():
-        snps_r, pvals_r, chr_r, orvals_r, studies_r, bp_r, effect_r, other_r = get_trait_info(trait_group)
-        snps.extend(snps_r)
-        pvals.extend(pvals_r)
-        chr.extend(chr_r)
-        orvals.extend(orvals_r)
-        studies.extend(studies_r)
-        bp.extend(bp_r)
-        effect.extend(effect_r)
-        other.extend(other_r)
-
-    return np.array(snps), np.array(pvals), np.array(chr), np.array(orvals), np.array(studies), np.array(bp), np.array(effect), np.array(other)
-
-
-def get_trait_info(trait_group):
-    snps = []
-    pvals = []
-    chr = []
-    orvals = []
-    studies = []
-    bp = []
-    effect = []
-    other = []
-
-    print "looping through trait"
-    for study_group_name, study_group in trait_group.iteritems():
-        snps_r, pvals_r, chr_r, orvals_r, studies_r, bp_r, effect_r, other_r = get_study_group_info(study_group_name, study_group)
-        snps.extend(snps_r)
-        pvals.extend(pvals_r)
-        chr.extend(chr_r)
-        orvals.extend(orvals_r)
-        studies.extend(studies_r)
-        bp.extend(bp_r)
-        effect.extend(effect_r)
-        other.extend(other_r)
-
-    return np.array(snps), np.array(pvals), np.array(chr), np.array(orvals), np.array(studies), np.array(bp), np.array(effect), np.array(other)
-
-
-def get_study_group_info(study_group_name, study_group):
-    snps = study_group["snp"][:]
-    pvals = study_group["pval"][:]
-    chr = study_group["chr"][:]
-    orvals = study_group["or"][:]
-    studies = [study_group_name for i in xrange(len(snps))]
-    bp = study_group["bp"][:]
-    effect = study_group["effect"][:]
-    other = study_group["other"][:]
-    return snps, pvals, chr, orvals, np.array(studies), bp, effect, other
+    for dset in dictionary_of_dsets:
+        print dset
+        print dictionary_of_dsets[dset]
 
 
 if __name__ == "__main__":
