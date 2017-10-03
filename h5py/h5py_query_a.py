@@ -15,7 +15,7 @@ import utils_q_a as myutils
 import utils_q as utils
 
 
-def get_dict_of_dsets_from_block_range(chr_group, block_size, block_lower_limit, block_upper_limit):
+def query_for_block_range(chr_group, block_size, block_lower_limit, block_upper_limit):
     filter_block_under = None
     filter_block_over = None
     # for block size 100, if I say I want BP range 250 - 350 that means
@@ -33,7 +33,7 @@ def get_dict_of_dsets_from_block_range(chr_group, block_size, block_lower_limit,
     if to_block != block_upper_limit:
         filter_block_under = block_upper_limit
 
-    dictionary_of_dsets = myutils.get_dictionary_of_dsets_from_blocks(block_groups, name_of_datasets)
+    dictionary_of_dsets = myutils.get_dictionary_of_dsets_from_blocks(block_groups, names_of_dsets)
 
     bp_mask = utils.cutoff_mask(dictionary_of_dsets["bp"], filter_block_under, filter_block_over)
 
@@ -43,14 +43,14 @@ def get_dict_of_dsets_from_block_range(chr_group, block_size, block_lower_limit,
     return dictionary_of_dsets
 
 
-def get_dict_of_dsets_from_snp(chr_group, block, snp):
+def query_for_snp(chr_group, block, snp):
     block_group = utils.get_group_from_parent(chr_group, block)
     snp_group = utils.get_group_from_parent(block_group, snp)
 
     # initialize dictionary of datasets
-    dictionary_of_dsets = {dset_name : [] for dset_name in name_of_datasets}
+    dictionary_of_dsets = {dset_name : [] for dset_name in names_of_dsets}
 
-    for dset_name in name_of_datasets:
+    for dset_name in names_of_dsets:
         dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, snp_group, snp))
 
     return dictionary_of_dsets
@@ -72,7 +72,7 @@ def find_snp_block(chr_group, snp):
     return name_array[2]
 
 
-def get_block_snp_belongs_to(chr_group, block_size, block_upper_limit, snp):
+def get_block_that_snp_belongs_to(chr_group, block_size, block_upper_limit, snp):
     if block_upper_limit is None:
         snp_block = find_snp_block(chr_group, snp)
     else:
@@ -80,7 +80,7 @@ def get_block_snp_belongs_to(chr_group, block_size, block_upper_limit, snp):
     return snp_block
 
 
-name_of_datasets = ["snp", "pval", "or", "study", "bp", "effect", "other"]
+names_of_dsets = ["snp", "pval", "or", "study", "bp", "effect", "other"]
 
 
 def main():
@@ -98,11 +98,11 @@ def main():
     block_size = 100000
 
     if query == 1:
-        dictionary_of_dsets = get_dict_of_dsets_from_block_range(chr_group, block_size, block_lower_limit,
-                                                                    block_upper_limit)
+        dictionary_of_dsets = query_for_block_range(chr_group, block_size, block_lower_limit,
+                                                    block_upper_limit)
     elif query == 2:
-        snp_block = get_block_snp_belongs_to(chr_group, block_size, block_upper_limit, snp)
-        dictionary_of_dsets = get_dict_of_dsets_from_snp(chr_group, snp_block, snp)
+        snp_block = get_block_that_snp_belongs_to(chr_group, block_size, block_upper_limit, snp)
+        dictionary_of_dsets = query_for_snp(chr_group, snp_block, snp)
 
     study_mask = utils.get_equality_mask(study, dictionary_of_dsets["study"])
     pval_mask = utils.cutoff_mask(dictionary_of_dsets["pval"], p_upper_limit, p_lower_limit)

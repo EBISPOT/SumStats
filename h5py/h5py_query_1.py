@@ -30,7 +30,7 @@ import utils_q as utils
 
 def query_for_trait(f, trait):
     trait_group = utils.get_group_from_parent(f, trait)
-    return myutils.get_dsets_from_trait_group(trait_group, name_of_datasets)
+    return myutils.get_dsets_from_trait_group(trait_group, names_of_dsets)
 
 
 def query_for_study(f, trait, study):
@@ -38,9 +38,9 @@ def query_for_study(f, trait, study):
     study_group = utils.get_group_from_parent(trait_group, study)
 
     # initialize dictionary of datasets
-    dictionary_of_dsets = {dset_name : [] for dset_name in name_of_datasets}
+    dictionary_of_dsets = {dset_name : [] for dset_name in names_of_dsets}
 
-    for dset_name in name_of_datasets:
+    for dset_name in names_of_dsets:
         dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, study_group, study))
 
     return dictionary_of_dsets
@@ -48,7 +48,7 @@ def query_for_study(f, trait, study):
 
 def query_for_snp(f, snp, trait=None):
     if trait is None:
-        dictionary_of_dsets = myutils.get_dsets_from_file(f, name_of_datasets)
+        dictionary_of_dsets = myutils.get_dsets_from_file(f, names_of_dsets)
     else:
         dictionary_of_dsets = query_for_trait(f, trait)
 
@@ -59,7 +59,7 @@ def query_for_snp(f, snp, trait=None):
 
 def query_for_chromosome(f, chromosome, trait=None):
     if trait is None:
-        dictionary_of_dsets = myutils.get_dsets_from_file(f, name_of_datasets)
+        dictionary_of_dsets = myutils.get_dsets_from_file(f, names_of_dsets)
     else:
         dictionary_of_dsets = query_for_trait(f, trait)
 
@@ -68,7 +68,7 @@ def query_for_chromosome(f, chromosome, trait=None):
     return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
 
 
-name_of_datasets = ["snp", "pval", "chr", "or", "study", "bp", "effect", "other"]
+names_of_dsets = ["snp", "pval", "chr", "or", "study", "bp", "effect", "other"]
 
 
 def main():

@@ -48,20 +48,6 @@ def get_dset_from_group(dset_name, group, empty_array_element=None):
     return array
 
 
-def to_list_of_ints(number):
-    list = []
-    for digit in str(number):
-        list.append(int(digit))
-    return list
-
-
-def _fitting_block_size(block_size, bp):
-    block = block_size
-    while block < bp + block_size and bp >= block:
-        block += block_size
-    return block
-
-
 def get_block_number(block_size, bp_position):
     """
     Calculates the block that this BP (base pair location) will belong
@@ -73,62 +59,15 @@ def get_block_number(block_size, bp_position):
     :param bp_position: the base pair location
     :return: the upper limit of the block that the bp belongs to
     """
-    block_size_as_string = to_list_of_ints(block_size)
-    block_size_length = len(block_size_as_string)
 
-    bp_position_as_string = to_list_of_ints(bp_position)
-    bp_position_length = len(bp_position_as_string)
-
-    if bp_position == block_size:
-        return int(block_size)
-
-    elif bp_position_length < block_size_length:
-        return int(block_size)
-
-    elif bp_position_length == block_size_length:
-        if bp_position_as_string[0] == block_size_as_string[0]:
-            # bp_position is just above the first block size, so we are in the second block
-            return int(2 * block_size)
-        else:
-            # check if all the other bp_position_length match (except the first one), and if so then return bp as the
-            #  block
-            # if the bp_position_length do not match then give back the next block
-
-            # loop through the rest of the bp_position_length
-            is_factor_of = bp_position % block_size == 0
-            if is_factor_of:
-                return int(bp_position)
-            else:
-                correct_block = _fitting_block_size(block_size, bp_position)
-                return int(correct_block)
+    if bp_position <= block_size:
+        return block_size
     else:
-        # bp bp_position_length are bigger than block bp_position_length
-        # this means that we should keep the last x bp_position_length of bp
-        # where x is the number of bp_position_length in block_size
-        # if they are the same then we can again return bp
-        # if they are not the same we need to return the last bp_position_length + block_size, and
-        # keep the first bp_position_length as they are
-        # example block size = 100
-        # if bp = 1100 return bp
-        # if bp = 1101 return 1200
-        last_bp_digits = bp_position_as_string[::-1][0:block_size_length][::-1]
-        last_bp_digits_as_int = int("".join(str(x) for x in last_bp_digits))
-        is_factor_of = last_bp_digits_as_int % block_size == 0
-        if is_factor_of:
-            return int(bp_position)
+        is_factor_of_block_size = bp_position % block_size == 0
+        if is_factor_of_block_size:
+            return bp_position
         else:
-            first_bp_digits = bp_position_as_string[::-1][block_size_length:][::-1]
-
-            correct_sub_block = _fitting_block_size(block_size, last_bp_digits_as_int)
-            # I need to take the first bp bp_position_length, zero out the rest of them
-            # and then add the correct sub block
-
-            bp_zeroed_out_array = first_bp_digits
-            bp_zeroed_out_array.extend([0 for x in last_bp_digits])
-
-            first_bp_digits = int("".join(str(x) for x in bp_zeroed_out_array))
-            correct_block = first_bp_digits + correct_sub_block
-            return int(correct_block)
+            return bp_position - (bp_position % block_size) + block_size
 
 
 def argument_checker():
