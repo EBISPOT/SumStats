@@ -24,8 +24,8 @@
 """
 
 import h5py
-import utils_q_1 as myutils
-import utils_q as utils
+import query_utils as myutils
+from .. import utils
 
 
 def query_for_trait(f, trait):

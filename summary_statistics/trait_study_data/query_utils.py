@@ -1,6 +1,6 @@
 import argparse
 import numpy as np
-import utils_q as utils
+from .. import utils
 
 
 def get_dsets_from_file(f, dsets):

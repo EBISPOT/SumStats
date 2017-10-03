@@ -11,8 +11,8 @@
 """
 
 import h5py
-import utils_q_a as myutils
-import utils_q as utils
+import query_utils as myutils
+from .. import utils
 
 
 def query_for_block_range(chr_group, block_size, block_lower_limit, block_upper_limit):

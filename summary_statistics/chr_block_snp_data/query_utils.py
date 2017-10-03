@@ -4,7 +4,7 @@ Utils useful for querying
 
 import numpy as np
 import argparse
-import utils_q as utils
+from .. import utils
 
 
 def get_block_groups_within_range(chr_group, block_size, block_lower, block_upper):
