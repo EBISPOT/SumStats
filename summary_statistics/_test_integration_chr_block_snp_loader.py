@@ -1,7 +1,6 @@
 import h5py
 import os
-import h5py_a as loader
-import pytest
+from chr_block_snp_data import loader
 import numpy as np
 
 
