@@ -14,7 +14,7 @@ import h5py
 import numpy as np
 
 import query_utils as myutils
-from uk.ac.ebi.spot.summary_statistics import utils
+from sumstats import utils
 
 
 def query_for_block_range(chr_group, block_size, block_lower_limit, block_upper_limit):

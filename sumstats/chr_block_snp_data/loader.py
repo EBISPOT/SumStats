@@ -15,7 +15,7 @@ import h5py
 import numpy as np
 from numpy import genfromtxt
 
-from uk.ac.ebi.spot.summary_statistics import utils
+from sumstats import utils
 
 
 def create_dataset(group, dset_name, data):

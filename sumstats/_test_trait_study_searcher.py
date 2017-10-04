@@ -2,9 +2,9 @@ import os
 
 import h5py
 import pytest
-from uk.ac.ebi.spot.summary_statistics.trait_study_data import loader
 
-from uk.ac.ebi.spot.summary_statistics.trait_study_data import searcher as query
+from sumstats.trait_study_data import loader
+from sumstats.trait_study_data import searcher as query
 
 
 class TestFirstApproach(object):

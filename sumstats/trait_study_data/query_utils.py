@@ -2,7 +2,7 @@ import argparse
 
 import numpy as np
 
-from uk.ac.ebi.spot.summary_statistics import utils
+from sumstats import utils
 
 
 def get_dsets_from_file(f, dsets):

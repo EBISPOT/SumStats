@@ -6,7 +6,7 @@ import argparse
 
 import numpy as np
 
-from uk.ac.ebi.spot.summary_statistics import utils
+from sumstats import utils
 
 
 def get_block_groups_within_range(chr_group, block_size, block_lower, block_upper):
