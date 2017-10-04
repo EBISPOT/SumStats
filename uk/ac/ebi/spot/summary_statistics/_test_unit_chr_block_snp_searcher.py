@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 import pytest
 
-from SumStats.uk_ac_ebi_spot.summary_statistics.chr_block_snp_data import loader
+from uk.ac.ebi.spot.summary_statistics.chr_block_snp_data import loader
 
 
 class TestFirstApproach(object):

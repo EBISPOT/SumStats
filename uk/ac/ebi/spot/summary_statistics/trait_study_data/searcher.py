@@ -26,7 +26,7 @@
 import h5py
 import numpy as np
 
-from SumStats.uk_ac_ebi_spot.summary_statistics import utils
+from uk.ac.ebi.spot.summary_statistics import utils
 from . import query_utils as myutils
 
 
