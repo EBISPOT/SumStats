@@ -2,9 +2,11 @@
 Utils useful for querying
 """
 
-import numpy as np
 import argparse
-from .. import utils
+
+import numpy as np
+
+from SumStats.uk_ac_ebi_spot.summary_statistics import utils
 
 
 def get_block_groups_within_range(chr_group, block_size, block_lower, block_upper):
@@ -14,8 +16,8 @@ def get_block_groups_within_range(chr_group, block_size, block_lower, block_uppe
      (i.e. all the positions from 0-200)
     """
     if (block_lower % block_size != 0) or (block_upper % block_size != 0):
-        print "I can only accept blocks that conform to the block size"
-        print "block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (block_size, block_lower, block_upper)
+        print("I can only accept blocks that conform to the block size")
+        print("block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (block_size, block_lower, block_upper))
         raise SystemExit(1)
 
     blocks = [utils.get_group_from_parent(chr_group, block) for block in
@@ -28,7 +30,7 @@ def get_dictionary_of_dsets_from_blocks(block_groups, dsets):
     dict_of_dsets = {dset : [] for dset in dsets}
 
     for block_group in block_groups:
-        for snp, snp_group in block_group.iteritems():
+        for snp, snp_group in block_group.items():
 
             for dset_name in dsets:
                 dict_of_dsets[dset_name].extend(get_dset_from_group(dset_name, snp_group, snp))
@@ -44,7 +46,7 @@ def get_dset_from_group(dset_name, group, empty_array_element=None):
     if (array is None) and (empty_array_element is not None):
         # pval is never empty
         pval = utils.get_dset(group, "pval")
-        array = [empty_array_element for _ in xrange(len(pval))]
+        array = [empty_array_element for _ in range(len(pval))]
     return array
 
 
@@ -76,16 +78,16 @@ def argument_checker():
     if args.query == "1":
         # finding block
         if args.bu is None or args.bl is None:
-            print "You need to specify an upper and lower limit for the chromosome block (e.g. -bl 0 -bu 100000)"
+            print("You need to specify an upper and lower limit for the chromosome block (e.g. -bl 0 -bu 100000)")
             raise SystemExit(1)
     elif args.query == "2":
         if args.snp is None:
-            print "You need to provide a snp to be looked up (e.g. -snp rs1234)"
-            print "If you know it, you can also provide the baise pair location of the snp, or an upper limit close " \
-                  "to where you expect it to be (e.g. -bu 123000) "
+            print("You need to provide a snp to be looked up (e.g. -snp rs1234)")
+            print("If you know it, you can also provide the baise pair location of the snp, or an upper limit close " \
+                  "to where you expect it to be (e.g. -bu 123000) ")
             raise SystemExit(1)
     else:
-        print "Wrong input"
+        print("Wrong input")
         raise SystemExit(1)
 
 

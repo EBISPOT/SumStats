@@ -11,8 +11,10 @@
 """
 
 import h5py
+import numpy as np
+
 import query_utils as myutils
-from .. import utils
+from SumStats.uk_ac_ebi_spot.summary_statistics import utils
 
 
 def query_for_block_range(chr_group, block_size, block_lower_limit, block_upper_limit):
@@ -52,6 +54,9 @@ def query_for_snp(chr_group, block, snp):
 
     for dset_name in names_of_dsets:
         dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, snp_group, snp))
+
+    for dset_name in names_of_dsets:
+        dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name])
 
     return dictionary_of_dsets
 
@@ -113,8 +118,8 @@ def main():
         dictionary_of_dsets = utils.filter_dictionary_by_mask(dictionary_of_dsets, filtering_mask)
 
     for dset in dictionary_of_dsets:
-        print dset
-        print dictionary_of_dsets[dset]
+        print(dset)
+        print(dictionary_of_dsets[dset])
 
 
 if __name__ == "__main__":

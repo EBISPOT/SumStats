@@ -24,8 +24,10 @@
 """
 
 import h5py
-import query_utils as myutils
-from .. import utils
+import numpy as np
+
+from SumStats.uk_ac_ebi_spot.summary_statistics import utils
+from . import query_utils as myutils
 
 
 def query_for_trait(f, trait):
@@ -42,6 +44,9 @@ def query_for_study(f, trait, study):
 
     for dset_name in names_of_dsets:
         dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, study_group, study))
+
+    for dset_name in names_of_dsets:
+        dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name])
 
     return dictionary_of_dsets
 
@@ -63,7 +68,7 @@ def query_for_chromosome(f, chromosome, trait=None):
     else:
         dictionary_of_dsets = query_for_trait(f, trait)
 
-    mask = utils.get_equality_mask(float(chromosome), dictionary_of_dsets["chr"])
+    mask = utils.get_equality_mask(int(chromosome), dictionary_of_dsets["chr"])
 
     return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
 
@@ -113,8 +118,8 @@ def main():
         dictionary_of_dsets = utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
 
     for dset in dictionary_of_dsets:
-        print dset
-        print dictionary_of_dsets[dset]
+        print(dset)
+        print(dictionary_of_dsets[dset])
 
 
 if __name__ == "__main__":

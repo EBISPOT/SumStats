@@ -1,7 +1,9 @@
-import h5py
 import os
-from chr_block_snp_data import loader
+
+import h5py
 import numpy as np
+
+from SumStats.uk_ac_ebi_spot.summary_statistics.chr_block_snp_data import loader
 
 
 class TestFirstApproach(object):
@@ -9,7 +11,8 @@ class TestFirstApproach(object):
     f = None
 
     def setup_method(self, method):
-        snpsarray = np.array(["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"])
+        dt=h5py.special_dtype(vlen=str)
+        snpsarray = np.array(["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"], dtype=dt)
         pvalsarray = np.array([0.4865, 0.4314, 0.5986, 0.7057])
         chrarray = np.array([1, 1, 2, 2])
         orarray = np.array([0.92090, 1.01440, 0.97385, 0.99302])
@@ -17,13 +20,13 @@ class TestFirstApproach(object):
         effect_array = np.array(["A", "B", "C", "D"])
         other_array = np.array(["Z", "Y", "X", "W"])
 
-        load = loader.Loader(None, self.h5file, "PM001", snpsarray, pvalsarray, chrarray, orarray, bparray,
+        load = loader.Loader(None, self.h5file, 'PM001', snpsarray, pvalsarray, chrarray, orarray, bparray,
                              effect_array, other_array)
         load.load()
-        load = loader.Loader(None, self.h5file, "PM002", snpsarray, pvalsarray, chrarray, orarray, bparray,
+        load = loader.Loader(None, self.h5file, 'PM002', snpsarray, pvalsarray, chrarray, orarray, bparray,
                              effect_array, other_array)
         load.load()
-        load = loader.Loader(None, self.h5file, "PM003", snpsarray, pvalsarray, chrarray, orarray, bparray,
+        load = loader.Loader(None, self.h5file, 'PM003', snpsarray, pvalsarray, chrarray, orarray, bparray,
                              effect_array, other_array)
         load.load()
 
@@ -49,8 +52,10 @@ class TestFirstApproach(object):
         assert len(chr_group_1.keys()) == 1
 
         chr_group_2 = self.f.get("2")
-        blocks = chr_group_2.keys()
+
+        blocks = list(chr_group_2.keys())
         assert len(blocks) == 2
+
 
         assert blocks[0] == "48500000"
         assert blocks[1] == "49200000"

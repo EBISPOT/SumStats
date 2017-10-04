@@ -1,8 +1,10 @@
-import h5py
 import os
-from chr_block_snp_data import loader
-import pytest
+
+import h5py
 import numpy as np
+import pytest
+
+from SumStats.uk_ac_ebi_spot.summary_statistics.chr_block_snp_data import loader
 
 
 class TestFirstApproach(object):
@@ -39,54 +41,6 @@ class TestFirstApproach(object):
         with pytest.raises(SystemExit):
             loader.Loader(None, self.h5file, "PM001", snpsarray, pvalsarray, chrarray, orarray, bparray, effect_array,
                           other_array)
-
-    def test_get_chr_mask(self):
-        chromosome_array = np.asarray([1, 2, 3, 1])
-        mask = loader.get_chr_mask("1", chromosome_array)
-        expected_mask = [True, False, False, True]
-        assert np.array_equal(expected_mask, mask)
-        mask = loader.get_chr_mask(1, chromosome_array)
-        assert np.array_equal(expected_mask, mask)
-
-    def test_filter_from_mask(self):
-        vector = np.asarray([1, 2, 3, 4])
-        mask = [True, False, False, True]
-        masked_vector = loader.filter_from_mask(vector, mask)
-        assert len(masked_vector) == 2
-        assert masked_vector[0] == 1
-        assert masked_vector[1] == 4
-
-        vector = np.asarray(["a", "b", "c", "d"])
-        masked_vector = loader.filter_from_mask(vector, mask)
-        assert len(masked_vector) == 2
-        assert masked_vector[0] == "a"
-        assert masked_vector[1] == "d"
-
-    def test_get_chr_group(self):
-        self.f.create_group("1")
-        group = loader.get_chr_group(self.f, 1)
-        assert group.name == "/1"
-
-        group = loader.get_chr_group(self.f, "1")
-        assert group.name == "/1"
-
-        with pytest.raises(SystemExit):
-            loader.get_chr_group(self.f, "23")
-
-    def test_get_block_mask(self):
-        block_floor = 0
-        block_ceil = block_size = 100000
-        bp_chr_array = np.asarray([0, 100000, 100001, 1, 50000, 200000])
-        expected_mask = [True, True, False, True, True, False]
-        block_mask = loader.get_block_mask(block_floor, block_ceil, bp_chr_array)
-        assert np.array_equal(expected_mask, block_mask)
-
-        block_floor = block_ceil + 1
-        block_ceil += block_size
-        bp_chr_array = np.asarray([0, 100000, 100001, 1, 50000, 200000, 200001, 300000])
-        expected_mask = [False, False, True, False, False, True, False, False]
-        block_mask = loader.get_block_mask(block_floor, block_ceil, bp_chr_array)
-        assert np.array_equal(expected_mask, block_mask)
 
     def test_create_dataset(self):
         random_group = self.f.create_group("random_group")
@@ -130,7 +84,6 @@ class TestFirstApproach(object):
         assert dset is not None
         assert len(dset) == 2
         dset_data = dset[:]
-        print dset_data
         assert dset_data[0] == data
         assert dset_data[1] == data2
 
@@ -144,7 +97,6 @@ class TestFirstApproach(object):
         assert dset is not None
         assert len(dset) == 2
         dset_data = dset[:]
-        print dset_data
         assert dset_data[0] == 1
         assert dset_data[1] == 2
 
@@ -158,7 +110,6 @@ class TestFirstApproach(object):
         assert dset is not None
         assert len(dset) == 2
         dset_data = dset[:]
-        print dset_data
         assert dset_data[0] == 0.1
         assert dset_data[1] == 0.2
 

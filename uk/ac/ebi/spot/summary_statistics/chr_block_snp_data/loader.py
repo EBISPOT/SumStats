@@ -8,35 +8,14 @@
     can add more information if needed
 """
 
-import h5py
-import numpy as np
-from numpy import genfromtxt
 import argparse
 import time
 
+import h5py
+import numpy as np
+from numpy import genfromtxt
 
-def get_chr_mask(chromosome, chrarray):
-    # type: (str, np.array(dtype=int)) -> np.array(dtype=boolean)
-    return chrarray == int(chromosome)
-
-
-def filter_from_mask(vector, mask):
-    # type: (np.array, np.array(dtype=boolean)) -> np.array
-    return vector[mask]
-
-
-def get_chr_group(f, chromosome):
-    chrom_group = f.get(str(chromosome))
-    if chrom_group is None:
-        print "New chromosome?", chromosome
-        raise SystemExit(1)
-    return chrom_group
-
-
-def get_block_mask(block_floor, block_ceil, bp_chr_array):
-    block_mask_c = bp_chr_array <= block_ceil
-    block_mask_f = bp_chr_array >= block_floor
-    return [all(tup) for tup in zip(block_mask_c, block_mask_f)]
+from uk.ac.ebi.spot.summary_statistics import utils
 
 
 def create_dataset(group, dset_name, data):
@@ -50,12 +29,13 @@ def create_dataset(group, dset_name, data):
     :param dset_name: a string with the dataset name
     :param data: a single data element (string, int, float)
     """
-    if type(data) is str:
+    if type(data) is str or type(data) is np.str_:
         vlen = h5py.special_dtype(vlen=str)
         data = np.array([data], dtype=vlen)
+        group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
     else:
         data = np.array([data])
-    group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
+        group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
 
 
 def expand_dataset(group, dset_name, data):
@@ -86,7 +66,7 @@ def save_info_in_block(block_group, study, snps, pvals, orvals, bps, effects, ot
     # and save x arrays, one for each piece of information
     # in the corresponding position so the informaiton is kept in sync
     # i.e. snp[i] is saved in the 'snps' dataset in the same position as it's corresponding orvals[i]
-    for i in xrange(len(snps)):
+    for i in range(len(snps)):
 
         snp_group = block_group.get(snps[i])
         if snp_group is None:
@@ -128,7 +108,7 @@ class Loader():
                     self.effect_array = effect_array
                     self.other_array = other_array
             if not loaded:
-                print "If no tsv file provided, the arrays containing the study info must not be empty or None"
+                print("If no tsv file provided, the arrays containing the study info must not be empty or None")
                 raise SystemExit(1)
         else:
             # trait = args.trait_name
@@ -144,7 +124,7 @@ class Loader():
             self.effect_array = genfromtxt(tsv, delimiter='\t', usecols=(5), dtype=None)
             self.other_array = genfromtxt(tsv, delimiter='\t', usecols=(6), dtype=None)
 
-            print "Loaded tsv file: ", tsv
+            print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
 
     def load(self):
@@ -160,40 +140,40 @@ class Loader():
         block_size = 100000
         for chromosome in chromosome_array:
             # print(time.strftime('%a %H:%M:%S'))
-            # print "Chromosome:", chromosome
+            # print("Chromosome:", chromosome
             # get the slices from all the arrays where chromosome position == i
-            chr_mask = get_chr_mask(chromosome, self.chr_array)
-            snps_chr = filter_from_mask(self.snp_array, chr_mask)
-            pvals_chr = filter_from_mask(self.pval_array, chr_mask)
-            orvals_chr = filter_from_mask(self.or_array, chr_mask)
-            bp_chr = filter_from_mask(self.bp_array, chr_mask)
-            effect_chr = filter_from_mask(self.effect_array, chr_mask)
-            other_chr = filter_from_mask(self.other_array, chr_mask)
+            chr_mask = utils.get_equality_mask(chromosome, self.chr_array)
+            snps_chr = utils.filter_by_mask(self.snp_array, chr_mask)
+            pvals_chr = utils.filter_by_mask(self.pval_array, chr_mask)
+            orvals_chr = utils.filter_by_mask(self.or_array, chr_mask)
+            bp_chr = utils.filter_by_mask(self.bp_array, chr_mask)
+            effect_chr = utils.filter_by_mask(self.effect_array, chr_mask)
+            other_chr = utils.filter_by_mask(self.other_array, chr_mask)
 
             # print(time.strftime('%a %H:%M:%S'))
-            # print "Filtered chromosome..."
+            # print("Filtered chromosome..."
 
-            chrom_group = get_chr_group(f, chromosome)
+            chrom_group = utils.get_group_from_parent(f, chromosome)
             if snps_chr.size > 0:
                 # Filter by BP (Chromosome Position)
                 max_bp = max(bp_chr)
-                print "MAX OF ARRAY:", max_bp
+                print("MAX OF ARRAY:", max_bp)
                 block_i_floor = 0
                 block_i_ceil = block_size
-                block_i_mask = get_block_mask(block_i_floor, block_i_ceil, bp_chr)
-                bps = filter_from_mask(bp_chr, block_i_mask)
+                block_i_mask = utils.cutoff_mask(bp_chr, block_i_ceil, block_i_floor)
+                bps = utils.filter_by_mask(bp_chr, block_i_mask)
 
                 while block_i_ceil <= (max_bp + block_size):
-                    # print(time.strftime('%a %H:%M:%S'))
-                    # print "Loading block %s - %s..." % (block_i_floor, block_i_ceil)
+                    # print(time.strftime('%a %H:%M:%S')))
+                    # print("Loading block %s - %s..." % (block_i_floor, block_i_ceil))
 
                     if len(bps) > 0:
                         # filter the info that we want based on the block mask
-                        snps = filter_from_mask(snps_chr, block_i_mask)
-                        pvals = filter_from_mask(pvals_chr, block_i_mask)
-                        orvals = filter_from_mask(orvals_chr, block_i_mask)
-                        effects = filter_from_mask(effect_chr, block_i_mask)
-                        others = filter_from_mask(other_chr, block_i_mask)
+                        snps = utils.filter_by_mask(snps_chr, block_i_mask)
+                        pvals = utils.filter_by_mask(pvals_chr, block_i_mask)
+                        orvals = utils.filter_by_mask(orvals_chr, block_i_mask)
+                        effects = utils.filter_by_mask(effect_chr, block_i_mask)
+                        others = utils.filter_by_mask(other_chr, block_i_mask)
 
                         # if the block doesn't exist in the chromosome group, create it
                         block_group = chrom_group.get(str(block_i_ceil))
@@ -202,14 +182,14 @@ class Loader():
 
                         save_info_in_block(block_group, study, snps, pvals, orvals, bps, effects, others)
 
-                    # print(time.strftime('%a %H:%M:%S'))
-                    # print "Block %s - %s is loaded..." % (block_i_floor, block_i_ceil)
+                    # print(time.strftime('%a %H:%M:%S')))
+                    # print("Block %s - %s is loaded..." % (block_i_floor, block_i_ceil))
 
                     # increment block
                     block_i_floor = block_i_ceil + 1
                     block_i_ceil += block_size
-                    block_i_mask = get_block_mask(block_i_floor, block_i_ceil, bp_chr)
-                    bps = filter_from_mask(bp_chr, block_i_mask)
+                    block_i_mask = utils.cutoff_mask(bp_chr, block_i_ceil, block_i_floor)
+                    bps = utils.filter_by_mask(bp_chr, block_i_mask)
 
 
 def main():

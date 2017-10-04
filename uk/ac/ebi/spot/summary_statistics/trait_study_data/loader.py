@@ -18,6 +18,7 @@ import h5py
 from numpy import genfromtxt
 import argparse
 import time
+import numpy as np
 
 
 class Loader():
@@ -41,7 +42,7 @@ class Loader():
                     self.effect_array = effect_array
                     self.other_array = other_array
             if not loaded:
-                print "If no tsv file provided, the arrays containing the study info must not be empty or None"
+                print("If no tsv file provided, the arrays containing the study info must not be empty or None")
                 raise SystemExit(1)
         else:
             # trait = args.trait_name
@@ -57,7 +58,7 @@ class Loader():
             self.effect_array = genfromtxt(tsv, delimiter='\t', usecols=(5), dtype=None)
             self.other_array = genfromtxt(tsv, delimiter='\t', usecols=(6), dtype=None)
 
-            print "Loaded tsv file: ", tsv
+            print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
 
     def load(self):
@@ -87,13 +88,20 @@ class Loader():
         else:
             study_group = f.create_group(trait + "/" + study)
 
+        vlen = h5py.special_dtype(vlen=str)
+
+        snp_array = np.array(snp_array, dtype=vlen)
         study_group.create_dataset('snp', data=snp_array)
+
         study_group.create_dataset('pval', data=pval_array)
         study_group.create_dataset('chr', data=chr_array)
         study_group.create_dataset('or', data=or_array)
-
         study_group.create_dataset('bp', data=bp_array)
+
+        effect_array = np.array(effect_array, dtype=vlen)
         study_group.create_dataset('effect', data=effect_array)
+
+        other_array = np.array(other_array, dtype=vlen)
         study_group.create_dataset('other', data=other_array)
 
 
