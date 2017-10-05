@@ -15,7 +15,7 @@ import h5py
 import numpy as np
 from numpy import genfromtxt
 
-from sumstats import utils
+import sumstats.utils as utils
 
 
 def create_dataset(group, dset_name, data):

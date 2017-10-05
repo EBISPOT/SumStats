@@ -71,10 +71,11 @@ def filter_dictionary_by_mask(dictionary, mask):
 
 
 def _check_type_compatibility(value, vector):
-    both_strings = False
+    if value is None:
+        return
     if np.issubdtype(vector.dtype, str) and np.issubdtype(np.array([value]).dtype, str):
-        both_strings = True
+        return
 
-    if np.array([value]).dtype != vector.dtype and not both_strings:
+    if np.array([value]).dtype != vector.dtype:
         raise TypeError("Failed to create boolean mask of array of type "
                         "" + str(vector.dtype) + ' using value of type ' + str(np.array([value]).dtype))

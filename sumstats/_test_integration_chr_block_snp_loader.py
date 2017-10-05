@@ -3,7 +3,7 @@ import os
 import h5py
 import numpy as np
 
-from sumstats.chr_block_snp_data import loader
+import sumstats.chr_block_snp_data.loader as loader
 
 
 class TestFirstApproach(object):

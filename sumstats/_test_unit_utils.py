@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 import pytest
 
-import utils
+import sumstats.utils as utils
 
 
 class TestQueryUtils(object):

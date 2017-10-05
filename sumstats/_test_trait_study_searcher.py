@@ -1,10 +1,9 @@
 import os
 
-import h5py
 import pytest
 
-from sumstats.trait_study_data import loader
-from sumstats.trait_study_data import searcher as query
+import sumstats.trait_study_data.loader as loader
+from sumstats.trait_study_data.searcher import Search
 
 
 class TestFirstApproach(object):
@@ -28,14 +27,14 @@ class TestFirstApproach(object):
         load = loader.Loader(None, self.h5file, "PM003", "Trait2", snpsarray, pvalsarray, chrarray1, orarray, bparray, effectarray, otherarray)
         load.load()
 
-        # open h5 file in read mode
-        self.f = h5py.File(self.h5file, mode="r")
+        self.query = Search(self.h5file)
+
 
     def teardown_method(self, method):
         os.remove(self.h5file)
 
     def test_query_1_retrieve_all_information_for_trait_1(self):
-        dictionary_of_dsets = query.query_for_trait(self.f, "Trait1")
+        dictionary_of_dsets = self.query.query_for_trait("Trait1")
         assert len(dictionary_of_dsets["snp"]) == 8
 
         study_set = as_string_set(dictionary_of_dsets["study"])
@@ -43,7 +42,7 @@ class TestFirstApproach(object):
         assert study_set.__len__() == 2
 
     def test_query_1_retrieve_all_information_for_trait_2(self):
-        dictionary_of_dsets = query.query_for_trait(self.f, "Trait2")
+        dictionary_of_dsets = self.query.query_for_trait("Trait2")
         assert len(dictionary_of_dsets["snp"]) == 4
 
         study_set = as_string_set(dictionary_of_dsets["study"])
@@ -51,7 +50,7 @@ class TestFirstApproach(object):
         assert study_set.__len__() == 1
 
     def test_query_2_retrieve_all_info_for_study_PM001(self):
-        dictionary_of_dsets = query.query_for_study(self.f, "Trait1", "PM001")
+        dictionary_of_dsets = self.query.query_for_study("Trait1", "PM001")
 
         assert len(dictionary_of_dsets["snp"]) == 4
 
@@ -61,7 +60,7 @@ class TestFirstApproach(object):
         assert "PM001" in study_set.pop()
 
     def test_query_3_get_info_for_snp_rs185339560(self):
-        dictionary_of_dsets = query.query_for_snp(self.f, "rs185339560")
+        dictionary_of_dsets = self.query.query_for_snp("rs185339560")
         snp_set = as_string_set(dictionary_of_dsets["snp"])
 
         assert snp_set.__len__() == 1
@@ -77,7 +76,7 @@ class TestFirstApproach(object):
         assert "PM003" in dictionary_of_dsets["study"]
 
     def test_query_4_get_info_for_chromosome_10(self):
-        dictionary_of_dsets = query.query_for_chromosome(self.f, 10)
+        dictionary_of_dsets = self.query.query_for_chromosome(10)
         assert len(dictionary_of_dsets["snp"]) == 8
 
         chr = dictionary_of_dsets["chr"]
@@ -96,7 +95,7 @@ class TestFirstApproach(object):
         assert "PM003" in dictionary_of_dsets["study"]
 
     def test_query_4_get_info_for_chromosome_9(self):
-        dictionary_of_dsets = query.query_for_chromosome(self.f, 9)
+        dictionary_of_dsets = self.query.query_for_chromosome(9)
         assert len(dictionary_of_dsets["snp"]) == 4
 
         chr = dictionary_of_dsets["chr"]
@@ -111,7 +110,7 @@ class TestFirstApproach(object):
         assert "PM003" not in dictionary_of_dsets["study"]
 
     def test_query_5_get_all_info_for_snp_rs185339560_and_Trait1(self):
-        dictionary_of_dsets = query.query_for_snp(self.f, "rs185339560", "Trait1")
+        dictionary_of_dsets = self.query.query_for_snp("rs185339560", "Trait1")
         # Study - Trait
         # PM001 - Trait1
         # PM002 - Trait1
@@ -131,7 +130,7 @@ class TestFirstApproach(object):
     # PM003 - Trait2 - 10
 
     def test_query_6_all_info_for_chromosome_9_and_trait(self):
-        dictionary_of_dsets = query.query_for_chromosome(self.f, "9", "Trait1")
+        dictionary_of_dsets = self.query.query_for_chromosome("9", "Trait1")
         study = dictionary_of_dsets["study"]
         assert "PM002" in study
         assert "PM001" not in study
@@ -139,11 +138,11 @@ class TestFirstApproach(object):
 
         assert len(dictionary_of_dsets["snp"]) == 4
 
-        dictionary_of_dsets = query.query_for_chromosome(self.f, "9", "Trait2")
+        dictionary_of_dsets = self.query.query_for_chromosome("9", "Trait2")
         assert len(dictionary_of_dsets["snp"]) == 0
 
     def test_query_6_all_info_for_chromosome_10_and_trait(self):
-        dictionary_of_dsets = query.query_for_chromosome(self.f, "10", "Trait1")
+        dictionary_of_dsets = self.query.query_for_chromosome("10", "Trait1")
         study = dictionary_of_dsets["study"]
         assert "PM001" in study
         assert "PM003" not in study
@@ -151,7 +150,7 @@ class TestFirstApproach(object):
 
         assert len(dictionary_of_dsets["snp"]) == 4
 
-        dictionary_of_dsets = query.query_for_chromosome(self.f, "10", "Trait2")
+        dictionary_of_dsets = self.query.query_for_chromosome("10", "Trait2")
         study = dictionary_of_dsets["study"]
         assert "PM003" in study
         assert "PM001" not in study
@@ -174,16 +173,16 @@ class TestFirstApproach(object):
     #     assert snps_set.__len__() == 4
 
     def test_retrieve_all_info_from_study(self):
-        dictionary_of_dsets = query.query_for_study(self.f, "Trait1", "PM001")
+        dictionary_of_dsets = self.query.query_for_study("Trait1", "PM001")
         assert len(dictionary_of_dsets["snp"]) == 4
 
     def test_non_existing_trait(self):
         with pytest.raises(ValueError):
-            query.query_for_trait(self.f, "Trait3")
+            self.query.query_for_trait("Trait3")
 
     def test_non_existing_trait_study_combination(self):
         with pytest.raises(ValueError):
-            query.query_for_study(self.f, "Trait3", "PM002")
+            self.query.query_for_study("Trait3", "PM002")
 
 
 def as_string_set(list):

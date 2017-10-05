@@ -12,9 +12,9 @@
 
 import h5py
 import numpy as np
+import sumstats.utils as utils
 
-import query_utils as myutils
-from sumstats import utils
+import sumstats.chr_block_snp_data.query_utils as myutils
 
 
 def query_for_block_range(chr_group, block_size, block_lower_limit, block_upper_limit):

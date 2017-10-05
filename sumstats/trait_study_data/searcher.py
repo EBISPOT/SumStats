@@ -25,64 +25,65 @@
 
 import h5py
 import numpy as np
+import sumstats.utils as utils
 
-from sumstats import utils
-from . import query_utils as myutils
-
-
-def query_for_trait(f, trait):
-    trait_group = utils.get_group_from_parent(f, trait)
-    return myutils.get_dsets_from_trait_group(trait_group, names_of_dsets)
+import sumstats.trait_study_data.query_utils as myutils
 
 
-def query_for_study(f, trait, study):
-    trait_group = utils.get_group_from_parent(f, trait)
-    study_group = utils.get_group_from_parent(trait_group, study)
+class Search():
+    def __init__(self, h5file):
+        self.h5file = h5file
+        # Open the file with read/write permissions and create if it doesn't exist
+        self.f = h5py.File(h5file, 'r')
 
-    # initialize dictionary of datasets
-    dictionary_of_dsets = {dset_name : [] for dset_name in names_of_dsets}
+    def query_for_trait(self, trait):
+        trait_group = utils.get_group_from_parent(self.f, trait)
+        return myutils.get_dsets_from_trait_group(trait_group, names_of_dsets)
 
-    for dset_name in names_of_dsets:
-        dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, study_group, study))
+    def query_for_study(self, trait, study):
+        trait_group = utils.get_group_from_parent(self.f, trait)
+        study_group = utils.get_group_from_parent(trait_group, study)
 
-    for dset_name in names_of_dsets:
-        dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name])
+        # initialize dictionary of datasets
+        dictionary_of_dsets = {dset_name: [] for dset_name in names_of_dsets}
 
-    return dictionary_of_dsets
+        for dset_name in names_of_dsets:
+            dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, study_group, study))
 
+        for dset_name in names_of_dsets:
+            dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name])
 
-def query_for_snp(f, snp, trait=None):
-    if trait is None:
-        dictionary_of_dsets = myutils.get_dsets_from_file(f, names_of_dsets)
-    else:
-        dictionary_of_dsets = query_for_trait(f, trait)
+        return dictionary_of_dsets
 
-    mask = utils.get_equality_mask(snp, dictionary_of_dsets["snp"])
+    def query_for_snp(self, snp, trait=None):
+        if trait is None:
+            dictionary_of_dsets = myutils.get_dsets_from_file(self.f, names_of_dsets)
+        else:
+            dictionary_of_dsets = self.query_for_trait(trait)
 
-    return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
+        mask = utils.get_equality_mask(snp, dictionary_of_dsets["snp"])
 
+        return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
 
-def query_for_chromosome(f, chromosome, trait=None):
-    if trait is None:
-        dictionary_of_dsets = myutils.get_dsets_from_file(f, names_of_dsets)
-    else:
-        dictionary_of_dsets = query_for_trait(f, trait)
+    def query_for_chromosome(self, chromosome, trait=None):
+        if trait is None:
+            dictionary_of_dsets = myutils.get_dsets_from_file(self.f, names_of_dsets)
+        else:
+            dictionary_of_dsets = self.query_for_trait(trait)
 
-    mask = utils.get_equality_mask(int(chromosome), dictionary_of_dsets["chr"])
+        mask = utils.get_equality_mask(int(chromosome), dictionary_of_dsets["chr"])
 
-    return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
+        return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
 
 
 names_of_dsets = ["snp", "pval", "chr", "or", "study", "bp", "effect", "other"]
 
 
 def main():
-
     myutils.argument_checker()
     args = myutils.argument_parser()
 
-    # open h5 file in read mode
-    f = h5py.File(args.h5file, mode="r")
+    search = Search(args.h5file)
 
     query = int(args.query)
     trait = args.trait
@@ -100,17 +101,17 @@ def main():
 
     if query == 1:
         # info_array = all_trait_info(f, args.trait)
-        dictionary_of_dsets = query_for_trait(f, trait)
+        dictionary_of_dsets = search.query_for_trait(trait)
     elif query == 2:
-        dictionary_of_dsets = query_for_study(f, trait, study)
+        dictionary_of_dsets = search.query_for_study(trait, study)
     elif query == 3:
-        dictionary_of_dsets = query_for_snp(f, snp)
+        dictionary_of_dsets = search.query_for_snp(snp)
     elif query == 4:
-        dictionary_of_dsets = query_for_chromosome(f, chr)
+        dictionary_of_dsets = search.query_for_chromosome(chr)
     elif query == 5:
-        dictionary_of_dsets = query_for_snp(f, snp, trait)
+        dictionary_of_dsets = search.query_for_snp(snp, trait)
     elif query == 6:
-        dictionary_of_dsets = query_for_chromosome(f, chr, trait)
+        dictionary_of_dsets = search.query_for_chromosome(chr, trait)
 
     mask = utils.cutoff_mask(dictionary_of_dsets["pval"], upper_limit, lower_limit)
 
