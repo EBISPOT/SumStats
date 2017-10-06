@@ -12,7 +12,7 @@ Docker documentation: https://docs.docker.com
 - Build the docker image
   - `docker build -t sumstats`
 - Create the directories that will be used a volumes
-  - `mkdir -r files/h5files`
+  - `mkdir -p files/h5files`
   - `mkdir files/toload`
 - Create the container from the <sumstats> image
   - `docker run -i -v $(pwd)/files:/application/files -t myapp`
@@ -32,5 +32,5 @@ Files produced by the sumstats package (.h5 files) should be generated in the fi
 - Install the sumstats package -  this will install h5py, numpy, flask, cherrypy - and sumstats
   - `pip install .`
 - Create the directories that will be used to hold the files to be loaded and the .h5 output files
-  - `mkdir -r files/h5files`
+  - `mkdir -p files/h5files`
   - `mkdir files/toload`
