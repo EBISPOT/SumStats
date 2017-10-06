@@ -13,4 +13,4 @@
 __pycache__
 
 # hdf5 specific files
-.h5
+*.h5

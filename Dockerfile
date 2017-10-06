@@ -16,5 +16,6 @@ WORKDIR /application
 
 # Set the default command to execute
 # when creating a new container
-CMD python -m sumstats.server.server
+#CMD python -m sumstats.server.server
+CMD bash
 
