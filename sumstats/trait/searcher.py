@@ -25,9 +25,8 @@
 
 import h5py
 import numpy as np
-import sumstats.utils as utils
-
-import sumstats.trait_study_data.query_utils as myutils
+from sumstats.utils import utils
+import sumstats.trait.query_utils as myutils
 
 
 class Search():

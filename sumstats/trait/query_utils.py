@@ -1,8 +1,6 @@
 import argparse
-
 import numpy as np
-
-import sumstats.utils as utils
+import sumstats.utils.utils as utils
 
 
 def get_dsets_from_file(f, dsets):

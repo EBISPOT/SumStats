@@ -3,11 +3,8 @@ Utils useful for querying
 """
 
 import argparse
-
 import numpy as np
-
-import sumstats.utils as utils
-
+from sumstats.utils import utils
 
 def get_block_groups_within_range(chr_group, block_size, block_lower, block_upper):
     """

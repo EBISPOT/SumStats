@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-import sumstats.trait_study_data.loader as loader
-from sumstats.trait_study_data.searcher import Search
+import sumstats.trait.loader as loader
+from sumstats.trait.searcher import Search
 
 
 class TestFirstApproach(object):

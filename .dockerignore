@@ -1,0 +1,21 @@
+# Docker volume
+files
+
+.git
+/notebooks/*
+Dockerfile
+.DS_Store
+.gitignore
+README.md
+env.*
+
+# To prevent storing dev/temporary container data
+*.csv
+/tmp/*
+
+# Python specific files
+.cache
+__pycache__
+
+# test folder
+tests

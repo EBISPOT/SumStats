@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 import pytest
 
-import sumstats.chr_block_snp_data.loader as loader
+import sumstats.chr.loader as loader
 
 
 class TestFirstApproach(object):

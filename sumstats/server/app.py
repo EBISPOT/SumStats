@@ -1,13 +1,13 @@
 import json
 from flask import Flask, url_for, Response, request
 
-from sumstats.trait_study_data.searcher import Search
+from sumstats.trait.searcher import Search
 import os
 import numpy as np
 
 app = Flask(__name__)
 
-
+H5FILE_PATH = "/application/files/h5files/"
 def generate(array):
     for row in array:
         yield ",".join(row) + "\n"
@@ -42,7 +42,7 @@ def hello():
 
 @app.route("/trait")
 def get_trait():
-    path = os.path.abspath("./sumstats/test.h5")
+    path = os.path.abspath(H5FILE_PATH + "test.h5")
     searcher = Search(path)
 
     args = request.args.to_dict()
@@ -59,7 +59,7 @@ def get_trait():
 
 @app.route("/trait/study")
 def get_study():
-    path = os.path.abspath("./sumstats/test.h5")
+    path = os.path.abspath(H5FILE_PATH + "test.h5")
     searcher = Search(path)
 
     args = request.args.to_dict()

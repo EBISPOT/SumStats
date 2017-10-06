@@ -7,9 +7,10 @@
 .DS_Store
 
 # Python specific files
-.pyc
-.cache
-.coverage
+*.pyc
+*.cache
+*.coverage
+__pycache__
 
 # hdf5 specific files
 .h5
