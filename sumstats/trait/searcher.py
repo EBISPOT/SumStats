@@ -13,12 +13,6 @@
 
     Query 1: Retrieve all information for trait: input = query number (1) and trait name
     Query 2: Retrieve all the information for a study: input = query number (2) and study name and trait name
-    Query 3: Retrieve all information (trait, study, pval, chr, or) for a single SNP: input = query number (3) and snp id
-    Query 4: Retrieve all information (trait, study, pval, chr, or) for a set of SNPs that belong to a chromosome:
-                input = query number (4) and chr (could do this wth other location information)
-    Query 5: Retrieve all information for a trait and a single SNP: input = query number (5), trait and snp id
-    Query 6: Retrieve all information for a trait and a set of SNPs that belong to a chromosome:
-                input = query number (6), trait and chr
 
     If a p-value threshold is given, all returned values need to be restricted to this threshold
 """
@@ -44,35 +38,12 @@ class Search():
         study_group = utils.get_group_from_parent(trait_group, study)
 
         # initialize dictionary of datasets
-        dictionary_of_dsets = {dset_name: [] for dset_name in names_of_dsets}
+        dictionary_of_dsets = {}
 
         for dset_name in names_of_dsets:
-            dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, study_group, study))
-
-        for dset_name in names_of_dsets:
-            dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name])
+            dictionary_of_dsets[dset_name] = np.array(myutils.get_dset_from_group(dset_name, study_group, study))
 
         return dictionary_of_dsets
-
-    def query_for_snp(self, snp, trait=None):
-        if trait is None:
-            dictionary_of_dsets = myutils.get_dsets_from_file(self.f, names_of_dsets)
-        else:
-            dictionary_of_dsets = self.query_for_trait(trait)
-
-        mask = utils.get_equality_mask(snp, dictionary_of_dsets["snp"])
-
-        return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
-
-    def query_for_chromosome(self, chromosome, trait=None):
-        if trait is None:
-            dictionary_of_dsets = myutils.get_dsets_from_file(self.f, names_of_dsets)
-        else:
-            dictionary_of_dsets = self.query_for_trait(trait)
-
-        mask = utils.get_equality_mask(int(chromosome), dictionary_of_dsets["chr"])
-
-        return utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
 
 
 names_of_dsets = ["snp", "pval", "chr", "or", "study", "bp", "effect", "other"]
@@ -103,14 +74,6 @@ def main():
         dictionary_of_dsets = search.query_for_trait(trait)
     elif query == 2:
         dictionary_of_dsets = search.query_for_study(trait, study)
-    elif query == 3:
-        dictionary_of_dsets = search.query_for_snp(snp)
-    elif query == 4:
-        dictionary_of_dsets = search.query_for_chromosome(chr)
-    elif query == 5:
-        dictionary_of_dsets = search.query_for_snp(snp, trait)
-    elif query == 6:
-        dictionary_of_dsets = search.query_for_chromosome(chr, trait)
 
     mask = utils.cutoff_mask(dictionary_of_dsets["pval"], upper_limit, lower_limit)
 

@@ -19,28 +19,45 @@ class TestFirstApproach(object):
         os.remove(self.h5file)
 
     def test_open_with_empty_array(self):
-        snpsarray = np.array(["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"])
-        pvalsarray = np.array([0.4865, 0.4314, 0.5986, 0.7057])
-        chrarray = np.array([1, 1, 2, 2])
-        orarray = np.array([0.92090, 1.01440, 0.97385, 0.99302])
-        bparray = np.array([1118275, 1120431, 49129966, 48480252])
-        effect_array = np.array(["A", "B", "C", "D"])
-        other_array = np.array([])
-        with pytest.raises(SystemExit):
-            loader.Loader(None, self.h5file, "PM001", snpsarray, pvalsarray, chrarray, orarray, bparray, effect_array,
-                          other_array)
+        snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
+        pvalsarray = [0.4865, 0.4314, 0.5986, 0.7057]
+        chrarray = [1, 1, 2, 2]
+        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
+        bparray = [1118275, 1120431, 49129966, 48480252]
+        effect_array = ["A", "B", "C", "D"]
+        other_array = []
+
+        dict = {}
+        dict["snp"] = snpsarray
+        dict["pval"] = pvalsarray
+        dict["chr"] = chrarray
+        dict["or"] = orarray
+        dict["bp"] = bparray
+        dict["effect"] = effect_array
+        dict["other"] = other_array
+        with pytest.raises(ValueError):
+            loader.Loader(None, self.h5file, "PM001", dict)
 
     def test_open_with_None_array(self):
-        snpsarray = np.array(["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"])
-        pvalsarray = np.array([0.4865, 0.4314, 0.5986, 0.7057])
-        chrarray = np.array([1, 1, 2, 2])
-        orarray = np.array([0.92090, 1.01440, 0.97385, 0.99302])
-        bparray = np.array([1118275, 1120431, 49129966, 48480252])
-        effect_array = np.array(["A", "B", "C", "D"])
+        snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
+        pvalsarray = [0.4865, 0.4314, 0.5986, 0.7057]
+        chrarray = [1, 1, 2, 2]
+        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
+        bparray = [1118275, 1120431, 49129966, 48480252]
+        effect_array = ["A", "B", "C", "D"]
         other_array = None
-        with pytest.raises(SystemExit):
-            loader.Loader(None, self.h5file, "PM001", snpsarray, pvalsarray, chrarray, orarray, bparray, effect_array,
-                          other_array)
+
+        dict = {}
+        dict["snp"] = snpsarray
+        dict["pval"] = pvalsarray
+        dict["chr"] = chrarray
+        dict["or"] = orarray
+        dict["bp"] = bparray
+        dict["effect"] = effect_array
+        dict["other"] = other_array
+
+        with pytest.raises(ValueError):
+            loader.Loader(None, self.h5file, "PM001", dict)
 
     def test_create_dataset(self):
         random_group = self.f.create_group("random_group")

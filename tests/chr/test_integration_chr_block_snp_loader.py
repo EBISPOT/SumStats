@@ -20,14 +20,20 @@ class TestFirstApproach(object):
         effect_array = np.array(["A", "B", "C", "D"])
         other_array = np.array(["Z", "Y", "X", "W"])
 
-        load = loader.Loader(None, self.h5file, 'PM001', snpsarray, pvalsarray, chrarray, orarray, bparray,
-                             effect_array, other_array)
+        dict = {}
+        dict["snp"] = snpsarray
+        dict["pval"] = pvalsarray
+        dict["chr"] = chrarray
+        dict["or"] = orarray
+        dict["bp"] = bparray
+        dict["effect"] = effect_array
+        dict["other"] = other_array
+
+        load = loader.Loader(None, self.h5file, 'PM001', dict)
         load.load()
-        load = loader.Loader(None, self.h5file, 'PM002', snpsarray, pvalsarray, chrarray, orarray, bparray,
-                             effect_array, other_array)
+        load = loader.Loader(None, self.h5file, 'PM002', dict)
         load.load()
-        load = loader.Loader(None, self.h5file, 'PM003', snpsarray, pvalsarray, chrarray, orarray, bparray,
-                             effect_array, other_array)
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
 
         # open h5 file in read/write mode
@@ -56,31 +62,31 @@ class TestFirstApproach(object):
         blocks = list(chr_group_2.keys())
         assert len(blocks) == 2
 
-
         assert blocks[0] == "48500000"
         assert blocks[1] == "49200000"
 
     def test_snps_in_blocks(self):
         block11 = self.f.get("/1/1200000")
-        snps = block11.keys()
+        snps = list(block11.keys())
         assert len(snps) == 2
         assert block11.get("rs185339560") is not None
         assert block11.get("rs11250701") is not None
 
         block21 = self.f.get("/2/48500000")
-        snps = block21.keys()
+        snps = list(block21.keys())
         assert len(snps) == 1
         assert block21.get("rs7085086") is not None
 
         block22 = self.f.get("/2/49200000")
-        snps = block22.keys()
+        snps = list(block22.keys())
         assert len(snps) == 1
         assert block22.get("chr10_2622752_D") is not None
 
     def test_snp_group_content(self):
         snp1 = self.f.get("/1/1200000/rs185339560")
         assert snp1 is not None
-        info = snp1.keys()
+        info = list(snp1.keys())
+        print("aaa", list(snp1.keys()))
         assert len(info) == 6
 
         pvals = snp1.get("pval")

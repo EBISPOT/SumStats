@@ -15,94 +15,81 @@
 
 
 import h5py
-from numpy import genfromtxt
 import argparse
 import time
 import numpy as np
+from sumstats.utils import utils
+import pandas as pd
+
+file_column_names = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+dataset_to_store_names = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+
+
+def create_trait_group(file, trait):
+    if trait in file:
+        return utils.get_group_from_parent(file, trait)
+    else:
+        return file.create_group(trait)
+
+
+def create_study_group(trait_group, study):
+    if study in trait_group:
+        return utils.get_group_from_parent(trait_group, study)
+    else:
+        return trait_group.create_group(study)
+
+
+def create_dataset(group, dset_name, data):
+    """
+    :param group: an hdf5 group
+    :param dset_name: a string with the dataset name
+    :param data: a np.array of data elements (string, int, float)
+    """
+    if np.issubdtype(data.dtype, str):
+        vlen = h5py.special_dtype(vlen=str)
+        data = np.array(data, dtype=vlen)
+        group.create_dataset(dset_name, data=data, compression="gzip")
+    else:
+        group.create_dataset(dset_name, data=data, compression="gzip")
 
 
 class Loader():
 
-    def __init__(self, tsv, h5file, study, trait, snp_array=None, pval_array=None, chr_array=None, or_array=None,
-                 bp_array=None, effect_array=None, other_array=None):
+    def __init__(self, tsv, h5file, study, trait, dictionary_of_dsets=None):
         self.h5file = h5file
         self.study = study
         self.trait = trait
+        self.dictionary_of_dsets = dictionary_of_dsets
 
         if tsv is None:
-            loaded = False
-            if snp_array is not None and pval_array is not None and chr_array is not None and or_array is not None and bp_array is not None and effect_array is not None and other_array is not None:
-                if len(snp_array) != 0 and len(pval_array) != 0 and len(chr_array) != 0 and len(or_array) != 0 and len(bp_array) != 0 and len(effect_array) != 0 and len(other_array) != 0:
-                    loaded = True
-                    self.snp_array = snp_array
-                    self.pval_array = pval_array
-                    self.chr_array = chr_array
-                    self.or_array = or_array
-                    self.bp_array = bp_array
-                    self.effect_array = effect_array
-                    self.other_array = other_array
-            if not loaded:
-                print("If no tsv file provided, the arrays containing the study info must not be empty or None")
-                raise SystemExit(1)
+            utils.convert_lists_to_np_arrays(dictionary_of_dsets)
         else:
-            # trait = args.trait_name
             print(time.strftime('%a %H:%M:%S'))
 
-            # snp id is a string, so dtype = None
-            # will be ndarrays
-            self.snp_array = genfromtxt(tsv, delimiter='\t', usecols=(0), dtype=None)
-            self.pval_array = genfromtxt(tsv, delimiter='\t', usecols=(1), dtype=float)
-            self.chr_array = genfromtxt(tsv, delimiter='\t', usecols=(2), dtype=int)
-            self.or_array = genfromtxt(tsv, delimiter='\t', usecols=(3), dtype=float)
-            self.bp_array = genfromtxt(tsv, delimiter='\t', usecols=(4), dtype=int)
-            self.effect_array = genfromtxt(tsv, delimiter='\t', usecols=(5), dtype=None)
-            self.other_array = genfromtxt(tsv, delimiter='\t', usecols=(6), dtype=None)
+            dictionary_of_dsets = pd.read_csv(tsv, names=file_column_names, delimiter="\t").to_dict(orient='list')
 
+            utils.check_correct_headers(dictionary_of_dsets, file_column_names)
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
+
+        utils.evaluate_datasets(dictionary_of_dsets)
 
     def load(self):
 
         h5file = self.h5file
         study = self.study
         trait = self.trait
-
-        # snp id is a string, so dtype = None
-        snp_array = self.snp_array
-        pval_array = self.pval_array
-        chr_array = self.chr_array
-        or_array = self.or_array
-        bp_array = self.bp_array
-        effect_array = self.effect_array
-        other_array = self.other_array
+        dictionary_of_dsets = self.dictionary_of_dsets
 
         # Open the file with read/write permissions and create if it doesn't exist
         f = h5py.File(h5file, 'a')
 
-        if trait in f:
-            trait_group = f[trait]
-            if study in trait_group:
-                study_group = trait_group[study]
-            else:
-                study_group = trait_group.create_group(study)
-        else:
-            study_group = f.create_group(trait + "/" + study)
+        trait_group = create_trait_group(f, trait)
+        study_group = create_study_group(trait_group, study)
 
-        vlen = h5py.special_dtype(vlen=str)
-
-        snp_array = np.array(snp_array, dtype=vlen)
-        study_group.create_dataset('snp', data=snp_array)
-
-        study_group.create_dataset('pval', data=pval_array)
-        study_group.create_dataset('chr', data=chr_array)
-        study_group.create_dataset('or', data=or_array)
-        study_group.create_dataset('bp', data=bp_array)
-
-        effect_array = np.array(effect_array, dtype=vlen)
-        study_group.create_dataset('effect', data=effect_array)
-
-        other_array = np.array(other_array, dtype=vlen)
-        study_group.create_dataset('other', data=other_array)
+        # group, dset_name, data
+        for dset_name in dataset_to_store_names:
+            create_dataset(study_group, dset_name, dictionary_of_dsets[dset_name])
 
 
 def main():
@@ -120,6 +107,7 @@ def main():
 
     loader = Loader(tsv, h5file, study, trait)
     loader.load()
+
 
 if __name__ == '__main__':
     main()

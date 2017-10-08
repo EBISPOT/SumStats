@@ -60,14 +60,44 @@ def get_equality_mask(value, vector):
 def filter_by_mask(vector, mask):
     if not all(type(x) == bool or type(x) == np.bool_ for x in mask):
         raise TypeError("Trying to filter vector using non boolean mask")
-    return vector[mask]
+    filtered_vector = vector[mask]
+    return filtered_vector
 
 
 def filter_dictionary_by_mask(dictionary, mask):
+    filtered_dictionary = {}
     for dset in dictionary:
-        dictionary[dset] = filter_by_mask(dictionary[dset], mask)
+        filtered_dictionary[dset] = filter_by_mask(dictionary[dset], mask)
 
-    return dictionary
+    return filtered_dictionary
+
+
+def convert_lists_to_np_arrays(dictionary_of_dsets):
+    for dset_name in dictionary_of_dsets:
+        dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name])
+
+
+def check_correct_headers(dictionary_of_dsets, file_column_names):
+    for column in file_column_names:
+        if column == dictionary_of_dsets[column][0]:
+            dictionary_of_dsets[column] = np.array(dictionary_of_dsets[column][1:])
+        else:
+            raise ValueError("Headers in file to not match defined column names: " + str(file_column_names))
+
+
+def evaluate_datasets(dictionary_of_dsets):
+    for dset_name in dictionary_of_dsets:
+        array = dictionary_of_dsets[dset_name]
+        if empty_array(array):
+            raise ValueError("Array is None or empty: " + dset_name)
+
+
+def empty_array(array):
+    if array.tolist() is None:
+        return True
+    if len(array) == 0:
+        return True
+    return False
 
 
 def _check_type_compatibility(value, vector):

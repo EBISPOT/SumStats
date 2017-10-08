@@ -9,5 +9,5 @@ setup(
     author='Olga Vrousgou',
     author_email='olgavrou@gmail.com',
     description='Package for saving and querying large summary statistics',
-    install_requires=['h5py==2.7.0', 'numpy>=1.12.1', 'flask==0.12.2', 'cherrypy==11.0.0']
+    install_requires=['h5py==2.7.0', 'numpy>=1.12.1', 'pandas', 'flask==0.12.2', 'cherrypy==11.0.0']
 )
