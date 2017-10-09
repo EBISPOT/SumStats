@@ -39,7 +39,7 @@ def combine_masks(mask1, mask2):
     return [all(tup) for tup in zip(mask1, mask2)]
 
 
-def cutoff_mask(vector, upper_limit, lower_limit):
+def cutoff_mask(vector, lower_limit, upper_limit):
     _check_type_compatibility(upper_limit, vector)
     _check_type_compatibility(lower_limit, vector)
     mask_u = get_upper_limit_mask(upper_limit, vector)

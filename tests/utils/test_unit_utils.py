@@ -128,37 +128,37 @@ class TestQueryUtils(object):
         block_ceil = block_size = 100000
         bp_chr_array = np.asarray([0, 100000, 100001, 1, 50000, 200000])
         expected_mask = [True, True, False, True, True, False]
-        block_mask = utils.cutoff_mask(bp_chr_array, block_ceil, block_floor)
+        block_mask = utils.cutoff_mask(bp_chr_array, block_floor, block_ceil)
         assert np.array_equal(expected_mask, block_mask)
 
         block_floor = block_ceil + 1
         block_ceil += block_size
         bp_chr_array = np.asarray([0, 100000, 100001, 1, 50000, 200000, 200001, 300000])
         expected_mask = [False, False, True, False, False, True, False, False]
-        block_mask = utils.cutoff_mask(bp_chr_array, block_ceil, block_floor)
+        block_mask = utils.cutoff_mask(bp_chr_array, block_floor, block_ceil)
         assert np.array_equal(expected_mask, block_mask)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, block_ceil, "a")
+            utils.cutoff_mask(bp_chr_array, "a", block_ceil)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, block_ceil, True)
+            utils.cutoff_mask(bp_chr_array, True, block_ceil)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, block_ceil, 0.1)
+            utils.cutoff_mask(bp_chr_array, 0.1, block_ceil)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, 0.3, 0.1)
+            utils.cutoff_mask(bp_chr_array, 0.1, 0.3)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, "a", block_floor)
+            utils.cutoff_mask(bp_chr_array, block_floor, "a")
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, False, block_floor)
+            utils.cutoff_mask(bp_chr_array, block_floor, False)
 
         with pytest.raises(TypeError):
             bp_chr_array = np.array(["a", "b", "c", "d", "d", "d", "d", "d"])
-            utils.cutoff_mask(bp_chr_array, block_ceil, block_floor)
+            utils.cutoff_mask(bp_chr_array, block_floor, block_ceil)
 
 
     def test_get_equality_mask(self):

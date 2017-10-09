@@ -3,6 +3,12 @@ import numpy as np
 import sumstats.utils.utils as utils
 
 
+TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+TO_STORE_DSETS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+SNP_DSET = 'snp'
+BP_DSET = 'bp'
+PVAL_DSET = 'pval'
+
 def get_dsets_from_file(f, dsets):
 
     # initialize dictionary of datasets
@@ -39,7 +45,7 @@ def get_dset_from_group(dset_name, group, extra_array_filler=None):
     array = utils.get_dset(group, dset_name)
     if (array is None) and (extra_array_filler is not None):
         # pval is never empty
-        pval = utils.get_dset(group, "pval")
+        pval = utils.get_dset(group, PVAL_DSET)
         array = [extra_array_filler for _ in range(len(pval))]
     return array
 

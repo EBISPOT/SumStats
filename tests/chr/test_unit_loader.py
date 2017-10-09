@@ -1,7 +1,6 @@
 import os
 
 import h5py
-import numpy as np
 import pytest
 
 import sumstats.chr.loader as loader
@@ -152,7 +151,7 @@ class TestFirstApproach(object):
 
     def test_create_chromosome_groups(self):
         array_of_chromosomes = ["1", 2, "X"]
-        loader.create_chromosome_groups(self.f, array_of_chromosomes)
+        loader.create_groups_in_parent(self.f, array_of_chromosomes)
         chr1 = self.f.get("1")
         assert chr1 is not None
         chr2 = self.f.get("2")

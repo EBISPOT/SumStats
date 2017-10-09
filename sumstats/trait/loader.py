@@ -21,8 +21,11 @@ import numpy as np
 from sumstats.utils import utils
 import pandas as pd
 
-file_column_names = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-dataset_to_store_names = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+TO_STORE_DSETS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+SNP_DSET = 'snp'
+BP_DSET = 'bp'
+PVAL_DSET = 'pval'
 
 
 def create_trait_group(file, trait):
@@ -66,9 +69,9 @@ class Loader():
         else:
             print(time.strftime('%a %H:%M:%S'))
 
-            dictionary_of_dsets = pd.read_csv(tsv, names=file_column_names, delimiter="\t").to_dict(orient='list')
+            dictionary_of_dsets = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
 
-            utils.check_correct_headers(dictionary_of_dsets, file_column_names)
+            utils.check_correct_headers(dictionary_of_dsets, TO_LOAD_DSET_HEADERS)
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
 
@@ -88,7 +91,7 @@ class Loader():
         study_group = create_study_group(trait_group, study)
 
         # group, dset_name, data
-        for dset_name in dataset_to_store_names:
+        for dset_name in TO_STORE_DSETS:
             create_dataset(study_group, dset_name, dictionary_of_dsets[dset_name])
 
 

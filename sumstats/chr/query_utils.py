@@ -6,6 +6,16 @@ import argparse
 import numpy as np
 from sumstats.utils import utils
 
+TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+TO_STORE_DSETS = ['pval', 'or', 'bp', 'effect', 'other']
+BLOCK_SIZE = 100000
+SNP_DSET = 'snp'
+BP_DSET = 'bp'
+PVAL_DSET = 'pval'
+CHR_DSET = 'chr'
+STUDY_DSET = 'study'
+
+
 def get_block_groups_within_range(chr_group, block_size, block_lower, block_upper):
     """
     block_lower and block_upper should be concrete blocks (i.e. factor of the block_size)
@@ -42,7 +52,7 @@ def get_dset_from_group(dset_name, group, empty_array_element=None):
     array = utils.get_dset(group, dset_name)
     if (array is None) and (empty_array_element is not None):
         # pval is never empty
-        pval = utils.get_dset(group, "pval")
+        pval = utils.get_dset(group, PVAL_DSET)
         array = [empty_array_element for _ in range(len(pval))]
     return array
 

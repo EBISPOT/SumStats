@@ -22,6 +22,13 @@ import numpy as np
 from sumstats.utils import utils
 import sumstats.trait.query_utils as myutils
 
+TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+TO_STORE_DSETS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+TO_QUERY_DSETS = ['snp', 'pval', 'chr', 'or', 'study', 'bp', 'effect', 'other']
+SNP_DSET = 'snp'
+BP_DSET = 'bp'
+PVAL_DSET = 'pval'
+
 
 class Search():
     def __init__(self, h5file):
@@ -31,7 +38,7 @@ class Search():
 
     def query_for_trait(self, trait):
         trait_group = utils.get_group_from_parent(self.f, trait)
-        return myutils.get_dsets_from_trait_group(trait_group, names_of_dsets)
+        return myutils.get_dsets_from_trait_group(trait_group, TO_QUERY_DSETS)
 
     def query_for_study(self, trait, study):
         trait_group = utils.get_group_from_parent(self.f, trait)
@@ -40,13 +47,11 @@ class Search():
         # initialize dictionary of datasets
         dictionary_of_dsets = {}
 
-        for dset_name in names_of_dsets:
+        for dset_name in TO_QUERY_DSETS:
             dictionary_of_dsets[dset_name] = np.array(myutils.get_dset_from_group(dset_name, study_group, study))
 
         return dictionary_of_dsets
 
-
-names_of_dsets = ["snp", "pval", "chr", "or", "study", "bp", "effect", "other"]
 
 
 def main():
@@ -75,7 +80,7 @@ def main():
     elif query == 2:
         dictionary_of_dsets = search.query_for_study(trait, study)
 
-    mask = utils.cutoff_mask(dictionary_of_dsets["pval"], upper_limit, lower_limit)
+    mask = utils.cutoff_mask(dictionary_of_dsets[PVAL_DSET], lower_limit, upper_limit)
 
     if mask is not None:
         dictionary_of_dsets = utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)

@@ -17,9 +17,14 @@ import pandas as pd
 
 from sumstats.utils import utils
 
-file_column_names = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-dataset_to_store_names = ['pval', 'or', 'bp', 'effect', 'other']
-block_size = 100000
+TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+TO_STORE_DSETS = ['pval', 'or', 'bp', 'effect', 'other']
+BLOCK_SIZE = 100000
+SNP_DSET = 'snp'
+BP_DSET = 'bp'
+PVAL_DSET = 'pval'
+CHR_DSET = 'chr'
+STUDY_DSET = 'study'
 
 
 def create_dataset(group, dset_name, data):
@@ -55,59 +60,62 @@ def expand_dataset(group, dset_name, data):
         dset[-1] = data
 
 
-def create_chromosome_groups(f, array_of_chromosomes):
-    for chr in array_of_chromosomes:
-        if str(chr) not in f:
-            f.create_group(str(chr))
+def create_groups_in_parent(parent, list_of_groups):
+    for new_group in list_of_groups:
+        if str(new_group) not in parent:
+            parent.create_group(str(new_group))
 
 
 def slice_datasets_where_chromosome(chromosome, dict_of_dsets):
     # get the slices from all the arrays where chromosome position == i
-    chr_mask = utils.get_equality_mask(chromosome, dict_of_dsets["chr"])
+    chr_mask = utils.get_equality_mask(chromosome, dict_of_dsets[CHR_DSET])
     return utils.filter_dictionary_by_mask(dict_of_dsets, chr_mask)
 
 
 def initialize_block_limits():
     block_floor = 0
-    block_ceil = block_size
+    block_ceil = BLOCK_SIZE
     return block_floor, block_ceil
 
 
 def increment_block_limits(block_floor, block_ceil):
     block_floor = block_ceil + 1
-    block_ceil += block_size
+    block_ceil += BLOCK_SIZE
     return block_floor, block_ceil
 
 
-def get_ceilings_block_group(chr_group, block_ceil):
+def get_block_group_from_block_ceil(chr_group, block_ceil):
     block_group = chr_group.get(str(block_ceil))
     if block_group is None:
         block_group = chr_group.create_group(str(block_ceil))
     return block_group
 
 
-def save_info_in_block(block_group, study, dict_of_dsets):
+def save_info_in_block_group(block_group, study, dict_of_dsets):
     # for the block_group, loop through the snps
     # and save x arrays, one for each piece of information
     # in the corresponding position so the informaiton is kept in sync
     # i.e. snp[i] is saved in the 'snps' dataset in the same position as it's corresponding orvals[i]
-    snps = dict_of_dsets["snp"]
+    snps = dict_of_dsets[SNP_DSET]
 
     for i in range(len(snps)):
-
-        snp_group = block_group.get(snps[i])
-        if snp_group is None:
-            snp_group = block_group.create_group(snps[i])
-
-            for dset_name in dataset_to_store_names:
-                create_dataset(snp_group, dset_name, dict_of_dsets[dset_name][i])
-                # create the study dataset
-            create_dataset(snp_group, "study", study)
-        else:
-            for dset_name in dataset_to_store_names:
+        snp = snps[i]
+        if snp in block_group:
+            snp_group = utils.get_group_from_parent(block_group, snp)
+            for dset_name in TO_STORE_DSETS:
                 expand_dataset(snp_group, dset_name, dict_of_dsets[dset_name][i])
             # expand study dataset
-            expand_dataset(snp_group, "study", study)
+            expand_dataset(snp_group, STUDY_DSET, study)
+        else:
+            snp_group = block_group.create_group(snp)
+            for dset_name in TO_STORE_DSETS:
+                create_dataset(snp_group, dset_name, dict_of_dsets[dset_name][i])
+                # create the study dataset
+            create_dataset(snp_group, STUDY_DSET, study)
+
+
+def block_limit_not_reached_max(block_ceil, max_bp):
+    return block_ceil <= (max_bp + BLOCK_SIZE)
 
 
 class Loader():
@@ -121,8 +129,8 @@ class Loader():
         else:
             print(time.strftime('%a %H:%M:%S'))
 
-            dictionary_of_dsets = pd.read_csv(tsv, names=file_column_names, delimiter="\t").to_dict(orient='list')
-            utils.check_correct_headers(dictionary_of_dsets, file_column_names)
+            dictionary_of_dsets = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
+            utils.check_correct_headers(dictionary_of_dsets, TO_LOAD_DSET_HEADERS)
 
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
@@ -135,31 +143,28 @@ class Loader():
         dict_of_dsets = self.dictionary_of_dsets
         study = self.study
 
-        unique_chromosomes_in_file = set(dict_of_dsets["chr"])
+        unique_chromosomes_in_file = set(dict_of_dsets[CHR_DSET])
         chromosome_array = np.array([x for x in iter(unique_chromosomes_in_file)])
-        create_chromosome_groups(f, chromosome_array)
+        create_groups_in_parent(f, chromosome_array)
 
         for chromosome in chromosome_array:
-            chromosome_slices = slice_datasets_where_chromosome(chromosome, dict_of_dsets)
+            dsets_chromosome_slices = slice_datasets_where_chromosome(chromosome, dict_of_dsets)
 
             chr_group = utils.get_group_from_parent(f, chromosome)
-            bp_list_chr = chromosome_slices["bp"]
-            # Filter by BP (Chromosome Position)
+            bp_list_chr = dsets_chromosome_slices[BP_DSET]
             max_bp = max(bp_list_chr)
-            print("MAX OF ARRAY:", max_bp)
+
+            print("max baise pair location in chromosome:", max_bp)
 
             block_floor, block_ceil = initialize_block_limits()
 
-            while block_ceil <= (max_bp + block_size):
+            while block_limit_not_reached_max(block_ceil, max_bp):
 
-                block_i_mask = utils.cutoff_mask(bp_list_chr, block_ceil, block_floor)
-                bps = utils.filter_by_mask(bp_list_chr, block_i_mask)
-
-                if len(bps) > 0:
-                    # filter the info that we want based on the block mask
-                    block_slices = utils.filter_dictionary_by_mask(chromosome_slices, block_i_mask)
-                    block_group = get_ceilings_block_group(chr_group, block_ceil)
-                    save_info_in_block(block_group, study, block_slices)
+                block_mask = utils.cutoff_mask(bp_list_chr, block_floor, block_ceil)
+                if np.any(block_mask):
+                    dsets_block_slices = utils.filter_dictionary_by_mask(dsets_chromosome_slices, block_mask)
+                    block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
+                    save_info_in_block_group(block_group, study, dsets_block_slices)
 
                 block_floor, block_ceil = increment_block_limits(block_floor, block_ceil)
 
