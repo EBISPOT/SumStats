@@ -61,7 +61,7 @@ class TestFirstApproach(object):
     def test_create_dataset(self):
         random_group = self.f.create_group("random_group")
         data = "random string"
-        dset_name = "random dset"
+        dset_name = "study"
         loader.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
@@ -70,7 +70,7 @@ class TestFirstApproach(object):
         assert data[0] == "random string"
 
         data = 1
-        dset_name = "random_dset"
+        dset_name = "bp"
         loader.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
@@ -79,7 +79,7 @@ class TestFirstApproach(object):
         assert data[0] == 1
 
         data = 0.2
-        dset_name = "random_dset_"
+        dset_name = "or"
         loader.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
@@ -91,7 +91,7 @@ class TestFirstApproach(object):
         random_group = self.f.create_group("random group")
 
         data = "random string"
-        dset_name = "random dset"
+        dset_name = "study"
         loader.create_dataset(random_group, dset_name, data)
         data2 = "random string 2"
         loader.expand_dataset(random_group, dset_name, data2)
@@ -104,7 +104,7 @@ class TestFirstApproach(object):
         assert dset_data[1] == data2
 
         data = 1
-        dset_name = "random_dset"
+        dset_name = "chr"
         loader.create_dataset(random_group, dset_name, data)
         data2 = 2
         loader.expand_dataset(random_group, dset_name, data2)
@@ -117,7 +117,7 @@ class TestFirstApproach(object):
         assert dset_data[1] == 2
 
         data = 0.1
-        dset_name = "random_dset_"
+        dset_name = "pval"
         loader.create_dataset(random_group, dset_name, data)
         data2 = 0.2
         loader.expand_dataset(random_group, dset_name, data2)
@@ -133,7 +133,7 @@ class TestFirstApproach(object):
         random_group = self.f.create_group("random group")
 
         data = "random string"
-        dset_name = "random dset"
+        dset_name = "study"
         loader.expand_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
 

@@ -23,6 +23,10 @@ import pandas as pd
 
 TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
 TO_STORE_DSETS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+
+vlen_dtype = h5py.special_dtype(vlen=str)
+DSET_TYPES = {'snp' : vlen_dtype, 'pval': float, 'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype}
+
 SNP_DSET = 'snp'
 BP_DSET = 'bp'
 PVAL_DSET = 'pval'
@@ -44,16 +48,9 @@ def create_study_group(trait_group, study):
 
 def create_dataset(group, dset_name, data):
     """
-    :param group: an hdf5 group
-    :param dset_name: a string with the dataset name
     :param data: a np.array of data elements (string, int, float)
     """
-    if np.issubdtype(data.dtype, str):
-        vlen = h5py.special_dtype(vlen=str)
-        data = np.array(data, dtype=vlen)
-        group.create_dataset(dset_name, data=data, compression="gzip")
-    else:
-        group.create_dataset(dset_name, data=data, compression="gzip")
+    group.create_dataset(dset_name, data=data, compression="gzip")
 
 
 class Loader():
@@ -62,20 +59,19 @@ class Loader():
         self.h5file = h5file
         self.study = study
         self.trait = trait
-        self.dictionary_of_dsets = dictionary_of_dsets
 
-        if tsv is None:
-            utils.convert_lists_to_np_arrays(dictionary_of_dsets)
-        else:
+        if tsv is not None:
             print(time.strftime('%a %H:%M:%S'))
 
             dictionary_of_dsets = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
 
-            utils.check_correct_headers(dictionary_of_dsets, TO_LOAD_DSET_HEADERS)
+            utils.remove_headers(dictionary_of_dsets, TO_LOAD_DSET_HEADERS)
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
 
+        utils.convert_lists_to_np_arrays(dictionary_of_dsets, DSET_TYPES)
         utils.evaluate_datasets(dictionary_of_dsets)
+        self.dictionary_of_dsets = dictionary_of_dsets
 
     def load(self):
 

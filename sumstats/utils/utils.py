@@ -72,17 +72,19 @@ def filter_dictionary_by_mask(dictionary, mask):
     return filtered_dictionary
 
 
-def convert_lists_to_np_arrays(dictionary_of_dsets):
+def convert_lists_to_np_arrays(dictionary_of_dsets, dset_types):
     for dset_name in dictionary_of_dsets:
-        dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name])
+        dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name], dtype=dset_types[dset_name])
+    return dictionary_of_dsets
 
 
-def check_correct_headers(dictionary_of_dsets, file_column_names):
-    for column in file_column_names:
+def remove_headers(dictionary_of_dsets, column_headers):
+    for column in column_headers:
         if column == dictionary_of_dsets[column][0]:
-            dictionary_of_dsets[column] = np.array(dictionary_of_dsets[column][1:])
+            dictionary_of_dsets[column] = dictionary_of_dsets[column][1:]
         else:
-            raise ValueError("Headers in file to not match defined column names: " + str(file_column_names))
+            raise ValueError("Headers in file to not match defined column names: " + str(column_headers))
+    return dictionary_of_dsets
 
 
 def evaluate_datasets(dictionary_of_dsets):
