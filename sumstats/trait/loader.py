@@ -70,7 +70,7 @@ class Loader():
             print(time.strftime('%a %H:%M:%S'))
 
         utils.convert_lists_to_np_arrays(dictionary_of_dsets, DSET_TYPES)
-        utils.evaluate_datasets(dictionary_of_dsets)
+        utils.evaluate_np_datasets(dictionary_of_dsets)
         self.dictionary_of_dsets = dictionary_of_dsets
 
     def load(self):

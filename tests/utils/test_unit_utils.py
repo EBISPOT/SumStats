@@ -3,7 +3,6 @@ import os
 import h5py
 import numpy as np
 import pytest
-
 import sumstats.utils.utils as utils
 
 
@@ -160,7 +159,6 @@ class TestQueryUtils(object):
             bp_chr_array = np.array(["a", "b", "c", "d", "d", "d", "d", "d"])
             utils.cutoff_mask(bp_chr_array, block_floor, block_ceil)
 
-
     def test_get_equality_mask(self):
         chromosome_array = np.asarray([1, 2, 3, 1])
         with pytest.raises(TypeError):
@@ -211,7 +209,7 @@ class TestQueryUtils(object):
         with pytest.raises(TypeError):
             utils.filter_by_mask(vector, mask)
 
-    def test_filter_dictioanary_by_mask(self):
+    def test_filter_dictionary_by_mask(self):
         dict = {'dset1' : np.array([1, 2, 3]), 'dset2' : np.array([1, 3, 3])}
         pvals = np.array([1, 2, 2])
         mask = utils.get_equality_mask(1, pvals)
@@ -235,3 +233,70 @@ class TestQueryUtils(object):
         dict = utils.filter_dictionary_by_mask(dict, mask)
         assert np.array_equal(dict["dset1"], np.array(["b", "c"]))
         assert np.array_equal(dict["dset2"], np.array(["d", "e"]))
+
+    def test_convert_lists_to_np_arrays(self):
+        vlen_dtype = h5py.special_dtype(vlen=str)
+        DSET_TYPES = {'snp': vlen_dtype, 'pval': float, 'study': vlen_dtype, 'chr': int, 'or': float, 'bp': int,
+                      'effect': vlen_dtype, 'other': vlen_dtype}
+
+        dict_of_dsets = {'snp': [1, 2, 3], 'pval': ["1", "2", "3"], 'chr': ["1", "2", "3"]}
+
+        dict_of_dsets = utils.convert_lists_to_np_arrays(dict_of_dsets, DSET_TYPES)
+        assert dict_of_dsets['snp'].dtype == vlen_dtype
+        assert dict_of_dsets['pval'].dtype == float
+        assert dict_of_dsets['chr'].dtype == int
+
+        dict_of_dsets['bp'] = []
+        dict_of_dsets = utils.convert_lists_to_np_arrays(dict_of_dsets, DSET_TYPES)
+        assert len(dict_of_dsets['bp']) == 0
+
+        dict_of_dsets['random'] = [1, 2, 3]
+        with pytest.raises(KeyError):
+            utils.convert_lists_to_np_arrays(dict_of_dsets, DSET_TYPES)
+
+    def test_remove_headers(self):
+        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr' ]
+        dict_of_dsets = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
+
+        dict_of_dsets = utils.remove_headers(dict_of_dsets, TO_LOAD_DSET_HEADERS)
+        assert "snp" not in dict_of_dsets['snp']
+        assert "pval" not in dict_of_dsets['pval']
+        assert "chr" not in dict_of_dsets['chr']
+
+        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
+        dict_of_dsets = {'snp': ['study', 1, 2, 3], 'pval': ['pval', "1", "2", "3"], 'chr': ['chr', "1", "2", "3"]}
+        with pytest.raises(ValueError):
+            utils.remove_headers(dict_of_dsets, TO_LOAD_DSET_HEADERS)
+
+        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
+        dict_of_dsets = {'snp': [1, 2, 3], 'pval': ['pval', "1", "2", "3"], 'chr': ['chr', "1", "2", "3"]}
+        with pytest.raises(ValueError):
+            utils.remove_headers(dict_of_dsets, TO_LOAD_DSET_HEADERS)
+
+        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or']
+        dict_of_dsets = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
+        with pytest.raises(KeyError):
+            utils.remove_headers(dict_of_dsets, TO_LOAD_DSET_HEADERS)
+
+    def test_evaluate_datasets(self):
+        print()
+        dict_of_dsets = {}
+        utils.evaluate_np_datasets(dict_of_dsets)
+
+        dict_of_dsets = {'snp': ["rs1", "rs2", "rs3"], 'pval': [0.1, 3.1, 2.1], 'chr': [1, 2, 3]}
+        with pytest.raises(AttributeError):
+            utils.evaluate_np_datasets(dict_of_dsets)
+
+        dict_of_dsets = {'snp': np.array(["rs1", "rs2", "rs3"]), 'pval': np.array([0.1, 3.1, 2.1]), 'chr': np.array([1, 2, 3])}
+        utils.evaluate_np_datasets(dict_of_dsets)
+
+        dict_of_dsets = {'snp': np.array(None)}
+        with pytest.raises(ValueError):
+            utils.evaluate_np_datasets(dict_of_dsets)
+
+        dict_of_dsets = {'snp': np.array([])}
+        with pytest.raises(ValueError):
+            utils.evaluate_np_datasets(dict_of_dsets)
+
+
+

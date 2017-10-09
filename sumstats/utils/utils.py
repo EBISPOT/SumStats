@@ -68,7 +68,6 @@ def filter_dictionary_by_mask(dictionary, mask):
     filtered_dictionary = {}
     for dset in dictionary:
         filtered_dictionary[dset] = filter_by_mask(dictionary[dset], mask)
-
     return filtered_dictionary
 
 
@@ -87,14 +86,14 @@ def remove_headers(dictionary_of_dsets, column_headers):
     return dictionary_of_dsets
 
 
-def evaluate_datasets(dictionary_of_dsets):
+def evaluate_np_datasets(dictionary_of_dsets):
     for dset_name in dictionary_of_dsets:
         array = dictionary_of_dsets[dset_name]
-        if empty_array(array):
+        if empty_np_array(array):
             raise ValueError("Array is None or empty: " + dset_name)
 
 
-def empty_array(array):
+def empty_np_array(array):
     if array.tolist() is None:
         return True
     if len(array) == 0:
