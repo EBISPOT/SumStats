@@ -16,19 +16,19 @@ CHR_DSET = 'chr'
 STUDY_DSET = 'study'
 
 
-def get_block_groups_within_range(chr_group, block_size, block_lower, block_upper):
+def get_block_groups_within_range(chr_group, block_lower, block_upper):
     """
     block_lower and block_upper should be concrete blocks (i.e. factor of the block_size)
     for block size 100, when I say I want block 100-200 I need to get back block groups[100, 200]
      (i.e. all the positions from 0-200)
     """
-    if (block_lower % block_size != 0) or (block_upper % block_size != 0):
+    if (block_lower % BLOCK_SIZE != 0) or (block_upper % BLOCK_SIZE != 0):
         print("I can only accept blocks that conform to the block size")
-        print("block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (block_size, block_lower, block_upper))
+        print("block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (BLOCK_SIZE, block_lower, block_upper))
         raise SystemExit(1)
 
     blocks = [utils.get_group_from_parent(chr_group, block) for block in
-              range(block_lower, (block_upper + block_size), block_size)]
+              range(block_lower, (block_upper + BLOCK_SIZE), BLOCK_SIZE)]
     return blocks
 
 
@@ -57,26 +57,25 @@ def get_dset_from_group(dset_name, group, empty_array_element=None):
     return array
 
 
-def get_block_number(block_size, bp_position):
+def get_block_number(bp_position):
     """
     Calculates the block that this BP (base pair location) will belong
     Blocks are saved with their upper limit, i.e. for block size = 100 if
     bp == 50 then it is saved in the block 0-100, so we will get back
     the block name called "100"
 
-    :param block_size: the size of the blocks as they are saved in the chromosome
     :param bp_position: the base pair location
     :return: the upper limit of the block that the bp belongs to
     """
 
-    if bp_position <= block_size:
-        return block_size
+    if bp_position <= BLOCK_SIZE:
+        return BLOCK_SIZE
     else:
-        is_factor_of_block_size = bp_position % block_size == 0
+        is_factor_of_block_size = bp_position % BLOCK_SIZE == 0
         if is_factor_of_block_size:
             return bp_position
         else:
-            return bp_position - (bp_position % block_size) + block_size
+            return bp_position - (bp_position % BLOCK_SIZE) + BLOCK_SIZE
 
 
 def argument_checker():
