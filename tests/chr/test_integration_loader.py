@@ -86,7 +86,6 @@ class TestFirstApproach(object):
         snp1 = self.f.get("/1/1200000/rs185339560")
         assert snp1 is not None
         info = list(snp1.keys())
-        print("aaa", list(snp1.keys()))
         assert len(info) == 6
 
         pvals = snp1.get("pval")

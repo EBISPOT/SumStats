@@ -95,7 +95,7 @@ def get_block_group_from_block_ceil(chr_group, block_ceil):
     return block_group
 
 
-def save_info_in_block_group(block_group, study, dict_of_dsets):
+def save_info_in_block_group(block_group, dict_of_dsets):
     # for the block_group, loop through the snps
     # and save x arrays, one for each piece of information
     # in the corresponding position so the informaiton is kept in sync
@@ -131,7 +131,6 @@ class Loader():
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
 
-
         dictionary_of_dsets = create_study_dataset(dictionary_of_dsets, study)
         dictionary_of_dsets = utils.convert_lists_to_np_arrays(dictionary_of_dsets, DSET_TYPES)
         utils.evaluate_datasets(dictionary_of_dsets)
@@ -141,16 +140,16 @@ class Loader():
         # Open the file with read/write permissions and create if it doesn't exist
         f = h5py.File(self.h5file, 'a')
         dict_of_dsets = self.dictionary_of_dsets
-        study = self.study
 
         unique_chromosomes_in_file = set(dict_of_dsets[CHR_DSET])
         chromosome_array = np.array([x for x in iter(unique_chromosomes_in_file)])
         create_groups_in_parent(f, chromosome_array)
 
         for chromosome in chromosome_array:
+            chr_group = utils.get_group_from_parent(f, chromosome)
+
             dsets_chromosome_slices = slice_datasets_where_chromosome(chromosome, dict_of_dsets)
 
-            chr_group = utils.get_group_from_parent(f, chromosome)
             bp_list_chr = dsets_chromosome_slices[BP_DSET]
             max_bp = max(bp_list_chr)
 
@@ -163,7 +162,7 @@ class Loader():
                 if np.any(block_mask):
                     dsets_block_slices = utils.filter_dictionary_by_mask(dsets_chromosome_slices, block_mask)
                     block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
-                    save_info_in_block_group(block_group, study, dsets_block_slices)
+                    save_info_in_block_group(block_group, dsets_block_slices)
 
                 block_floor, block_ceil = increment_block_limits(block_ceil)
 
