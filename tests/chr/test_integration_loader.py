@@ -11,14 +11,13 @@ class TestFirstApproach(object):
     f = None
 
     def setup_method(self, method):
-        dt=h5py.special_dtype(vlen=str)
-        snpsarray = np.array(["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"], dtype=dt)
-        pvalsarray = np.array([0.4865, 0.4314, 0.5986, 0.7057])
-        chrarray = np.array([1, 1, 2, 2])
-        orarray = np.array([0.92090, 1.01440, 0.97385, 0.99302])
-        bparray = np.array([1118275, 1120431, 49129966, 48480252])
-        effect_array = np.array(["A", "B", "C", "D"])
-        other_array = np.array(["Z", "Y", "X", "W"])
+        snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
+        pvalsarray = [0.4865, 0.4314, 0.5986, 0.7057]
+        chrarray = [1, 1, 2, 2]
+        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
+        bparray = [1118275, 1120431, 49129966, 48480252]
+        effect_array = ["A", "B", "C", "D"]
+        other_array = ["Z", "Y", "X", "W"]
 
         dict = {}
         dict["snp"] = snpsarray
@@ -55,15 +54,21 @@ class TestFirstApproach(object):
         block1 = chr_group_1.get("1200000")
         assert block1 is not None
         assert block1.name == "/1/1200000"
-        assert len(chr_group_1.keys()) == 1
+
+        assert len(chr_group_1.keys()) == 12
+        assert len(block1.keys()) != 0
+
+        block0 = chr_group_1.get("100000")
+        assert len(block0.keys()) == 0
 
         chr_group_2 = self.f.get("2")
 
         blocks = list(chr_group_2.keys())
-        assert len(blocks) == 2
+        assert len(blocks) != 0
 
-        assert blocks[0] == "48500000"
-        assert blocks[1] == "49200000"
+        assert blocks[0] == "100000"
+        assert max(np.array(list((blocks)), dtype=int)) == 49200000
+
 
     def test_snps_in_blocks(self):
         block11 = self.f.get("/1/1200000")

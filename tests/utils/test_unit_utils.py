@@ -170,6 +170,10 @@ class TestQueryUtils(object):
         with pytest.raises(TypeError):
             utils.get_equality_mask(0.1, chromosome_array)
 
+        mask = utils.get_equality_mask(None, chromosome_array)
+        expected_mask = None
+        assert mask is expected_mask
+
         mask = utils.get_equality_mask(1, chromosome_array)
         expected_mask = [True, False, False, True]
         assert np.array_equal(expected_mask, mask)

@@ -12,5 +12,8 @@
 *.coverage
 __pycache__
 
+# pytest coverage plugin files
+htmlcov
+
 # hdf5 specific files
 *.h5

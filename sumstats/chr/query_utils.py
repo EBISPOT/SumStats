@@ -16,33 +16,33 @@ CHR_DSET = 'chr'
 STUDY_DSET = 'study'
 
 
-def get_block_groups_within_range(chr_group, block_lower, block_upper):
+def get_block_groups_from_parent_within_block_range(chr_group, block_lower, block_upper):
     """
     block_lower and block_upper should be concrete blocks (i.e. factor of the block_size)
     for block size 100, when I say I want block 100-200 I need to get back block groups[100, 200]
      (i.e. all the positions from 0-200)
     """
     if (block_lower % BLOCK_SIZE != 0) or (block_upper % BLOCK_SIZE != 0):
-        print("I can only accept blocks that conform to the block size")
-        print("block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (BLOCK_SIZE, block_lower, block_upper))
-        raise SystemExit(1)
+        raise ValueError("block sizes not conforming to the block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (BLOCK_SIZE, block_lower, block_upper))
+    if block_lower > block_upper:
+        raise ValueError("lower limit is bigger than upper limit")
 
     blocks = [utils.get_group_from_parent(chr_group, block) for block in
               range(block_lower, (block_upper + BLOCK_SIZE), BLOCK_SIZE)]
     return blocks
 
 
-def get_dictionary_of_dsets_from_blocks(block_groups, dsets):
+def get_dict_of_wanted_dsets_from_groups(list_of_wanted_dsets, groups):
     # initialize dictionary of datasets
-    dict_of_dsets = {dset : [] for dset in dsets}
+    dict_of_dsets = {dset : [] for dset in list_of_wanted_dsets}
 
-    for block_group in block_groups:
+    for block_group in groups:
         for snp, snp_group in block_group.items():
 
-            for dset_name in dsets:
+            for dset_name in list_of_wanted_dsets:
                 dict_of_dsets[dset_name].extend(get_dset_from_group(dset_name, snp_group, snp))
 
-    for dset in dsets:
+    for dset in list_of_wanted_dsets:
         dict_of_dsets[dset] = np.array(dict_of_dsets[dset])
 
     return dict_of_dsets
@@ -50,10 +50,13 @@ def get_dictionary_of_dsets_from_blocks(block_groups, dsets):
 
 def get_dset_from_group(dset_name, group, empty_array_element=None):
     array = utils.get_dset(group, dset_name)
-    if (array is None) and (empty_array_element is not None):
-        # pval is never empty
-        pval = utils.get_dset(group, PVAL_DSET)
-        array = [empty_array_element for _ in range(len(pval))]
+    if (array is None):
+        if empty_array_element is not None:
+            # pval is never empty
+            pval = utils.get_dset(group, PVAL_DSET)
+            array = [empty_array_element for _ in range(len(pval))]
+        else:
+            array = np.array([])
     return array
 
 
@@ -84,17 +87,13 @@ def argument_checker():
     if args.query == "1":
         # finding block
         if args.bu is None or args.bl is None:
-            print("You need to specify an upper and lower limit for the chromosome block (e.g. -bl 0 -bu 100000)")
-            raise SystemExit(1)
+            raise ValueError("You need to specify an upper and lower limit for the chromosome block (e.g. -bl 0 -bu "
+                             "100000)")
     elif args.query == "2":
         if args.snp is None:
-            print("You need to provide a snp to be looked up (e.g. -snp rs1234)")
-            print("If you know it, you can also provide the baise pair location of the snp, or an upper limit close " \
-                  "to where you expect it to be (e.g. -bu 123000) ")
-            raise SystemExit(1)
+            raise ValueError("You need to provide a snp to be looked up (e.g. -snp rs1234)")
     else:
-        print("Wrong input")
-        raise SystemExit(1)
+        raise ValueError("Wrong input")
 
 
 def argument_parser():
@@ -106,7 +105,8 @@ def argument_parser():
                                     'provided)')
     parser.add_argument('-bl', help='The lower limit of the chromosome block I am looking for (can omit if snp '
                                     'provided)')
-    parser.add_argument('-snp', help='The SNP I am looking for (can omit if chr and block provided)')
+    parser.add_argument('-snp', help='The SNP I am looking for. Please provide -bu if known. (Can omit if chr and '
+                                     'block provided).')
     parser.add_argument('-study', help='Filter results for a specific study')
     parser.add_argument('-pu', help='The upper limit for the p-value')
     parser.add_argument('-pl', help='The lower limit for the p-value')

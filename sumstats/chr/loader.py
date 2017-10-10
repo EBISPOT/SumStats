@@ -159,9 +159,9 @@ class Loader():
 
             while block_limit_not_reached_max(block_ceil, max_bp):
                 block_mask = utils.cutoff_mask(bp_list_chr, block_floor, block_ceil)
+                block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
                 if np.any(block_mask):
                     dsets_block_slices = utils.filter_dictionary_by_mask(dsets_chromosome_slices, block_mask)
-                    block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
                     save_info_in_block_group(block_group, dsets_block_slices)
 
                 block_floor, block_ceil = increment_block_limits(block_ceil)
