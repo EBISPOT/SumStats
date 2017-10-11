@@ -45,12 +45,12 @@ class TestFirstApproach(object):
         chr_group = self.f.get("/2")
         block_lower_limit = 48480252
         block_upper_limit = 49129966
-        dict_of_dsets = searcher.query_for_block_range(chr_group, block_lower_limit, block_upper_limit)
+        name_to_dataset = searcher.query_for_block_range(chr_group, block_lower_limit, block_upper_limit)
 
-        assert dict_of_dsets.__class__ is dict
+        assert name_to_dataset.__class__ is dict
 
-        for dset_name in dict_of_dsets:
-            assert len(dict_of_dsets[dset_name]) == 6
+        for dset_name in name_to_dataset:
+            assert len(name_to_dataset[dset_name]) == 6
 
         block_lower_limit = 49129966
         block_upper_limit = 48480252
@@ -59,24 +59,24 @@ class TestFirstApproach(object):
 
         block_lower_limit = 49129966
         block_upper_limit = 49200000
-        dict_of_dsets = searcher.query_for_block_range(chr_group, block_lower_limit, block_upper_limit)
+        name_to_dataset = searcher.query_for_block_range(chr_group, block_lower_limit, block_upper_limit)
 
-        assert dict_of_dsets.__class__ is dict
+        assert name_to_dataset.__class__ is dict
 
-        for dset_name in dict_of_dsets:
-            assert len(dict_of_dsets[dset_name]) == 3
+        for dset_name in name_to_dataset:
+            assert len(name_to_dataset[dset_name]) == 3
 
     def test_query_for_snp(self):
         chr_group = self.f.get("/2")
         block_number = 48500000
         snp = "rs7085086"
 
-        dict_of_dsets = searcher.query_for_snp(chr_group, block_number, snp)
+        name_to_dataset = searcher.query_for_snp(chr_group, block_number, snp)
 
-        assert dict_of_dsets.__class__ is dict
+        assert name_to_dataset.__class__ is dict
 
-        for dset_name in dict_of_dsets:
-            assert len(dict_of_dsets[dset_name]) == 3
+        for dset_name in name_to_dataset:
+            assert len(name_to_dataset[dset_name]) == 3
 
-        assert len(set(dict_of_dsets['snp'])) == 1
-        assert set(dict_of_dsets['snp']).pop() == snp
+        assert len(set(name_to_dataset['snp'])) == 1
+        assert set(name_to_dataset['snp']).pop() == snp

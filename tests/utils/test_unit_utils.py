@@ -85,41 +85,47 @@ class TestQueryUtils(object):
         with pytest.raises(TypeError):
             utils.get_lower_limit_mask(lower_limit, vector)
 
-    def test_combine_masks(self):
+    def test_combine_list_of_masks(self):
         mask1 = [True, True]
         mask2 = [True, False]
         expected_mask = [True, False]
-        mask = utils.combine_masks(mask1, mask2)
+        list_of_masks = [mask1, mask2]
+        mask = utils.combine_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
         mask1 = [True, True]
         mask2 = [True, False, True]
         expected_mask = [True, False]
-        mask = utils.combine_masks(mask1, mask2)
+        list_of_masks = [mask1, mask2]
+        mask = utils.combine_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
         mask1 = [True, True]
         mask2 = [True, False, False]
         expected_mask = [True, False]
-        mask = utils.combine_masks(mask1, mask2)
+        list_of_masks = [mask1, mask2]
+        mask = utils.combine_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
         mask1 = [True, True]
         mask2 = None
         expected_mask = mask1
-        mask = utils.combine_masks(mask1, mask2)
+        list_of_masks = [mask1, mask2]
+        mask = utils.combine_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
         mask1 = None
         mask2 = [True, True]
         expected_mask = mask2
-        mask = utils.combine_masks(mask1, mask2)
+        list_of_masks = [mask1, mask2]
+        mask = utils.combine_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
         mask1 = None
         mask2 = None
         expected_mask = None
-        mask = utils.combine_masks(mask1, mask2)
+        list_of_masks = [mask1, mask2]
+        mask = utils.combine_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
     def test_get_cutoff_mask(self):
@@ -127,59 +133,59 @@ class TestQueryUtils(object):
         block_ceil = block_size = 100000
         bp_chr_array = np.asarray([0, 100000, 100001, 1, 50000, 200000])
         expected_mask = [True, True, False, True, True, False]
-        block_mask = utils.cutoff_mask(bp_chr_array, block_floor, block_ceil)
+        block_mask = utils.interval_mask(block_floor, block_ceil, bp_chr_array)
         assert np.array_equal(expected_mask, block_mask)
 
         block_floor = block_ceil + 1
         block_ceil += block_size
         bp_chr_array = np.asarray([0, 100000, 100001, 1, 50000, 200000, 200001, 300000])
         expected_mask = [False, False, True, False, False, True, False, False]
-        block_mask = utils.cutoff_mask(bp_chr_array, block_floor, block_ceil)
+        block_mask = utils.interval_mask(block_floor, block_ceil, bp_chr_array)
         assert np.array_equal(expected_mask, block_mask)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, "a", block_ceil)
+            utils.interval_mask("a", block_ceil, bp_chr_array)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, True, block_ceil)
+            utils.interval_mask(True, block_ceil, bp_chr_array)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, 0.1, block_ceil)
+            utils.interval_mask(0.1, block_ceil, bp_chr_array)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, 0.1, 0.3)
+            utils.interval_mask(0.1, 0.3, bp_chr_array)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, block_floor, "a")
+            utils.interval_mask(block_floor, "a", bp_chr_array)
 
         with pytest.raises(TypeError):
-            utils.cutoff_mask(bp_chr_array, block_floor, False)
+            utils.interval_mask(block_floor, False, bp_chr_array)
 
         with pytest.raises(TypeError):
             bp_chr_array = np.array(["a", "b", "c", "d", "d", "d", "d", "d"])
-            utils.cutoff_mask(bp_chr_array, block_floor, block_ceil)
+            utils.interval_mask(block_floor, block_ceil, bp_chr_array)
 
     def test_get_equality_mask(self):
         chromosome_array = np.asarray([1, 2, 3, 1])
         with pytest.raises(TypeError):
-            utils.get_equality_mask("1", chromosome_array)
+            utils.equality_mask("1", chromosome_array)
 
         with pytest.raises(TypeError):
-            utils.get_equality_mask(True, chromosome_array)
+            utils.equality_mask(True, chromosome_array)
 
         with pytest.raises(TypeError):
-            utils.get_equality_mask(0.1, chromosome_array)
+            utils.equality_mask(0.1, chromosome_array)
 
-        mask = utils.get_equality_mask(None, chromosome_array)
+        mask = utils.equality_mask(None, chromosome_array)
         expected_mask = None
         assert mask is expected_mask
 
-        mask = utils.get_equality_mask(1, chromosome_array)
+        mask = utils.equality_mask(1, chromosome_array)
         expected_mask = [True, False, False, True]
         assert np.array_equal(expected_mask, mask)
 
         snp_array = np.asarray(["rs1", "rs1", "rs2", "rs3"])
-        mask = utils.get_equality_mask("rs1", snp_array)
+        mask = utils.equality_mask("rs1", snp_array)
         expected_mask = [True, True, False, False]
         assert np.array_equal(expected_mask, mask)
 
@@ -216,7 +222,7 @@ class TestQueryUtils(object):
     def test_filter_dictionary_by_mask(self):
         dict = {'dset1' : np.array([1, 2, 3]), 'dset2' : np.array([1, 3, 3])}
         pvals = np.array([1, 2, 2])
-        mask = utils.get_equality_mask(1, pvals)
+        mask = utils.equality_mask(1, pvals)
         print (mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         for dset in dict:
@@ -224,7 +230,7 @@ class TestQueryUtils(object):
 
         dict = {'dset1' : np.array(["a", "b", "c"]), 'dset2' : np.array(["c", "d", "e"])}
         pvals = np.array([1, 2, 2])
-        mask = utils.get_equality_mask(1, pvals)
+        mask = utils.equality_mask(1, pvals)
         print (mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         assert np.array_equal(dict["dset1"], np.array(["a"]))
@@ -232,75 +238,139 @@ class TestQueryUtils(object):
 
         dict = {'dset1' : np.array(["a", "b", "c"]), 'dset2' : np.array(["c", "d", "e"])}
         pvals = np.array([1, 2, 2])
-        mask = utils.get_equality_mask(2, pvals)
+        mask = utils.equality_mask(2, pvals)
         print (mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         assert np.array_equal(dict["dset1"], np.array(["b", "c"]))
         assert np.array_equal(dict["dset2"], np.array(["d", "e"]))
+
+    def test_filter_dsets_with_restrictions(self):
+        name_to_dataset = {'snp': np.array(["rs1", "rs1", "rs1", "rs2", "rs3"]), 'pval': np.array([1, 2.1, 3, 3.1, 4]),
+                               'chr': np.array([1, 1, 1, 1, 2])}
+
+        dset_names_to_restriction = {'snp' : "rs1", 'pval' : (1., 2.1), 'chr' : 1}
+
+        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, dset_names_to_restriction)
+
+        assert len(list(filtered_dsets.keys())) == 3
+
+        assert len(filtered_dsets['snp']) == 2
+        assert len(set(filtered_dsets['snp'])) == 1
+        assert filtered_dsets['snp'][0] == "rs1"
+
+        assert len(filtered_dsets['pval']) == 2
+        for pval in filtered_dsets['pval']:
+            assert pval >= 1.
+            assert pval <= 2.1
+
+        assert len(filtered_dsets['chr']) == 2
+        for chr in filtered_dsets['chr']:
+            assert chr == 1
+
+        dset_names_to_restriction = {'pval': (3., 3.1), 'chr': 1}
+
+        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, dset_names_to_restriction)
+        assert len(list(filtered_dsets.keys())) == 3
+        assert len(filtered_dsets['snp']) == 2
+
+        assert filtered_dsets['snp'][0] == "rs1"
+        assert filtered_dsets['snp'][1] == "rs2"
+
+        assert len(filtered_dsets['pval']) == 2
+        for pval in filtered_dsets['pval']:
+            assert pval >= 3.
+            assert pval <= 3.1
+
+        assert len(filtered_dsets['chr']) == 2
+        for chr in filtered_dsets['chr']:
+            assert chr == 1
+
+        dset_names_to_restriction = {'pval': (4., 4.)}
+
+        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, dset_names_to_restriction)
+        assert len(list(filtered_dsets.keys())) == 3
+        assert len(filtered_dsets['snp']) == 1
+
+        assert filtered_dsets['snp'][0] == "rs3"
+
+        assert len(filtered_dsets['pval']) == 1
+        assert filtered_dsets['pval'][0] == 4.
+
+        assert len(filtered_dsets['chr']) == 1
+        assert filtered_dsets['chr'][0] == 2
+
+
+        #
+        dset_names_to_restriction = {}
+
+        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, dset_names_to_restriction)
+        assert len(list(filtered_dsets.keys())) == 3
+        for dset_name in name_to_dataset:
+            assert len(name_to_dataset[dset_name]) == 5
 
     def test_convert_lists_to_np_arrays(self):
         vlen_dtype = h5py.special_dtype(vlen=str)
         DSET_TYPES = {'snp': vlen_dtype, 'pval': float, 'study': vlen_dtype, 'chr': int, 'or': float, 'bp': int,
                       'effect': vlen_dtype, 'other': vlen_dtype}
 
-        dict_of_dsets = {'snp': [1, 2, 3], 'pval': ["1", "2", "3"], 'chr': ["1", "2", "3"]}
+        name_to_dataset = {'snp': [1, 2, 3], 'pval': ["1", "2", "3"], 'chr': ["1", "2", "3"]}
 
-        dict_of_dsets = utils.convert_lists_to_np_arrays(dict_of_dsets, DSET_TYPES)
-        assert dict_of_dsets['snp'].dtype == vlen_dtype
-        assert dict_of_dsets['pval'].dtype == float
-        assert dict_of_dsets['chr'].dtype == int
+        name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
+        assert name_to_dataset['snp'].dtype == vlen_dtype
+        assert name_to_dataset['pval'].dtype == float
+        assert name_to_dataset['chr'].dtype == int
 
-        dict_of_dsets['bp'] = []
-        dict_of_dsets = utils.convert_lists_to_np_arrays(dict_of_dsets, DSET_TYPES)
-        assert len(dict_of_dsets['bp']) == 0
+        name_to_dataset['bp'] = []
+        name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
+        assert len(name_to_dataset['bp']) == 0
 
-        dict_of_dsets['random'] = [1, 2, 3]
+        name_to_dataset['random'] = [1, 2, 3]
         with pytest.raises(KeyError):
-            utils.convert_lists_to_np_arrays(dict_of_dsets, DSET_TYPES)
+            utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
 
     def test_remove_headers(self):
         TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr' ]
-        dict_of_dsets = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
+        name_to_dataset = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
 
-        dict_of_dsets = utils.remove_headers(dict_of_dsets, TO_LOAD_DSET_HEADERS)
-        assert "snp" not in dict_of_dsets['snp']
-        assert "pval" not in dict_of_dsets['pval']
-        assert "chr" not in dict_of_dsets['chr']
-
-        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
-        dict_of_dsets = {'snp': ['study', 1, 2, 3], 'pval': ['pval', "1", "2", "3"], 'chr': ['chr', "1", "2", "3"]}
-        with pytest.raises(ValueError):
-            utils.remove_headers(dict_of_dsets, TO_LOAD_DSET_HEADERS)
+        name_to_dataset = utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
+        assert "snp" not in name_to_dataset['snp']
+        assert "pval" not in name_to_dataset['pval']
+        assert "chr" not in name_to_dataset['chr']
 
         TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
-        dict_of_dsets = {'snp': [1, 2, 3], 'pval': ['pval', "1", "2", "3"], 'chr': ['chr', "1", "2", "3"]}
+        name_to_dataset = {'snp': ['study', 1, 2, 3], 'pval': ['pval', "1", "2", "3"], 'chr': ['chr', "1", "2", "3"]}
         with pytest.raises(ValueError):
-            utils.remove_headers(dict_of_dsets, TO_LOAD_DSET_HEADERS)
+            utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
+
+        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
+        name_to_dataset = {'snp': [1, 2, 3], 'pval': ['pval', "1", "2", "3"], 'chr': ['chr', "1", "2", "3"]}
+        with pytest.raises(ValueError):
+            utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
 
         TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or']
-        dict_of_dsets = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
+        name_to_dataset = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
         with pytest.raises(KeyError):
-            utils.remove_headers(dict_of_dsets, TO_LOAD_DSET_HEADERS)
+            utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
 
     def test_evaluate_datasets(self):
         print()
-        dict_of_dsets = {}
-        utils.evaluate_np_datasets(dict_of_dsets)
+        name_to_dataset = {}
+        utils.assert_np_datasets_not_empty(name_to_dataset)
 
-        dict_of_dsets = {'snp': ["rs1", "rs2", "rs3"], 'pval': [0.1, 3.1, 2.1], 'chr': [1, 2, 3]}
+        name_to_dataset = {'snp': ["rs1", "rs2", "rs3"], 'pval': [0.1, 3.1, 2.1], 'chr': [1, 2, 3]}
         with pytest.raises(AttributeError):
-            utils.evaluate_np_datasets(dict_of_dsets)
+            utils.assert_np_datasets_not_empty(name_to_dataset)
 
-        dict_of_dsets = {'snp': np.array(["rs1", "rs2", "rs3"]), 'pval': np.array([0.1, 3.1, 2.1]), 'chr': np.array([1, 2, 3])}
-        utils.evaluate_np_datasets(dict_of_dsets)
+        name_to_dataset = {'snp': np.array(["rs1", "rs2", "rs3"]), 'pval': np.array([0.1, 3.1, 2.1]), 'chr': np.array([1, 2, 3])}
+        utils.assert_np_datasets_not_empty(name_to_dataset)
 
-        dict_of_dsets = {'snp': np.array(None)}
+        name_to_dataset = {'snp': np.array(None)}
         with pytest.raises(ValueError):
-            utils.evaluate_np_datasets(dict_of_dsets)
+            utils.assert_np_datasets_not_empty(name_to_dataset)
 
-        dict_of_dsets = {'snp': np.array([])}
+        name_to_dataset = {'snp': np.array([])}
         with pytest.raises(ValueError):
-            utils.evaluate_np_datasets(dict_of_dsets)
+            utils.assert_np_datasets_not_empty(name_to_dataset)
 
 
 

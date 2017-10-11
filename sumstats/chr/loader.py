@@ -59,9 +59,9 @@ def expand_dataset(group, dset_name, data):
         dset[-1] = data
 
 
-def create_study_dataset(dict_of_dsets, study):
-    dict_of_dsets[STUDY_DSET] = [study for _ in range(len(dict_of_dsets[PVAL_DSET]))]
-    return dict_of_dsets
+def create_study_dataset(name_to_dataset, study):
+    name_to_dataset[STUDY_DSET] = [study for _ in range(len(name_to_dataset[PVAL_DSET]))]
+    return name_to_dataset
 
 
 def create_groups_in_parent(parent, list_of_groups):
@@ -70,10 +70,10 @@ def create_groups_in_parent(parent, list_of_groups):
             parent.create_group(str(new_group))
 
 
-def slice_datasets_where_chromosome(chromosome, dict_of_dsets):
+def slice_datasets_where_chromosome(chromosome, name_to_dataset):
     # get the slices from all the arrays where chromosome position == i
-    chr_mask = utils.get_equality_mask(chromosome, dict_of_dsets[CHR_DSET])
-    return utils.filter_dictionary_by_mask(dict_of_dsets, chr_mask)
+    chr_mask = utils.equality_mask(chromosome, name_to_dataset[CHR_DSET])
+    return utils.filter_dictionary_by_mask(name_to_dataset, chr_mask)
 
 
 def initialize_block_limits():
@@ -95,23 +95,23 @@ def get_block_group_from_block_ceil(chr_group, block_ceil):
     return block_group
 
 
-def save_info_in_block_group(block_group, dict_of_dsets):
+def save_info_in_block_group(block_group, name_to_dataset):
     # for the block_group, loop through the snps
     # and save x arrays, one for each piece of information
     # in the corresponding position so the informaiton is kept in sync
     # i.e. snp[i] is saved in the 'snps' dataset in the same position as it's corresponding orvals[i]
-    snps = dict_of_dsets[SNP_DSET]
+    snps = name_to_dataset[SNP_DSET]
 
     for i in range(len(snps)):
         snp = snps[i]
         if snp in block_group:
             snp_group = utils.get_group_from_parent(block_group, snp)
             for dset_name in TO_STORE_DSETS:
-                expand_dataset(snp_group, dset_name, dict_of_dsets[dset_name][i])
+                expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
         else:
             snp_group = block_group.create_group(snp)
             for dset_name in TO_STORE_DSETS:
-                create_dataset(snp_group, dset_name, dict_of_dsets[dset_name][i])
+                create_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
 
 
 def block_limit_not_reached_max(block_ceil, max_bp):
@@ -119,36 +119,37 @@ def block_limit_not_reached_max(block_ceil, max_bp):
 
 
 class Loader():
-    def __init__(self, tsv, h5file, study, dictionary_of_dsets=None):
+    def __init__(self, tsv, h5file, study, name_to_dataset=None):
         self.h5file = h5file
         self.study = study
 
         if tsv is not None:
+            assert name_to_dataset is None, "name_to_dataset is ignored"
             print(time.strftime('%a %H:%M:%S'))
 
-            dictionary_of_dsets = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
-            dictionary_of_dsets = utils.remove_headers(dictionary_of_dsets, TO_LOAD_DSET_HEADERS)
+            name_to_dataset = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
+            name_to_dataset = utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
 
-        dictionary_of_dsets = create_study_dataset(dictionary_of_dsets, study)
-        dictionary_of_dsets = utils.convert_lists_to_np_arrays(dictionary_of_dsets, DSET_TYPES)
-        utils.evaluate_np_datasets(dictionary_of_dsets)
-        self.dictionary_of_dsets = dictionary_of_dsets
+        name_to_dataset = create_study_dataset(name_to_dataset, study)
+        name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
+        utils.assert_np_datasets_not_empty(name_to_dataset)
+        self.name_to_dataset = name_to_dataset
 
     def load(self):
         # Open the file with read/write permissions and create if it doesn't exist
         f = h5py.File(self.h5file, 'a')
-        dict_of_dsets = self.dictionary_of_dsets
+        name_to_dataset = self.name_to_dataset
 
-        unique_chromosomes_in_file = set(dict_of_dsets[CHR_DSET])
-        chromosome_array = np.array([x for x in iter(unique_chromosomes_in_file)])
+        unique_chromosomes_in_file = set(name_to_dataset[CHR_DSET])
+        chromosome_array = np.array([x for x in unique_chromosomes_in_file])
         create_groups_in_parent(f, chromosome_array)
 
         for chromosome in chromosome_array:
             chr_group = utils.get_group_from_parent(f, chromosome)
 
-            dsets_chromosome_slices = slice_datasets_where_chromosome(chromosome, dict_of_dsets)
+            dsets_chromosome_slices = slice_datasets_where_chromosome(chromosome, name_to_dataset)
 
             bp_list_chr = dsets_chromosome_slices[BP_DSET]
             max_bp = max(bp_list_chr)
@@ -158,8 +159,8 @@ class Loader():
             block_floor, block_ceil = initialize_block_limits()
 
             while block_limit_not_reached_max(block_ceil, max_bp):
-                block_mask = utils.cutoff_mask(bp_list_chr, block_floor, block_ceil)
                 block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
+                block_mask = utils.interval_mask(block_floor, block_ceil, bp_list_chr)
                 if np.any(block_mask):
                     dsets_block_slices = utils.filter_dictionary_by_mask(dsets_chromosome_slices, block_mask)
                     save_info_in_block_group(block_group, dsets_block_slices)

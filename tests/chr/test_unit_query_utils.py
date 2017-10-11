@@ -73,19 +73,19 @@ class TestFirstApproach(object):
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 49200000)
 
-        dict_of_dsets = query.get_dict_of_wanted_dsets_from_groups(TO_QUERY_DSETS, block_groups)
-        assert dict_of_dsets.__class__ is dict
+        name_to_dataset = query.get_query_datasets_from_groups(TO_QUERY_DSETS, block_groups)
+        assert name_to_dataset.__class__ is dict
 
         for dset_name in TO_QUERY_DSETS:
             # 2 values for each of 3 studies that we loaded
-            assert len(dict_of_dsets[dset_name]) == 6
-            assert dict_of_dsets[dset_name].__class__ is np.ndarray
+            assert len(name_to_dataset[dset_name]) == 6
+            assert name_to_dataset[dset_name].__class__ is np.ndarray
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48600000, 48600000)
-        dict_of_dsets = query.get_dict_of_wanted_dsets_from_groups(TO_QUERY_DSETS, block_groups)
+        name_to_dataset = query.get_query_datasets_from_groups(TO_QUERY_DSETS, block_groups)
         for dset_name in TO_QUERY_DSETS:
             # no SNP bp falls into this group
-            assert len(dict_of_dsets[dset_name]) == 0
+            assert len(name_to_dataset[dset_name]) == 0
 
     def test_get_dset_from_group(self):
         chr_group_2 = self.f.get("/2")

@@ -13,20 +13,20 @@ def generate(array):
         yield ",".join(row) + "\n"
 
 
-def get_array_to_display(dict_of_dsets):
-    for dset in dict_of_dsets:
-        if np.issubdtype(dict_of_dsets[dset].dtype, np.string_):
-            dict_of_dsets[dset] = np.array(dict_of_dsets[dset], dtype=str)
+def get_array_to_display(name_to_dataset):
+    for dset in name_to_dataset:
+        if np.issubdtype(name_to_dataset[dset].dtype, np.string_):
+            name_to_dataset[dset] = np.array(name_to_dataset[dset], dtype=str)
         else:
-            dict_of_dsets[dset] = dict_of_dsets[dset]
+            name_to_dataset[dset] = name_to_dataset[dset]
     array = None
     header = np.array([], dtype=None)
-    for dset in dict_of_dsets:
+    for dset in name_to_dataset:
         header = np.append(header, dset)
         if array is None:
-            array = dict_of_dsets[dset]
+            array = name_to_dataset[dset]
         else:
-            array = np.column_stack((array, dict_of_dsets[dset]))
+            array = np.column_stack((array, name_to_dataset[dset]))
 
     return np.row_stack((header, array))
 
@@ -49,8 +49,8 @@ def get_trait():
     trait = args["trait"]
 
     try:
-        dict_of_dsets = searcher.query_for_trait(trait)
-        array = get_array_to_display(dict_of_dsets)
+        name_to_dataset = searcher.query_for_trait(trait)
+        array = get_array_to_display(name_to_dataset)
 
         return Response(generate(array), mimetype="text/csv")
     except ValueError:
@@ -67,8 +67,8 @@ def get_study():
     study = args["study"]
 
     try:
-        dict_of_dsets = searcher.query_for_study(trait, study)
-        array = get_array_to_display(dict_of_dsets)
+        name_to_dataset = searcher.query_for_study(trait, study)
+        array = get_array_to_display(name_to_dataset)
 
         return Response(generate(array), mimetype="text/csv")
     except ValueError:

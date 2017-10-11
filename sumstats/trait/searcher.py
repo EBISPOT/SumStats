@@ -28,6 +28,7 @@ TO_QUERY_DSETS = ['snp', 'pval', 'chr', 'or', 'study', 'bp', 'effect', 'other']
 SNP_DSET = 'snp'
 BP_DSET = 'bp'
 PVAL_DSET = 'pval'
+CHR_DSET = 'chr'
 
 
 class Search():
@@ -44,50 +45,39 @@ class Search():
         trait_group = utils.get_group_from_parent(self.f, trait)
         study_group = utils.get_group_from_parent(trait_group, study)
 
-        # initialize dictionary of datasets
-        dictionary_of_dsets = {}
+        name_to_dataset = {}
 
         for dset_name in TO_QUERY_DSETS:
-            dictionary_of_dsets[dset_name] = np.array(myutils.get_dset_from_group(dset_name, study_group, study))
+            name_to_dataset[dset_name] = np.array(myutils.get_dset_from_group(dset_name, study_group, study))
 
-        return dictionary_of_dsets
+        return name_to_dataset
 
 
 
 def main():
     myutils.argument_checker()
     args = myutils.argument_parser()
+    query, trait, study, snp, chr, p_upper_limit, p_lower_limit, bp_upper_limit, bp_lower_limit = myutils.convert_args(args)
 
     search = Search(args.h5file)
 
-    query = int(args.query)
-    trait = args.trait
-    study = args.study
-    snp = args.snp
-    chr = args.chr
-    if chr is not None:
-        chr = int(chr)
-    upper_limit = args.pu
-    if upper_limit is not None:
-        upper_limit = float(upper_limit)
-    lower_limit = args.pl
-    if lower_limit is not None:
-        lower_limit = float(lower_limit)
-
+    name_to_dataset = {}
     if query == 1:
-        # info_array = all_trait_info(f, args.trait)
-        dictionary_of_dsets = search.query_for_trait(trait)
+        name_to_dataset = search.query_for_trait(trait)
     elif query == 2:
-        dictionary_of_dsets = search.query_for_study(trait, study)
+        name_to_dataset = search.query_for_study(trait, study)
 
-    mask = utils.cutoff_mask(dictionary_of_dsets[PVAL_DSET], lower_limit, upper_limit)
+    dset_name_to_restriction = {}
+    dset_name_to_restriction['snp'] = snp
+    dset_name_to_restriction['chr'] = chr
+    dset_name_to_restriction['pval'] = (p_lower_limit, p_upper_limit)
+    dset_name_to_restriction['bp'] = (bp_lower_limit, bp_upper_limit)
 
-    if mask is not None:
-        dictionary_of_dsets = utils.filter_dictionary_by_mask(dictionary_of_dsets, mask)
+    name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction)
 
-    for dset in dictionary_of_dsets:
+    for dset in name_to_dataset:
         print(dset)
-        print(dictionary_of_dsets[dset])
+        print(name_to_dataset[dset])
 
 
 if __name__ == "__main__":

@@ -42,32 +42,32 @@ class TestFirstApproach(object):
         os.remove(self.h5file)
 
     def test_query_for_trait(self):
-        dictionary_of_dsets = self.query.query_for_trait("Trait1")
-        assert len(dictionary_of_dsets["snp"]) == 8
+        name_to_dataset = self.query.query_for_trait("Trait1")
+        assert len(name_to_dataset["snp"]) == 8
 
-        study_set = as_string_set(dictionary_of_dsets["study"])
+        study_set = as_string_set(name_to_dataset["study"])
 
         assert study_set.__len__() == 2
 
-        dictionary_of_dsets = self.query.query_for_trait("Trait2")
-        assert len(dictionary_of_dsets["snp"]) == 4
+        name_to_dataset = self.query.query_for_trait("Trait2")
+        assert len(name_to_dataset["snp"]) == 4
 
-        study_set = as_string_set(dictionary_of_dsets["study"])
+        study_set = as_string_set(name_to_dataset["study"])
 
         assert study_set.__len__() == 1
 
     def test_query_for_study(self):
-        dictionary_of_dsets = self.query.query_for_study("Trait1", "PM001")
+        name_to_dataset = self.query.query_for_study("Trait1", "PM001")
 
-        assert len(dictionary_of_dsets["snp"]) == 4
+        assert len(name_to_dataset["snp"]) == 4
 
-        study_set = as_string_set(dictionary_of_dsets["study"])
+        study_set = as_string_set(name_to_dataset["study"])
 
         assert study_set.__len__() == 1
         assert "PM001" in study_set.pop()
 
-        dictionary_of_dsets = self.query.query_for_study("Trait1", "PM001")
-        assert len(dictionary_of_dsets["snp"]) == 4
+        name_to_dataset = self.query.query_for_study("Trait1", "PM001")
+        assert len(name_to_dataset["snp"]) == 4
 
     def test_non_existing_trait(self):
         with pytest.raises(ValueError):

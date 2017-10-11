@@ -17,7 +17,6 @@
 import h5py
 import argparse
 import time
-import numpy as np
 from sumstats.utils import utils
 import pandas as pd
 
@@ -55,7 +54,7 @@ def create_dataset(group, dset_name, data):
 
 class Loader():
 
-    def __init__(self, tsv, h5file, study, trait, dictionary_of_dsets=None):
+    def __init__(self, tsv, h5file, study, trait, name_to_dataset=None):
         self.h5file = h5file
         self.study = study
         self.trait = trait
@@ -63,22 +62,23 @@ class Loader():
         if tsv is not None:
             print(time.strftime('%a %H:%M:%S'))
 
-            dictionary_of_dsets = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
+            name_to_dataset = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
 
-            utils.remove_headers(dictionary_of_dsets, TO_LOAD_DSET_HEADERS)
+            utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
-
-        utils.convert_lists_to_np_arrays(dictionary_of_dsets, DSET_TYPES)
-        utils.evaluate_np_datasets(dictionary_of_dsets)
-        self.dictionary_of_dsets = dictionary_of_dsets
+        print("name to dataset", name_to_dataset)
+        name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
+        print("converted", name_to_dataset)
+        utils.assert_np_datasets_not_empty(name_to_dataset)
+        self.name_to_dataset = name_to_dataset
 
     def load(self):
 
         h5file = self.h5file
         study = self.study
         trait = self.trait
-        dictionary_of_dsets = self.dictionary_of_dsets
+        name_to_dataset = self.name_to_dataset
 
         # Open the file with read/write permissions and create if it doesn't exist
         f = h5py.File(h5file, 'a')
@@ -88,7 +88,7 @@ class Loader():
 
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
-            create_dataset(study_group, dset_name, dictionary_of_dsets[dset_name])
+            create_dataset(study_group, dset_name, name_to_dataset[dset_name])
 
 
 def main():

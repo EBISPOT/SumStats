@@ -45,14 +45,14 @@ def query_for_block_range(chr_group, block_lower_limit, block_upper_limit):
     if to_block != block_upper_limit:
         filter_block_ceil = block_upper_limit
 
-    dictionary_of_dsets = myutils.get_dict_of_wanted_dsets_from_groups(TO_QUERY_DSETS, block_groups)
+    name_to_dataset = myutils.get_query_datasets_from_groups(TO_QUERY_DSETS, block_groups)
 
-    bp_mask = utils.cutoff_mask(dictionary_of_dsets[BP_DSET], filter_block_floor, filter_block_ceil)
+    bp_mask = utils.interval_mask(filter_block_floor, filter_block_ceil, name_to_dataset[BP_DSET])
 
     if bp_mask is not None:
-        dictionary_of_dsets = utils.filter_dictionary_by_mask(dictionary_of_dsets, bp_mask)
+        name_to_dataset = utils.filter_dictionary_by_mask(name_to_dataset, bp_mask)
 
-    return dictionary_of_dsets
+    return name_to_dataset
 
 
 def query_for_snp(chr_group, block_number, snp):
@@ -60,15 +60,12 @@ def query_for_snp(chr_group, block_number, snp):
     snp_group = utils.get_group_from_parent(block_group, snp)
 
     # initialize dictionary of datasets
-    dictionary_of_dsets = {dset_name: [] for dset_name in TO_QUERY_DSETS}
+    name_to_dataset = {dset_name: [] for dset_name in TO_QUERY_DSETS}
 
     for dset_name in TO_QUERY_DSETS:
-        dictionary_of_dsets[dset_name].extend(myutils.get_dset_from_group(dset_name, snp_group, snp))
+        name_to_dataset[dset_name].extend(myutils.get_dset_from_group(dset_name, snp_group, snp))
 
-    for dset_name in TO_QUERY_DSETS:
-        dictionary_of_dsets[dset_name] = np.array(dictionary_of_dsets[dset_name])
-
-    return dictionary_of_dsets
+    return {dset_name: np.array(dataset) for dset_name, dataset in name_to_dataset.items()}
 
 
 def find_snp_in_group_name(name, group):
@@ -107,26 +104,22 @@ def main():
     f = h5py.File(args.h5file, mode="r")
 
     chr_group = utils.get_group_from_parent(f, chr)
-    dictionary_of_dsets = {}
+    name_to_dataset = {}
 
     if query == 1:
-        dictionary_of_dsets = query_for_block_range(chr_group, block_lower_limit,
+        name_to_dataset = query_for_block_range(chr_group, block_lower_limit,
                                                     block_upper_limit)
     elif query == 2:
         snp_block_number = get_block_that_snp_belongs_to(chr_group, block_upper_limit, snp)
-        dictionary_of_dsets = query_for_snp(chr_group, snp_block_number, snp)
+        name_to_dataset = query_for_snp(chr_group, snp_block_number, snp)
 
-    study_mask = utils.get_equality_mask(study, dictionary_of_dsets[STUDY_DSET])
-    pval_mask = utils.cutoff_mask(dictionary_of_dsets[PVAL_DSET], p_lower_limit, p_upper_limit)
+    dset_name_to_restriction = {'study': study, 'pval': (p_lower_limit, p_upper_limit)}
 
-    filtering_mask = utils.combine_masks(study_mask, pval_mask)
+    name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction)
 
-    if filtering_mask is not None:
-        dictionary_of_dsets = utils.filter_dictionary_by_mask(dictionary_of_dsets, filtering_mask)
-
-    for dset in dictionary_of_dsets:
+    for dset in name_to_dataset:
         print(dset)
-        print(dictionary_of_dsets[dset])
+        print(name_to_dataset[dset])
 
 
 if __name__ == "__main__":

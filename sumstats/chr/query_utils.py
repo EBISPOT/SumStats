@@ -32,32 +32,33 @@ def get_block_groups_from_parent_within_block_range(chr_group, block_lower, bloc
     return blocks
 
 
-def get_dict_of_wanted_dsets_from_groups(list_of_wanted_dsets, groups):
+def get_query_datasets_from_groups(list_of_wanted_dsets, groups):
     # initialize dictionary of datasets
-    dict_of_dsets = {dset : [] for dset in list_of_wanted_dsets}
+    name_to_dataset = {dset : [] for dset in list_of_wanted_dsets}
 
     for block_group in groups:
         for snp, snp_group in block_group.items():
 
             for dset_name in list_of_wanted_dsets:
-                dict_of_dsets[dset_name].extend(get_dset_from_group(dset_name, snp_group, snp))
+                next_dataset = get_dset_from_group(dset_name, snp_group, snp)
+                name_to_dataset[dset_name].extend(next_dataset)
 
-    for dset in list_of_wanted_dsets:
-        dict_of_dsets[dset] = np.array(dict_of_dsets[dset])
-
-    return dict_of_dsets
+    return {dset_name: np.array(dataset) for dset_name, dataset in name_to_dataset.items()}
 
 
-def get_dset_from_group(dset_name, group, empty_array_element=None):
-    array = utils.get_dset(group, dset_name)
-    if (array is None):
-        if empty_array_element is not None:
-            # pval is never empty
-            pval = utils.get_dset(group, PVAL_DSET)
-            array = [empty_array_element for _ in range(len(pval))]
-        else:
-            array = np.array([])
-    return array
+def get_dset_from_group(dset_name, group, value=None):
+    dataset = utils.get_dset(group, dset_name)
+    if dataset is None:
+        size = len(utils.get_dset(group, PVAL_DSET))
+        dataset = create_dset_placeholder_size_from_value(size, value)
+
+    return dataset
+
+
+def create_dset_placeholder_size_from_value(size, value):
+    if value is None:
+        return np.array([])
+    return [value for _ in range(size)]
 
 
 def get_block_number(bp_position):
