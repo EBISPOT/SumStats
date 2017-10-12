@@ -67,9 +67,7 @@ class Loader():
             utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
-        print("name to dataset", name_to_dataset)
         name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
-        print("converted", name_to_dataset)
         utils.assert_np_datasets_not_empty(name_to_dataset)
         self.name_to_dataset = name_to_dataset
 
