@@ -42,8 +42,7 @@ def get_query_datasets_from_groups(list_of_wanted_dsets, groups):
             for dset_name in list_of_wanted_dsets:
                 next_dataset = get_dset_from_group(dset_name, snp_group, snp)
                 name_to_dataset[dset_name].extend(next_dataset)
-
-    return {dset_name: np.array(dataset) for dset_name, dataset in name_to_dataset.items()}
+    return name_to_dataset
 
 
 def get_dset_from_group(dset_name, group, value=None):
@@ -86,10 +85,7 @@ def argument_checker():
     args = argument_parser()
 
     if args.query == "1":
-        # finding block
-        if args.bu is None or args.bl is None:
-            raise ValueError("You need to specify an upper and lower limit for the chromosome block (e.g. -bl 0 -bu "
-                             "100000)")
+        pass
     elif args.query == "2":
         if args.snp is None:
             raise ValueError("You need to provide a snp to be looked up (e.g. -snp rs1234)")

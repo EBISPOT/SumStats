@@ -18,16 +18,21 @@
 """
 
 import h5py
-import numpy as np
 from sumstats.utils import utils
 import sumstats.trait.query_utils as myutils
 
+
+# TO_LOAD_DSET_HEADERS = ['snps', 'pvals', 'chr', 'or']
+# TO_STORE_DSETS = ['snps', 'pvals', 'chr', 'or']
+# TO_QUERY_DSETS = ['snps', 'pvals', 'chr', 'or', 'study']
 TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
 TO_STORE_DSETS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
 TO_QUERY_DSETS = ['snp', 'pval', 'chr', 'or', 'study', 'bp', 'effect', 'other']
 SNP_DSET = 'snp'
-BP_DSET = 'bp'
 PVAL_DSET = 'pval'
+# SNP_DSET = 'snps'
+# PVAL_DSET = 'pvals'
+BP_DSET = 'bp'
 CHR_DSET = 'chr'
 
 
@@ -48,7 +53,7 @@ class Search():
         name_to_dataset = {}
 
         for dset_name in TO_QUERY_DSETS:
-            name_to_dataset[dset_name] = np.array(myutils.get_dset_from_group(dset_name, study_group, study))
+            name_to_dataset[dset_name] = myutils.get_dset_from_group(dset_name, study_group, study)
 
         return name_to_dataset
 
@@ -68,16 +73,21 @@ def main():
         name_to_dataset = search.query_for_study(trait, study)
 
     dset_name_to_restriction = {}
-    dset_name_to_restriction['snp'] = snp
-    dset_name_to_restriction['chr'] = chr
-    dset_name_to_restriction['pval'] = (p_lower_limit, p_upper_limit)
-    dset_name_to_restriction['bp'] = (bp_lower_limit, bp_upper_limit)
+    if snp is not None:
+        dset_name_to_restriction[SNP_DSET] = snp
+    if chr is not None:
+        dset_name_to_restriction[CHR_DSET] = chr
+    if p_upper_limit is not None or p_lower_limit is not None:
+        dset_name_to_restriction[PVAL_DSET] = (p_lower_limit, p_upper_limit)
+    if bp_upper_limit is not None or bp_lower_limit is not None:
+        dset_name_to_restriction[BP_DSET] = (bp_lower_limit, bp_upper_limit)
 
-    name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction)
-
+    if bool(dset_name_to_restriction):
+        name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction)
+    print("snps retrieved", len(name_to_dataset[SNP_DSET]))
     for dset in name_to_dataset:
         print(dset)
-        print(name_to_dataset[dset])
+        print(name_to_dataset[dset][:10])
 
 
 if __name__ == "__main__":

@@ -5,9 +5,11 @@ import sumstats.utils.utils as utils
 
 TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
 TO_STORE_DSETS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+# SNP_DSET = 'snps'
 SNP_DSET = 'snp'
 BP_DSET = 'bp'
 PVAL_DSET = 'pval'
+# PVAL_DSET = 'pvals'
 
 
 def get_dsets_from_file(f, dsets):
@@ -19,7 +21,7 @@ def get_dsets_from_file(f, dsets):
         for dset_name, dataset in name_to_dataset.items():
             dataset.extend(name_to_datastet_for_trait[dset_name])
 
-    return {dset_name : np.array(dataset) for dset_name, dataset in name_to_dataset.items()}
+    return name_to_dataset
 
 
 def get_dsets_from_trait_group(trait_group, dsets):
@@ -31,7 +33,7 @@ def get_dsets_from_trait_group(trait_group, dsets):
             dataset = name_to_dataset[dset_name]
             dataset.extend(get_dset_from_group(dset_name, study_group, study))
 
-    return {dset_name: np.array(dataset) for dset_name, dataset in name_to_dataset.items()}
+    return name_to_dataset
 
 
 def get_dset_from_group(dset_name, group, value=None):

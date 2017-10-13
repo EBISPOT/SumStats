@@ -11,10 +11,9 @@
 """
 
 import h5py
-import numpy as np
 from sumstats.utils import utils
 import sumstats.chr.query_utils as myutils
-
+import time
 
 TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
 TO_STORE_DSETS = ['pval', 'or', 'bp', 'effect', 'other']
@@ -25,6 +24,12 @@ BP_DSET = 'bp'
 PVAL_DSET = 'pval'
 CHR_DSET = 'chr'
 STUDY_DSET = 'study'
+
+
+def query_for_chromosome(chr_group):
+    all_chr_block_groups = utils.get_all_groups_from_parent(chr_group)
+    print("block size", len(all_chr_block_groups))
+    return myutils.get_query_datasets_from_groups(TO_QUERY_DSETS, all_chr_block_groups)
 
 
 def query_for_block_range(chr_group, block_lower_limit, block_upper_limit):
@@ -65,7 +70,7 @@ def query_for_snp(chr_group, block_number, snp):
     for dset_name in TO_QUERY_DSETS:
         name_to_dataset[dset_name].extend(myutils.get_dset_from_group(dset_name, snp_group, snp))
 
-    return {dset_name: np.array(dataset) for dset_name, dataset in name_to_dataset.items()}
+    return name_to_dataset
 
 
 def find_snp_in_group_name(name, group):
@@ -107,19 +112,40 @@ def main():
     name_to_dataset = {}
 
     if query == 1:
-        name_to_dataset = query_for_block_range(chr_group, block_lower_limit,
+        if block_lower_limit is None and block_upper_limit is None:
+            print("Start querying for whole chromosome info")
+            print(time.strftime('%a %H:%M:%S'))
+            name_to_dataset = query_for_chromosome(chr_group)
+            print("Done querying for whole chromosome info")
+            print(time.strftime('%a %H:%M:%S'))
+        else:
+            if block_lower_limit is None:
+                block_lower_limit = block_upper_limit
+            elif block_upper_limit is None:
+                block_upper_limit = block_lower_limit
+
+            name_to_dataset = query_for_block_range(chr_group, block_lower_limit,
                                                     block_upper_limit)
+
     elif query == 2:
         snp_block_number = get_block_that_snp_belongs_to(chr_group, block_upper_limit, snp)
         name_to_dataset = query_for_snp(chr_group, snp_block_number, snp)
 
-    dset_name_to_restriction = {'study': study, 'pval': (p_lower_limit, p_upper_limit)}
+    print("Start filtering")
+    print(time.strftime('%a %H:%M:%S'))
 
-    name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction)
+    dset_name_to_restriction = {}
+    if study is not None:
+        dset_name_to_restriction[STUDY_DSET] = study
+    if p_upper_limit is not None or p_lower_limit is not None:
+        dset_name_to_restriction[PVAL_DSET] = (p_lower_limit, p_upper_limit)
 
+    if bool(dset_name_to_restriction):
+        name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction)
+    print("length", len(name_to_dataset['snps']))
     for dset in name_to_dataset:
         print(dset)
-        print(name_to_dataset[dset])
+        print(name_to_dataset[dset][:10])
 
 
 if __name__ == "__main__":

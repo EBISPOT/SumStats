@@ -1,5 +1,6 @@
 import numpy as np
 from functools import reduce
+import itertools
 
 
 def get_group_from_parent(parent_group, child_group):
@@ -9,6 +10,10 @@ def get_group_from_parent(parent_group, child_group):
     return group
 
 
+def get_all_groups_from_parent(parent_group):
+    return [group for group in parent_group.values()]
+
+
 def get_dset(group, dset_name):
     dset = group.get(dset_name)
     if dset is not None:
@@ -16,11 +21,20 @@ def get_dset(group, dset_name):
     return dset
 
 
+def equality_mask(value, vector):
+    _check_type_compatibility(value, vector)
+    mask = None
+    if value is not None:
+        mask = [element == value for element in vector]
+
+    return mask
+
+
 def get_upper_limit_mask(upper_limit, vector):
     _check_type_compatibility(upper_limit, vector)
     mask = None
     if upper_limit is not None:
-        mask = vector <= upper_limit
+        mask = [element <= upper_limit for element in vector]
     return mask
 
 
@@ -28,7 +42,7 @@ def get_lower_limit_mask(lower_limit, vector):
     _check_type_compatibility(lower_limit, vector)
     mask = None
     if lower_limit is not None:
-        mask = vector >= lower_limit
+        mask = [element >= lower_limit for element in vector]
     return mask
 
 
@@ -51,21 +65,8 @@ def interval_mask(lower_limit, upper_limit, vector):
     return combine_list_of_masks(list_of_masks)
 
 
-def equality_mask(value, vector):
-    _check_type_compatibility(value, vector)
-    mask = None
-    if value is not None:
-        mask = vector == value
-
-    return mask
-
-
-# This needs to be tested for performance issues
 def filter_by_mask(vector, mask):
-    if not_boolean_mask(mask):
-        raise TypeError("Trying to filter vector using non boolean mask")
-    filtered_vector = vector[mask]
-    return filtered_vector
+    return list(itertools.compress(vector, mask))
 
 
 def not_boolean_mask(mask):
@@ -73,7 +74,7 @@ def not_boolean_mask(mask):
 
 
 def filter_dictionary_by_mask(dictionary, mask):
-    return {dset : filter_by_mask(dataset, mask) for dset, dataset in dictionary.items()}
+    return {dset: filter_by_mask(dataset, mask) for dset, dataset in dictionary.items()}
 
 
 def filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction):
@@ -127,9 +128,12 @@ def empty_np_array(array):
 def _check_type_compatibility(value, vector):
     if value is None:
         return
-    if np.issubdtype(vector.dtype, str) and np.issubdtype(np.array([value]).dtype, str):
+    elif np.issubdtype(np.array([vector[0]]).dtype, int) and np.issubdtype(np.array([value]).dtype, int):
         return
-
-    if np.array([value]).dtype != vector.dtype:
+    elif np.issubdtype(np.array([vector[0]]).dtype, float) and np.issubdtype(np.array([value]).dtype, float):
+        return
+    elif np.issubdtype(np.array([vector[0]]).dtype, str) and np.issubdtype(np.array([value]).dtype, str):
+        return
+    else:
         raise TypeError("Failed to create boolean mask of array of type "
-                        "" + str(vector.dtype) + ' using value of type ' + str(np.array([value]).dtype))
+                        "" + str(type(vector[0])) + ' using value of type ' + str(type(value)))

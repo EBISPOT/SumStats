@@ -50,37 +50,37 @@ class TestQueryUtils(object):
         assert dataset is None
 
     def test_get_upper_limit_mask(self):
-        vector = np.array([1, 2, 3, 4])
+        vector = [1, 2, 3, 4]
         upper_limit = 3
         expected_mask = [True, True, True, False]
         mask = utils.get_upper_limit_mask(upper_limit, vector)
         assert np.array_equal(expected_mask, mask)
 
-        vector = np.array(["1", "2", "3", "4"])
+        vector = ["1", "2", "3", "4"]
         upper_limit = "2"
         expected_mask = [True, True, False, False]
         mask = utils.get_upper_limit_mask(upper_limit, vector)
         assert np.array_equal(expected_mask, mask)
 
-        vector = np.array(["1", "2", "3", "4"])
+        vector = ["1", "2", "3", "4"]
         upper_limit = 2
         with pytest.raises(TypeError):
             utils.get_upper_limit_mask(upper_limit, vector)
 
     def test_get_lower_limit_mask(self):
-        vector = np.array([1, 2, 3, 4])
+        vector = [1, 2, 3, 4]
         lower_limit = 3
         expected_mask = [False, False, True, True]
         mask = utils.get_lower_limit_mask(lower_limit, vector)
         assert np.array_equal(expected_mask, mask)
 
-        vector = np.array(["1", "2", "3", "4"])
+        vector = ["1", "2", "3", "4"]
         lower_limit = "2"
         expected_mask = [False, True, True, True]
         mask = utils.get_lower_limit_mask(lower_limit, vector)
         assert np.array_equal(expected_mask, mask)
 
-        vector = np.array(["1", "2", "3", "4"])
+        vector = ["1", "2", "3", "4"]
         lower_limit = 2
         with pytest.raises(TypeError):
             utils.get_lower_limit_mask(lower_limit, vector)
@@ -162,7 +162,7 @@ class TestQueryUtils(object):
             utils.interval_mask(block_floor, False, bp_chr_array)
 
         with pytest.raises(TypeError):
-            bp_chr_array = np.array(["a", "b", "c", "d", "d", "d", "d", "d"])
+            bp_chr_array = ["a", "b", "c", "d", "d", "d", "d", "d"]
             utils.interval_mask(block_floor, block_ceil, bp_chr_array)
 
     def test_get_equality_mask(self):
@@ -203,50 +203,34 @@ class TestQueryUtils(object):
         assert masked_vector[0] == "a"
         assert masked_vector[1] == "d"
 
-        mask = [1, 3, True, False]
-        with pytest.raises(TypeError):
-            utils.filter_by_mask(vector, mask)
-
-        mask = ["a", "a", "a", "b"]
-        with pytest.raises(TypeError):
-            utils.filter_by_mask(vector, mask)
-
-        mask = [1, 1, 1, 0]
-        with pytest.raises(TypeError):
-            utils.filter_by_mask(vector, mask)
-
-        mask = [1.4, 1.3, 1.2, 0.1]
-        with pytest.raises(TypeError):
-            utils.filter_by_mask(vector, mask)
-
     def test_filter_dictionary_by_mask(self):
-        dict = {'dset1' : np.array([1, 2, 3]), 'dset2' : np.array([1, 3, 3])}
-        pvals = np.array([1, 2, 2])
+        dict = {'dset1' : [1, 2, 3], 'dset2' : [1, 3, 3]}
+        pvals = [1, 2, 2]
         mask = utils.equality_mask(1, pvals)
         print (mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         for dset in dict:
-            assert np.array_equal(dict[dset], np.array([1]))
+            assert np.array_equal(dict[dset], [1])
 
-        dict = {'dset1' : np.array(["a", "b", "c"]), 'dset2' : np.array(["c", "d", "e"])}
-        pvals = np.array([1, 2, 2])
+        dict = {'dset1' : ["a", "b", "c"], 'dset2' : ["c", "d", "e"]}
+        pvals = [1, 2, 2]
         mask = utils.equality_mask(1, pvals)
         print (mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
-        assert np.array_equal(dict["dset1"], np.array(["a"]))
-        assert np.array_equal(dict["dset2"], np.array(["c"]))
+        assert np.array_equal(dict["dset1"], ["a"])
+        assert np.array_equal(dict["dset2"], ["c"])
 
-        dict = {'dset1' : np.array(["a", "b", "c"]), 'dset2' : np.array(["c", "d", "e"])}
-        pvals = np.array([1, 2, 2])
+        dict = {'dset1' : ["a", "b", "c"], 'dset2' : ["c", "d", "e"]}
+        pvals = [1, 2, 2]
         mask = utils.equality_mask(2, pvals)
         print (mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
-        assert np.array_equal(dict["dset1"], np.array(["b", "c"]))
-        assert np.array_equal(dict["dset2"], np.array(["d", "e"]))
+        assert np.array_equal(dict["dset1"], ["b", "c"])
+        assert np.array_equal(dict["dset2"], ["d", "e"])
 
     def test_filter_dsets_with_restrictions(self):
-        name_to_dataset = {'snp': np.array(["rs1", "rs1", "rs1", "rs2", "rs3"]), 'pval': np.array([1, 2.1, 3, 3.1, 4]),
-                               'chr': np.array([1, 1, 1, 1, 2])}
+        name_to_dataset = {'snp': ["rs1", "rs1", "rs1", "rs2", "rs3"], 'pval': [1., 2.1, 3, 3.1, 4],
+                               'chr': [1, 1, 1, 1, 2]}
 
         dset_names_to_restriction = {'snp' : "rs1", 'pval' : (1., 2.1), 'chr' : 1}
 
