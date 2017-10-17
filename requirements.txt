@@ -1,5 +1,6 @@
 h5py==2.7.0
 numpy==1.12.1
 pandas
+pyyaml
 flask==0.12.2
 cherrypy==11.0.0

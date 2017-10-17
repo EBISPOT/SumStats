@@ -142,7 +142,10 @@ def main():
 
     if bool(dset_name_to_restriction):
         name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction)
-    print("length", len(name_to_dataset['snps']))
+
+    print("Done filtering")
+    print(time.strftime('%a %H:%M:%S'))
+    print("length", len(name_to_dataset[SNP_DSET]))
     for dset in name_to_dataset:
         print(dset)
         print(name_to_dataset[dset][:10])

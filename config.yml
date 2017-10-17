@@ -1,0 +1,5 @@
+loader : [chr|trait]
+tsv : /application/files/toload/load.csv
+h5file : /application/files/h5files/file.h5
+trait : trait
+study : study
