@@ -1,6 +1,7 @@
 import numpy as np
 from functools import reduce
 import itertools
+import sumstats.utils.pval_utils as pu
 
 
 def get_group_from_parent(parent_group, child_group):
@@ -77,19 +78,9 @@ def filter_dictionary_by_mask(dictionary, mask):
     return {dset: filter_by_mask(dataset, mask) for dset, dataset in dictionary.items()}
 
 
-def filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction):
-    list_of_masks = []
-    for dset_name in dset_name_to_restriction:
-        argument = dset_name_to_restriction[dset_name]
-        if isinstance(argument, tuple):
-            lower_limit = argument[0]
-            upper_limit = argument[1]
-            dataset_to_filter_on = name_to_dataset[dset_name]
-            list_of_masks.append(interval_mask(lower_limit, upper_limit, dataset_to_filter_on))
-        else:
-            value = argument
-            dataset_to_filter_on = name_to_dataset[dset_name]
-            list_of_masks.append(equality_mask(value, dataset_to_filter_on))
+def filter_dsets_with_restrictions(name_to_dataset, restrictions):
+    print("r", restrictions)
+    list_of_masks = [restriction.get_mask() for restriction in restrictions]
 
     filtering_mask = combine_list_of_masks(list_of_masks)
     if filtering_mask is not None:
@@ -123,6 +114,18 @@ def empty_np_array(array):
     if len(array) == 0:
         return True
     return False
+
+
+def get_mantissa_and_exp_dsets(string_list):
+    mantissa_dset = []
+    exp_dset = []
+    for str_number in string_list:
+        mantissa, exp = pu.convert_to_mantissa_and_exponent(str_number)
+        mantissa_dset.append(mantissa)
+        exp_dset.append(exp)
+
+    return mantissa_dset, exp_dset
+
 
 
 def _check_type_compatibility(value, vector):

@@ -6,12 +6,9 @@ import argparse
 import numpy as np
 from sumstats.utils import utils
 
-TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-TO_STORE_DSETS = ['pval', 'or', 'bp', 'effect', 'other']
 BLOCK_SIZE = 100000
 SNP_DSET = 'snp'
 BP_DSET = 'bp'
-PVAL_DSET = 'pval'
 CHR_DSET = 'chr'
 STUDY_DSET = 'study'
 
@@ -48,7 +45,7 @@ def get_query_datasets_from_groups(list_of_wanted_dsets, groups):
 def get_dset_from_group(dset_name, group, value=None):
     dataset = utils.get_dset(group, dset_name)
     if dataset is None:
-        size = len(utils.get_dset(group, PVAL_DSET))
+        size = len(utils.get_dset(group, BP_DSET))
         dataset = create_dset_placeholder_size_from_value(size, value)
 
     return dataset

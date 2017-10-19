@@ -12,26 +12,26 @@ class TestFirstApproach(object):
 
     def setup_method(self, method):
         snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = [0.4865, 0.4314, 0.5986, 0.7057]
-        chrarray = [1, 1, 2, 2]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
+        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
+        chrarray = ["1", "1", "2", "2"]
+        orarray = ["0.92090", "1.01440", "0.97385", "0.99302"]
+        bparray = ["1118275", "1120431", "49129966", "48480252"]
         effect_array = ["A", "B", "C", "D"]
         other_array = ["Z", "Y", "X", "W"]
 
-        dict = {}
-        dict["snp"] = snpsarray
-        dict["pval"] = pvalsarray
-        dict["chr"] = chrarray
-        dict["or"] = orarray
-        dict["bp"] = bparray
-        dict["effect"] = effect_array
-        dict["other"] = other_array
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effect_array, "other": other_array}
 
         load = loader.Loader(None, self.h5file, 'PM001', dict)
         load.load()
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effect_array, "other": other_array}
+
         load = loader.Loader(None, self.h5file, 'PM002', dict)
         load.load()
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effect_array, "other": other_array}
+
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
 
@@ -91,11 +91,15 @@ class TestFirstApproach(object):
         snp1 = self.f.get("/1/1200000/rs185339560")
         assert snp1 is not None
         info = list(snp1.keys())
-        assert len(info) == 6
+        assert len(info) == 7
 
-        pvals = snp1.get("pval")
-        assert len(pvals[:]) == 3  # loaded 3 times for 3 diff studies
-        assert pvals[:][0] == 0.4865
+        mantissa = snp1.get("mantissa")
+        assert len(mantissa[:]) == 3  # loaded 3 times for 3 diff studies
+        assert mantissa[:][0] == 4.865
+
+        exp = snp1.get("exp")
+        assert len(exp[:]) == 3  # loaded 3 times for 3 diff studies
+        assert exp[:][0] == -1
 
         studies = snp1.get("study")
         assert len(studies[:]) == 3

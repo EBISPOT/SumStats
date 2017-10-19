@@ -14,14 +14,14 @@ import h5py
 from sumstats.utils import utils
 import sumstats.chr.query_utils as myutils
 import time
+from sumstats.utils.restrictions import *
 
-TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-TO_STORE_DSETS = ['pval', 'or', 'bp', 'effect', 'other']
-TO_QUERY_DSETS = ['snp', 'pval', 'or', 'study', 'bp', 'effect', 'other']
+TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'or', 'study', 'bp', 'effect', 'other']
 BLOCK_SIZE = 100000
 SNP_DSET = 'snp'
 BP_DSET = 'bp'
-PVAL_DSET = 'pval'
+MANTISSA_DSET = 'mantissa'
+EXP_DSET = 'exp'
 CHR_DSET = 'chr'
 STUDY_DSET = 'study'
 
@@ -78,20 +78,15 @@ def find_snp_in_group_name(name, group):
         return group.name
 
 
-def find_snp_block(chr_group, snp):
-
-    # def find_snp_in_group_name(name, group):
-    #     if snp in name:
-    #         return group.name
-
+def find_snp_block(chr_group):
     group_name = chr_group.visititems(find_snp_in_group_name)
     name_array = group_name.split("/")
     return name_array[2]
 
 
-def get_block_that_snp_belongs_to(chr_group, block_upper_limit, snp):
+def get_block_that_snp_belongs_to(chr_group, block_upper_limit):
     if block_upper_limit is None:
-        snp_block = find_snp_block(chr_group, snp)
+        snp_block = find_snp_block(chr_group)
     else:
         snp_block = myutils.get_block_number(block_upper_limit)
     return snp_block
@@ -128,20 +123,20 @@ def main():
                                                     block_upper_limit)
 
     elif query == 2:
-        snp_block_number = get_block_that_snp_belongs_to(chr_group, block_upper_limit, snp)
+        snp_block_number = get_block_that_snp_belongs_to(chr_group, block_upper_limit)
         name_to_dataset = query_for_snp(chr_group, snp_block_number, snp)
 
     print("Start filtering")
     print(time.strftime('%a %H:%M:%S'))
 
-    dset_name_to_restriction = {}
+    restrictions = []
     if study is not None:
-        dset_name_to_restriction[STUDY_DSET] = study
+        restrictions.append(EqualityRestriction(study, name_to_dataset[STUDY_DSET]))
     if p_upper_limit is not None or p_lower_limit is not None:
-        dset_name_to_restriction[PVAL_DSET] = (p_lower_limit, p_upper_limit)
+        restrictions.append(IntervalRestriction(p_lower_limit, p_upper_limit, name_to_dataset[MANTISSA_DSET]))
 
-    if bool(dset_name_to_restriction):
-        name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, dset_name_to_restriction)
+    if restrictions:
+        name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
 
     print("Done filtering")
     print(time.strftime('%a %H:%M:%S'))

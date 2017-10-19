@@ -12,26 +12,26 @@ class TestFirstApproach(object):
 
     def setup_method(self, method):
         snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = [0.4865, 0.4314, 0.5986, 0.7057]
-        chrarray = [1, 1, 2, 2]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
-        effect_array = ["A", "B", "C", "D"]
+        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
+        chrarray = ["1", "1", "2", "2"]
+        orarray = ["0.92090", "1.01440", "0.97385", "0.99302"]
+        bparray = ["1118275", "1120431", "49129966", "48480252"]
+        effectarray = ["A", "B", "C", "D"]
         other_array = ["Z", "Y", "X", "W"]
 
-        dict = {}
-        dict["snp"] = snpsarray
-        dict["pval"] = pvalsarray
-        dict["chr"] = chrarray
-        dict["or"] = orarray
-        dict["bp"] = bparray
-        dict["effect"] = effect_array
-        dict["other"] = other_array
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": other_array}
 
         load = loader.Loader(None, self.h5file, 'PM001', dict)
         load.load()
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": other_array}
         load = loader.Loader(None, self.h5file, 'PM002', dict)
         load.load()
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": other_array}
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
 
@@ -47,7 +47,7 @@ class TestFirstApproach(object):
         block_upper_limit = 49129966
         name_to_dataset = searcher.query_for_block_range(chr_group, block_lower_limit, block_upper_limit)
 
-        assert name_to_dataset.__class__ is dict
+        assert isinstance(name_to_dataset, dict)
 
         for dset_name in name_to_dataset:
             assert len(name_to_dataset[dset_name]) == 6
@@ -61,7 +61,7 @@ class TestFirstApproach(object):
         block_upper_limit = 49200000
         name_to_dataset = searcher.query_for_block_range(chr_group, block_lower_limit, block_upper_limit)
 
-        assert name_to_dataset.__class__ is dict
+        assert isinstance(name_to_dataset, dict)
 
         for dset_name in name_to_dataset:
             assert len(name_to_dataset[dset_name]) == 3
@@ -73,7 +73,7 @@ class TestFirstApproach(object):
 
         name_to_dataset = searcher.query_for_snp(chr_group, block_number, snp)
 
-        assert name_to_dataset.__class__ is dict
+        assert isinstance(name_to_dataset, dict)
 
         for dset_name in name_to_dataset:
             assert len(name_to_dataset[dset_name]) == 3

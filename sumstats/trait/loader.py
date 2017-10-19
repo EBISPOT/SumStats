@@ -21,14 +21,16 @@ from sumstats.utils import utils
 import pandas as pd
 
 TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-TO_STORE_DSETS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
+TO_STORE_DSETS = ['snp', 'mantissa', 'exp', 'chr', 'or', 'bp', 'effect', 'other']
 
 vlen_dtype = h5py.special_dtype(vlen=str)
-DSET_TYPES = {'snp' : vlen_dtype, 'pval': float, 'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype}
+DSET_TYPES = {'snp' : vlen_dtype, 'mantissa': float, 'exp': int, 'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype}
 
 SNP_DSET = 'snp'
 BP_DSET = 'bp'
 PVAL_DSET = 'pval'
+MANTISSA_DSET = 'mantissa'
+EXP_DSET = 'exp'
 
 
 def create_trait_group(file, trait):
@@ -54,12 +56,13 @@ def create_dataset(group, dset_name, data):
 
 class Loader():
 
-    def __init__(self, tsv, h5file, study, trait, name_to_dataset=None):
+    def __init__(self, tsv, h5file, study, trait, dict_of_dsets=None):
         self.h5file = h5file
         self.study = study
         self.trait = trait
 
         if tsv is not None:
+            assert dict_of_dsets is None, "dict_of_dsets is ignored"
             print(time.strftime('%a %H:%M:%S'))
 
             name_to_dataset = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
@@ -67,6 +70,16 @@ class Loader():
             utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
+        else:
+            name_to_dataset = dict_of_dsets
+
+        pval_dset = name_to_dataset[PVAL_DSET]
+        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_dsets(pval_dset)
+        del name_to_dataset[PVAL_DSET]
+
+        name_to_dataset[MANTISSA_DSET] = mantissa_dset
+        name_to_dataset[EXP_DSET] = exp_dset
+
         name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
         utils.assert_np_datasets_not_empty(name_to_dataset)
         self.name_to_dataset = name_to_dataset

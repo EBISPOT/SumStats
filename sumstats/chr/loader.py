@@ -18,14 +18,16 @@ import pandas as pd
 from sumstats.utils import utils
 
 TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-TO_STORE_DSETS = ['pval', 'study', 'or', 'bp', 'effect', 'other']
+TO_STORE_DSETS = ['mantissa', 'exp', 'study', 'or', 'bp', 'effect', 'other']
 
 vlen_dtype = h5py.special_dtype(vlen=str)
-DSET_TYPES = {'snp' : vlen_dtype, 'pval': float, 'study' : vlen_dtype, 'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype}
+DSET_TYPES = {'snp' : vlen_dtype, 'mantissa': float, 'exp': int, 'study' : vlen_dtype, 'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype}
 
 BLOCK_SIZE = 100000
 SNP_DSET = 'snp'
 BP_DSET = 'bp'
+MANTISSA_DSET = 'mantissa'
+EXP_DSET = 'exp'
 PVAL_DSET = 'pval'
 CHR_DSET = 'chr'
 STUDY_DSET = 'study'
@@ -60,7 +62,7 @@ def expand_dataset(group, dset_name, data):
 
 
 def create_study_dataset(name_to_dataset, study):
-    name_to_dataset[STUDY_DSET] = [study for _ in range(len(name_to_dataset[PVAL_DSET]))]
+    name_to_dataset[STUDY_DSET] = [study for _ in range(len(name_to_dataset[MANTISSA_DSET]))]
     return name_to_dataset
 
 
@@ -119,18 +121,27 @@ def block_limit_not_reached_max(block_ceil, max_bp):
 
 
 class Loader():
-    def __init__(self, tsv, h5file, study, name_to_dataset=None):
+    def __init__(self, tsv, h5file, study, dict_of_dsets=None):
         self.h5file = h5file
         self.study = study
 
         if tsv is not None:
-            assert name_to_dataset is None, "name_to_dataset is ignored"
+            assert dict_of_dsets is None, "dic_of_dsets is ignored"
             print(time.strftime('%a %H:%M:%S'))
 
             name_to_dataset = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
             name_to_dataset = utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
+        else:
+            name_to_dataset = dict_of_dsets
+
+        pval_dset = name_to_dataset[PVAL_DSET]
+        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_dsets(pval_dset)
+        del name_to_dataset[PVAL_DSET]
+
+        name_to_dataset[MANTISSA_DSET] = mantissa_dset
+        name_to_dataset[EXP_DSET] = exp_dset
 
         name_to_dataset = create_study_dataset(name_to_dataset, study)
         name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)

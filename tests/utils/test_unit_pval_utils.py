@@ -1,8 +1,8 @@
 import sumstats.utils.pval_utils as pu
 import pytest
 
-class TestQueryUtils(object):
 
+class TestQueryUtils(object):
     def test__num_of_zeros_preceding(self):
         str_number = "1"
         assert pu._num_of_zeros_preceding(str_number) == 0
@@ -266,4 +266,3 @@ class TestQueryUtils(object):
         mantissa, exp = pu.convert_to_mantissa_and_exponent(str_number)
         assert mantissa == 1.01
         assert exp == 980
-

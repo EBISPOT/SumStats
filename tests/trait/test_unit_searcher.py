@@ -12,27 +12,28 @@ class TestFirstApproach(object):
 
     def setup_method(self, method):
         snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = [0.4865, 0.4314, 0.5986, 0.7057]
-        chrarray1 = [10, 10, 10, 10]
-        chrarray2 = [9, 9, 9, 9]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
+        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
+        chrarray1 = ["10", "10", "10", "10"]
+        orarray = ["0.92090", "1.01440", "0.97385", "0.99302"]
+        bparray = ["1118275", "1120431", "49129966", "48480252"]
         effectarray = ["A", "B", "C", "D"]
         otherarray = ["Z", "Y", "X", "W"]
 
-        dict = {}
-        dict["snp"] = snpsarray
-        dict["pval"] = pvalsarray
-        dict["chr"] = chrarray1
-        dict["or"] = orarray
-        dict["bp"] = bparray
-        dict["effect"] = effectarray
-        dict["other"] = otherarray
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray1, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray}
 
         load = loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
         load.load()
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray1, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray}
+
         load = loader.Loader(None, self.h5file, "PM002", "Trait1", dict)
         load.load()
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray1, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray}
+
         load = loader.Loader(None, self.h5file, "PM003", "Trait2", dict)
         load.load()
 

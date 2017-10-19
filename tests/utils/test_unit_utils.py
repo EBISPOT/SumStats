@@ -4,6 +4,7 @@ import h5py
 import numpy as np
 import pytest
 import sumstats.utils.utils as utils
+from sumstats.utils.restrictions import *
 
 
 class TestQueryUtils(object):
@@ -204,37 +205,39 @@ class TestQueryUtils(object):
         assert masked_vector[1] == "d"
 
     def test_filter_dictionary_by_mask(self):
-        dict = {'dset1' : [1, 2, 3], 'dset2' : [1, 3, 3]}
+        dict = {'dset1': [1, 2, 3], 'dset2': [1, 3, 3]}
         pvals = [1, 2, 2]
         mask = utils.equality_mask(1, pvals)
-        print (mask)
+        print(mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         for dset in dict:
             assert np.array_equal(dict[dset], [1])
 
-        dict = {'dset1' : ["a", "b", "c"], 'dset2' : ["c", "d", "e"]}
+        dict = {'dset1': ["a", "b", "c"], 'dset2': ["c", "d", "e"]}
         pvals = [1, 2, 2]
         mask = utils.equality_mask(1, pvals)
-        print (mask)
+        print(mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         assert np.array_equal(dict["dset1"], ["a"])
         assert np.array_equal(dict["dset2"], ["c"])
 
-        dict = {'dset1' : ["a", "b", "c"], 'dset2' : ["c", "d", "e"]}
+        dict = {'dset1': ["a", "b", "c"], 'dset2': ["c", "d", "e"]}
         pvals = [1, 2, 2]
         mask = utils.equality_mask(2, pvals)
-        print (mask)
+        print(mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         assert np.array_equal(dict["dset1"], ["b", "c"])
         assert np.array_equal(dict["dset2"], ["d", "e"])
 
     def test_filter_dsets_with_restrictions(self):
         name_to_dataset = {'snp': ["rs1", "rs1", "rs1", "rs2", "rs3"], 'pval': [1., 2.1, 3, 3.1, 4],
-                               'chr': [1, 1, 1, 1, 2]}
+                           'chr': [1, 1, 1, 1, 2]}
 
-        dset_names_to_restriction = {'snp' : "rs1", 'pval' : (1., 2.1), 'chr' : 1}
+        restrictions = [EqualityRestriction("rs1", name_to_dataset["snp"]),
+                        IntervalRestriction(1., 2.1, name_to_dataset["pval"]),
+                        EqualityRestriction(1, name_to_dataset["chr"])]
 
-        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, dset_names_to_restriction)
+        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
 
         assert len(list(filtered_dsets.keys())) == 3
 
@@ -251,9 +254,10 @@ class TestQueryUtils(object):
         for chr in filtered_dsets['chr']:
             assert chr == 1
 
-        dset_names_to_restriction = {'pval': (3., 3.1), 'chr': 1}
+        restrictions = [IntervalRestriction(3., 3.1, name_to_dataset["pval"]),
+                        EqualityRestriction(1, name_to_dataset["chr"])]
 
-        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, dset_names_to_restriction)
+        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
         assert len(list(filtered_dsets.keys())) == 3
         assert len(filtered_dsets['snp']) == 2
 
@@ -269,9 +273,9 @@ class TestQueryUtils(object):
         for chr in filtered_dsets['chr']:
             assert chr == 1
 
-        dset_names_to_restriction = {'pval': (4., 4.)}
+        restrictions = [IntervalRestriction(4., 4., name_to_dataset["pval"]), ]
 
-        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, dset_names_to_restriction)
+        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
         assert len(list(filtered_dsets.keys())) == 3
         assert len(filtered_dsets['snp']) == 1
 
@@ -283,11 +287,10 @@ class TestQueryUtils(object):
         assert len(filtered_dsets['chr']) == 1
         assert filtered_dsets['chr'][0] == 2
 
-
         #
-        dset_names_to_restriction = {}
+        restrictions = []
 
-        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, dset_names_to_restriction)
+        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
         assert len(list(filtered_dsets.keys())) == 3
         for dset_name in name_to_dataset:
             assert len(name_to_dataset[dset_name]) == 5
@@ -313,7 +316,7 @@ class TestQueryUtils(object):
             utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
 
     def test_remove_headers(self):
-        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr' ]
+        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
         name_to_dataset = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
 
         name_to_dataset = utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
@@ -345,7 +348,8 @@ class TestQueryUtils(object):
         with pytest.raises(AttributeError):
             utils.assert_np_datasets_not_empty(name_to_dataset)
 
-        name_to_dataset = {'snp': np.array(["rs1", "rs2", "rs3"]), 'pval': np.array([0.1, 3.1, 2.1]), 'chr': np.array([1, 2, 3])}
+        name_to_dataset = {'snp': np.array(["rs1", "rs2", "rs3"]), 'pval': np.array([0.1, 3.1, 2.1]),
+                           'chr': np.array([1, 2, 3])}
         utils.assert_np_datasets_not_empty(name_to_dataset)
 
         name_to_dataset = {'snp': np.array(None)}
@@ -355,6 +359,3 @@ class TestQueryUtils(object):
         name_to_dataset = {'snp': np.array([])}
         with pytest.raises(ValueError):
             utils.assert_np_datasets_not_empty(name_to_dataset)
-
-
-

@@ -12,26 +12,26 @@ class TestFirstApproach(object):
 
     def setup_method(self, method):
         snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = [0.4865, 0.4314, 0.5986, 0.7057]
-        chrarray = [1, 1, 2, 2]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
+        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
+        chrarray = ["1", "1", "2", "2"]
+        orarray = ["0.92090", "1.01440", "0.97385", "0.99302"]
+        bparray = ["1118275", "1120431", "49129966", "48480252"]
         effect_array = ["A", "B", "C", "D"]
         other_array = ["Z", "Y", "X", "W"]
 
-        dict = {}
-        dict["snp"] = snpsarray
-        dict["pval"] = pvalsarray
-        dict["chr"] = chrarray
-        dict["or"] = orarray
-        dict["bp"] = bparray
-        dict["effect"] = effect_array
-        dict["other"] = other_array
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effect_array, "other": other_array}
 
         load = loader.Loader(None, self.h5file, 'PM001', dict)
         load.load()
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effect_array, "other": other_array}
+
         load = loader.Loader(None, self.h5file, 'PM002', dict)
         load.load()
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effect_array, "other": other_array}
+
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
 
@@ -93,7 +93,7 @@ class TestFirstApproach(object):
         block_group = block_groups[0]
         snp_group = block_group.get("rs7085086")
 
-        TO_QUERY_DSETS = ['snp', 'pval', 'study', 'or', 'bp', 'effect', 'other']
+        TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'study', 'or', 'bp', 'effect', 'other']
         for dset_name in TO_QUERY_DSETS:
             dset = query.get_dset_from_group(dset_name, snp_group)
             if dset_name is "snp":

@@ -3,13 +3,8 @@ import numpy as np
 import sumstats.utils.utils as utils
 
 
-TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-TO_STORE_DSETS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-# SNP_DSET = 'snps'
 SNP_DSET = 'snp'
 BP_DSET = 'bp'
-PVAL_DSET = 'pval'
-# PVAL_DSET = 'pvals'
 
 
 def get_dsets_from_file(f, dsets):
@@ -39,7 +34,7 @@ def get_dsets_from_trait_group(trait_group, dsets):
 def get_dset_from_group(dset_name, group, value=None):
     dataset = utils.get_dset(group, dset_name)
     if dataset is None:
-        size = len(utils.get_dset(group, PVAL_DSET))
+        size = len(utils.get_dset(group, SNP_DSET))
         dataset = create_dset_placeholder_size_from_value(size, value)
 
     return dataset
