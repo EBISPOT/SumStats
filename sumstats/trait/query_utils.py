@@ -1,10 +1,7 @@
 import argparse
 import numpy as np
 import sumstats.utils.utils as utils
-
-
-SNP_DSET = 'snp'
-BP_DSET = 'bp'
+from sumstats.trait.constants import *
 
 
 def get_dsets_from_file(f, dsets):

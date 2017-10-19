@@ -25,9 +25,10 @@ class TestFirstApproach(object):
         bparray = ["1118275", "1120431", "49129966", "48480252"]
         effect_array = ["A", "B", "C", "D"]
         other_array = []
+        frequencyarray = ["3.926e-01", "4.900e-03", "1.912e-01", "7.000e-04"]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array}
+                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
         with pytest.raises(ValueError):
             loader.Loader(None, self.h5file, "PM001", dict)
 

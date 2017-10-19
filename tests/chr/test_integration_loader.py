@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 
 import sumstats.chr.loader as loader
-
+from sumstats.chr.constants import *
 
 class TestFirstApproach(object):
     h5file = ".testfile.h5"
@@ -18,19 +18,20 @@ class TestFirstApproach(object):
         bparray = ["1118275", "1120431", "49129966", "48480252"]
         effect_array = ["A", "B", "C", "D"]
         other_array = ["Z", "Y", "X", "W"]
+        frequencyarray = ["3.926e-01", "4.900e-03", "1.912e-01", "7.000e-04"]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array}
+                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM001', dict)
         load.load()
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array}
+                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM002', dict)
         load.load()
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array}
+                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
@@ -91,7 +92,7 @@ class TestFirstApproach(object):
         snp1 = self.f.get("/1/1200000/rs185339560")
         assert snp1 is not None
         info = list(snp1.keys())
-        assert len(info) == 7
+        assert len(info) == len(TO_STORE_DSETS)
 
         mantissa = snp1.get("mantissa")
         assert len(mantissa[:]) == 3  # loaded 3 times for 3 diff studies

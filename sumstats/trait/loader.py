@@ -19,18 +19,7 @@ import argparse
 import time
 from sumstats.utils import utils
 import pandas as pd
-
-TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-TO_STORE_DSETS = ['snp', 'mantissa', 'exp', 'chr', 'or', 'bp', 'effect', 'other']
-
-vlen_dtype = h5py.special_dtype(vlen=str)
-DSET_TYPES = {'snp' : vlen_dtype, 'mantissa': float, 'exp': int, 'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype}
-
-SNP_DSET = 'snp'
-BP_DSET = 'bp'
-PVAL_DSET = 'pval'
-MANTISSA_DSET = 'mantissa'
-EXP_DSET = 'exp'
+from sumstats.trait.constants import *
 
 
 def create_trait_group(file, trait):

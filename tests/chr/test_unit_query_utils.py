@@ -1,9 +1,10 @@
 import os
 import h5py
 import pytest
-import numpy as np
 import sumstats.chr.loader as loader
 import sumstats.chr.query_utils as query
+
+TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'study', 'or', 'bp', 'effect', 'other', 'freq']
 
 
 class TestFirstApproach(object):
@@ -18,19 +19,20 @@ class TestFirstApproach(object):
         bparray = ["1118275", "1120431", "49129966", "48480252"]
         effect_array = ["A", "B", "C", "D"]
         other_array = ["Z", "Y", "X", "W"]
+        frequencyarray = ["3.926e-01", "4.900e-03", "1.912e-01", "7.000e-04"]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array}
+                "effect": effect_array, "other": other_array, 'freq' : frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM001', dict)
         load.load()
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array}
+                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM002', dict)
         load.load()
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array}
+                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
@@ -69,7 +71,6 @@ class TestFirstApproach(object):
 
     def test_get_dict_of_wanted_dsets_from_groups(self):
         chr_group_2 = self.f.get("/2")
-        TO_QUERY_DSETS = ['snp', 'pval', 'or', 'study', 'bp', 'effect', 'other']
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 49200000)
 
@@ -93,9 +94,9 @@ class TestFirstApproach(object):
         block_group = block_groups[0]
         snp_group = block_group.get("rs7085086")
 
-        TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'study', 'or', 'bp', 'effect', 'other']
         for dset_name in TO_QUERY_DSETS:
             dset = query.get_dset_from_group(dset_name, snp_group)
+
             if dset_name is "snp":
                 assert len(dset) == 0
             else:

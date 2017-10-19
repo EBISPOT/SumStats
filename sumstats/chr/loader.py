@@ -10,27 +10,11 @@
 
 import argparse
 import time
-
-import h5py
 import numpy as np
 import pandas as pd
 
 from sumstats.utils import utils
-
-TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other']
-TO_STORE_DSETS = ['mantissa', 'exp', 'study', 'or', 'bp', 'effect', 'other']
-
-vlen_dtype = h5py.special_dtype(vlen=str)
-DSET_TYPES = {'snp' : vlen_dtype, 'mantissa': float, 'exp': int, 'study' : vlen_dtype, 'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype}
-
-BLOCK_SIZE = 100000
-SNP_DSET = 'snp'
-BP_DSET = 'bp'
-MANTISSA_DSET = 'mantissa'
-EXP_DSET = 'exp'
-PVAL_DSET = 'pval'
-CHR_DSET = 'chr'
-STUDY_DSET = 'study'
+from sumstats.chr.constants import *
 
 
 def create_dataset(group, dset_name, data):

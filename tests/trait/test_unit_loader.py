@@ -24,9 +24,10 @@ class TestFirstApproach(object):
         bparray = ["1118275", "1120431", "49129966", "48480252"]
         effect_array = ["A", "B", "C", "D"]
         other_array = []
+        frequencyarray = ["3.926e-01", "4.900e-03", "1.912e-01", "7.000e-04"]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array}
+                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
 
         with pytest.raises(ValueError):
             loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
@@ -39,15 +40,10 @@ class TestFirstApproach(object):
         bparray = ["1118275", "1120431", "49129966", "48480252"]
         effect_array = ["A", "B", "C", "D"]
         other_array = None
+        frequencyarray = ["3.926e-01", "4.900e-03", "1.912e-01", "7.000e-04"]
 
-        dict = {}
-        dict["snp"] = snpsarray
-        dict["pval"] = pvalsarray
-        dict["chr"] = chrarray
-        dict["or"] = orarray
-        dict["bp"] = bparray
-        dict["effect"] = effect_array
-        dict["other"] = other_array
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
 
         with pytest.raises(ValueError):
             loader.Loader(None, self.h5file, "PM001", "Trait1", dict)

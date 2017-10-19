@@ -5,12 +5,7 @@ Utils useful for querying
 import argparse
 import numpy as np
 from sumstats.utils import utils
-
-BLOCK_SIZE = 100000
-SNP_DSET = 'snp'
-BP_DSET = 'bp'
-CHR_DSET = 'chr'
-STUDY_DSET = 'study'
+from sumstats.chr.constants import *
 
 
 def get_block_groups_from_parent_within_block_range(chr_group, block_lower, block_upper):

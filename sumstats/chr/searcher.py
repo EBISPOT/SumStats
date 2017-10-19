@@ -10,20 +10,10 @@
     And then filter by study(/trait) and/or by p-value threshold
 """
 
-import h5py
-from sumstats.utils import utils
 import sumstats.chr.query_utils as myutils
 import time
 from sumstats.utils.restrictions import *
-
-TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'or', 'study', 'bp', 'effect', 'other']
-BLOCK_SIZE = 100000
-SNP_DSET = 'snp'
-BP_DSET = 'bp'
-MANTISSA_DSET = 'mantissa'
-EXP_DSET = 'exp'
-CHR_DSET = 'chr'
-STUDY_DSET = 'study'
+from sumstats.chr.constants import *
 
 
 def query_for_chromosome(chr_group):

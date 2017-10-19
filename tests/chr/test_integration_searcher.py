@@ -14,9 +14,10 @@ class TestFirstApproach(object):
         bparray = ["1118275", "1120431", "49129966", "48480252"]
         effectarray = ["A", "B", "C", "D"]
         otherarray = ["Z", "Y", "X", "W"]
+        frequencyarray = ["3.926e-01", "4.900e-03", "1.912e-01", "7.000e-04"]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray1, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray}
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, "PM001", dict)
         load.load()

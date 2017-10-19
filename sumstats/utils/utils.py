@@ -79,7 +79,6 @@ def filter_dictionary_by_mask(dictionary, mask):
 
 
 def filter_dsets_with_restrictions(name_to_dataset, restrictions):
-    print("r", restrictions)
     list_of_masks = [restriction.get_mask() for restriction in restrictions]
 
     filtering_mask = combine_list_of_masks(list_of_masks)

@@ -17,17 +17,9 @@
     If a p-value threshold is given, all returned values need to be restricted to this threshold
 """
 
-import h5py
-from sumstats.utils import utils
 import sumstats.trait.query_utils as myutils
 from sumstats.utils.restrictions import *
-
-TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'chr', 'or', 'study', 'bp', 'effect', 'other']
-SNP_DSET = 'snp'
-MANTISSA_DSET = 'mantissa'
-EXP_DSET = 'exp'
-BP_DSET = 'bp'
-CHR_DSET = 'chr'
+from sumstats.trait.constants import *
 
 
 class Search():

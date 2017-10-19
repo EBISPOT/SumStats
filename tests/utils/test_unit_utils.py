@@ -3,7 +3,6 @@ import os
 import h5py
 import numpy as np
 import pytest
-import sumstats.utils.utils as utils
 from sumstats.utils.restrictions import *
 
 
