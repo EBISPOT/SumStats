@@ -14,7 +14,6 @@
 """
 
 
-import h5py
 import argparse
 import time
 from sumstats.utils import utils
@@ -54,7 +53,7 @@ class Loader():
             assert dict_of_dsets is None, "dict_of_dsets is ignored"
             print(time.strftime('%a %H:%M:%S'))
 
-            name_to_dataset = pd.read_csv(tsv, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
+            name_to_dataset = pd.read_csv(tsv, dtype=object, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
 
             utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
             print("Loaded tsv file: ", tsv)
