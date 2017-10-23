@@ -15,6 +15,8 @@ import pandas as pd
 
 from sumstats.utils import utils
 from sumstats.chr.constants import *
+import sumstats.utils.group_utils as gu
+import sumstats.utils.dset_utils as du
 
 
 def create_dataset(group, dset_name, data):
@@ -58,7 +60,7 @@ def create_groups_in_parent(parent, list_of_groups):
 
 def slice_datasets_where_chromosome(chromosome, name_to_dataset):
     # get the slices from all the arrays where chromosome position == i
-    chr_mask = utils.equality_mask(chromosome, name_to_dataset[CHR_DSET])
+    chr_mask = du.equality_mask(chromosome, name_to_dataset[CHR_DSET])
     return utils.filter_dictionary_by_mask(name_to_dataset, chr_mask)
 
 
@@ -91,7 +93,7 @@ def save_info_in_block_group(block_group, name_to_dataset):
     for i in range(len(snps)):
         snp = snps[i]
         if snp in block_group:
-            snp_group = utils.get_group_from_parent(block_group, snp)
+            snp_group = gu.get_group_from_parent(block_group, snp)
             for dset_name in TO_STORE_DSETS:
                 expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
         else:
@@ -142,7 +144,7 @@ class Loader():
         create_groups_in_parent(f, chromosome_array)
 
         for chromosome in chromosome_array:
-            chr_group = utils.get_group_from_parent(f, chromosome)
+            chr_group = gu.get_group_from_parent(f, chromosome)
 
             dsets_chromosome_slices = slice_datasets_where_chromosome(chromosome, name_to_dataset)
 
@@ -155,7 +157,7 @@ class Loader():
 
             while block_limit_not_reached_max(block_ceil, max_bp):
                 block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
-                block_mask = utils.interval_mask(block_floor, block_ceil, bp_list_chr)
+                block_mask = du.interval_mask(block_floor, block_ceil, bp_list_chr)
                 if np.any(block_mask):
                     dsets_block_slices = utils.filter_dictionary_by_mask(dsets_chromosome_slices, block_mask)
                     save_info_in_block_group(block_group, dsets_block_slices)

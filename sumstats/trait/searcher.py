@@ -20,7 +20,8 @@
 import sumstats.trait.query_utils as myutils
 from sumstats.utils.restrictions import *
 from sumstats.trait.constants import *
-
+import sumstats.utils.group_utils as gu
+import sumstats.utils.utils as utils
 
 class Search():
     def __init__(self, h5file):
@@ -29,12 +30,12 @@ class Search():
         self.f = h5py.File(h5file, 'r')
 
     def query_for_trait(self, trait):
-        trait_group = utils.get_group_from_parent(self.f, trait)
+        trait_group = gu.get_group_from_parent(self.f, trait)
         return myutils.get_dsets_from_trait_group(trait_group, TO_QUERY_DSETS)
 
     def query_for_study(self, trait, study):
-        trait_group = utils.get_group_from_parent(self.f, trait)
-        study_group = utils.get_group_from_parent(trait_group, study)
+        trait_group = gu.get_group_from_parent(self.f, trait)
+        study_group = gu.get_group_from_parent(trait_group, study)
 
         name_to_dataset = {}
 

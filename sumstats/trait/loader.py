@@ -19,18 +19,19 @@ import time
 from sumstats.utils import utils
 import pandas as pd
 from sumstats.trait.constants import *
+import sumstats.utils.group_utils as gu
 
 
 def create_trait_group(file, trait):
     if trait in file:
-        return utils.get_group_from_parent(file, trait)
+        return gu.get_group_from_parent(file, trait)
     else:
         return file.create_group(trait)
 
 
 def create_study_group(trait_group, study):
     if study in trait_group:
-        return utils.get_group_from_parent(trait_group, study)
+        return gu.get_group_from_parent(trait_group, study)
     else:
         return trait_group.create_group(study)
 

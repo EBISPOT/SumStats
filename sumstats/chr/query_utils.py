@@ -6,7 +6,8 @@ import argparse
 import numpy as np
 from sumstats.utils import utils
 from sumstats.chr.constants import *
-
+import sumstats.utils.group_utils as gu
+import sumstats.utils.dset_utils as du
 
 def get_block_groups_from_parent_within_block_range(chr_group, block_lower, block_upper):
     """
@@ -19,7 +20,7 @@ def get_block_groups_from_parent_within_block_range(chr_group, block_lower, bloc
     if block_lower > block_upper:
         raise ValueError("lower limit is bigger than upper limit")
 
-    blocks = [utils.get_group_from_parent(chr_group, block) for block in
+    blocks = [gu.get_group_from_parent(chr_group, block) for block in
               range(block_lower, (block_upper + BLOCK_SIZE), BLOCK_SIZE)]
     return blocks
 
@@ -38,9 +39,9 @@ def get_query_datasets_from_groups(list_of_wanted_dsets, groups):
 
 
 def get_dset_from_group(dset_name, group, value=None):
-    dataset = utils.get_dset(group, dset_name)
+    dataset = gu.get_dset(group, dset_name)
     if dataset is None:
-        size = len(utils.get_dset(group, BP_DSET))
+        size = len(gu.get_dset(group, BP_DSET))
         dataset = create_dset_placeholder_size_from_value(size, value)
 
     return dataset

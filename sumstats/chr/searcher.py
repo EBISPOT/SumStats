@@ -14,10 +14,12 @@ import sumstats.chr.query_utils as myutils
 import time
 from sumstats.utils.restrictions import *
 from sumstats.chr.constants import *
-
+import sumstats.utils.group_utils as gu
+import sumstats.utils.dset_utils as du
+import sumstats.utils.utils as utils
 
 def query_for_chromosome(chr_group):
-    all_chr_block_groups = utils.get_all_groups_from_parent(chr_group)
+    all_chr_block_groups = gu.get_all_groups_from_parent(chr_group)
     print("block size", len(all_chr_block_groups))
     return myutils.get_query_datasets_from_groups(TO_QUERY_DSETS, all_chr_block_groups)
 
@@ -42,7 +44,7 @@ def query_for_block_range(chr_group, block_lower_limit, block_upper_limit):
 
     name_to_dataset = myutils.get_query_datasets_from_groups(TO_QUERY_DSETS, block_groups)
 
-    bp_mask = utils.interval_mask(filter_block_floor, filter_block_ceil, name_to_dataset[BP_DSET])
+    bp_mask = du.interval_mask(filter_block_floor, filter_block_ceil, name_to_dataset[BP_DSET])
 
     if bp_mask is not None:
         name_to_dataset = utils.filter_dictionary_by_mask(name_to_dataset, bp_mask)
@@ -51,8 +53,8 @@ def query_for_block_range(chr_group, block_lower_limit, block_upper_limit):
 
 
 def query_for_snp(chr_group, block_number, snp):
-    block_group = utils.get_group_from_parent(chr_group, block_number)
-    snp_group = utils.get_group_from_parent(block_group, snp)
+    block_group = gu.get_group_from_parent(chr_group, block_number)
+    snp_group = gu.get_group_from_parent(block_group, snp)
 
     # initialize dictionary of datasets
     name_to_dataset = {dset_name: [] for dset_name in TO_QUERY_DSETS}
@@ -93,7 +95,7 @@ def main():
     # open h5 file in read mode
     f = h5py.File(args.h5file, mode="r")
 
-    chr_group = utils.get_group_from_parent(f, chr)
+    chr_group = gu.get_group_from_parent(f, chr)
     name_to_dataset = {}
 
     if query == 1:

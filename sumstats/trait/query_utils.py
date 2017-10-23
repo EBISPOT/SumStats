@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
-import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
+import sumstats.utils.group_utils as gu
 
 
 def get_dsets_from_file(f, dsets):
@@ -29,9 +29,9 @@ def get_dsets_from_trait_group(trait_group, dsets):
 
 
 def get_dset_from_group(dset_name, group, value=None):
-    dataset = utils.get_dset(group, dset_name)
+    dataset = gu.get_dset(group, dset_name)
     if dataset is None:
-        size = len(utils.get_dset(group, SNP_DSET))
+        size = len(gu.get_dset(group, SNP_DSET))
         dataset = create_dset_placeholder_size_from_value(size, value)
 
     return dataset
