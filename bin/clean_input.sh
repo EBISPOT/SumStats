@@ -3,7 +3,7 @@
 file=$1
 base=$(pwd);
 
-filename=$($base/scripts/get_filename.sh $file)
+filename=$($base/bin/get_filename.sh $file)
 # get the first entry of the file (the snp id)
 # save the ones with chr or rs id in a file called <filename>_clean
 # save the ones without chr or rs id in a file called non_valid_<filename>

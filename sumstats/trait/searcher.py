@@ -23,6 +23,7 @@ from sumstats.trait.constants import *
 import sumstats.utils.group_utils as gu
 import sumstats.utils.utils as utils
 
+
 class Search():
     def __init__(self, h5file):
         self.h5file = h5file
@@ -37,12 +38,8 @@ class Search():
         trait_group = gu.get_group_from_parent(self.f, trait)
         study_group = gu.get_group_from_parent(trait_group, study)
 
-        name_to_dataset = {}
-
-        for dset_name in TO_QUERY_DSETS:
-            name_to_dataset[dset_name] = myutils.get_dset_from_group(dset_name, study_group, study)
-
-        return name_to_dataset
+        name_to_dataset = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+        return myutils.extend_datasets_for_group(study, study_group, name_to_dataset)
 
 
 def main():

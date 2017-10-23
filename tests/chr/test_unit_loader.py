@@ -29,6 +29,7 @@ class TestFirstApproach(object):
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effect_array, "other": other_array, 'freq': frequencyarray}
+
         with pytest.raises(ValueError):
             loader.Loader(None, self.h5file, "PM001", dict)
 
@@ -41,14 +42,8 @@ class TestFirstApproach(object):
         effect_array = ["A", "B", "C", "D"]
         other_array = None
 
-        dict = {}
-        dict["snp"] = snpsarray
-        dict["pval"] = pvalsarray
-        dict["chr"] = chrarray
-        dict["or"] = orarray
-        dict["bp"] = bparray
-        dict["effect"] = effect_array
-        dict["other"] = other_array
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effect_array, "other": other_array}
 
         with pytest.raises(ValueError):
             loader.Loader(None, self.h5file, "PM001", dict)

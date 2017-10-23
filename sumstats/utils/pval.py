@@ -1,3 +1,9 @@
+"""
+This module contains a set of methods to take a float represented
+in as a string, and extract it's mantissa and exponent
+without loosing information
+"""
+
 
 def _split_decimal(str_numer):
     assert _is_decimal_form(str_numer), "To split a decimal, it need to be a decimal!"

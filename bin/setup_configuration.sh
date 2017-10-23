@@ -18,21 +18,21 @@
 file=$1
 base=$(pwd);
 echo "base: $base"
-filename=$($base/scripts/get_filename.sh $file)
+filename=$($base/bin/get_filename.sh $file)
 
 
 # takes the file given as input and creates a clean one with "_clean" appended to it
 echo "FILE: $file"
-$base/scripts/clean_input.sh "$file"
+$base/bin/clean_input.sh "$file"
 # move it to the correct location
 mv "$file" "$file"_loaded
 mv "$file"_clean $base/files/toload/"$file"
 
 # split up the script into one per chromosome
 filename="$filename"
-$base/scripts/split_by_chr.sh "$filename"
-$base/scripts/append_header.sh "$filename"
+$base/bin/split_by_chr.sh "$filename"
+$base/bin/append_header.sh "$filename"
 
-$base/scripts/create_chr_configuration.sh $filename
-$base/scripts/create_trait_configuration.sh $filename
+$base/bin/create_chr_configuration.sh $filename
+$base/bin/create_trait_configuration.sh $filename
 

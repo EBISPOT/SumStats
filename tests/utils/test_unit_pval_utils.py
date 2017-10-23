@@ -1,4 +1,4 @@
-import sumstats.utils.pval_utils as pu
+import sumstats.utils.pval as pu
 import pytest
 
 

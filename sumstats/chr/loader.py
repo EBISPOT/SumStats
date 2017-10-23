@@ -16,7 +16,6 @@ import pandas as pd
 from sumstats.utils import utils
 from sumstats.chr.constants import *
 import sumstats.utils.group_utils as gu
-import sumstats.utils.dset_utils as du
 
 
 def create_dataset(group, dset_name, data):
@@ -47,9 +46,8 @@ def expand_dataset(group, dset_name, data):
         dset[-1] = data
 
 
-def create_study_dataset(name_to_dataset, study):
-    name_to_dataset[STUDY_DSET] = [study for _ in range(len(name_to_dataset[MANTISSA_DSET]))]
-    return name_to_dataset
+def create_study_list(study, length_of):
+    return [study for _ in range(length_of)]
 
 
 def create_groups_in_parent(parent, list_of_groups):
@@ -60,7 +58,7 @@ def create_groups_in_parent(parent, list_of_groups):
 
 def slice_datasets_where_chromosome(chromosome, name_to_dataset):
     # get the slices from all the arrays where chromosome position == i
-    chr_mask = du.equality_mask(chromosome, name_to_dataset[CHR_DSET])
+    chr_mask = name_to_dataset[CHR_DSET].equality_mask(chromosome)
     return utils.filter_dictionary_by_mask(name_to_dataset, chr_mask)
 
 
@@ -107,32 +105,33 @@ def block_limit_not_reached_max(block_ceil, max_bp):
 
 
 class Loader():
-    def __init__(self, tsv, h5file, study, dict_of_dsets=None):
+    def __init__(self, tsv, h5file, study, dict_of_data=None):
         self.h5file = h5file
         self.study = study
 
         if tsv is not None:
-            assert dict_of_dsets is None, "dic_of_dsets is ignored"
+            name_to_list = {}
+            assert dict_of_data is None, "dic_of_data is ignored"
             print(time.strftime('%a %H:%M:%S'))
-
-            name_to_dataset = pd.read_csv(tsv, dtype=object, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
-            name_to_dataset = utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
+            for name in TO_LOAD_DSET_HEADERS:
+                name_to_list[name] = pd.read_csv(tsv, dtype=DSET_TYPES[name], usecols=[name], delimiter="\t").to_dict(orient='list')[name]
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
         else:
-            name_to_dataset = dict_of_dsets
+            name_to_list = dict_of_data
 
-        pval_dset = name_to_dataset[PVAL_DSET]
-        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_dsets(pval_dset)
-        del name_to_dataset[PVAL_DSET]
+        pval_list = name_to_list[PVAL_DSET]
 
-        name_to_dataset[MANTISSA_DSET] = mantissa_dset
-        name_to_dataset[EXP_DSET] = exp_dset
+        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_lists(pval_list)
+        del name_to_list[PVAL_DSET]
 
-        name_to_dataset = create_study_dataset(name_to_dataset, study)
-        name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
-        utils.assert_np_datasets_not_empty(name_to_dataset)
-        self.name_to_dataset = name_to_dataset
+        name_to_list[MANTISSA_DSET] = mantissa_dset
+        name_to_list[EXP_DSET] = exp_dset
+
+        name_to_list[STUDY_DSET] = create_study_list(study, len(name_to_list[MANTISSA_DSET]))
+        utils.assert_datasets_not_empty(name_to_list)
+
+        self.name_to_dataset = utils.create_dataset_objects(name_to_list)
 
     def load(self):
         # Open the file with read/write permissions and create if it doesn't exist
@@ -146,9 +145,9 @@ class Loader():
         for chromosome in chromosome_array:
             chr_group = gu.get_group_from_parent(f, chromosome)
 
-            dsets_chromosome_slices = slice_datasets_where_chromosome(chromosome, name_to_dataset)
+            dsets_sliced_by_chr = slice_datasets_where_chromosome(chromosome, name_to_dataset)
 
-            bp_list_chr = dsets_chromosome_slices[BP_DSET]
+            bp_list_chr = dsets_sliced_by_chr[BP_DSET]
             max_bp = max(bp_list_chr)
 
             print("max base pair location in chromosome:", max_bp)
@@ -157,9 +156,9 @@ class Loader():
 
             while block_limit_not_reached_max(block_ceil, max_bp):
                 block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
-                block_mask = du.interval_mask(block_floor, block_ceil, bp_list_chr)
+                block_mask = dsets_sliced_by_chr[BP_DSET].interval_mask(block_floor, block_ceil)
                 if np.any(block_mask):
-                    dsets_block_slices = utils.filter_dictionary_by_mask(dsets_chromosome_slices, block_mask)
+                    dsets_block_slices = utils.filter_dictionary_by_mask(dsets_sliced_by_chr, block_mask)
                     save_info_in_block_group(block_group, dsets_block_slices)
 
                 block_floor, block_ceil = increment_block_limits(block_ceil)

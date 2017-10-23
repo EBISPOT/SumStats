@@ -20,6 +20,7 @@ from sumstats.utils import utils
 import pandas as pd
 from sumstats.trait.constants import *
 import sumstats.utils.group_utils as gu
+import numpy as np
 
 
 def create_trait_group(file, trait):
@@ -40,38 +41,39 @@ def create_dataset(group, dset_name, data):
     """
     :param data: a np.array of data elements (string, int, float)
     """
+    data = np.array(data, dtype=DSET_TYPES[dset_name])
     group.create_dataset(dset_name, data=data, compression="gzip")
 
 
 class Loader():
 
-    def __init__(self, tsv, h5file, study, trait, dict_of_dsets=None):
+    def __init__(self, tsv, h5file, study, trait, dict_of_data=None):
         self.h5file = h5file
         self.study = study
         self.trait = trait
 
         if tsv is not None:
-            assert dict_of_dsets is None, "dict_of_dsets is ignored"
+            name_to_list = {}
+            assert dict_of_data is None, "dict_of_data is ignored"
             print(time.strftime('%a %H:%M:%S'))
-
-            name_to_dataset = pd.read_csv(tsv, dtype=object, names=TO_LOAD_DSET_HEADERS, delimiter="\t").to_dict(orient='list')
-
-            utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
+            for name in TO_LOAD_DSET_HEADERS:
+                name_to_list[name] = \
+                pd.read_csv(tsv, dtype=DSET_TYPES[name], usecols=[name], delimiter="\t").to_dict(orient='list')[name]
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
         else:
-            name_to_dataset = dict_of_dsets
+            name_to_list = dict_of_data
 
-        pval_dset = name_to_dataset[PVAL_DSET]
-        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_dsets(pval_dset)
-        del name_to_dataset[PVAL_DSET]
+        pval_list = name_to_list[PVAL_DSET]
+        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_lists(pval_list)
+        del name_to_list[PVAL_DSET]
 
-        name_to_dataset[MANTISSA_DSET] = mantissa_dset
-        name_to_dataset[EXP_DSET] = exp_dset
+        name_to_list[MANTISSA_DSET] = mantissa_dset
+        name_to_list[EXP_DSET] = exp_dset
 
-        name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
-        utils.assert_np_datasets_not_empty(name_to_dataset)
-        self.name_to_dataset = name_to_dataset
+        utils.assert_datasets_not_empty(name_to_list)
+
+        self.name_to_dataset = utils.create_dataset_objects(name_to_list)
 
     def load(self):
 

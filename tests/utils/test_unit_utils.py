@@ -4,9 +4,8 @@ import h5py
 import numpy as np
 import pytest
 from sumstats.utils.restrictions import *
-import sumstats.utils.dset_utils as du
 import sumstats.utils.utils as utils
-
+from sumstats.utils.dataset import Dataset
 
 class TestQueryUtils(object):
     h5file = ".testfile.h5"
@@ -20,33 +19,33 @@ class TestQueryUtils(object):
         os.remove(self.h5file)
 
     def test_filter_dictionary_by_mask(self):
-        dict = {'dset1': [1, 2, 3], 'dset2': [1, 3, 3]}
-        pvals = [1, 2, 2]
-        mask = du.equality_mask(1, pvals)
+        dict = {'dset1': Dataset([1, 2, 3]), 'dset2': Dataset([1, 3, 3])}
+        pvals = Dataset([1, 2, 2])
+        mask = pvals.equality_mask(1)
         print(mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         for dset in dict:
             assert np.array_equal(dict[dset], [1])
 
-        dict = {'dset1': ["a", "b", "c"], 'dset2': ["c", "d", "e"]}
-        pvals = [1, 2, 2]
-        mask = du.equality_mask(1, pvals)
+        dict = {'dset1': Dataset(["a", "b", "c"]), 'dset2': Dataset(["c", "d", "e"])}
+        pvals = Dataset([1, 2, 2])
+        mask = pvals.equality_mask(1)
         print(mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         assert np.array_equal(dict["dset1"], ["a"])
         assert np.array_equal(dict["dset2"], ["c"])
 
-        dict = {'dset1': ["a", "b", "c"], 'dset2': ["c", "d", "e"]}
-        pvals = [1, 2, 2]
-        mask = du.equality_mask(2, pvals)
+        dict = {'dset1': Dataset(["a", "b", "c"]), 'dset2': Dataset(["c", "d", "e"])}
+        pvals = Dataset([1, 2, 2])
+        mask = pvals.equality_mask(2, )
         print(mask)
         dict = utils.filter_dictionary_by_mask(dict, mask)
         assert np.array_equal(dict["dset1"], ["b", "c"])
         assert np.array_equal(dict["dset2"], ["d", "e"])
 
     def test_filter_dsets_with_restrictions(self):
-        name_to_dataset = {'snp': ["rs1", "rs1", "rs1", "rs2", "rs3"], 'pval': [1., 2.1, 3, 3.1, 4],
-                           'chr': [1, 1, 1, 1, 2]}
+        name_to_dataset = {'snp': Dataset(["rs1", "rs1", "rs1", "rs2", "rs3"]), 'pval': Dataset([1., 2.1, 3, 3.1, 4]),
+                           'chr': Dataset([1, 1, 1, 1, 2])}
 
         restrictions = [EqualityRestriction("rs1", name_to_dataset["snp"]),
                         IntervalRestriction(1., 2.1, name_to_dataset["pval"]),
@@ -110,26 +109,6 @@ class TestQueryUtils(object):
         for dset_name in name_to_dataset:
             assert len(name_to_dataset[dset_name]) == 5
 
-    def test_convert_lists_to_np_arrays(self):
-        vlen_dtype = h5py.special_dtype(vlen=str)
-        DSET_TYPES = {'snp': vlen_dtype, 'pval': float, 'study': vlen_dtype, 'chr': int, 'or': float, 'bp': int,
-                      'effect': vlen_dtype, 'other': vlen_dtype}
-
-        name_to_dataset = {'snp': [1, 2, 3], 'pval': ["1", "2", "3"], 'chr': ["1", "2", "3"]}
-
-        name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
-        assert name_to_dataset['snp'].dtype == vlen_dtype
-        assert name_to_dataset['pval'].dtype == float
-        assert name_to_dataset['chr'].dtype == int
-
-        name_to_dataset['bp'] = []
-        name_to_dataset = utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
-        assert len(name_to_dataset['bp']) == 0
-
-        name_to_dataset['random'] = [1, 2, 3]
-        with pytest.raises(KeyError):
-            utils.convert_lists_to_np_arrays(name_to_dataset, DSET_TYPES)
-
     def test_remove_headers(self):
         TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
         name_to_dataset = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
@@ -155,22 +134,17 @@ class TestQueryUtils(object):
             utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
 
     def test_evaluate_datasets(self):
-        print()
         name_to_dataset = {}
-        utils.assert_np_datasets_not_empty(name_to_dataset)
+        utils.assert_datasets_not_empty(name_to_dataset)
 
-        name_to_dataset = {'snp': ["rs1", "rs2", "rs3"], 'pval': [0.1, 3.1, 2.1], 'chr': [1, 2, 3]}
-        with pytest.raises(AttributeError):
-            utils.assert_np_datasets_not_empty(name_to_dataset)
+        name_to_dataset = {'snp': ["rs1", "rs2", "rs3"], 'pval': [0.1, 3.1, 2.1],
+                           'chr': [1, 2, 3]}
+        utils.assert_datasets_not_empty(name_to_dataset)
 
-        name_to_dataset = {'snp': np.array(["rs1", "rs2", "rs3"]), 'pval': np.array([0.1, 3.1, 2.1]),
-                           'chr': np.array([1, 2, 3])}
-        utils.assert_np_datasets_not_empty(name_to_dataset)
-
-        name_to_dataset = {'snp': np.array(None)}
+        name_to_dataset = {'snp': None}
         with pytest.raises(ValueError):
-            utils.assert_np_datasets_not_empty(name_to_dataset)
+            utils.assert_datasets_not_empty(name_to_dataset)
 
-        name_to_dataset = {'snp': np.array([])}
+        name_to_dataset = {'snp': []}
         with pytest.raises(ValueError):
-            utils.assert_np_datasets_not_empty(name_to_dataset)
+            utils.assert_datasets_not_empty(name_to_dataset)

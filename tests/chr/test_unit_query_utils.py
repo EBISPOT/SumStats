@@ -3,6 +3,7 @@ import h5py
 import pytest
 import sumstats.chr.loader as loader
 import sumstats.chr.query_utils as query
+from sumstats.utils.dataset import Dataset
 
 TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'study', 'or', 'bp', 'effect', 'other', 'freq']
 
@@ -14,25 +15,25 @@ class TestFirstApproach(object):
     def setup_method(self, method):
         snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
         pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
-        chrarray = ["1", "1", "2", "2"]
-        orarray = ["0.92090", "1.01440", "0.97385", "0.99302"]
-        bparray = ["1118275", "1120431", "49129966", "48480252"]
-        effect_array = ["A", "B", "C", "D"]
+        chrarray = [1, 1, 2, 2]
+        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
+        bparray = [1118275, 1120431, 49129966, 48480252]
+        effectarray = ["A", "B", "C", "D"]
         other_array = ["Z", "Y", "X", "W"]
-        frequencyarray = ["3.926e-01", "4.900e-03", "1.912e-01", "7.000e-04"]
+        frequencyarray = [3.926e-01, 4.900e-03, 1.912e-01, 7.000e-04]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array, 'freq' : frequencyarray}
+                "effect": effectarray, "other": other_array, 'freq' : frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM001', dict)
         load.load()
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
+                "effect": effectarray, "other": other_array, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM002', dict)
         load.load()
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effect_array, "other": other_array, 'freq': frequencyarray}
+                "effect": effectarray, "other": other_array, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
@@ -74,7 +75,7 @@ class TestFirstApproach(object):
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 49200000)
 
-        name_to_dataset = query.get_query_datasets_from_groups(TO_QUERY_DSETS, block_groups)
+        name_to_dataset = query.get_query_datasets_from_groups(block_groups)
         assert name_to_dataset.__class__ is dict
 
         for dset_name in TO_QUERY_DSETS:
@@ -82,29 +83,27 @@ class TestFirstApproach(object):
             assert len(name_to_dataset[dset_name]) == 6
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48600000, 48600000)
-        name_to_dataset = query.get_query_datasets_from_groups(TO_QUERY_DSETS, block_groups)
+        name_to_dataset = query.get_query_datasets_from_groups(block_groups)
         for dset_name in TO_QUERY_DSETS:
             # no SNP bp falls into this group
             assert len(name_to_dataset[dset_name]) == 0
 
-    def test_get_dset_from_group(self):
+    def test_extend_datasets_for_group(self):
         chr_group_2 = self.f.get("/2")
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 48500000)
         block_group = block_groups[0]
         snp_group = block_group.get("rs7085086")
 
-        for dset_name in TO_QUERY_DSETS:
-            dset = query.get_dset_from_group(dset_name, snp_group)
+        empty_dict = {name : Dataset([]) for name in TO_QUERY_DSETS}
 
-            if dset_name is "snp":
-                assert len(dset) == 0
+        name_to_dset = query.extend_datasets_for_group("snp1", snp_group, empty_dict)
+        assert len(name_to_dset) == 9
+        for dset_name, dset in name_to_dset.items():
+            if dset_name is "study":
+                assert len(set(dset)) == 3
             else:
-                assert len(dset) == 3
-                if dset_name is "study":
-                    assert len(set(dset)) == 3
-                else:
-                    assert len(set(dset)) == 1
+                assert len(set(dset)) == 1
 
     def test_get_block_number(self):
         print()

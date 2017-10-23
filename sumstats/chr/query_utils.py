@@ -3,11 +3,10 @@ Utils useful for querying
 """
 
 import argparse
-import numpy as np
-from sumstats.utils import utils
 from sumstats.chr.constants import *
+from sumstats.utils.utils import *
 import sumstats.utils.group_utils as gu
-import sumstats.utils.dset_utils as du
+
 
 def get_block_groups_from_parent_within_block_range(chr_group, block_lower, block_upper):
     """
@@ -25,32 +24,24 @@ def get_block_groups_from_parent_within_block_range(chr_group, block_lower, bloc
     return blocks
 
 
-def get_query_datasets_from_groups(list_of_wanted_dsets, groups):
+def get_query_datasets_from_groups(groups):
     # initialize dictionary of datasets
-    name_to_dataset = {dset : [] for dset in list_of_wanted_dsets}
+    name_to_dataset = {dset : Dataset([]) for dset in TO_QUERY_DSETS}
 
     for block_group in groups:
         for snp, snp_group in block_group.items():
-
-            for dset_name in list_of_wanted_dsets:
-                next_dataset = get_dset_from_group(dset_name, snp_group, snp)
-                name_to_dataset[dset_name].extend(next_dataset)
+            name_to_dataset = extend_datasets_for_group(snp, snp_group, name_to_dataset)
     return name_to_dataset
 
 
-def get_dset_from_group(dset_name, group, value=None):
-    dataset = gu.get_dset(group, dset_name)
-    if dataset is None:
-        size = len(gu.get_dset(group, BP_DSET))
-        dataset = create_dset_placeholder_size_from_value(size, value)
+def extend_datasets_for_group(snp, snp_group, name_to_dataset):
+    for name, dataset in name_to_dataset.items():
+        if name != SNP_DSET:
+            dataset.extend(gu.get_dset_from_group(name, snp_group))
 
-    return dataset
-
-
-def create_dset_placeholder_size_from_value(size, value):
-    if value is None:
-        return np.array([])
-    return [value for _ in range(size)]
+    temp_dset = gu.get_dset_from_group(BP_DSET, snp_group)
+    name_to_dataset[SNP_DSET].extend(gu.create_dset_placeholder(len(temp_dset), snp))
+    return name_to_dataset
 
 
 def get_block_number(bp_position):

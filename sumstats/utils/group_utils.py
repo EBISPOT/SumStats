@@ -1,5 +1,8 @@
-import h5py
+"""
+Utilities for hdf5 groups
+"""
 
+from sumstats.utils.dataset import Dataset
 
 def get_group_from_parent(parent_group, child_group):
     group = parent_group.get(str(child_group))
@@ -17,3 +20,15 @@ def get_dset(group, dset_name):
     if dset is not None:
         dset = dset[:]
     return dset
+
+
+def get_dset_from_group(dset_name, group):
+    dataset = get_dset(group, dset_name)
+    if dataset is None:
+        raise LookupError("Dataset empty: ", dset_name)
+    return Dataset(dataset)
+
+
+def create_dset_placeholder(size, value):
+    assert value is not None, "Can't create dataset with empty content!"
+    return Dataset([value for _ in range(size)])

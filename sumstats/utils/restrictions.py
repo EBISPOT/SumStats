@@ -2,7 +2,6 @@
 Classes that have a get_mask method
 They impose restrictions to the datasets based on some criteria
 """
-import sumstats.utils.dset_utils as du
 
 
 class IntervalRestriction():
@@ -12,7 +11,7 @@ class IntervalRestriction():
         self.dataset = dataset
 
     def get_mask(self):
-        return du.interval_mask(self.lower, self.upper, self.dataset)
+        return self.dataset.interval_mask(self.lower, self.upper)
 
 
 class EqualityRestriction():
@@ -21,4 +20,4 @@ class EqualityRestriction():
         self.dataset = dataset
 
     def get_mask(self):
-        return du.equality_mask(self.value, self.dataset)
+        return self.dataset.equality_mask(self.value)

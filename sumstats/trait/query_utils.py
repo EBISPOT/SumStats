@@ -1,12 +1,12 @@
 import argparse
-import numpy as np
 from sumstats.trait.constants import *
+from sumstats.utils.utils import *
 import sumstats.utils.group_utils as gu
 
 
 def get_dsets_from_file(f, dsets):
     # initialize dictionary of datasets
-    name_to_dataset = {dset : [] for dset in dsets}
+    name_to_dataset = {dset : Dataset([]) for dset in dsets}
 
     for trait, trait_group in f.items():
         name_to_datastet_for_trait = get_dsets_from_trait_group(trait_group, dsets)
@@ -18,29 +18,21 @@ def get_dsets_from_file(f, dsets):
 
 def get_dsets_from_trait_group(trait_group, dsets):
     # initialize empty array for each dataset
-    name_to_dataset = {dset_name : [] for dset_name in dsets}
+    name_to_dataset = {dset_name : Dataset([]) for dset_name in dsets}
 
     for study, study_group in trait_group.items():
-        for dset_name in dsets:
-            dataset = name_to_dataset[dset_name]
-            dataset.extend(get_dset_from_group(dset_name, study_group, study))
-
+        name_to_dataset = extend_datasets_for_group(study, study_group, name_to_dataset)
     return name_to_dataset
 
 
-def get_dset_from_group(dset_name, group, value=None):
-    dataset = gu.get_dset(group, dset_name)
-    if dataset is None:
-        size = len(gu.get_dset(group, SNP_DSET))
-        dataset = create_dset_placeholder_size_from_value(size, value)
+def extend_datasets_for_group(study, study_group, name_to_dataset):
+    for name, dataset in name_to_dataset.items():
+        if name != STUDY_DSET:
+            dataset.extend(gu.get_dset_from_group(name, study_group))
 
-    return dataset
-
-
-def create_dset_placeholder_size_from_value(size, value):
-    if value is None:
-        return np.array([])
-    return [value for _ in range(size)]
+    temp_dset = gu.get_dset_from_group(SNP_DSET, study_group)
+    name_to_dataset[STUDY_DSET].extend(gu.create_dset_placeholder(len(temp_dset), study))
+    return name_to_dataset
 
 
 def argument_checker():

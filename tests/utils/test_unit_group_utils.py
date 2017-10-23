@@ -57,3 +57,9 @@ class TestQueryUtils(object):
 
         dataset = gu.get_dset(group, "dset1")
         assert dataset is None
+
+    def test_get_dset_from_group(self):
+        chr_group_2 = self.f.create_group("/2")
+
+        with pytest.raises(LookupError):
+            gu.get_dset_from_group('snp', chr_group_2)
