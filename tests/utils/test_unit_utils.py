@@ -1,11 +1,11 @@
 import os
-
 import h5py
 import numpy as np
 import pytest
 from sumstats.utils.restrictions import *
 import sumstats.utils.utils as utils
 from sumstats.utils.dataset import Dataset
+
 
 class TestQueryUtils(object):
     h5file = ".testfile.h5"
@@ -109,30 +109,6 @@ class TestQueryUtils(object):
         for dset_name in name_to_dataset:
             assert len(name_to_dataset[dset_name]) == 5
 
-    def test_remove_headers(self):
-        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
-        name_to_dataset = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
-
-        name_to_dataset = utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
-        assert "snp" not in name_to_dataset['snp']
-        assert "pval" not in name_to_dataset['pval']
-        assert "chr" not in name_to_dataset['chr']
-
-        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
-        name_to_dataset = {'snp': ['study', 1, 2, 3], 'pval': ['pval', "1", "2", "3"], 'chr': ['chr', "1", "2", "3"]}
-        with pytest.raises(ValueError):
-            utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
-
-        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr']
-        name_to_dataset = {'snp': [1, 2, 3], 'pval': ['pval', "1", "2", "3"], 'chr': ['chr', "1", "2", "3"]}
-        with pytest.raises(ValueError):
-            utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
-
-        TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or']
-        name_to_dataset = {'snp': ["snp", "rs1", "rs2", "rs3"], 'pval': ["pval", 1, 3.1, 2.1], 'chr': ["chr", 1, 2, 3]}
-        with pytest.raises(KeyError):
-            utils.remove_headers(name_to_dataset, TO_LOAD_DSET_HEADERS)
-
     def test_evaluate_datasets(self):
         name_to_dataset = {}
         utils.assert_datasets_not_empty(name_to_dataset)
@@ -148,3 +124,51 @@ class TestQueryUtils(object):
         name_to_dataset = {'snp': []}
         with pytest.raises(ValueError):
             utils.assert_datasets_not_empty(name_to_dataset)
+
+    def test_empty_array(self):
+        assert utils.empty_array(None)
+        assert utils.empty_array([])
+        assert not utils.empty_array("not an array")
+        assert not utils.empty_array([1, 2, 3])
+        assert not utils.empty_array(Dataset([1, 2, 3]))
+
+    def test_get_mantissa_and_exp_lists(self):
+        list_of_strings = ['1.2', '0.1', '0.0', '0.002', '0.8e-10', '8E-10']
+        mantissa_list, exp_list = utils.get_mantissa_and_exp_lists(list_of_strings)
+
+        assert mantissa_list is not None
+        assert len(mantissa_list) == len(list_of_strings)
+        assert np.array_equal(mantissa_list, [1.2, 1., 0., 2., 0.8, 8.])
+
+        assert exp_list is not None
+        assert len(exp_list) == len(list_of_strings)
+        assert np.array_equal(exp_list, [0, -1, 0, -3, -10, -10])
+
+        list_of_strings = ['1,2']
+        with pytest.raises(ValueError):
+            utils.get_mantissa_and_exp_lists(list_of_strings)
+
+        list_of_strings = [1.2]
+        with pytest.raises(TypeError):
+            utils.get_mantissa_and_exp_lists(list_of_strings)
+
+        list_of_strings = [1]
+        with pytest.raises(TypeError):
+            utils.get_mantissa_and_exp_lists(list_of_strings)
+
+    def test_create_dataset_objects(self):
+        name_to_dsets = {'dset1' : [1, 2, 3], 'dset2' : ['1,' '2', '3'], 'dset3' : [1., 2., 3.]}
+        name_to_dsets = utils.create_datasets_from_lists(name_to_dsets)
+        for name, dataset in name_to_dsets.items():
+            assert isinstance(dataset, Dataset)
+
+    def test_create_dictionary_of_empty_dsets(self):
+        name_to_dsets = utils.create_dictionary_of_empty_dsets(['dset1', 'dset2'])
+
+        assert len(name_to_dsets) == 2
+
+        assert isinstance(name_to_dsets['dset1'], Dataset)
+        assert len(name_to_dsets['dset1']) == 0
+
+        assert isinstance(name_to_dsets['dset2'], Dataset)
+        assert len(name_to_dsets['dset2']) == 0

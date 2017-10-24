@@ -4,7 +4,6 @@ General methods used across the modules
 
 import sumstats.utils.pval as pu
 from sumstats.utils.dataset import *
-import sumstats.utils.group_utils as gu
 
 
 def filter_dictionary_by_mask(dictionary, mask):
@@ -18,15 +17,6 @@ def filter_dsets_with_restrictions(name_to_dataset, restrictions):
     if filtering_mask is not None:
         return filter_dictionary_by_mask(name_to_dataset, filtering_mask)
 
-    return name_to_dataset
-
-
-def remove_headers(name_to_dataset, column_headers):
-    for column in column_headers:
-        if column == name_to_dataset[column][0]:
-            name_to_dataset[column] = name_to_dataset[column][1:]
-        else:
-            raise ValueError("Headers in file to not match defined column names: " + str(column_headers))
     return name_to_dataset
 
 
@@ -55,7 +45,7 @@ def get_mantissa_and_exp_lists(string_list):
     return mantissa_dset, exp_dset
 
 
-def create_dataset_objects(name_to_dsets):
+def create_datasets_from_lists(name_to_dsets):
     return {dset_name : Dataset(dset_vector) for dset_name, dset_vector in name_to_dsets.items()}
 
 

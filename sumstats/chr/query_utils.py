@@ -5,7 +5,7 @@ Utils useful for querying
 import argparse
 from sumstats.chr.constants import *
 from sumstats.utils.utils import *
-import sumstats.utils.group_utils as gu
+import sumstats.utils.group as gu
 
 
 def get_block_groups_from_parent_within_block_range(chr_group, block_lower, block_upper):
@@ -15,7 +15,9 @@ def get_block_groups_from_parent_within_block_range(chr_group, block_lower, bloc
      (i.e. all the positions from 0-200)
     """
     if (block_lower % BLOCK_SIZE != 0) or (block_upper % BLOCK_SIZE != 0):
-        raise ValueError("block sizes not conforming to the block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (BLOCK_SIZE, block_lower, block_upper))
+        raise ValueError(
+            "block sizes not conforming to the block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (
+            BLOCK_SIZE, block_lower, block_upper))
     if block_lower > block_upper:
         raise ValueError("lower limit is bigger than upper limit")
 
@@ -24,24 +26,32 @@ def get_block_groups_from_parent_within_block_range(chr_group, block_lower, bloc
     return blocks
 
 
-def get_query_datasets_from_groups(groups):
-    # initialize dictionary of datasets
-    name_to_dataset = {dset : Dataset([]) for dset in TO_QUERY_DSETS}
+def get_dsets_from_plethora_of_blocks(groups):
+    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
 
     for block_group in groups:
-        for snp, snp_group in block_group.items():
-            name_to_dataset = extend_datasets_for_group(snp, snp_group, name_to_dataset)
+        name_to_dataset_for_block = get_dsets_from_block_group(block_group)
+        for dset_name, dataset in name_to_dataset.items():
+            dataset.extend(name_to_dataset_for_block[dset_name])
     return name_to_dataset
 
 
-def extend_datasets_for_group(snp, snp_group, name_to_dataset):
-    for name, dataset in name_to_dataset.items():
-        if name != SNP_DSET:
-            dataset.extend(gu.get_dset_from_group(name, snp_group))
+def get_dsets_from_block_group(block_group):
+    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
 
-    temp_dset = gu.get_dset_from_group(BP_DSET, snp_group)
-    name_to_dataset[SNP_DSET].extend(gu.create_dset_placeholder(len(temp_dset), snp))
+    for snp, snp_group in block_group.items():
+        name_to_dataset_for_snp = get_dsets_from_group(snp, snp_group)
+        for dset_name, dataset in name_to_dataset.items():
+            dataset.extend(name_to_dataset_for_snp[dset_name])
     return name_to_dataset
+
+
+def get_dsets_from_group(snp, snp_group):
+    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+    return gu.extend_dsets_for_group(group_name=snp, group=snp_group,
+                                     name_to_dataset=name_to_dataset,
+                                     missing_dset=SNP_DSET,
+                                     existing_dset=BP_DSET)
 
 
 def get_block_number(bp_position):

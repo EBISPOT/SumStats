@@ -1,15 +1,16 @@
 """
-    Stores the data in the hierarchy of Trait/Study/DATA
+    Data is stored in the hierarchy of /Trait/Study/DATA
     where DATA:
     under each directory we store 3 (or more) vectors
-    snparray will hold the snp ids
-    pvals will hold each snps pvalue for this study
-    chr will hold each snps position
-    or_array will hold each snps odds ratio for this study
-    we can add any other information that we want
+    'snp' list will hold the snp ids
+    'mantissa' list will hold each snp's p-value mantissa for this study
+    'exp' list will hold each snp's p-value exponent for this study
+    'chr' list will hold the chromosome that each snp belongs to
+    e.t.c.
+    You can see the lists that will be loaded in the constants.py module
 
     the positions in the vectors correspond to each other
-    snparray[0], pvals[0], chr[0], and or_array[0] hold the information for SNP 0
+    snp[0], mantissa[0], exp[0], and chr[0] hold the information for SNP 0
 
 """
 
@@ -19,7 +20,7 @@ import time
 from sumstats.utils import utils
 import pandas as pd
 from sumstats.trait.constants import *
-import sumstats.utils.group_utils as gu
+import sumstats.utils.group as gu
 import numpy as np
 
 
@@ -32,7 +33,7 @@ def create_trait_group(file, trait):
 
 def create_study_group(trait_group, study):
     if study in trait_group:
-        return gu.get_group_from_parent(trait_group, study)
+        raise ValueError("Study already exists for this trait!", study)
     else:
         return trait_group.create_group(study)
 
@@ -41,6 +42,8 @@ def create_dataset(group, dset_name, data):
     """
     :param data: a np.array of data elements (string, int, float)
     """
+    if dset_name in group:
+        raise ValueError("Dataset already exists in group!", dset_name, group)
     data = np.array(data, dtype=DSET_TYPES[dset_name])
     group.create_dataset(dset_name, data=data, compression="gzip")
 
@@ -73,7 +76,7 @@ class Loader():
 
         utils.assert_datasets_not_empty(name_to_list)
 
-        self.name_to_dataset = utils.create_dataset_objects(name_to_list)
+        self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
 
     def load(self):
 

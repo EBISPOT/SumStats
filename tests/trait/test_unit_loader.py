@@ -1,8 +1,9 @@
 from sumstats.trait import loader
-import numpy as np
 import pytest
 import os
-import h5py
+from tests.trait.test_constants import *
+from sumstats.utils.dataset import Dataset
+from sumstats.trait.constants import *
 
 
 class TestFirstApproach(object):
@@ -17,14 +18,7 @@ class TestFirstApproach(object):
         os.remove(self.h5file)
 
     def test_open_with_empty_array(self):
-        snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
-        chrarray = [1, 1, 2, 2]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
-        effectarray = ["A", "B", "C", "D"]
         otherarray = []
-        frequencyarray = [3.926e-01, 4.900e-03, 1.912e-01, 7.000e-04]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
@@ -33,17 +27,58 @@ class TestFirstApproach(object):
             loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
 
     def test_open_with_None_array(self):
-        snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
-        chrarray = [1, 1, 2, 2]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
-        effectarray = ["A", "B", "C", "D"]
         otherarray = None
-        frequencyarray = [3.926e-01, 4.900e-03, 1.912e-01, 7.000e-04]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
         with pytest.raises(ValueError):
             loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
+
+    def test_create_trait_group(self):
+        group = loader.create_trait_group(self.f, "Trait1")
+        assert group is not None
+        assert group.name == "/Trait1"
+
+        group_retrieved = loader.create_trait_group(self.f, "Trait1")
+        assert group_retrieved == group
+        assert group.name == "/Trait1"
+
+        group_2 = loader.create_trait_group(self.f, "Trait2")
+        assert group_2 is not None
+        assert group_2.name == "/Trait2"
+
+    def test_create_study_group(self):
+        trait_group = loader.create_trait_group(self.f, "Trait1")
+        study_group = loader.create_study_group(trait_group, "Study1")
+
+        assert study_group is not None
+        assert study_group.name == "/Trait1/Study1"
+
+        with pytest.raises(ValueError):
+            loader.create_study_group(trait_group, "Study1")
+
+        study_group_2 = loader.create_study_group(trait_group, "Study2")
+        assert study_group_2 is not None
+        assert study_group_2.name == "/Trait1/Study2"
+
+    def test_create_dataset(self):
+        trait_group = loader.create_trait_group(self.f, "Trait1")
+        study_group = loader.create_study_group(trait_group, "Study1")
+        dset_name = CHR_DSET
+        data = Dataset([1, 2, 3])
+        loader.create_dataset(study_group, dset_name, data)
+
+        dataset = self.f.get("/Trait1/Study1/" + CHR_DSET)
+
+        assert dataset is not None
+        assert dataset.name == "/Trait1/Study1/" + CHR_DSET
+        assert len(dataset[:]) == len(data)
+
+        data_2 = Dataset([2, 3, 4])
+        with pytest.raises(ValueError):
+            loader.create_dataset(study_group, dset_name, data_2)
+
+        dset_name = "random"
+        with pytest.raises(KeyError):
+            loader.create_dataset(study_group, dset_name, data_2)

@@ -3,7 +3,9 @@ import os
 import h5py
 import numpy as np
 import pytest
-import sumstats.utils.group_utils as gu
+import sumstats.utils.group as gu
+import sumstats.utils.utils as utils
+from sumstats.utils.dataset import Dataset
 
 
 class TestQueryUtils(object):
@@ -49,7 +51,7 @@ class TestQueryUtils(object):
 
     def test_get_dset(self):
         group = self.f.create_group("1")
-        data = np.array([1, 2, 3])
+        data = [1, 2, 3]
         group.create_dataset("dset", data=data)
 
         dataset = gu.get_dset(group, "dset")
@@ -62,4 +64,35 @@ class TestQueryUtils(object):
         chr_group_2 = self.f.create_group("/2")
 
         with pytest.raises(LookupError):
-            gu.get_dset_from_group('snp', chr_group_2)
+            gu._get_dset_from_group('snp', chr_group_2)
+
+    def test_create_dset_placeholder(self):
+        size = 5
+        value = None
+        with pytest.raises(AssertionError):
+            gu._create_dset_placeholder(size, value)
+
+        value = 1
+        placeholder = gu._create_dset_placeholder(size, value)
+        assert len(placeholder) == 5
+        assert len(set(placeholder)) == 1
+        assert isinstance(placeholder, Dataset)
+
+    def test_extend_dsets_for_group(self):
+        group = self.f.create_group("1")
+        data1 = [1, 2, 3]
+        group.create_dataset("dset1", data=data1)
+        data2 = [4, 5, 6]
+        group.create_dataset("dset2", data=data2)
+        TO_QUERY = ['dset1', 'dset2', 'dset3']
+        name_to_dset = utils.create_dictionary_of_empty_dsets(TO_QUERY)
+        name_to_dset = gu.extend_dsets_for_group(group_name="group_name", group=group,
+                                                 name_to_dataset=name_to_dset,
+                                                 missing_dset="dset3",
+                                                 existing_dset="dset2")
+
+        data3 = ["group_name", "group_name", "group_name"]
+        assert np.array_equal(name_to_dset['dset1'], data1)
+        assert np.array_equal(name_to_dset['dset2'], data2)
+        assert np.array_equal(name_to_dset['dset3'], data3)
+

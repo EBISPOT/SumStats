@@ -1,11 +1,17 @@
 """
-    Stored as CHR/SNP/DATA
-    Where DATA is:
-    pvals: a vector that holds the p-values for this SNP/Trait association
-    or: a vector that holds the OR value for this SNP/Trait association
-    studies: a vector that holds the studies that correspond to the p-values for this SNP/Trait association
+    Stored as /CHR/BLOCK/SNP/DATA
+    Where DATA:
+    under each SNP directory we store 3 (or more) vectors
+    'study' list will hold the study ids
+    'mantissa' list will hold each snp's p-value mantissa for this study
+    'exp' list will hold each snp's p-value exponent for this study
+    'bp' list will hold the baise pair location that each snp belongs to
+    e.t.c.
+    You can see the lists that will be loaded in the constants.py module
 
-    can add more information if needed
+    the positions in the vectors correspond to each other
+    for a SNP group:
+    study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
 """
 
 import argparse
@@ -15,7 +21,7 @@ import pandas as pd
 
 from sumstats.utils import utils
 from sumstats.chr.constants import *
-import sumstats.utils.group_utils as gu
+import sumstats.utils.group as gu
 
 
 def create_dataset(group, dset_name, data):
@@ -81,6 +87,10 @@ def get_block_group_from_block_ceil(chr_group, block_ceil):
     return block_group
 
 
+def block_limit_not_reached_max(block_ceil, max_bp):
+    return int(block_ceil) <= (int(max_bp) + int(BLOCK_SIZE))
+
+
 def save_info_in_block_group(block_group, name_to_dataset):
     # for the block_group, loop through the snps
     # and save x arrays, one for each piece of information
@@ -92,6 +102,9 @@ def save_info_in_block_group(block_group, name_to_dataset):
         snp = snps[i]
         if snp in block_group:
             snp_group = gu.get_group_from_parent(block_group, snp)
+
+            check_group_dsets_shape(snp_group)
+
             for dset_name in TO_STORE_DSETS:
                 expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
         else:
@@ -100,8 +113,12 @@ def save_info_in_block_group(block_group, name_to_dataset):
                 create_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
 
 
-def block_limit_not_reached_max(block_ceil, max_bp):
-    return int(block_ceil) <= (int(max_bp) + int(BLOCK_SIZE))
+def check_group_dsets_shape(group):
+    datasets = [group.get(dset_name) for dset_name in TO_STORE_DSETS]
+    length = datasets.pop().shape[0]
+    for dset in datasets:
+        assert dset.shape[0] == length, \
+            "Group has datasets with inconsistent shape! " + group.name
 
 
 class Loader():
@@ -114,7 +131,8 @@ class Loader():
             assert dict_of_data is None, "dic_of_data is ignored"
             print(time.strftime('%a %H:%M:%S'))
             for name in TO_LOAD_DSET_HEADERS:
-                name_to_list[name] = pd.read_csv(tsv, dtype=DSET_TYPES[name], usecols=[name], delimiter="\t").to_dict(orient='list')[name]
+                name_to_list[name] = \
+                pd.read_csv(tsv, dtype=DSET_TYPES[name], usecols=[name], delimiter="\t").to_dict(orient='list')[name]
             print("Loaded tsv file: ", tsv)
             print(time.strftime('%a %H:%M:%S'))
         else:
@@ -131,7 +149,7 @@ class Loader():
         name_to_list[STUDY_DSET] = create_study_list(study, len(name_to_list[MANTISSA_DSET]))
         utils.assert_datasets_not_empty(name_to_list)
 
-        self.name_to_dataset = utils.create_dataset_objects(name_to_list)
+        self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
 
     def load(self):
         # Open the file with read/write permissions and create if it doesn't exist

@@ -1,24 +1,16 @@
 import os
-
-import h5py
+import pytest
 import numpy as np
-
 import sumstats.chr.loader as loader
 from sumstats.chr.constants import *
+from tests.chr.test_constants import *
+
 
 class TestFirstApproach(object):
     h5file = ".testfile.h5"
     f = None
 
     def setup_method(self, method):
-        snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
-        chrarray = [1, 1, 2, 2]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
-        effectarray = ["A", "B", "C", "D"]
-        otherarray = ["Z", "Y", "X", "W"]
-        frequencyarray = [3.926e-01, 4.900e-03, 1.912e-01, 7.000e-04]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
@@ -45,9 +37,13 @@ class TestFirstApproach(object):
     def test_chromosome_groups(self):
         chr_group_1 = self.f.get("1")
         assert chr_group_1 is not None
+        assert len(chr_group_1.keys()) == 12
 
         chr_group_2 = self.f.get("2")
         assert chr_group_2 is not None
+
+        chr_group_3 = self.f.get("3")
+        assert chr_group_3 is None
 
     def test_block_groups(self):
         chr_group_1 = self.f.get("1")
@@ -56,7 +52,6 @@ class TestFirstApproach(object):
         assert block1 is not None
         assert block1.name == "/1/1200000"
 
-        assert len(chr_group_1.keys()) == 12
         assert len(block1.keys()) != 0
 
         block0 = chr_group_1.get("100000")
@@ -69,7 +64,6 @@ class TestFirstApproach(object):
 
         assert blocks[0] == "100000"
         assert max(np.array(list((blocks)), dtype=int)) == 49200000
-
 
     def test_snps_in_blocks(self):
         block11 = self.f.get("/1/1200000")
@@ -94,16 +88,27 @@ class TestFirstApproach(object):
         info = list(snp1.keys())
         assert len(info) == len(TO_STORE_DSETS)
 
-        mantissa = snp1.get("mantissa")
+        mantissa = snp1.get(MANTISSA_DSET)
         assert len(mantissa[:]) == 3  # loaded 3 times for 3 diff studies
         assert mantissa[:][0] == 4.865
 
-        exp = snp1.get("exp")
+        exp = snp1.get(EXP_DSET)
         assert len(exp[:]) == 3  # loaded 3 times for 3 diff studies
         assert exp[:][0] == -1
 
-        studies = snp1.get("study")
+        studies = snp1.get(STUDY_DSET)
         assert len(studies[:]) == 3
         assert studies[:][0] == "PM001"
         assert studies[:][1] == "PM002"
         assert studies[:][2] == "PM003"
+
+    def test_get_block_group_from_block_ceil(self):
+        chr_group = self.f.get("1")
+        block_group = loader.get_block_group_from_block_ceil(chr_group, BLOCK_SIZE)
+        assert str(BLOCK_SIZE) in  block_group.name
+
+    def test_check_group_dsets_shape(self):
+        snp_group = self.f.get("/1/1200000/rs185339560")
+        loader.expand_dataset(snp_group, EXP_DSET, -1)
+        with pytest.raises(AssertionError):
+            loader.check_group_dsets_shape(snp_group)

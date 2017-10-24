@@ -1,38 +1,36 @@
 import argparse
 from sumstats.trait.constants import *
 from sumstats.utils.utils import *
-import sumstats.utils.group_utils as gu
+import sumstats.utils.group as gu
 
 
-def get_dsets_from_file(f, dsets):
-    # initialize dictionary of datasets
-    name_to_dataset = {dset : Dataset([]) for dset in dsets}
+def get_dsets_from_file(f):
+    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
 
     for trait, trait_group in f.items():
-        name_to_datastet_for_trait = get_dsets_from_trait_group(trait_group, dsets)
+        name_to_datastet_for_trait = get_dsets_from_trait_group(trait_group)
         for dset_name, dataset in name_to_dataset.items():
             dataset.extend(name_to_datastet_for_trait[dset_name])
 
     return name_to_dataset
 
 
-def get_dsets_from_trait_group(trait_group, dsets):
-    # initialize empty array for each dataset
-    name_to_dataset = {dset_name : Dataset([]) for dset_name in dsets}
+def get_dsets_from_trait_group(trait_group):
+    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
 
     for study, study_group in trait_group.items():
-        name_to_dataset = extend_datasets_for_group(study, study_group, name_to_dataset)
+        name_to_dataset_for_study = get_dsets_from_group(study, study_group)
+        for dset_name, dataset in name_to_dataset.items():
+            dataset.extend(name_to_dataset_for_study[dset_name])
     return name_to_dataset
 
 
-def extend_datasets_for_group(study, study_group, name_to_dataset):
-    for name, dataset in name_to_dataset.items():
-        if name != STUDY_DSET:
-            dataset.extend(gu.get_dset_from_group(name, study_group))
-
-    temp_dset = gu.get_dset_from_group(SNP_DSET, study_group)
-    name_to_dataset[STUDY_DSET].extend(gu.create_dset_placeholder(len(temp_dset), study))
-    return name_to_dataset
+def get_dsets_from_group(study, study_group):
+    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+    return gu.extend_dsets_for_group(group_name=study, group=study_group,
+                                     name_to_dataset=name_to_dataset,
+                                     missing_dset=STUDY_DSET,
+                                     existing_dset=SNP_DSET)
 
 
 def argument_checker():

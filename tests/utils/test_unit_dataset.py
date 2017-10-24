@@ -1,7 +1,5 @@
 import os
-
 import h5py
-import numpy as np
 import pytest
 from sumstats.utils.dataset import *
 
@@ -12,7 +10,7 @@ class TestQueryUtils(object):
 
     def setup_method(self, method):
         # open h5 file in read/write mode
-        self.f = h5py.File(self.h5file, mode="a")
+        self.f = h5py.File(self.h5file, mode='a')
 
     def teardown_method(self, method):
         os.remove(self.h5file)

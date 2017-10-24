@@ -1,45 +1,45 @@
 """
-    Data is stored in the hierarchy of Trait/Study/DATA
+    Data is stored in the hierarchy of /Trait/Study/DATA
     where DATA:
     under each directory we store 3 (or more) vectors
-    snparray will hold the snp ids
-    pvals will hold each snps pvalue for this study
-    chr will hold each snps position
-    or_array will hold each snps odds ratio for this study
-    we can add any other information that we want
+    'snp' list will hold the snp ids
+    'mantissa' list will hold each snp's p-value mantissa for this study
+    'exp' list will hold each snp's p-value exponent for this study
+    'chr' list will hold the chromosome that each snp belongs to
+    e.t.c.
+    You can see the lists that will be loaded in the constants.py module
 
     the positions in the vectors correspond to each other
-    snparray[0], pvals[0], chr[0], and or_array[0] hold the information for SNP 0
+    snp[0], mantissa[0], exp[0], and chr[0] hold the information for SNP 0
 
     Query 1: Retrieve all information for trait: input = query number (1) and trait name
     Query 2: Retrieve all the information for a study: input = query number (2) and study name and trait name
 
-    If a p-value threshold is given, all returned values need to be restricted to this threshold
+    Can filter based on p-value thresholds, bp position thresholds, SNP, CHR
 """
 
 import sumstats.trait.query_utils as myutils
 from sumstats.utils.restrictions import *
 from sumstats.trait.constants import *
-import sumstats.utils.group_utils as gu
+import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
 
 
 class Search():
     def __init__(self, h5file):
         self.h5file = h5file
-        # Open the file with read/write permissions and create if it doesn't exist
+        # Open the file with read permissions
         self.f = h5py.File(h5file, 'r')
 
     def query_for_trait(self, trait):
         trait_group = gu.get_group_from_parent(self.f, trait)
-        return myutils.get_dsets_from_trait_group(trait_group, TO_QUERY_DSETS)
+        return myutils.get_dsets_from_trait_group(trait_group)
 
     def query_for_study(self, trait, study):
         trait_group = gu.get_group_from_parent(self.f, trait)
         study_group = gu.get_group_from_parent(trait_group, study)
 
-        name_to_dataset = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-        return myutils.extend_datasets_for_group(study, study_group, name_to_dataset)
+        return myutils.get_dsets_from_group(study, study_group)
 
 
 def main():
@@ -67,7 +67,7 @@ def main():
 
     if restrictions:
         name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
-    print("snps retrieved", len(name_to_dataset[SNP_DSET]))
+    print("Number of snp's retrieved", len(name_to_dataset[SNP_DSET]))
     for dset in name_to_dataset:
         print(dset)
         print(name_to_dataset[dset][:10])

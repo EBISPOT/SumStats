@@ -1,27 +1,37 @@
 """
-    Stored as CHR/SNP/DATA
-    Where DATA is:
-    pvals: a vector that holds the p-values for this SNP/Trait association
-    or: a vector that holds the OR value for this SNP/Trait association
-    studies: a vector that holds the studies that correspond to the p-values for this SNP/Trait association
+    Stored as /CHR/BLOCK/SNP/DATA
+    Where DATA:
+    under each directory we store 3 (or more) vectors
+    'study' list will hold the study ids
+    'mantissa' list will hold each snp's p-value mantissa for this study
+    'exp' list will hold each snp's p-value exponent for this study
+    'bp' list will hold the baise pair location that each snp belongs to
+    e.t.c.
+    You can see the lists that will be loaded in the constants.py module
 
-    Queries that make sense here is to query all information on a chromosome
-    or all information on a SNP (if you have chromosome it will save an immense amount of time)
-    And then filter by study(/trait) and/or by p-value threshold
+    the positions in the vectors correspond to each other
+    for a SNP group:
+    study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
+
+    Query 1: query for chromosome if bp thresholds are omitted
+    or chromosome block if bp upper and lower limits are given
+    Query 2: query for specific SNP that belongs to a chromosome
+
+    Can filter based on p-value thresholds, bp position thresholds, and specific study
 """
 
 import sumstats.chr.query_utils as myutils
 import time
 from sumstats.utils.restrictions import *
 from sumstats.chr.constants import *
-import sumstats.utils.group_utils as gu
+import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
 
 
 def query_for_chromosome(chr_group):
     all_chr_block_groups = gu.get_all_groups_from_parent(chr_group)
     print("block size", len(all_chr_block_groups))
-    return myutils.get_query_datasets_from_groups(all_chr_block_groups)
+    return myutils.get_dsets_from_plethora_of_blocks(all_chr_block_groups)
 
 
 def query_for_block_range(chr_group, block_lower_limit, block_upper_limit):
@@ -42,7 +52,7 @@ def query_for_block_range(chr_group, block_lower_limit, block_upper_limit):
     if to_block != block_upper_limit:
         filter_block_ceil = block_upper_limit
 
-    name_to_dataset = myutils.get_query_datasets_from_groups(block_groups)
+    name_to_dataset = myutils.get_dsets_from_plethora_of_blocks(block_groups)
     bp_mask = name_to_dataset[BP_DSET].interval_mask(filter_block_floor, filter_block_ceil)
 
     if bp_mask is not None:
@@ -55,8 +65,7 @@ def query_for_snp(chr_group, block_number, snp):
     block_group = gu.get_group_from_parent(chr_group, block_number)
     snp_group = gu.get_group_from_parent(block_group, snp)
 
-    name_to_dataset = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-    return myutils.extend_datasets_for_group(snp, snp_group, name_to_dataset)
+    return myutils.get_dsets_from_group(snp, snp_group)
 
 
 def find_snp_in_group_name(name, group):
@@ -112,9 +121,6 @@ def main():
         snp_block_number = get_block_that_snp_belongs_to(chr_group, block_upper_limit)
         name_to_dataset = query_for_snp(chr_group, snp_block_number, snp)
 
-    print("Start filtering")
-    print(time.strftime('%a %H:%M:%S'))
-
     restrictions = []
     if study is not None:
         restrictions.append(EqualityRestriction(study, name_to_dataset[STUDY_DSET]))
@@ -124,9 +130,7 @@ def main():
     if restrictions:
         name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
 
-    print("Done filtering")
-    print(time.strftime('%a %H:%M:%S'))
-    print("length", len(name_to_dataset[SNP_DSET]))
+    print("Number of snp's retrieved", len(name_to_dataset[SNP_DSET]))
     for dset in name_to_dataset:
         print(dset)
         print(name_to_dataset[dset][:10])

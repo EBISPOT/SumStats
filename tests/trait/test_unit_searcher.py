@@ -1,9 +1,9 @@
 import os
-
 import pytest
-
 import sumstats.trait.loader as loader
 from sumstats.trait.searcher import Search
+from tests.trait.test_constants import *
+from sumstats.trait.constants import *
 
 
 class TestFirstApproach(object):
@@ -11,14 +11,7 @@ class TestFirstApproach(object):
     f = None
 
     def setup_method(self, method):
-        snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
         chrarray = [10, 10, 10, 10]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
-        effectarray = ["A", "B", "C", "D"]
-        otherarray = ["Z", "Y", "X", "W"]
-        frequencyarray = [3.926e-01, 4.900e-03, 1.912e-01, 7.000e-04]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
@@ -45,31 +38,35 @@ class TestFirstApproach(object):
 
     def test_query_for_trait(self):
         name_to_dataset = self.query.query_for_trait("Trait1")
-        assert len(name_to_dataset["snp"]) == 8
+        for dset_name in TO_STORE_DSETS:
+            assert len(name_to_dataset[dset_name]) == 8
 
-        study_set = as_string_set(name_to_dataset["study"])
+        study_set = set(name_to_dataset[STUDY_DSET])
 
         assert study_set.__len__() == 2
 
         name_to_dataset = self.query.query_for_trait("Trait2")
-        assert len(name_to_dataset["snp"]) == 4
+        for dset_name in TO_STORE_DSETS:
+            assert len(name_to_dataset[dset_name]) == 4
 
-        study_set = as_string_set(name_to_dataset["study"])
+        study_set = set(name_to_dataset[STUDY_DSET])
 
         assert study_set.__len__() == 1
 
     def test_query_for_study(self):
         name_to_dataset = self.query.query_for_study("Trait1", "PM001")
 
-        assert len(name_to_dataset["snp"]) == 4
+        for dset_name in TO_STORE_DSETS:
+            assert len(name_to_dataset[dset_name]) == 4
 
-        study_set = as_string_set(name_to_dataset["study"])
+        study_set = set(name_to_dataset[STUDY_DSET])
 
         assert study_set.__len__() == 1
         assert "PM001" in study_set.pop()
 
         name_to_dataset = self.query.query_for_study("Trait1", "PM001")
-        assert len(name_to_dataset["snp"]) == 4
+        for dset_name in TO_STORE_DSETS:
+            assert len(name_to_dataset[dset_name]) == 4
 
     def test_non_existing_trait(self):
         with pytest.raises(ValueError):
@@ -79,9 +76,3 @@ class TestFirstApproach(object):
         with pytest.raises(ValueError):
             self.query.query_for_study("Trait3", "PM002")
 
-
-def as_string_set(list):
-    my_set = set()
-    for element in list:
-        my_set.add(str(element))
-    return my_set

@@ -1,11 +1,9 @@
 import os
-import h5py
 import pytest
 import sumstats.chr.loader as loader
 import sumstats.chr.query_utils as query
-from sumstats.utils.dataset import Dataset
-
-TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'study', 'or', 'bp', 'effect', 'other', 'freq']
+from sumstats.chr.constants import *
+from tests.chr.test_constants import *
 
 
 class TestFirstApproach(object):
@@ -13,27 +11,19 @@ class TestFirstApproach(object):
     f = None
 
     def setup_method(self, method):
-        snpsarray = ["rs185339560", "rs11250701", "chr10_2622752_D", "rs7085086"]
-        pvalsarray = ["0.4865", "0.4314", "0.5986", "0.7057"]
-        chrarray = [1, 1, 2, 2]
-        orarray = [0.92090, 1.01440, 0.97385, 0.99302]
-        bparray = [1118275, 1120431, 49129966, 48480252]
-        effectarray = ["A", "B", "C", "D"]
-        other_array = ["Z", "Y", "X", "W"]
-        frequencyarray = [3.926e-01, 4.900e-03, 1.912e-01, 7.000e-04]
 
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": other_array, 'freq' : frequencyarray}
+                "effect": effectarray, "other": otherarray, 'freq' : frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM001', dict)
         load.load()
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": other_array, 'freq': frequencyarray}
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM002', dict)
         load.load()
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": other_array, 'freq': frequencyarray}
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
@@ -70,12 +60,12 @@ class TestFirstApproach(object):
         with pytest.raises(ValueError):
             query.get_block_groups_from_parent_within_block_range(chr_group_2, 49200000, 48500000)
 
-    def test_get_dict_of_wanted_dsets_from_groups(self):
+    def test_get_dsets_from_plethora_of_blocks(self):
         chr_group_2 = self.f.get("/2")
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 49200000)
 
-        name_to_dataset = query.get_query_datasets_from_groups(block_groups)
+        name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups)
         assert name_to_dataset.__class__ is dict
 
         for dset_name in TO_QUERY_DSETS:
@@ -83,21 +73,27 @@ class TestFirstApproach(object):
             assert len(name_to_dataset[dset_name]) == 6
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48600000, 48600000)
-        name_to_dataset = query.get_query_datasets_from_groups(block_groups)
+        name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups)
         for dset_name in TO_QUERY_DSETS:
             # no SNP bp falls into this group
             assert len(name_to_dataset[dset_name]) == 0
 
-    def test_extend_datasets_for_group(self):
+    def test_get_dsets_from_block_group(self):
+        chr_group_2 = self.f.get("2")
+        block_group = chr_group_2.get("48500000")
+        name_to_dataset = query.get_dsets_from_block_group(block_group)
+        assert len(name_to_dataset[SNP_DSET]) == 3
+        assert set(name_to_dataset[SNP_DSET]).pop() == "rs7085086"
+        assert len(name_to_dataset[STUDY_DSET]) == 3
+
+    def test_get_dsets_group(self):
         chr_group_2 = self.f.get("/2")
 
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 48500000)
         block_group = block_groups[0]
         snp_group = block_group.get("rs7085086")
 
-        empty_dict = {name : Dataset([]) for name in TO_QUERY_DSETS}
-
-        name_to_dset = query.extend_datasets_for_group("snp1", snp_group, empty_dict)
+        name_to_dset = query.get_dsets_from_group("snp1", snp_group)
         assert len(name_to_dset) == 9
         for dset_name, dset in name_to_dset.items():
             if dset_name is "study":
