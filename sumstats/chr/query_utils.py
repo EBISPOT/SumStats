@@ -6,52 +6,40 @@ import argparse
 from sumstats.chr.constants import *
 from sumstats.utils.utils import *
 import sumstats.utils.group as gu
+from sumstats.utils.interval import *
 
 
-def get_block_groups_from_parent_within_block_range(chr_group, block_lower, block_upper):
+def get_block_groups_from_parent_within_block_range(chr_group, bp_interval):
     """
     block_lower and block_upper should be concrete blocks (i.e. factor of the block_size)
     for block size 100, when I say I want block 100-200 I need to get back block groups[100, 200]
      (i.e. all the positions from 0-200)
     """
-    if (block_lower % BLOCK_SIZE != 0) or (block_upper % BLOCK_SIZE != 0):
+    if (bp_interval.floor() % BLOCK_SIZE != 0) or (bp_interval.ceil() % BLOCK_SIZE != 0):
         raise ValueError(
             "block sizes not conforming to the block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (
-            BLOCK_SIZE, block_lower, block_upper))
-    if block_lower > block_upper:
+            BLOCK_SIZE, bp_interval.floor(), bp_interval.ceil()))
+    if bp_interval.floor() > bp_interval.ceil():
         raise ValueError("lower limit is bigger than upper limit")
 
     blocks = [gu.get_group_from_parent(chr_group, block) for block in
-              range(block_lower, (block_upper + BLOCK_SIZE), BLOCK_SIZE)]
+              range(bp_interval.floor(), (bp_interval.ceil() + BLOCK_SIZE), BLOCK_SIZE)]
     return blocks
 
 
 def get_dsets_from_plethora_of_blocks(groups):
     name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
 
-    for block_group in groups:
-        name_to_dataset_for_block = get_dsets_from_block_group(block_group)
+    for group in groups:
+        name_to_dataset_for_block = get_dsets_from_group(group)
         for dset_name, dataset in name_to_dataset.items():
             dataset.extend(name_to_dataset_for_block[dset_name])
     return name_to_dataset
 
 
-def get_dsets_from_block_group(block_group):
+def get_dsets_from_group(group):
     name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-
-    for snp, snp_group in block_group.items():
-        name_to_dataset_for_snp = get_dsets_from_group(snp, snp_group)
-        for dset_name, dataset in name_to_dataset.items():
-            dataset.extend(name_to_dataset_for_snp[dset_name])
-    return name_to_dataset
-
-
-def get_dsets_from_group(snp, snp_group):
-    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-    return gu.extend_dsets_for_group(group_name=snp, group=snp_group,
-                                     name_to_dataset=name_to_dataset,
-                                     missing_dset=SNP_DSET,
-                                     existing_dset=BP_DSET)
+    return gu.extend_dsets_for_group(group=group, name_to_dataset=name_to_dataset)
 
 
 def get_block_number(bp_position):
@@ -75,53 +63,24 @@ def get_block_number(bp_position):
             return bp_position - (bp_position % BLOCK_SIZE) + BLOCK_SIZE
 
 
-def argument_checker():
-    args = argument_parser()
-
-    if args.query == "1":
-        pass
-    elif args.query == "2":
-        if args.snp is None:
-            raise ValueError("You need to provide a snp to be looked up (e.g. -snp rs1234)")
-    else:
-        raise ValueError("Wrong input")
-
-
 def argument_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated', required=True)
-    parser.add_argument('-query', help='1 for finding block, 2 for finding snp', required=True)
     parser.add_argument('-chr', help='The chromosome I am looking for', required=True)
-    parser.add_argument('-bu', help='The upper limit of the chromosome block I am looking for (can omit if snp '
-                                    'provided)')
-    parser.add_argument('-bl', help='The lower limit of the chromosome block I am looking for (can omit if snp '
-                                    'provided)')
-    parser.add_argument('-snp', help='The SNP I am looking for. Please provide -bu if known. (Can omit if chr and '
-                                     'block provided).')
+    parser.add_argument('-bp', help='Lower and upper limits of base pair location: -bp floor:ceil')
     parser.add_argument('-study', help='Filter results for a specific study')
-    parser.add_argument('-pu', help='The upper limit for the p-value')
-    parser.add_argument('-pl', help='The lower limit for the p-value')
+    parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')
     return parser.parse_args()
 
 
 def convert_args(args):
     chr = int(args.chr)
-    query = int(args.query)
-    block_upper_limit = args.bu
-    if block_upper_limit is not None:
-        block_upper_limit = int(block_upper_limit)
-    block_lower_limit = args.bl
-    if block_lower_limit is not None:
-        block_lower_limit = int(block_lower_limit)
-
-    snp = args.snp
-
     study = args.study
-    p_upper_limit = args.pu
-    if p_upper_limit is not None:
-        p_upper_limit = float(p_upper_limit)
-    p_lower_limit = args.pl
-    if p_lower_limit is not None:
-        p_lower_limit = float(p_lower_limit)
 
-    return chr, query, block_upper_limit, block_lower_limit, snp, study, p_upper_limit, p_lower_limit
+    pval_interval = args.pval
+    pval_interval = FloatInterval().set_string_tuple(pval_interval)
+
+    bp_interval = args.bp
+    bp_interval = IntInterval().set_string_tuple(bp_interval)
+
+    return chr, bp_interval, study, pval_interval

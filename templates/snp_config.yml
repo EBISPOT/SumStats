@@ -1,5 +1,5 @@
-loader : trait
+loader : snp
 tsv : files/toload/load_file
-h5file : files/h5files/bytrait/save_file
+h5file : files/h5files/bysnp/save_file
 trait : trait_config
 study : study_config

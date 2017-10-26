@@ -20,77 +20,63 @@ import numpy as np
 import pandas as pd
 
 from sumstats.utils import utils
-from sumstats.chr.constants import *
+from sumstats.snp.constants import *
 import sumstats.utils.group as gu
 
 
 def create_dataset(group, dset_name, data):
-    data = np.array(data, dtype=DSET_TYPES[dset_name])
+    """
+    Datasets with maxshape = ((None,)) so they can be extended
+    max actual number of values we can store per array is 2^64 - 1
+    data element needs to be converted to np.array first, otherwise it will
+    be saved as a scalar, and won't be able to be extended later on into an array
+
+    :param data: a single data element (string, int, float)
+    """
+    data = np.array([data], dtype=DSET_TYPES[dset_name])
     group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
 
 
 def expand_dataset(group, dset_name, data):
+    """
+    Epands the dset_name dataset by 1 element (data)
+    Resizes first by 1 element, and then saves the new data point in the last position
+
+    :param data: a single data element (string, int, float)
+    """
     dset = group.get(dset_name)
     if dset is None:
         create_dataset(group, dset_name, data)
     else:
-        last_index_before_resize = dset.shape[0]
-        dset.resize(((dset.shape[0] + len(data)),))
-        dset[last_index_before_resize:] = data
+        dset.resize((dset.shape[0] + 1,))
+        dset[-1] = data
 
 
 def create_study_list(study, length_of):
     return [study for _ in range(length_of)]
 
 
-def create_groups_in_parent(parent, list_of_groups):
-    for new_group in list_of_groups:
-        if str(new_group) not in parent:
-            parent.create_group(str(new_group))
+def save_info_in_group(group, name_to_dataset):
+    snps = name_to_dataset[SNP_DSET]
 
+    for i in range(len(snps)):
+        snp = snps[i]
+        if snp in group:
+            snp_group = gu.get_group_from_parent(group, snp)
 
-def slice_datasets_where_chromosome(chromosome, name_to_dataset):
-    # get the slices from all the arrays where chromosome position == i
-    chr_mask = name_to_dataset[CHR_DSET].equality_mask(chromosome)
-    return utils.filter_dictionary_by_mask(name_to_dataset, chr_mask)
+            check_group_dsets_shape(snp_group)
 
-
-def initialize_block_limits():
-    block_floor = 0
-    block_ceil = BLOCK_SIZE
-    return block_floor, block_ceil
-
-
-def increment_block_limits(block_ceil):
-    block_floor = block_ceil + 1
-    block_ceil += BLOCK_SIZE
-    return block_floor, block_ceil
-
-
-def get_block_group_from_block_ceil(chr_group, block_ceil):
-    block_group = chr_group.get(str(block_ceil))
-    if block_group is None:
-        block_group = chr_group.create_group(str(block_ceil))
-    return block_group
-
-
-def block_limit_not_reached_max(block_ceil, max_bp):
-    return int(block_ceil) <= (int(max_bp) + int(BLOCK_SIZE))
-
-
-def save_info_in_block_group(block_group, name_to_dataset):
-
-    check_group_dsets_shape(block_group)
-    for dset_name in TO_STORE_DSETS:
-        expand_dataset(block_group, dset_name, name_to_dataset[dset_name])
+            for dset_name in TO_STORE_DSETS:
+                expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
+        else:
+            snp_group = group.create_group(snp)
+            for dset_name in TO_STORE_DSETS:
+                create_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
 
 
 def check_group_dsets_shape(group):
     datasets = [group.get(dset_name) for dset_name in TO_STORE_DSETS]
-    first_dataset = datasets.pop()
-    if first_dataset is None:
-        return
-    length = first_dataset.shape[0]
+    length = datasets.pop().shape[0]
     for dset in datasets:
         assert dset.shape[0] == length, \
             "Group has datasets with inconsistent shape! " + group.name
@@ -128,33 +114,9 @@ class Loader():
 
     def load(self):
         # Open the file with read/write permissions and create if it doesn't exist
-        f = h5py.File(self.h5file, 'a')
+        file = h5py.File(self.h5file, 'a')
         name_to_dataset = self.name_to_dataset
-
-        unique_chromosomes_in_file = set(name_to_dataset[CHR_DSET])
-        chromosome_array = np.array([x for x in unique_chromosomes_in_file])
-        create_groups_in_parent(f, chromosome_array)
-
-        for chromosome in chromosome_array:
-            chr_group = gu.get_group_from_parent(f, chromosome)
-
-            dsets_sliced_by_chr = slice_datasets_where_chromosome(chromosome, name_to_dataset)
-
-            bp_list_chr = dsets_sliced_by_chr[BP_DSET]
-            max_bp = max(bp_list_chr)
-
-            print("max base pair location in chromosome:", max_bp)
-
-            block_floor, block_ceil = initialize_block_limits()
-
-            while block_limit_not_reached_max(block_ceil, max_bp):
-                block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
-                block_mask = dsets_sliced_by_chr[BP_DSET].interval_mask(block_floor, block_ceil)
-                if np.any(block_mask):
-                    dsets_block_slices = utils.filter_dictionary_by_mask(dsets_sliced_by_chr, block_mask)
-                    save_info_in_block_group(block_group, dsets_block_slices)
-
-                block_floor, block_ceil = increment_block_limits(block_ceil)
+        save_info_in_group(file, name_to_dataset)
 
 
 def main():

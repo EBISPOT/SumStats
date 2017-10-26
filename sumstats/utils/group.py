@@ -23,20 +23,27 @@ def get_dset(group, dset_name):
     return dset
 
 
-def extend_dsets_for_group(group_name, group, name_to_dataset, missing_dset, existing_dset):
+def extend_dsets_for_group(group, name_to_dataset):
+    for name, dataset in name_to_dataset.items():
+        dataset.extend(_get_dset_from_group(name, group))
+
+    return name_to_dataset
+
+
+def extend_dsets_for_group_missing(missing_value, group, name_to_dataset, missing_dset, existing_dset):
     for name, dataset in name_to_dataset.items():
         if name != missing_dset:
             dataset.extend(_get_dset_from_group(name, group))
 
     temp_dset = _get_dset_from_group(existing_dset, group)
-    name_to_dataset[missing_dset].extend(_create_dset_placeholder(len(temp_dset), group_name))
+    name_to_dataset[missing_dset].extend(_create_dset_placeholder(len(temp_dset), missing_value))
     return name_to_dataset
 
 
 def _get_dset_from_group(dset_name, group):
     dataset = get_dset(group, dset_name)
     if dataset is None:
-        raise LookupError("Dataset empty: ", dset_name)
+        dataset = []
     return Dataset(dataset)
 
 

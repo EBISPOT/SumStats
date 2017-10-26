@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='sumstats',
     version='0.1-SNAPSHOT',
-    packages=['sumstats', 'sumstats.utils', 'sumstats.server', 'sumstats.trait', 'sumstats.chr'],
+    packages=['sumstats', 'sumstats.utils', 'sumstats.server', 'sumstats.trait', 'sumstats.chr', 'sumstats.snp'],
     url='https://github.com/EBISPOT/SumStats',
     license='',
     author='Olga Vrousgou',

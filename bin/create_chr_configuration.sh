@@ -12,9 +12,9 @@ do
     if [ -s $base/files/toload/chr"$i"_"$file" ];
     then
         cd $base
-        mkdir config$i
-        cp $templates/chr_config.yml $base/config$i/config.yml
-        cd $base/config$i
+        mkdir chr_config$i
+        cp $templates/chr_config.yml $base/chr_config$i/config.yml
+        cd $base/chr_config$i
 
         sed 's/load_file/chr'$i'_'$file'/' config.yml > tmp
         mv tmp config.yml
@@ -25,8 +25,5 @@ do
         sed 's/trait_config/'$trait'/' config.yml > tmp
         mv tmp config.yml
         cd $base
-
-    else
-        rm $base/files/toload/chr"$i"_"$file"
     fi
 done

@@ -12,9 +12,9 @@ do
     if [ -s $base/files/toload/chr"$i"_"$file" ];
     then
         cd $base
-        mkdir chr_config$i
-        cp $templates/chr_config.yml $base/chr_config$i/config.yml
-        cd $base/chr_config$i
+        mkdir snp_config$i
+        cp $templates/snp_config.yml $base/snp_config$i/config.yml
+        cd $base/snp_config$i
 
         sed 's/load_file/chr'$i'_'$file'/' config.yml > tmp
         mv tmp config.yml
@@ -25,9 +25,5 @@ do
         sed 's/trait_config/'$trait'/' config.yml > tmp
         mv tmp config.yml
         cd $base
-
-        sed 's/config_dir/chr_config'$i'/' $templates/sumstatscdf.yml > chr_sumstatscdf"$i".yml
-
-        bsub -o $base/chr_output"$i".txt -e $base/chr_error"$i".txt -a 'docker('$base'/chr_sumstatscdf'$i'.yml)' none
     fi
 done

@@ -62,9 +62,8 @@ class TestQueryUtils(object):
 
     def test_get_dset_from_group(self):
         chr_group_2 = self.f.create_group("/2")
-
-        with pytest.raises(LookupError):
-            gu._get_dset_from_group('snp', chr_group_2)
+        snp_group = gu._get_dset_from_group('snp', chr_group_2)
+        assert utils.empty_array(snp_group)
 
     def test_create_dset_placeholder(self):
         size = 5
@@ -86,10 +85,10 @@ class TestQueryUtils(object):
         group.create_dataset("dset2", data=data2)
         TO_QUERY = ['dset1', 'dset2', 'dset3']
         name_to_dset = utils.create_dictionary_of_empty_dsets(TO_QUERY)
-        name_to_dset = gu.extend_dsets_for_group(group_name="group_name", group=group,
-                                                 name_to_dataset=name_to_dset,
-                                                 missing_dset="dset3",
-                                                 existing_dset="dset2")
+        name_to_dset = gu.extend_dsets_for_group_missing(missing_value="group_name", group=group,
+                                                         name_to_dataset=name_to_dset,
+                                                         missing_dset="dset3",
+                                                         existing_dset="dset2")
 
         data3 = ["group_name", "group_name", "group_name"]
         assert np.array_equal(name_to_dset['dset1'], data1)

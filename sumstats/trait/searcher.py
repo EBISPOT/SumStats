@@ -43,16 +43,14 @@ class Search():
 
 
 def main():
-    myutils.argument_checker()
     args = myutils.argument_parser()
-    query, trait, study, snp, chr, p_upper_limit, p_lower_limit, bp_upper_limit, bp_lower_limit = myutils.convert_args(args)
+    trait, study, snp, chr, pval_interval, bp_interval = myutils.convert_args(args)
 
     search = Search(args.h5file)
 
-    name_to_dataset = {}
-    if query == 1:
+    if study is None:
         name_to_dataset = search.query_for_trait(trait)
-    elif query == 2:
+    else:
         name_to_dataset = search.query_for_study(trait, study)
 
     restrictions = []
@@ -60,10 +58,10 @@ def main():
         restrictions.append(EqualityRestriction(snp, name_to_dataset[SNP_DSET]))
     if chr is not None:
         restrictions.append(EqualityRestriction(chr, name_to_dataset[CHR_DSET]))
-    if p_upper_limit is not None or p_lower_limit is not None:
-        restrictions.append(IntervalRestriction(p_lower_limit, p_upper_limit, name_to_dataset[MANTISSA_DSET]))
-    if bp_upper_limit is not None or bp_lower_limit is not None:
-        restrictions.append(IntervalRestriction(bp_lower_limit, bp_upper_limit, name_to_dataset[BP_DSET]))
+    if not pval_interval.is_set():
+        restrictions.append(IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), name_to_dataset[MANTISSA_DSET]))
+    if not bp_interval.is_set():
+        restrictions.append(IntervalRestriction(bp_interval.floor(), bp_interval.ceil(), name_to_dataset[BP_DSET]))
 
     if restrictions:
         name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)

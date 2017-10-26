@@ -35,4 +35,4 @@ $base/bin/append_header.sh "$filename"
 
 $base/bin/create_chr_configuration.sh $filename
 $base/bin/create_trait_configuration.sh $filename
-
+$base/bin/create_snp_configuration.sh $filename

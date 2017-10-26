@@ -19,25 +19,33 @@ class TestFirstApproach(object):
         os.remove(self.h5file)
 
     def test_main(self):
-        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -query 1 -trait Trait1 -pu 7.0 "
-                           "-pl 4.0 -bl 1118276 -bu 1165309")
+        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -trait Trait1 -pval 4:7 "
+                           "-bp 1118276:1165309")
         assert result == 0
 
-        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -query 1 -trait Trait1 -study "
+        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -trait Trait1 -pval 4:7 "
+                           "-bp 1118276:")
+        assert result == 0
+
+        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -trait Trait1 -pval 4:7 "
+                           "-bp :1165309")
+        assert result == 0
+
+        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -trait Trait1 -study "
                            "PM001 -snp rs185339560")
 
         assert result == 0
 
-        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -query 1 -trait Trait1 -pu 7.0 "
-                           "-pl 4.0 -snp rs185339560")
+        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -trait Trait1 -pval 4: "
+                           "-snp rs185339560")
         assert result == 0
 
-        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -query 1 -trait Trait1 -pu 7.0 "
-                           "-pl 4.0 -chr 10")
+        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -trait Trait1 -pval :7.0 "
+                           "-chr 10")
 
         assert result == 0
 
-        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -query 2 -trait Trait1 -study "
-                           "PM001 -pu 7.0 -pl 4.0 -chr 10")
+        result = os.system("python3 sumstats/trait/searcher.py -h5file .testfile.h5 -trait Trait1 -study "
+                           "PM001 -pval 4:7 -chr 10")
 
         assert result == 0

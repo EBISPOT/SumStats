@@ -1,6 +1,7 @@
 import yaml
 import sumstats.trait.loader as trait_loader
 import sumstats.chr.loader as chr_loader
+import sumstats.snp.loader as snp_loader
 import glob
 import argparse
 
@@ -31,8 +32,14 @@ study = cfg["study"]
 if loader_type == "trait":
     loader = trait_loader.Loader(tsv, output, study, trait)
     loader.load()
-
+    print("Load complete!")
 
 if loader_type == "chr":
     loader = chr_loader.Loader(tsv, output, study)
     loader.load()
+    print("Load complete!")
+
+if loader_type == "snp":
+    loader = snp_loader.Loader(tsv, output, study)
+    loader.load()
+    print("Load complete!")

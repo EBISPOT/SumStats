@@ -4,6 +4,7 @@ import sumstats.chr.loader as loader
 import sumstats.chr.query_utils as query
 from sumstats.chr.constants import *
 from tests.chr.test_constants import *
+from sumstats.utils.interval import *
 
 
 class TestFirstApproach(object):
@@ -39,31 +40,38 @@ class TestFirstApproach(object):
         chr_group_2 = self.f.get("2")
 
         with pytest.raises(ValueError):
-            query.get_block_groups_from_parent_within_block_range(chr_group_1, 1118275, 1118276)
+            bp_interval = IntInterval().set_tuple(1118275, 1118276)
+            query.get_block_groups_from_parent_within_block_range(chr_group_1, bp_interval)
 
         with pytest.raises(TypeError):
-            query.get_block_groups_from_parent_within_block_range(chr_group_1, None, 1200000)
+            bp_interval = IntInterval().set_tuple(None, 1118276)
+            query.get_block_groups_from_parent_within_block_range(chr_group_1, bp_interval)
 
         with pytest.raises(AttributeError):
-            query.get_block_groups_from_parent_within_block_range(None, 1200000, 1200000)
+            bp_interval = IntInterval().set_tuple(1200000, 1200000)
+            query.get_block_groups_from_parent_within_block_range(None, bp_interval)
 
-        blocks = query.get_block_groups_from_parent_within_block_range(chr_group_1, 1200000, 1200000)
+        bp_interval = IntInterval().set_string_tuple("1200000:1200000")
+        blocks = query.get_block_groups_from_parent_within_block_range(chr_group_1, bp_interval)
         assert blocks.__class__ is list
         assert len(blocks) == 1
         assert blocks[0].__class__ == h5py._hl.group.Group
 
-        blocks = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 49200000)
+        bp_interval = IntInterval().set_string_tuple("48500000:49200000")
+        blocks = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
         assert len(blocks) == 8
         assert blocks[0].name == "/2/48500000"
         assert blocks[7].name == "/2/49200000"
 
         with pytest.raises(ValueError):
-            query.get_block_groups_from_parent_within_block_range(chr_group_2, 49200000, 48500000)
+            bp_interval = IntInterval().set_string_tuple("49200000:48500000")
+            query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
 
     def test_get_dsets_from_plethora_of_blocks(self):
         chr_group_2 = self.f.get("/2")
 
-        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 49200000)
+        bp_interval = IntInterval().set_tuple(48500000, 49200000)
+        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
 
         name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups)
         assert name_to_dataset.__class__ is dict
@@ -72,31 +80,24 @@ class TestFirstApproach(object):
             # 2 values for each of 3 studies that we loaded
             assert len(name_to_dataset[dset_name]) == 6
 
-        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48600000, 48600000)
+        bp_interval = IntInterval().set_tuple(48600000, 48600000)
+        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
         name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups)
         for dset_name in TO_QUERY_DSETS:
             # no SNP bp falls into this group
             assert len(name_to_dataset[dset_name]) == 0
 
-    def test_get_dsets_from_block_group(self):
-        chr_group_2 = self.f.get("2")
-        block_group = chr_group_2.get("48500000")
-        name_to_dataset = query.get_dsets_from_block_group(block_group)
-        assert len(name_to_dataset[SNP_DSET]) == 3
-        assert set(name_to_dataset[SNP_DSET]).pop() == "rs7085086"
-        assert len(name_to_dataset[STUDY_DSET]) == 3
-
     def test_get_dsets_group(self):
         chr_group_2 = self.f.get("/2")
 
-        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, 48500000, 48500000)
+        bp_interval = IntInterval().set_tuple(48500000, 48500000)
+        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
         block_group = block_groups[0]
-        snp_group = block_group.get("rs7085086")
 
-        name_to_dset = query.get_dsets_from_group("snp1", snp_group)
-        assert len(name_to_dset) == 9
+        name_to_dset = query.get_dsets_from_group(block_group)
+        assert len(name_to_dset) == len(TO_STORE_DSETS)
         for dset_name, dset in name_to_dset.items():
-            if dset_name is "study":
+            if dset_name is STUDY_DSET:
                 assert len(set(dset)) == 3
             else:
                 assert len(set(dset)) == 1

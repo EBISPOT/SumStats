@@ -38,32 +38,35 @@ class TestFirstApproach(object):
 
     def test_create_dataset(self):
         random_group = self.f.create_group("random_group")
-        data = "random string"
+        data = ['string 1', 'str2']
         dset_name = STUDY_DSET
         loader.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
-        data = dset[:]
-        assert len(data) == 1
-        assert data[0] == "random string"
+        dataset = dset[:]
+        assert len(dataset) == 2
+        assert dataset[0] == data[0]
+        assert dataset[1] == data[1]
 
-        data = 1
+        data = [1, 2]
         dset_name = BP_DSET
         loader.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
-        data = dset[:]
-        assert len(data) == 1
-        assert data[0] == 1
+        dataset = dset[:]
+        assert len(dataset) == 2
+        assert dataset[0] == data[0]
+        assert dataset[1] == data[1]
 
-        data = 0.2
+        data = [0.2, 0.3]
         dset_name = OR_DSET
         loader.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
-        data = dset[:]
-        assert len(data) == 1
-        assert data[0] == 0.2
+        dataset = dset[:]
+        assert len(dataset) == 2
+        assert dataset[0] == data[0]
+        assert dataset[1] == data[1]
 
         dset_name = "random name"
         with pytest.raises(KeyError):
@@ -72,49 +75,55 @@ class TestFirstApproach(object):
     def test_expand_dataset(self):
         random_group = self.f.create_group("random group")
 
-        data = "random string"
+        data = ['string1', 'str2']
         dset_name = STUDY_DSET
         loader.create_dataset(random_group, dset_name, data)
-        data2 = "random string 2"
+        data2 = ['string3', 'random string']
         loader.expand_dataset(random_group, dset_name, data2)
 
-        dset = random_group.get(dset_name)
-        assert dset is not None
-        assert len(dset) == 2
-        dset_data = dset[:]
-        assert dset_data[0] == data
-        assert dset_data[1] == data2
+        dataset = random_group.get(dset_name)
+        assert dataset is not None
+        assert len(dataset) == 4
+        dset_data = dataset[:]
+        assert dset_data[0] == data[0]
+        assert dset_data[1] == data[1]
+        assert dset_data[2] == data2[0]
+        assert dset_data[3] == data2[1]
 
-        data = 1
+        data = [1, 2]
         dset_name = CHR_DSET
         loader.create_dataset(random_group, dset_name, data)
-        data2 = 2
+        data2 = [3, 4]
         loader.expand_dataset(random_group, dset_name, data2)
 
-        dset = random_group.get(dset_name)
-        assert dset is not None
-        assert len(dset) == 2
-        dset_data = dset[:]
-        assert dset_data[0] == 1
-        assert dset_data[1] == 2
+        dataset = random_group.get(dset_name)
+        assert dataset is not None
+        assert len(dataset) == 4
+        dset_data = dataset[:]
+        assert dset_data[0] == data[0]
+        assert dset_data[1] == data[1]
+        assert dset_data[2] == data2[0]
+        assert dset_data[3] == data2[1]
 
-        data = 0.1
+        data = [0.1, 0.2]
         dset_name = MANTISSA_DSET
         loader.create_dataset(random_group, dset_name, data)
-        data2 = 0.2
+        data2 = [0.3, 0.4]
         loader.expand_dataset(random_group, dset_name, data2)
 
-        dset = random_group.get(dset_name)
-        assert dset is not None
-        assert len(dset) == 2
-        dset_data = dset[:]
-        assert dset_data[0] == 0.1
-        assert dset_data[1] == 0.2
+        dataset = random_group.get(dset_name)
+        assert dataset is not None
+        assert len(dataset) == 4
+        dset_data = dataset[:]
+        assert dset_data[0] == data[0]
+        assert dset_data[1] == data[1]
+        assert dset_data[2] == data2[0]
+        assert dset_data[3] == data2[1]
 
     def test_expand_not_existing_dataset(self):
         random_group = self.f.create_group("random group")
 
-        data = "random string"
+        data = ['random string']
         dset_name = STUDY_DSET
         loader.expand_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
@@ -122,13 +131,14 @@ class TestFirstApproach(object):
         assert dset is not None
         dset_data = dset[:]
         assert len(dset_data) == 1
-        assert dset_data[0] == data
+        assert dset_data[0] == data[0]
 
-        data2 = "random string 2"
+        data2 = ['random string 2']
         loader.expand_dataset(random_group, dset_name, data2)
         dset = random_group.get(dset_name)
         dset_data = dset[:]
         assert len(dset_data) == 2
+        assert dset_data[1] == data2[0]
 
     def test_create_groups_in_parent(self):
         array_of_chromosomes = ["1", 2, "X"]

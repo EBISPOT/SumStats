@@ -7,9 +7,9 @@ study=$(echo "$file" | cut -d"-" -f2)
 trait=$(echo "$file" | cut -d"-" -f3)
 
     cd $base
-    mkdir config$trait
-    cp $templates/trait_config.yml $base/config$trait/config.yml
-    cd $base/config$trait
+    mkdir trait_config
+    cp $templates/trait_config.yml $base/trait_config/config.yml
+    cd $base/trait_config
 
     sed 's/load_file/'$file'/' config.yml > tmp
     mv tmp config.yml

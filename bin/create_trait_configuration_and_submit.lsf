@@ -7,9 +7,9 @@ study=$(echo "$file" | cut -d"-" -f2)
 trait=$(echo "$file" | cut -d"-" -f3)
 
     cd $base
-    mkdir config$trait
-    cp $templates/trait_config.yml $base/config$trait/config.yml
-    cd $base/config$trait
+    mkdir trait_config
+    cp $templates/trait_config.yml $base/trait_config/config.yml
+    cd $base/trait_config
 
     sed 's/load_file/'$file'/' config.yml > tmp
     mv tmp config.yml
@@ -21,6 +21,6 @@ trait=$(echo "$file" | cut -d"-" -f3)
     mv tmp config.yml
     cd $base
 
-    sed 's/config_dir/config'$trait'/' $templates/sumstatscdf.yml > sumstatscdf"$trait".yml
+    sed 's/config_dir/trait_config/' $templates/sumstatscdf.yml > trait_sumstatscdf.yml
 
-    bsub -o $base/output"$trait".txt -e $base/error"$trait".txt -a 'docker('$base'/sumstatscdf'$trait'.yml)' none
+    bsub -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/trait_sumstatscdf.yml)' none

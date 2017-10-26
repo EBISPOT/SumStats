@@ -1,0 +1,5 @@
+loader : snp
+tsv : /application/files/toload/load_file
+h5file : /output/bysnp/save_file
+trait : trait_config
+study : study_config

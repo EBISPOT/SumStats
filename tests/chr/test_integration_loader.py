@@ -67,40 +67,50 @@ class TestFirstApproach(object):
 
     def test_snps_in_blocks(self):
         block11 = self.f.get("/1/1200000")
-        snps = list(block11.keys())
-        assert len(snps) == 2
-        assert block11.get("rs185339560") is not None
-        assert block11.get("rs11250701") is not None
+        datasets = list(block11.keys())
+        assert len(datasets) == len(TO_STORE_DSETS)
+        for dset_name in TO_STORE_DSETS:
+            dataset = block11.get(dset_name)
+            assert dataset is not None
+            assert len(dataset[:]) > 0
+        assert "rs11250701" in block11.get(SNP_DSET)[:]
 
         block21 = self.f.get("/2/48500000")
-        snps = list(block21.keys())
-        assert len(snps) == 1
-        assert block21.get("rs7085086") is not None
+        datasets = list(block21.keys())
+        assert len(datasets) == len(TO_STORE_DSETS)
+        for dset_name in TO_STORE_DSETS:
+            dataset = block11.get(dset_name)
+            assert dataset is not None
+            assert len(dataset[:]) > 0
+        assert "rs7085086" in block21.get(SNP_DSET)[:]
 
         block22 = self.f.get("/2/49200000")
-        snps = list(block22.keys())
-        assert len(snps) == 1
-        assert block22.get("chr10_2622752_D") is not None
+        datasets = list(block22.keys())
+        assert len(datasets) == len(TO_STORE_DSETS)
+        for dset_name in TO_STORE_DSETS:
+            dataset = block11.get(dset_name)
+            assert dataset is not None
+            assert len(dataset[:]) > 0
+        assert "chr10_2622752_D" in block22.get(SNP_DSET)[:]
 
-    def test_snp_group_content(self):
-        snp1 = self.f.get("/1/1200000/rs185339560")
-        assert snp1 is not None
-        info = list(snp1.keys())
-        assert len(info) == len(TO_STORE_DSETS)
+    def test_block_group_content(self):
+        block1 = self.f.get("/1/1200000")
+        snp_dset = block1.get(SNP_DSET)[:].tolist()
+        snp = "rs185339560"
+        assert snp in snp_dset
 
-        mantissa = snp1.get(MANTISSA_DSET)
-        assert len(mantissa[:]) == 3  # loaded 3 times for 3 diff studies
-        assert mantissa[:][0] == 4.865
+        snps_index = snp_dset.index(snp)
 
-        exp = snp1.get(EXP_DSET)
-        assert len(exp[:]) == 3  # loaded 3 times for 3 diff studies
-        assert exp[:][0] == -1
+        mantissa_dset = block1.get(MANTISSA_DSET)[:].tolist()
+        assert mantissa_dset[snps_index] == 4.865
 
-        studies = snp1.get(STUDY_DSET)
-        assert len(studies[:]) == 3
-        assert studies[:][0] == "PM001"
-        assert studies[:][1] == "PM002"
-        assert studies[:][2] == "PM003"
+        exp_dset = block1.get(EXP_DSET)[:]
+        assert exp_dset[snps_index] == -1
+
+        studies_dset = block1.get(STUDY_DSET)[:].tolist()
+        assert "PM001" in studies_dset
+        assert "PM002" in studies_dset
+        assert "PM003" in studies_dset
 
     def test_get_block_group_from_block_ceil(self):
         chr_group = self.f.get("1")
@@ -108,7 +118,7 @@ class TestFirstApproach(object):
         assert str(BLOCK_SIZE) in  block_group.name
 
     def test_check_group_dsets_shape(self):
-        snp_group = self.f.get("/1/1200000/rs185339560")
-        loader.expand_dataset(snp_group, EXP_DSET, -1)
+        block_group = self.f.get("/1/1200000")
+        loader.expand_dataset(block_group, EXP_DSET, [-1])
         with pytest.raises(AssertionError):
-            loader.check_group_dsets_shape(snp_group)
+            loader.check_group_dsets_shape(block_group)

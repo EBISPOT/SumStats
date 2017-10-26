@@ -1,0 +1,1 @@
+INTERVAL_DELIMITER = ':'

@@ -2,6 +2,7 @@ import os
 import sumstats.chr.loader as loader
 from tests.chr.test_constants import *
 
+
 class TestFirstApproach(object):
     h5file = ".testfile.h5"
     f = None
@@ -19,37 +20,30 @@ class TestFirstApproach(object):
         os.remove(self.h5file)
 
     def test_main(self):
-        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -query 1 -chr 10 -bl 1118275 -bu "
-                           "49180252 -pl 4.4 -pu 7 -study PM001")
+        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -chr 10 -bp 1118275:49180252 "
+                           "-pval 4.4:7 -study PM001")
         assert result == 0
 
-        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -query 1 -chr 10 -bl 1118275 -bu "
-                           "49180252")
-
+        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -chr 10 -bp 1118275:49180252 "
+                           "-pval :7 -study PM001")
         assert result == 0
 
-        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -query 1 -chr 10 -bl 1118275")
-
+        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -chr 10 -bp 1118275:49180252 "
+                           "-pval 4.4: -study PM001")
         assert result == 0
 
-        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -query 1 -chr 10 -bu 1118275")
-
-        assert result == 0
-
-        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -query 2 -snp rs185339560 -chr 10 "
-                           "-pl 4.4 -pu 7 -study PM001")
-        assert result == 0
-
-        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -query 2 -snp rs185339560 -chr 10 "
-                           "-bl 1118275")
+        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -chr 10 -bp 1118275:49180252")
 
         assert result == 0
 
-        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -query 2 -snp rs185339560 -chr 10 "
-                           "-bu 1118275")
+        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -chr 10 -bp :49180252")
 
         assert result == 0
 
-        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -query 1 -chr 10")
+        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -chr 10 -bp 1118275:")
+
+        assert result == 0
+
+        result = os.system("python3 sumstats/chr/searcher.py -h5file .testfile.h5 -chr 10")
 
         assert result == 0
