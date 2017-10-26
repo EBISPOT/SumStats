@@ -1,6 +1,6 @@
 import os
 import sumstats.snp.loader as loader
-import sumstats.snp.searcher as searcher
+from sumstats.snp.searcher import Search
 from sumstats.snp.constants import *
 from tests.snp.test_constants import *
 
@@ -27,8 +27,7 @@ class TestFirstApproach(object):
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
 
-        # open h5 file in read/write mode
-        self.f = h5py.File(self.h5file, mode="a")
+        self.query = Search(self.h5file)
 
     def teardown_method(self, method):
         os.remove(self.h5file)
@@ -36,7 +35,8 @@ class TestFirstApproach(object):
     def test_query_for_snp(self):
         snp = "rs7085086"
 
-        name_to_dataset = searcher.query_for_snp(self.f, snp)
+        self.query.query_for_snp(snp)
+        name_to_dataset = self.query.get_result()
 
         assert isinstance(name_to_dataset, dict)
 

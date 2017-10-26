@@ -27,40 +27,6 @@ import sumstats.utils.utils as utils
 from sumstats.utils.interval import *
 
 
-def query_for_chromosome(chr_group):
-    all_chr_block_groups = gu.get_all_groups_from_parent(chr_group)
-    print("block size", len(all_chr_block_groups))
-    return myutils.get_dsets_from_plethora_of_blocks(all_chr_block_groups)
-
-
-def query_for_block_range(chr_group, bp_interval):
-    filter_block_ceil = None
-    filter_block_floor = None
-    # for block size 100, if I say I want BP range 250 - 350 that means
-    # I need to search for block 300 (200-300) and block 400 (300-400)
-
-    from_block = myutils.get_block_number(bp_interval.floor())
-    to_block = myutils.get_block_number(bp_interval.ceil())
-
-    block_interval = IntInterval().set_tuple(from_block, to_block)
-    block_groups = myutils.get_block_groups_from_parent_within_block_range(chr_group, block_interval)
-
-    # we might need to filter further if they don't fit exactly
-    # e.g. we got the snps for range 200-400 now we need to filter 250-350
-    if block_interval.floor() != bp_interval.floor():
-        filter_block_floor = bp_interval.floor()
-    if block_interval.ceil() != bp_interval.ceil():
-        filter_block_ceil = bp_interval.ceil()
-
-    name_to_dataset = myutils.get_dsets_from_plethora_of_blocks(block_groups)
-    bp_mask = name_to_dataset[BP_DSET].interval_mask(filter_block_floor, filter_block_ceil)
-
-    if bp_mask is not None:
-        name_to_dataset = utils.filter_dictionary_by_mask(name_to_dataset, bp_mask)
-
-    return name_to_dataset
-
-
 def fill_in_block_limits(bp_interval):
     if bp_interval.floor() is None:
         return IntInterval().set_tuple(bp_interval.ceil(), bp_interval.ceil())
@@ -70,31 +36,84 @@ def fill_in_block_limits(bp_interval):
         return bp_interval
 
 
+class Search():
+    def __init__(self, h5file):
+        self.h5file = h5file
+        # Open the file with read permissions
+        self.f = h5py.File(h5file, 'r')
+        self.name_to_dset = {}
+
+    def query_for_chromosome(self, chromosome):
+        chr_group = gu.get_group_from_parent(self.f, chromosome)
+
+        all_chr_block_groups = gu.get_all_groups_from_parent(chr_group)
+        print("block size", len(all_chr_block_groups))
+        self.name_to_dset = myutils.get_dsets_from_plethora_of_blocks(all_chr_block_groups)
+
+    def query_chr_for_block_range(self, chromosome, bp_interval):
+
+        chr_group = gu.get_group_from_parent(self.f, chromosome)
+        bp_interval = fill_in_block_limits(bp_interval)
+
+        filter_block_ceil = None
+        filter_block_floor = None
+        # for block size 100, if I say I want BP range 250 - 350 that means
+        # I need to search for block 300 (200-300) and block 400 (300-400)
+
+        from_block = myutils.get_block_number(bp_interval.floor())
+        to_block = myutils.get_block_number(bp_interval.ceil())
+
+        block_interval = IntInterval().set_tuple(from_block, to_block)
+        block_groups = myutils.get_block_groups_from_parent_within_block_range(chr_group, block_interval)
+
+        # we might need to filter further if they don't fit exactly
+        # e.g. we got the snps for range 200-400 now we need to filter 250-350
+        if block_interval.floor() != bp_interval.floor():
+            filter_block_floor = bp_interval.floor()
+        if block_interval.ceil() != bp_interval.ceil():
+            filter_block_ceil = bp_interval.ceil()
+
+        name_to_dset = myutils.get_dsets_from_plethora_of_blocks(block_groups)
+        bp_mask = name_to_dset[BP_DSET].interval_mask(filter_block_floor, filter_block_ceil)
+
+        if bp_mask is not None:
+            name_to_dset = utils.filter_dictionary_by_mask(name_to_dset, bp_mask)
+
+        self.name_to_dset = name_to_dset
+
+    def create_restrictions(self, study, pval_interval):
+        restrictions = []
+        if study is not None:
+            restrictions.append(EqualityRestriction(study, self.name_to_dset[STUDY_DSET]))
+        if not pval_interval.is_set():
+            restrictions.append(
+                IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), self.name_to_dset[MANTISSA_DSET]))
+        return restrictions
+
+    def apply_restrictions(self, restrictions):
+        if restrictions:
+            self.name_to_dset = utils.filter_dsets_with_restrictions(self.name_to_dset, restrictions)
+
+    def get_result(self):
+        return self.name_to_dset
+
+
 def main():
     args = myutils.argument_parser()
 
     chr, bp_interval, study, pval_interval = myutils.convert_args(args)
 
-    # open h5 file in read mode
-    f = h5py.File(args.h5file, mode="r")
-
-    chr_group = gu.get_group_from_parent(f, chr)
+    search = Search(args.h5file)
 
     if bp_interval.is_set():
-        name_to_dataset = query_for_chromosome(chr_group)
+        search.query_for_chromosome(chr)
     else:
-        bp_interval = fill_in_block_limits(bp_interval)
+        search.query_chr_for_block_range(chr, bp_interval)
 
-        name_to_dataset = query_for_block_range(chr_group, bp_interval)
+    restrictions = search.create_restrictions(study=study, pval_interval=pval_interval)
+    search.apply_restrictions(restrictions)
 
-    restrictions = []
-    if study is not None:
-        restrictions.append(EqualityRestriction(study, name_to_dataset[STUDY_DSET]))
-    if not pval_interval.is_set():
-        restrictions.append(IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), name_to_dataset[MANTISSA_DSET]))
-
-    if restrictions:
-        name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
+    name_to_dataset = search.get_result()
 
     print("Number of snp's retrieved", len(name_to_dataset[SNP_DSET]))
     for dset in name_to_dataset:

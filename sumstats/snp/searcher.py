@@ -25,29 +25,49 @@ import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
 
 
-def query_for_snp(parent_group, snp):
-    snp_group = gu.get_group_from_parent(parent_group, snp)
-    return myutils.get_dsets_from_group(snp_group)
+class Search():
+
+    def __init__(self, h5file):
+        self.h5file = h5file
+        # Open the file with read permissions
+        self.f = h5py.File(h5file, 'r')
+        self.name_to_dset = {}
+
+    def query_for_snp(self, snp):
+        snp_group = gu.get_group_from_parent(self.f, snp)
+        self.name_to_dset = myutils.get_dsets_from_group(snp_group)
+
+    def create_restrictions(self, study, pval_interval):
+        restrictions = []
+        if study is not None:
+            restrictions.append(EqualityRestriction(study, self.name_to_dset[STUDY_DSET]))
+        if not pval_interval.is_set():
+            restrictions.append(
+                IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), self.name_to_dset[MANTISSA_DSET]))
+        return restrictions
+
+    def apply_restrictions(self, restrictions):
+        if restrictions:
+            self.name_to_dset = utils.filter_dsets_with_restrictions(self.name_to_dset, restrictions)
+
+    def get_result(self):
+        return self.name_to_dset
 
 
 def main():
     args = myutils.argument_parser()
     snp, study, pval_interval = myutils.convert_args(args)
 
-    # open h5 file in read mode
-    file = h5py.File(args.h5file, mode="r")
+    search = Search(args.h5file)
 
-    name_to_dataset = query_for_snp(file, snp)
+    search.query_for_snp(snp)
 
-    restrictions = []
-    if study is not None:
-        restrictions.append(EqualityRestriction(study, name_to_dataset[STUDY_DSET]))
-    if not pval_interval.is_set():
-        restrictions.append(IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), name_to_dataset[MANTISSA_DSET]))
+    restrictions = search.create_restrictions(study=study, pval_interval=pval_interval)
+    search.apply_restrictions(restrictions)
 
-    if restrictions:
-        name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
+    name_to_dataset = search.get_result()
 
+    print("Number of studies retrieved", len(name_to_dataset[STUDY_DSET]))
     for dset in name_to_dataset:
         print(dset)
         print(name_to_dataset[dset][:10])

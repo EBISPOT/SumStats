@@ -30,16 +30,39 @@ class Search():
         self.h5file = h5file
         # Open the file with read permissions
         self.f = h5py.File(h5file, 'r')
+        self.name_to_dset = {}
 
     def query_for_trait(self, trait):
         trait_group = gu.get_group_from_parent(self.f, trait)
-        return myutils.get_dsets_from_trait_group(trait_group)
+        self.name_to_dset = myutils.get_dsets_from_trait_group(trait_group)
 
     def query_for_study(self, trait, study):
         trait_group = gu.get_group_from_parent(self.f, trait)
         study_group = gu.get_group_from_parent(trait_group, study)
 
-        return myutils.get_dsets_from_group(study, study_group)
+        self.name_to_dset = myutils.get_dsets_from_group(study, study_group)
+
+    def create_restrictions(self, snp, chr, pval_interval, bp_interval):
+        restrictions = []
+
+        if snp is not None:
+            restrictions.append(EqualityRestriction(snp, self.name_to_dset[SNP_DSET]))
+        if chr is not None:
+            restrictions.append(EqualityRestriction(chr, self.name_to_dset[CHR_DSET]))
+        if not pval_interval.is_set():
+            restrictions.append(
+                IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), self.name_to_dset[MANTISSA_DSET]))
+        if not bp_interval.is_set():
+            restrictions.append(IntervalRestriction(bp_interval.floor(), bp_interval.ceil(), self.name_to_dset[BP_DSET]))
+
+        return restrictions
+
+    def apply_restrictions(self, restrictions):
+        if restrictions:
+            self.name_to_dset = utils.filter_dsets_with_restrictions(self.name_to_dset, restrictions)
+
+    def get_result(self):
+        return self.name_to_dset
 
 
 def main():
@@ -49,22 +72,15 @@ def main():
     search = Search(args.h5file)
 
     if study is None:
-        name_to_dataset = search.query_for_trait(trait)
+        search.query_for_trait(trait)
     else:
-        name_to_dataset = search.query_for_study(trait, study)
+        search.query_for_study(trait, study)
 
-    restrictions = []
-    if snp is not None:
-        restrictions.append(EqualityRestriction(snp, name_to_dataset[SNP_DSET]))
-    if chr is not None:
-        restrictions.append(EqualityRestriction(chr, name_to_dataset[CHR_DSET]))
-    if not pval_interval.is_set():
-        restrictions.append(IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), name_to_dataset[MANTISSA_DSET]))
-    if not bp_interval.is_set():
-        restrictions.append(IntervalRestriction(bp_interval.floor(), bp_interval.ceil(), name_to_dataset[BP_DSET]))
+    restrictions = search.create_restrictions(snp=snp, chr=chr, pval_interval=pval_interval, bp_interval=bp_interval)
+    search.apply_restrictions(restrictions)
 
-    if restrictions:
-        name_to_dataset = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
+    name_to_dataset = search.get_result()
+
     print("Number of snp's retrieved", len(name_to_dataset[SNP_DSET]))
     for dset in name_to_dataset:
         print(dset)

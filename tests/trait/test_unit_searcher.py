@@ -37,7 +37,9 @@ class TestFirstApproach(object):
         os.remove(self.h5file)
 
     def test_query_for_trait(self):
-        name_to_dataset = self.query.query_for_trait("Trait1")
+        self.query.query_for_trait("Trait1")
+        name_to_dataset = self.query.get_result()
+
         for dset_name in TO_STORE_DSETS:
             assert len(name_to_dataset[dset_name]) == 8
 
@@ -45,7 +47,9 @@ class TestFirstApproach(object):
 
         assert study_set.__len__() == 2
 
-        name_to_dataset = self.query.query_for_trait("Trait2")
+        self.query.query_for_trait("Trait2")
+        name_to_dataset = self.query.get_result()
+
         for dset_name in TO_STORE_DSETS:
             assert len(name_to_dataset[dset_name]) == 4
 
@@ -54,7 +58,9 @@ class TestFirstApproach(object):
         assert study_set.__len__() == 1
 
     def test_query_for_study(self):
-        name_to_dataset = self.query.query_for_study("Trait1", "PM001")
+        self.query.query_for_study("Trait1", "PM001")
+
+        name_to_dataset = self.query.get_result()
 
         for dset_name in TO_STORE_DSETS:
             assert len(name_to_dataset[dset_name]) == 4
@@ -64,7 +70,9 @@ class TestFirstApproach(object):
         assert study_set.__len__() == 1
         assert "PM001" in study_set.pop()
 
-        name_to_dataset = self.query.query_for_study("Trait1", "PM001")
+        self.query.query_for_study("Trait1", "PM001")
+        name_to_dataset = self.query.get_result()
+
         for dset_name in TO_STORE_DSETS:
             assert len(name_to_dataset[dset_name]) == 4
 
