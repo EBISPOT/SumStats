@@ -3,7 +3,7 @@ import sumstats.chr.loader as loader
 from tests.chr.test_constants import *
 
 
-class TestFirstApproach(object):
+class TestSearcher(object):
     h5file = ".testfile.h5"
     f = None
 

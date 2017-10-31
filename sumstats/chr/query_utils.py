@@ -2,11 +2,9 @@
 Utils useful for querying
 """
 
-import argparse
 from sumstats.chr.constants import *
 from sumstats.utils.utils import *
 import sumstats.utils.group as gu
-from sumstats.utils.interval import *
 
 
 def get_block_groups_from_parent_within_block_range(chr_group, bp_interval):
@@ -61,26 +59,3 @@ def get_block_number(bp_position):
             return bp_position
         else:
             return bp_position - (bp_position % BLOCK_SIZE) + BLOCK_SIZE
-
-
-def argument_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated', required=True)
-    parser.add_argument('-chr', help='The chromosome I am looking for', required=True)
-    parser.add_argument('-bp', help='Lower and upper limits of base pair location: -bp floor:ceil')
-    parser.add_argument('-study', help='Filter results for a specific study')
-    parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')
-    return parser.parse_args()
-
-
-def convert_args(args):
-    chr = int(args.chr)
-    study = args.study
-
-    pval_interval = args.pval
-    pval_interval = FloatInterval().set_string_tuple(pval_interval)
-
-    bp_interval = args.bp
-    bp_interval = IntInterval().set_string_tuple(bp_interval)
-
-    return chr, bp_interval, study, pval_interval

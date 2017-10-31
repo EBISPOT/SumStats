@@ -1,45 +1,53 @@
-import yaml
 import sumstats.trait.loader as trait_loader
 import sumstats.chr.loader as chr_loader
 import sumstats.snp.loader as snp_loader
-import glob
-import argparse
+import sumstats.utils.argument_utils as au
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-config', help='config file location', required=False)
-args = parser.parse_args()
-if args.config is None:
-    print("Setting default location for configuration file")
-    config_location = "/application/config"
-else:
-    config_location = args.config
+args = au.load_argument_parser()
 
-config_files = glob.glob(config_location + "/config*.yml")
-print (config_files)
-assert len(config_files) == 1, "We should have exactly one config file in the config directory!"
+loader_type = args.loader
+if loader_type is None:
+    raise ValueError("You need to specify a loader: [trait|chr|snp]")
 
-config_file = config_files[0]
-with open(config_file, 'r') as ymlfile:
-    cfg = yaml.load(ymlfile)
+tsv = args.tsv
+trait = args.trait
+study = args.study
+output_path = args.output_path
+input_path = args.input_path
+chr = args.chr
 
+if output_path is None:
+    print("Setting default location for output files")
+    output_path = "."
 
-loader_type = cfg["loader"]
-tsv = cfg["tsv"]
-output = cfg["h5file"]
-trait = cfg["trait"]
-study = cfg["study"]
+if input_path is None:
+    print("Setting default location for input files")
+    output_path = "."
+
+output_path = output_path + "/output"
+input_path = input_path + "/toload"
+to_load = input_path + "/" + tsv
 
 if loader_type == "trait":
-    loader = trait_loader.Loader(tsv, output, study, trait)
+    to_store = output_path + "/bytrait/file_" + trait + ".h5"
+    loader = trait_loader.Loader(to_load, to_store, study, trait)
     loader.load()
     print("Load complete!")
 
 if loader_type == "chr":
-    loader = chr_loader.Loader(tsv, output, study)
+    if chr is None:
+        raise ValueError("You need to specify the chromosome that is being loaded with the chr loader!")
+
+    to_store = output_path + "/bychr/file_" + str(chr) + ".h5"
+    loader = chr_loader.Loader(to_load, to_store, study)
     loader.load()
     print("Load complete!")
 
 if loader_type == "snp":
-    loader = snp_loader.Loader(tsv, output, study)
+    if chr is None:
+        raise ValueError("You need to specify the chromosome that the SNP belongs to with the snp loader!")
+
+    to_store = output_path + "/bysnp/file_" + str(chr) + ".h5"
+    loader = snp_loader.Loader(to_load, to_store, study)
     loader.load()
     print("Load complete!")

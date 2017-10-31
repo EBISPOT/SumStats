@@ -5,9 +5,10 @@ import pytest
 from sumstats.utils.restrictions import *
 import sumstats.utils.utils as utils
 from sumstats.utils.dataset import Dataset
+from sumstats.utils.interval import *
 
 
-class TestQueryUtils(object):
+class TestUnitUtils(object):
     h5file = ".testfile.h5"
     f = None
 
@@ -172,3 +173,4 @@ class TestQueryUtils(object):
 
         assert isinstance(name_to_dsets['dset2'], Dataset)
         assert len(name_to_dsets['dset2']) == 0
+

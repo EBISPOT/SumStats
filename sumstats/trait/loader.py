@@ -14,14 +14,13 @@
 
 """
 
-
-import argparse
 import time
 from sumstats.utils import utils
 import pandas as pd
 from sumstats.trait.constants import *
 import sumstats.utils.group as gu
 import numpy as np
+import argparse
 
 
 def create_trait_group(file, trait):
@@ -54,6 +53,8 @@ class Loader():
         self.h5file = h5file
         self.study = study
         self.trait = trait
+
+        assert trait is not None, "You need to specify a trait with the trait loader!"
 
         if tsv is not None:
             name_to_list = {}

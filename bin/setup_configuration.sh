@@ -20,19 +20,21 @@ base=$(pwd);
 echo "base: $base"
 filename=$($base/bin/get_filename.sh $file)
 
+# create input and output directories if they don't exist
+mkdir -p files/toload
+mkdir -p files/output/bychr
+mkdir -p files/output/bytrait
+mkdir -p files/output/bysnp
 
 # takes the file given as input and creates a clean one with "_clean" appended to it
 echo "FILE: $file"
 $base/bin/clean_input.sh "$file"
 # move it to the correct location
 mv "$file" "$file"_loaded
-mv "$file"_clean $base/files/toload/"$file"
+mv "$file"_clean $base/toload/"$file"
 
 # split up the script into one per chromosome
 filename="$filename"
 $base/bin/split_by_chr.sh "$filename"
 $base/bin/append_header.sh "$filename"
 
-$base/bin/create_chr_configuration.sh $filename
-$base/bin/create_trait_configuration.sh $filename
-$base/bin/create_snp_configuration.sh $filename

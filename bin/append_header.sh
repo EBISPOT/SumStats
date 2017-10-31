@@ -2,7 +2,7 @@
 
 file=$1
 base=$(pwd);
-cd $base/files/toload
+cd $base/toload
 
 for chr in {1..23}
 do

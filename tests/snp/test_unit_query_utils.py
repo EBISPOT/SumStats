@@ -6,7 +6,7 @@ from sumstats.snp.constants import *
 from tests.snp.test_constants import *
 
 
-class TestFirstApproach(object):
+class TestUnitQueryUtils(object):
     h5file = ".testfile.h5"
     f = None
 

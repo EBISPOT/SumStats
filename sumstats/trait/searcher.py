@@ -23,6 +23,7 @@ from sumstats.utils.restrictions import *
 from sumstats.trait.constants import *
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
+import sumstats.utils.argument_utils as au
 
 
 class Search():
@@ -42,22 +43,8 @@ class Search():
 
         self.name_to_dset = myutils.get_dsets_from_group(study, study_group)
 
-    def create_restrictions(self, snp, chr, pval_interval, bp_interval):
-        restrictions = []
-
-        if snp is not None:
-            restrictions.append(EqualityRestriction(snp, self.name_to_dset[SNP_DSET]))
-        if chr is not None:
-            restrictions.append(EqualityRestriction(chr, self.name_to_dset[CHR_DSET]))
-        if not pval_interval.is_set():
-            restrictions.append(
-                IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), self.name_to_dset[MANTISSA_DSET]))
-        if not bp_interval.is_set():
-            restrictions.append(IntervalRestriction(bp_interval.floor(), bp_interval.ceil(), self.name_to_dset[BP_DSET]))
-
-        return restrictions
-
-    def apply_restrictions(self, restrictions):
+    def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
+        restrictions = utils.create_restrictions(self.name_to_dset, snp=snp, study=study, chr=chr, pval_interval=pval_interval, bp_interval=bp_interval)
         if restrictions:
             self.name_to_dset = utils.filter_dsets_with_restrictions(self.name_to_dset, restrictions)
 
@@ -66,8 +53,8 @@ class Search():
 
 
 def main():
-    args = myutils.argument_parser()
-    trait, study, snp, chr, pval_interval, bp_interval = myutils.convert_args(args)
+    args = au.search_argument_parser()
+    trait, study, chr, bp_interval, snp, pval_interval = au.convert_search_args(args)
 
     search = Search(args.h5file)
 
@@ -76,8 +63,7 @@ def main():
     else:
         search.query_for_study(trait, study)
 
-    restrictions = search.create_restrictions(snp=snp, chr=chr, pval_interval=pval_interval, bp_interval=bp_interval)
-    search.apply_restrictions(restrictions)
+    search.apply_restrictions(snp=snp, chr=chr, pval_interval=pval_interval, bp_interval=bp_interval)
 
     name_to_dataset = search.get_result()
 

@@ -11,12 +11,6 @@ class FloatInterval():
         if upper_limit is not None:
             upper_limit = float(upper_limit)
 
-        if _limits_are_none(lower_limit, upper_limit):
-            is_none = True
-        else:
-            is_none = False
-
-        self.is_none = is_none
         self.lower_limit = lower_limit
         self.upper_limit = upper_limit
 
@@ -24,16 +18,13 @@ class FloatInterval():
 
     def set_string_tuple(self, interval_string):
         if interval_string is not None:
+            _check_string_validity(interval_string)
             lower_limit = _get_lower_limit(interval_string)
             upper_limit = _get_upper_limit(interval_string)
         else:
-            lower_limit = None
-            upper_limit = None
+            return None
 
         return self.set_tuple(lower_limit, upper_limit)
-
-    def is_set(self):
-        return self.is_none
 
     def floor(self):
         return self.lower_limit
@@ -52,12 +43,6 @@ class IntInterval():
         if upper_limit is not None:
             upper_limit = int(upper_limit)
 
-        if _limits_are_none(lower_limit, upper_limit):
-            is_none = True
-        else:
-            is_none = False
-
-        self.is_none = is_none
         self.lower_limit = lower_limit
         self.upper_limit = upper_limit
 
@@ -65,22 +50,24 @@ class IntInterval():
 
     def set_string_tuple(self, interval_string):
         if interval_string is not None:
+            _check_string_validity(interval_string)
             lower_limit = _get_lower_limit(interval_string)
             upper_limit = _get_upper_limit(interval_string)
         else:
-            lower_limit = None
-            upper_limit = None
+            return None
 
         return self.set_tuple(lower_limit, upper_limit)
-
-    def is_set(self):
-        return self.is_none
 
     def floor(self):
         return self.lower_limit
 
     def ceil(self):
         return self.upper_limit
+
+
+def _check_string_validity(interval_string):
+    if ":" not in interval_string:
+        raise ValueError("Limits need have a colon \":\" even if one limit is missing. e.g. 2: ")
 
 
 def _get_lower_limit(interval_string):
@@ -95,7 +82,3 @@ def _get_upper_limit(interval_string):
     if upper_limit is '':
         upper_limit = None
     return upper_limit
-
-
-def _limits_are_none(lower_limit, upper_limit):
-    return lower_limit is None and upper_limit is None

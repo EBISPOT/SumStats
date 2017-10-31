@@ -7,7 +7,7 @@ from tests.chr.test_constants import *
 from sumstats.utils.interval import *
 
 
-class TestFirstApproach(object):
+class TestUnitQueryUtils(object):
     h5file = ".testfile.h5"
     f = None
 

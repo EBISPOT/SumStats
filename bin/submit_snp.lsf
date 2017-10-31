@@ -1,0 +1,17 @@
+#!/bin/bash
+
+file=$1
+base=$(pwd);
+study=$(echo "$file" | cut -d"-" -f2)
+trait=$(echo "$file" | cut -d"-" -f3)
+
+for i in {1..23}
+do
+    # check to see if it exists
+    if [ -s $base/files/toload/chr"$i"_"$file" ];
+    then
+
+        echo "bsub -o $base/snp_output"$i".txt -e $base/snp_error"$i".txt -a 'docker('$base'/sumstatscdf.yml)'  "python sumstats/load.py -tsv chr"$i"_"$file" -study $study -loader snp -chr $i -input_path /application/files"" >> submitted.txt
+        bsub -o $base/snp_output"$i".txt -e $base/snp_error"$i".txt -a 'docker('$base'/sumstatscdf.yml)' "python sumstats/load.py -tsv chr"$i"_"$file" -study $study -loader snp -chr $i -input_path /application/files" >> jobids.txt 
+    fi
+done

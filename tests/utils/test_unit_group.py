@@ -8,7 +8,7 @@ import sumstats.utils.utils as utils
 from sumstats.utils.dataset import Dataset
 
 
-class TestQueryUtils(object):
+class TestUnitGroup(object):
     h5file = ".testfile.h5"
     f = None
 

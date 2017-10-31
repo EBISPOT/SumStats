@@ -4,7 +4,7 @@ import pytest
 from sumstats.utils.dataset import *
 
 
-class TestQueryUtils(object):
+class TestUnitDataset(object):
     h5file = ".testfile.h5"
     f = None
 

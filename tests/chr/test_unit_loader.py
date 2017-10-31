@@ -6,7 +6,7 @@ from sumstats.chr.constants import *
 from sumstats.utils.dataset import Dataset
 
 
-class TestFirstApproach(object):
+class TestUnitLoader(object):
     h5file = ".testfile.h5"
     f = None
 

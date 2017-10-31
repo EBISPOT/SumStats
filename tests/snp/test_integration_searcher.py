@@ -3,7 +3,7 @@ import sumstats.snp.loader as loader
 from tests.snp.test_constants import *
 
 
-class TestFirstApproach(object):
+class TestSearcher(object):
     h5file = ".testfile.h5"
     f = None
 

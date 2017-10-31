@@ -2,7 +2,7 @@ import sumstats.utils.pval as pu
 import pytest
 
 
-class TestQueryUtils(object):
+class TestUnitPval(object):
     def test__num_of_zeros_preceding(self):
         str_number = "1"
         assert pu._num_of_zeros_preceding(str_number) == 0

@@ -4,6 +4,8 @@ General methods used across the modules
 
 import sumstats.utils.pval as pu
 from sumstats.utils.dataset import *
+from sumstats.utils.restrictions import *
+from sumstats.utils.constants import *
 
 
 def filter_dictionary_by_mask(dictionary, mask):
@@ -51,4 +53,22 @@ def create_datasets_from_lists(name_to_dsets):
 
 def create_dictionary_of_empty_dsets(names):
     return {name : Dataset([]) for name in names}
+
+
+def create_restrictions(name_to_dset, snp, study, chr, pval_interval, bp_interval):
+    restrictions = []
+
+    if snp is not None:
+        restrictions.append(EqualityRestriction(snp, name_to_dset[SNP_DSET]))
+    if study is not None:
+        restrictions.append(EqualityRestriction(study, name_to_dset[STUDY_DSET]))
+    if chr is not None:
+        restrictions.append(EqualityRestriction(chr, name_to_dset[CHR_DSET]))
+    if pval_interval is not None:
+        restrictions.append(
+            IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), name_to_dset[MANTISSA_DSET]))
+    if bp_interval is not None:
+        restrictions.append(IntervalRestriction(bp_interval.floor(), bp_interval.ceil(), name_to_dset[BP_DSET]))
+
+    return restrictions
 

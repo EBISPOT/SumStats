@@ -6,7 +6,7 @@ from tests.trait.test_constants import *
 from sumstats.trait.constants import *
 
 
-class TestFirstApproach(object):
+class TestUnitQueryUtils(object):
     h5file = ".testfile.h5"
     f = None
 

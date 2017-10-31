@@ -6,7 +6,7 @@ from sumstats.chr.constants import *
 from tests.chr.test_constants import *
 
 
-class TestFirstApproach(object):
+class TestLoader(object):
     h5file = ".testfile.h5"
     f = None
 

@@ -20,6 +20,6 @@ filename="$filename"
 bsub -K -o $base/output.txt -e $base/error.txt $base/bin/split_by_chr.sh "$filename"
 bsub -K -o $base/output.txt -e $base/error.txt $base/bin/append_header.sh "$filename"
 
-bin/create_chr_configuration_and_submit.sh $filename
-bin/create_trait_configuration_and_submit.sh $filename
-bin/create_snp_configuration_and_submit.sh $filename
+bin/submit_chr.sh $filename
+bin/submit_trait.sh $filename
+bin/submit_snp.sh $filename

@@ -22,3 +22,7 @@ __pycache__
 htmlcov
 # test folder
 tests
+
+# bin and templates
+bin
+templates

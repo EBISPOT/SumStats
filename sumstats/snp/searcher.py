@@ -23,6 +23,7 @@ from sumstats.utils.restrictions import *
 from sumstats.snp.constants import *
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
+import sumstats.utils.argument_utils as au
 
 
 class Search():
@@ -33,20 +34,15 @@ class Search():
         self.f = h5py.File(h5file, 'r')
         self.name_to_dset = {}
 
+    def snp_in_file(self, snp):
+        return snp in self.f
+
     def query_for_snp(self, snp):
         snp_group = gu.get_group_from_parent(self.f, snp)
         self.name_to_dset = myutils.get_dsets_from_group(snp_group)
 
-    def create_restrictions(self, study, pval_interval):
-        restrictions = []
-        if study is not None:
-            restrictions.append(EqualityRestriction(study, self.name_to_dset[STUDY_DSET]))
-        if not pval_interval.is_set():
-            restrictions.append(
-                IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), self.name_to_dset[MANTISSA_DSET]))
-        return restrictions
-
-    def apply_restrictions(self, restrictions):
+    def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
+        restrictions = utils.create_restrictions(self.name_to_dset, snp=snp, study=study, chr=chr, pval_interval=pval_interval, bp_interval=bp_interval)
         if restrictions:
             self.name_to_dset = utils.filter_dsets_with_restrictions(self.name_to_dset, restrictions)
 
@@ -55,15 +51,14 @@ class Search():
 
 
 def main():
-    args = myutils.argument_parser()
-    snp, study, pval_interval = myutils.convert_args(args)
+    args = au.search_argument_parser()
+    trait, study, chr, bp_interval, snp, pval_interval = au.convert_search_args(args)
 
     search = Search(args.h5file)
 
     search.query_for_snp(snp)
 
-    restrictions = search.create_restrictions(study=study, pval_interval=pval_interval)
-    search.apply_restrictions(restrictions)
+    search.apply_restrictions(study=study, pval_interval=pval_interval)
 
     name_to_dataset = search.get_result()
 
