@@ -44,7 +44,19 @@ class Search():
         self.name_to_dset = myutils.get_dsets_from_group(study, study_group)
 
     def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
-        restrictions = utils.create_restrictions(self.name_to_dset, snp=snp, study=study, chr=chr, pval_interval=pval_interval, bp_interval=bp_interval)
+        restrict_dict = {}
+        if SNP_DSET in self.name_to_dset:
+            restrict_dict[SNP_DSET] = snp
+        if STUDY_DSET in self.name_to_dset:
+            restrict_dict[STUDY_DSET] = study
+        if CHR_DSET in self.name_to_dset:
+            restrict_dict[CHR_DSET] = chr
+        if MANTISSA_DSET in self.name_to_dset:
+            restrict_dict[MANTISSA_DSET] = pval_interval
+        if BP_DSET in self.name_to_dset:
+            restrict_dict[BP_DSET] = bp_interval
+
+        restrictions = utils.create_restrictions(self.name_to_dset, restrict_dict)
         if restrictions:
             self.name_to_dset = utils.filter_dsets_with_restrictions(self.name_to_dset, restrictions)
 

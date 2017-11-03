@@ -6,6 +6,7 @@ import sumstats.utils.pval as pu
 from sumstats.utils.dataset import *
 from sumstats.utils.restrictions import *
 from sumstats.utils.constants import *
+from sumstats.utils.interval import *
 
 
 def filter_dictionary_by_mask(dictionary, mask):
@@ -55,20 +56,22 @@ def create_dictionary_of_empty_dsets(names):
     return {name : Dataset([]) for name in names}
 
 
-def create_restrictions(name_to_dset, snp, study, chr, pval_interval, bp_interval):
+def create_restrictions(name_to_dset, restrict_dictionary):
     restrictions = []
 
-    if snp is not None:
-        restrictions.append(EqualityRestriction(snp, name_to_dset[SNP_DSET]))
-    if study is not None:
-        restrictions.append(EqualityRestriction(study, name_to_dset[STUDY_DSET]))
-    if chr is not None:
-        restrictions.append(EqualityRestriction(chr, name_to_dset[CHR_DSET]))
-    if pval_interval is not None:
-        restrictions.append(
-            IntervalRestriction(pval_interval.floor(), pval_interval.ceil(), name_to_dset[MANTISSA_DSET]))
-    if bp_interval is not None:
-        restrictions.append(IntervalRestriction(bp_interval.floor(), bp_interval.ceil(), name_to_dset[BP_DSET]))
+    for dset_name, restriction in restrict_dictionary.items():
+        if restriction is not None:
+            restrictions.append(get_restriction(restriction, name_to_dset[dset_name]))
 
     return restrictions
 
+
+def get_restriction(restriction, dataset):
+    if is_interval_value(restriction):
+        return IntervalRestriction(restriction.floor(), restriction.ceil(), dataset)
+    else:
+        return EqualityRestriction(restriction, dataset)
+
+
+def is_interval_value(value):
+    return isinstance(value, FloatInterval) or isinstance(value, IntInterval)
