@@ -100,6 +100,7 @@ class Loader():
     def __init__(self, tsv, h5file, study, dict_of_data=None):
         self.h5file = h5file
         self.study = study
+        assert self.study is not None, "You need to specify a study accession"
 
         if tsv is not None:
             name_to_list = {}

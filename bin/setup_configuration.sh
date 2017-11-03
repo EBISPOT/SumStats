@@ -11,8 +11,6 @@
 #       <parent>/files/toload directory each file containing the information
 #       for its correspoding chromosome
 # (e) append the same header to all the eligible files to be loaded
-# (f) create a config file in the <parent> directory, one for
-#       the file, and one for each subfile to be loaded
 
 
 file=$1
@@ -31,7 +29,7 @@ echo "FILE: $file"
 $base/bin/clean_input.sh "$file"
 # move it to the correct location
 mv "$file" "$file"_loaded
-mv "$file"_clean $base/toload/"$file"
+mv "$file"_clean $base/files/toload/"$file"
 
 # split up the script into one per chromosome
 filename="$filename"

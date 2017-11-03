@@ -7,5 +7,5 @@ study=$(echo "$file" | cut -d"-" -f2)
 trait=$(echo "$file" | cut -d"-" -f3)
 cd $base
 
-echo "bsub -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/sumstatscdf.yml)' python sumstats/load.py -tsv $filename -study $study -trait $trait -loader trait -input_path /application/files" >> submitted.txt
-bsub -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/trait_sumstatscdf.yml)' "python sumstats/load.py -tsv $filename -study $study -trait $trait -loader trait -input_path /application/files" >> jobids.txt
+echo "bsub -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv $filename -study $study -trait $trait -loader trait" >> submitted.txt
+bsub -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/trait_sumstatscdf.yml)' "gwas-load -tsv $filename -study $study -trait $trait -loader trait" >> jobids.txt

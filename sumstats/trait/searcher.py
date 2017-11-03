@@ -19,7 +19,6 @@
 """
 
 import sumstats.trait.query_utils as myutils
-from sumstats.utils.restrictions import *
 from sumstats.trait.constants import *
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
@@ -62,6 +61,20 @@ class Search():
 
     def get_result(self):
         return self.name_to_dset
+
+    def list_traits(self):
+        trait_groups = gu.get_all_groups_from_parent(self.f)
+        return [trait_group.name.strip("/") for trait_group in trait_groups]
+
+    def list_studies(self):
+        trait_groups = gu.get_all_groups_from_parent(self.f)
+        study_groups = []
+
+        for trait_group in trait_groups:
+            study_groups.extend(gu.get_all_groups_from_parent(trait_group))
+        return [study_group.name.strip("/").replace("/",": ") for study_group in study_groups]
+
+
 
 
 def main():

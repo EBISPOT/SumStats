@@ -15,6 +15,9 @@ env.*
 /tmp/*
 *.tsv
 *.h5
+*.tar
+*.gz
+*.tar.gz
 # Python specific files
 .cache
 __pycache__

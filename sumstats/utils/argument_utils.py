@@ -4,7 +4,6 @@ from sumstats.utils.interval import *
 
 def search_argument_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-config', help='config file location')
     parser.add_argument('-path', help='The location of the h5files')
     parser.add_argument('-h5file', help='The name of the HDF5 file')
     parser.add_argument('-trait', help='The trait I am looking for')

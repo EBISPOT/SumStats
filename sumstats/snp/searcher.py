@@ -19,7 +19,6 @@
 """
 
 import sumstats.snp.query_utils as myutils
-from sumstats.utils.restrictions import *
 from sumstats.snp.constants import *
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
