@@ -64,9 +64,3 @@ class TestLoader(object):
         assert studies[:][0] == "PM001"
         assert studies[:][1] == "PM002"
         assert studies[:][2] == "PM003"
-
-    def test_check_group_dsets_shape(self):
-        snp_group = self.f.get("/rs185339560")
-        loader.expand_dataset(snp_group, EXP_DSET, -1)
-        with pytest.raises(AssertionError):
-            loader.check_group_dsets_shape(snp_group)

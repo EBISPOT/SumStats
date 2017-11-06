@@ -80,20 +80,10 @@ def block_limit_not_reached_max(block_ceil, max_bp):
 
 def save_info_in_block_group(block_group, name_to_dataset):
 
-    check_group_dsets_shape(block_group)
+    gu.check_group_dsets_shape(block_group, TO_STORE_DSETS)
+    gu.check_element_not_loaded_in_dset(block_group, name_to_dataset[STUDY_DSET][0], STUDY_DSET)
     for dset_name in TO_STORE_DSETS:
         expand_dataset(block_group, dset_name, name_to_dataset[dset_name])
-
-
-def check_group_dsets_shape(group):
-    datasets = [group.get(dset_name) for dset_name in TO_STORE_DSETS]
-    first_dataset = datasets.pop()
-    if first_dataset is None:
-        return
-    length = first_dataset.shape[0]
-    for dset in datasets:
-        assert dset.shape[0] == length, \
-            "Group has datasets with inconsistent shape! " + group.name
 
 
 class Loader():
@@ -127,17 +117,19 @@ class Loader():
 
         self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
 
-    def load(self):
         # Open the file with read/write permissions and create if it doesn't exist
-        f = h5py.File(self.h5file, 'a')
+        self.f = h5py.File(self.h5file, 'a')
+
+    def load(self):
         name_to_dataset = self.name_to_dataset
 
         unique_chromosomes_in_file = set(name_to_dataset[CHR_DSET])
         chromosome_array = np.array([x for x in unique_chromosomes_in_file])
-        create_groups_in_parent(f, chromosome_array)
+        create_groups_in_parent(self.f, chromosome_array)
 
         for chromosome in chromosome_array:
-            chr_group = gu.get_group_from_parent(f, chromosome)
+            print("Loading chromosome:", chromosome)
+            chr_group = gu.get_group_from_parent(self.f, chromosome)
 
             dsets_sliced_by_chr = slice_datasets_where_chromosome(chromosome, name_to_dataset)
 

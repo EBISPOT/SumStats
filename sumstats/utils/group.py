@@ -23,6 +23,35 @@ def get_dset(group, dset_name):
     return dset
 
 
+def check_group_dsets_shape(group, TO_STORE_DSETS):
+    dsets = [group.get(dset_name) for dset_name in TO_STORE_DSETS]
+    first_dset = dsets.pop()
+    if first_dset is None:
+        _assert_all_dsets_are_none(dsets)
+    else:
+        _assert_all_dsets_have_same_shape(first_dset, dsets)
+
+
+def _assert_all_dsets_are_none(datasets):
+    for dataset in datasets:
+        assert dataset is None, "Group has datasets with inconsistent shape!"
+
+
+def _assert_all_dsets_have_same_shape(first_dset, dsets):
+    length = first_dset.shape[0]
+    for dset in dsets:
+        assert dset.shape[0] == length, \
+            "Group has datasets with inconsistent shape!"
+
+
+def check_element_not_loaded_in_dset(group, element, dset_name):
+    dataset = group.get(dset_name)
+    if dataset is None:
+        return
+    if element in dataset:
+        raise AssertionError(element + " already exists in " + dset_name + "!")
+
+
 def extend_dsets_for_group(group, name_to_dataset):
     for name, dataset in name_to_dataset.items():
         dataset.extend(_get_dset_from_group(name, group))

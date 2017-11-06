@@ -60,6 +60,56 @@ class TestUnitGroup(object):
         dataset = gu.get_dset(group, "dset1")
         assert dataset is None
 
+    def test_check_group_dsets_shape(self):
+        group = self.f.create_group("/rs185339560")
+        study_dset = np.array(['study1'], dtype=h5py.special_dtype(vlen=str))
+        mantissa_dset = np.array([0.1, 0.2], dtype=float)
+
+        group.create_dataset(name='study', data=study_dset, maxshape=(None,))
+        group.create_dataset(name='mantissa', data=mantissa_dset, maxshape=(None,))
+        TO_STORE_DSETS = ['study', 'mantissa']
+
+        with pytest.raises(AssertionError):
+            gu.check_group_dsets_shape(group, TO_STORE_DSETS)
+
+    def test_check_group_dsets_shape_one_dset_empty(self):
+        group = self.f.create_group("/rs185339560")
+        study_dset = np.array(['study1'], dtype=h5py.special_dtype(vlen=str))
+
+        group.create_dataset(name='study', data=study_dset, maxshape=(None,))
+        TO_STORE_DSETS = ['study', 'mantissa']
+
+        with pytest.raises(AssertionError):
+            gu.check_group_dsets_shape(group, TO_STORE_DSETS)
+
+    def test_check_group_dsets_shape_first_load(self):
+        group = self.f.create_group("/rs185339560")
+        TO_STORE_DSETS = ['study', 'mantissa']
+        gu.check_group_dsets_shape(group, TO_STORE_DSETS)
+
+    def test_check_group_dsets_shape_all_ok(self):
+        group = self.f.create_group("/rs185339560")
+        study_dset = np.array(['study1', 'study2'], dtype=h5py.special_dtype(vlen=str))
+        mantissa_dset = np.array([0.1, 0.2], dtype=float)
+
+        group.create_dataset(name='study', data=study_dset, maxshape=(None,))
+        group.create_dataset(name='mantissa', data=mantissa_dset, maxshape=(None,))
+        TO_STORE_DSETS = ['study', 'mantissa']
+
+        gu.check_group_dsets_shape(group, TO_STORE_DSETS)
+
+    def test_check_element_not_loaded_in_dset(self):
+        group = self.f.create_group("/rs185339560")
+        study_dset = np.array(['study1', 'study2'], dtype=h5py.special_dtype(vlen=str))
+        dset_name = 'study'
+        group.create_dataset(name=dset_name, data=study_dset, maxshape=(None,))
+        with pytest.raises(AssertionError):
+            gu.check_element_not_loaded_in_dset(group, 'study1', dset_name)
+
+        gu.check_element_not_loaded_in_dset(group, 'study', dset_name)
+
+        gu.check_element_not_loaded_in_dset(group, 'study1', 'non existing dset name')
+
     def test_get_dset_from_group(self):
         chr_group_2 = self.f.create_group("/2")
         snp_group = gu._get_dset_from_group('snp', chr_group_2)

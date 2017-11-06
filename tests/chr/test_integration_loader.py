@@ -116,9 +116,3 @@ class TestLoader(object):
         chr_group = self.f.get("1")
         block_group = loader.get_block_group_from_block_ceil(chr_group, BLOCK_SIZE)
         assert str(BLOCK_SIZE) in  block_group.name
-
-    def test_check_group_dsets_shape(self):
-        block_group = self.f.get("/1/1200000")
-        loader.expand_dataset(block_group, EXP_DSET, [-1])
-        with pytest.raises(AssertionError):
-            loader.check_group_dsets_shape(block_group)

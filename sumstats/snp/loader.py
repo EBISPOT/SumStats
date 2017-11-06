@@ -64,7 +64,8 @@ def save_info_in_group(group, name_to_dataset):
         if snp in group:
             snp_group = gu.get_group_from_parent(group, snp)
 
-            check_group_dsets_shape(snp_group)
+            gu.check_group_dsets_shape(snp_group, TO_STORE_DSETS)
+            gu.check_element_not_loaded_in_dset(snp_group, name_to_dataset[STUDY_DSET][0], STUDY_DSET)
 
             for dset_name in TO_STORE_DSETS:
                 expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
@@ -72,14 +73,6 @@ def save_info_in_group(group, name_to_dataset):
             snp_group = group.create_group(snp)
             for dset_name in TO_STORE_DSETS:
                 create_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
-
-
-def check_group_dsets_shape(group):
-    datasets = [group.get(dset_name) for dset_name in TO_STORE_DSETS]
-    length = datasets.pop().shape[0]
-    for dset in datasets:
-        assert dset.shape[0] == length, \
-            "Group has datasets with inconsistent shape! " + group.name
 
 
 class Loader():
@@ -111,12 +104,12 @@ class Loader():
         utils.assert_datasets_not_empty(name_to_list)
 
         self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
+        # Open the file with read/write permissions and create if it doesn't exist
+        self.file = h5py.File(self.h5file, 'a')
 
     def load(self):
-        # Open the file with read/write permissions and create if it doesn't exist
-        file = h5py.File(self.h5file, 'a')
         name_to_dataset = self.name_to_dataset
-        save_info_in_group(file, name_to_dataset)
+        save_info_in_group(self.file, name_to_dataset)
 
 
 def main():
