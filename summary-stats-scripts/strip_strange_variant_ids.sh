@@ -11,33 +11,7 @@ if [ -z $file ] || [ -z $var_header ]; then
     exit 1
 fi
 
-if awk '{exit !/\t/}' $file ; then
-    delimiter="\t"
-elif awk '{exit !/ /}' $file ; then
-    delimiter=" "
-elif awk '{exit !/,/}' $file ; then
-    delimiter=","
-else
-    echo "The file is neither comma, tab or space delimited!"
-    echo "Can not do anything"
-    exit 1
-fi
-
-awk 'BEGIN{FS="'$delimiter'"}
-{
-    if (NR == 1){
-        for (i = 1; i <=NF; i++){
-            h[$i]=i
-        }
-    }
-    else {
-        for ( key in h) {
-            if (key == "'$var_header'"){
-                print $h[key]
-            }
-        }
-    }
-}' $file | sort | uniq | grep -v "^rs" | grep -v "^ch" > strange_variant_ids_"$file"
+./strip_column.sh $file $var_header | sort | uniq | grep -v "^rs" | grep -v "^ch" > strange_variant_ids_"$file"
 
 if [ -s strange_variant_ids_"$file" ]; then
     echo -e "The strange variant IDs are saved in the ${GREEN} strange_variant_ids_$file ${NC} file"

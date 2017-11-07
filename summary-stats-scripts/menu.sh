@@ -26,9 +26,8 @@ PS3='Please enter your choice (ENTER to show the list of options): '
 options=("Select first 50 lines"
        "Peek into file"
        "Get all unconventional variant ids"
+       "Extract variant ids"
        "Quit")
-
-export COLUMNS=30
 
 select opt in "${options[@]}"
 do
@@ -41,7 +40,10 @@ case $opt in
         ./peek.sh $file
         ;;
     "Get all unconventional variant ids")
-        ./get_all_uncov_variant_ids.sh $file
+        ./get_all_strange_variant_ids.sh $file
+        ;;
+    "Extract variant ids")
+        ./extract_variant_ids.sh $file
         ;;
     "Quit")
         break
