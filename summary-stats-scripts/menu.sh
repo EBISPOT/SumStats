@@ -26,7 +26,18 @@ PS3='Please enter your choice (ENTER to show the list of options): '
 options=("Select first 50 lines"
        "Peek into file"
        "Get all unconventional variant ids"
-       "Extract info"
+       "Extract variant"
+       "Extract chromosome"
+       "Extract base pair location"
+       "Extract effect"
+       "Extract other"
+       "Extract frequency"
+       "Extract odds ratio"
+       "Extract standard error"
+       "Extract beta"
+       "Extract p-value"
+       "Extract range"
+       "Combine all info"
        "Quit")
 
 select opt in "${options[@]}"
@@ -42,18 +53,41 @@ case $opt in
     "Get all unconventional variant ids")
         ./get_all_strange_variant_ids.sh $file
         ;;
-    "Extract info")
+    "Extract variant")
         ./extract_variant_ids.sh $file
+        ;;
+    "Extract chromosome")
         ./extract_chromosome.sh $file
-        ./extract_simple.sh $file "minor allele" "effect"
-        ./extract_simple.sh $file "reference allele" "other"
+        ;;
+    "Extract base pair location")
         ./extract_simple.sh $file "base pair location" "bp"
-        ./extract_simple.sh $file "p-value" "pval"
+        ;;
+    "Extract effect")
+        ./extract_simple.sh $file "minor allele" "effect"
+        ;;
+    "Extract other")
+        ./extract_simple.sh $file "reference allele" "other"
+        ;;
+    "Extract frequency")
         ./extract_simple.sh $file "minor allele frequency in controls" "freq"
+        ;;
+    "Extract odds ratio")
         ./extract_simple.sh $file "odds ratio" "or"
+        ;;
+    "Extract standard error")
         ./extract_simple.sh $file "standard error" "se"
-        ./extract_simple.sh $file "range" "range"
+        ;;
+    "Extract beta")
         ./extract_simple.sh $file "beta" "beta"
+        ;;
+    "Extract p-value")
+        ./extract_simple.sh $file "p-value" "pval"
+        ;;
+    "Extract range")
+        ./extract_simple.sh $file "range" "range"
+        ;;
+    "Combine all info")
+        ./combine_all_info.sh $file
         ;;
     "Quit")
         break
