@@ -44,7 +44,16 @@ case $opt in
         ;;
     "Extract info")
         ./extract_variant_ids.sh $file
-        #./extract_chromosome.sh $file
+        ./extract_chromosome.sh $file
+        ./extract_simple.sh $file "minor allele" "effect"
+        ./extract_simple.sh $file "reference allele" "other"
+        ./extract_simple.sh $file "base pair location" "bp"
+        ./extract_simple.sh $file "p-value" "pval"
+        ./extract_simple.sh $file "minor allele frequency in controls" "freq"
+        ./extract_simple.sh $file "odds ratio" "or"
+        ./extract_simple.sh $file "standard error" "se"
+        ./extract_simple.sh $file "range" "range"
+        ./extract_simple.sh $file "beta" "beta"
         ;;
     "Quit")
         break

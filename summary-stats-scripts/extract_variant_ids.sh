@@ -43,6 +43,7 @@ else
     ignore=$(echo "^$types_to_exclude" | sed 's/,/\\|^/g')
     ./extract_column.sh $file $var_header variant
     cat variant_$file | grep -v "$ignore" > variant_ids_$file
-    rm variant_$file
+    mv variant_ids_$file variant_$file
+    rm variant_ids_$file
 fi
 
