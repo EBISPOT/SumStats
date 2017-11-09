@@ -14,7 +14,7 @@ echo ""
 echo -e "Below You can see the header of the file and the first line of data"
 echo -e "${GREEN}-----------------${NC}"
 echo ""
-awk '{
+awk 'BEGIN{FS="\t"}{
 if (NR == 1){
  for (i = 1; i <=NF; i++){
 	 h[$i]=i

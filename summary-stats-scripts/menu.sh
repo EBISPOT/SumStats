@@ -7,6 +7,7 @@ NC='\033[0m' # No Color
 echo ""
 
 file=$1
+base=$(dirname "$0")
 
 if [ -z $file ];
 then
@@ -15,7 +16,13 @@ then
     echo -e "${NC}"
     exit
 fi
+if [ ! -s "$file" ]; then
+    echo -e "${RED}File $file does not exist!${NC}"
+    exit
+fi
 clear
+$base/make_tab.sh $file
+mv .tab $file
 
 echo ""
 pwd
@@ -24,12 +31,15 @@ echo -e "${GREEN}Running script for $file file!${NC}"
 echo ""
 PS3='Please enter your choice (ENTER to show the list of options): '
 options=("Select first 50 lines"
+       "Select first 50 lines of file"
        "Peek into file"
+       "List all files in directory"
+       "Create directory for file"
        "Get all unconventional variant ids"
        "Extract variant"
        "Extract chromosome"
        "Extract base pair location"
-       "Extract effect"
+        "Extract effect"
        "Extract other"
        "Extract frequency"
        "Extract odds ratio"
@@ -38,56 +48,79 @@ options=("Select first 50 lines"
        "Extract p-value"
        "Extract range"
        "Combine all info"
+       "Delete all intermediate files"
+       "Delete specific file"
+       "Explain options"
        "Quit")
 
 select opt in "${options[@]}"
 do
 case $opt in
-    "Select first 50 lines")
-        awk '{if(NR < 51){print}else{exit}}' $file > first_50_"$file"
-        echo -e "Created file with first 50 lines called ${GREEN}first_50_"$file"${NC}"
+    "Select first 50 lines of $file")
+        $base/select_first_50.sh $file
+        ;;
+    "Select first 50 lines of specific file")
+        $base/select_lines_from_file.sh
         ;;
     "Peek into file")
-        ./peek.sh $file
+        $base/peek.sh $file
+        ;;
+    "List all files in directory")
+        ls | grep -v .sh
+        ;;
+    "Create directory for file")
+        echo "Creating new directory and copying file there..."
+        mkdir sum-stats-dir-$file
+        cp $file sum-stats-dir-$file
+        echo -e "Created directory called: ${GREEN}sum-stats-dir-$file ${NC} and copied $file there"
         ;;
     "Get all unconventional variant ids")
-        ./get_all_strange_variant_ids.sh $file
+        $base/get_all_strange_variant_ids.sh $file
         ;;
     "Extract variant")
-        ./extract_variant_ids.sh $file
+        $base/extract_variant_ids.sh $file
         ;;
     "Extract chromosome")
-        ./extract_chromosome.sh $file
+        $base/extract_simple.sh $file "chromosome" "chr"
         ;;
     "Extract base pair location")
-        ./extract_simple.sh $file "base pair location" "bp"
+        $base/extract_simple.sh $file "base pair location" "bp"
         ;;
     "Extract effect")
-        ./extract_simple.sh $file "minor allele" "effect"
+        $base/extract_simple.sh $file "minor allele" "effect"
         ;;
     "Extract other")
-        ./extract_simple.sh $file "reference allele" "other"
+        $base/extract_simple.sh $file "reference allele" "other"
         ;;
     "Extract frequency")
-        ./extract_simple.sh $file "minor allele frequency in controls" "freq"
+        $base/extract_simple.sh $file "minor allele frequency in controls" "freq"
         ;;
     "Extract odds ratio")
-        ./extract_simple.sh $file "odds ratio" "or"
+        $base/extract_simple.sh $file "odds ratio" "or"
         ;;
     "Extract standard error")
-        ./extract_simple.sh $file "standard error" "se"
+        $base/extract_simple.sh $file "standard error" "se"
         ;;
     "Extract beta")
-        ./extract_simple.sh $file "beta" "beta"
+        $base/extract_simple.sh $file "beta" "beta"
         ;;
     "Extract p-value")
-        ./extract_simple.sh $file "p-value" "pval"
+        $base/extract_simple.sh $file "p-value" "pval"
         ;;
     "Extract range")
-        ./extract_simple.sh $file "range" "range"
+        $base/extract_simple.sh $file "range" "range"
         ;;
     "Combine all info")
-        ./combine_all_info.sh $file
+        $base/combine_all_info.sh $file
+        ;;
+    "Delete all intermediate files")
+        $base/delete_all_intermediates.sh $file
+        ;;
+    "Delete specific file")
+        $base/delete_file.sh
+        ;;
+    "Explain options")
+        $base/explain.sh $file
         ;;
     "Quit")
         break

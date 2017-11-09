@@ -14,20 +14,10 @@ if [ -z $file ] || [ -z $col_header ]; then
     exit 1
 fi
 
-if awk '{exit !/\t/}' $file ; then
-    delimiter="\t"
-elif awk '{exit !/ /}' $file ; then
-    delimiter=" "
-elif awk '{exit !/,/}' $file ; then
-    delimiter=","
-else
-    echo "The file is neither comma, tab or space delimited!"
-    echo "Can not do anything"
-    exit 1
-fi
 
 function get_column () {
-	awk 'BEGIN{FS="'$delimiter'"}
+
+awk 'BEGIN{FS="\t"}
      {
          if (NR == 1){
              for (i = 1; i <=NF; i++){
@@ -55,7 +45,7 @@ else
 	}' .column_$file > .info_from_position_$file
 	rm .column_$file
 
-	if [ -n "$extra_filtering_character" ];then
+	if [ ! -z "$extra_filtering_character" ];then
 		while read line; do
 			echo "$line" | cut -d"$extra_filtering_character" -f1
 		done < .info_from_position_$file

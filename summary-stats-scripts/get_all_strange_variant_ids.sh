@@ -7,6 +7,7 @@ NC='\033[0m' # No Color
 echo ""
 
 file=$1
+base=$(dirname "$0")
 
 if [ -z $file ];
 then
@@ -16,8 +17,10 @@ then
     exit
 fi
 clear
-./peek.sh $file
+
+$base/peek.sh $file
+
 echo -ne "Enter the variant id header and press [ENTER]: "
 read var_header
 
-./strip_strange_variant_ids.sh $file $var_header
+$base/strip_strange_variant_ids.sh $file $var_header

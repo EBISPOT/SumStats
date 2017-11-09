@@ -7,6 +7,7 @@ NC='\033[0m' # No Color
 echo ""
 
 file=$1
+base=$(dirname "$0")
 
 if [ -z $file ];
 then
@@ -16,11 +17,18 @@ then
     exit
 fi
 clear
-./peek.sh $file
+
+$base/peek.sh $file
+
 echo -ne "Enter the variant id header and press [ENTER]: "
 read var_header
 
-echo -n "Are there any variant ids we need to exclude? Yes or No and press [ENTER]: "
+if [ -z $var_header ] ; then
+ echo "You need to specify header for the variant id!. Exiting..."
+ exit
+fi
+
+echo -n "Are there any variant ids we need to exclude? [y] or [n] and press [ENTER]: "
 read exclude
 
 yes='Yy'
@@ -37,11 +45,11 @@ fi
 if [ -z $types_to_exclude ]; then
     echo "No types to exclude"
     echo "Proceding with variant id exctraction"
-    ./extract_column.sh $file $var_header variant
+    $base/extract_column.sh $file $var_header variant
 else
     echo "Types to exclude: $types_to_exclude"
     ignore=$(echo "^$types_to_exclude" | sed 's/,/\\|^/g')
-    ./extract_column.sh $file $var_header variant
+    $base/extract_column.sh $file $var_header variant
     cat variant_$file | grep -v "$ignore" > variant_ids_$file
     mv variant_ids_$file variant_$file
     rm variant_ids_$file
