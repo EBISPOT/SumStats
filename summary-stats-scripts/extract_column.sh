@@ -38,10 +38,8 @@ if [[ $has_more_data =~ [$yes] ]];then
     fi
     echo ""
 
-	echo "Is there anything else at the end that needs cleaning? "
-	echo -n "e.g.: for 34590:chr1_A_D then type \"_\" and press [ENTER], OR just press [ENTER]: "
-    read more_cleaning
 fi
-
+echo "Starting column extraction..."
 $base/strip_column.sh $file $var_header $column_delimiter $position $more_cleaning > "$element"_"$file"
+echo "Column extraction done!"
 

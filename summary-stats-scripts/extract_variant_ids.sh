@@ -20,38 +20,43 @@ clear
 
 $base/peek.sh $file
 
-echo -ne "Enter the variant id header and press [ENTER]: "
-read var_header
-
-if [ -z $var_header ] ; then
- echo "You need to specify header for the variant id!. Exiting..."
- exit
-fi
-
-echo -n "Are there any variant ids we need to exclude? [y] or [n] and press [ENTER]: "
-read exclude
+echo ""
+echo "We will by default exclude anything that doesn't have an rsid or doesn't start with chr (e.g. chr1:34230)"
+echo -n "Are there any extra variant ids we need to include? [y] or [n] and press [ENTER]: "
+read include
 
 yes='Yy'
-if [[ $exclude =~ [$yes] ]];then
+if [[ $include =~ [$yes] ]];then
     echo ""
-    echo "Please enter a comma separated list of what we will need to exclude"
-    echo "Example: if we need to exclude all entries that look like: MERGED_DEL_2_58234 and imm_1_247639"
+    echo "Please enter a comma separated list of any other pattern that you would like to include"
+    echo "Example: if we need to include all entries that look like: MERGED_DEL_2_58234 and imm_1_247639"
     echo "then please type: MERGED_DEL,imm"
     echo ""
     echo -n "Enter the comma separeted list and press [ENTER]: "
-    read types_to_exclude
+    read types_to_include
 fi
 
-if [ -z $types_to_exclude ]; then
-    echo "No types to exclude"
+if [ -z $types_to_include ]; then
+    echo "No types to include"
     echo "Proceding with variant id exctraction"
-    $base/extract_column.sh $file $var_header variant
+    $base/extract_simple.sh $file "variant id" "variant"
 else
-    echo "Types to exclude: $types_to_exclude"
-    ignore=$(echo "^$types_to_exclude" | sed 's/,/\\|^/g')
-    $base/extract_column.sh $file $var_header variant
-    cat variant_$file | grep -v "$ignore" > variant_ids_$file
+    echo "Types to include: $types_to_include"
+    find_pattern=$(echo "^$types_to_include" | sed 's/,/\\|^/g')
+    find_pattern="$find_pattern\\|^rs\\|^ch"
+    $base/extract_simple.sh $file "variant id" "variant"
+    cat variant_$file | grep "$find_pattern" > variant_ids_$file
     mv variant_ids_$file variant_$file
-    rm variant_ids_$file
 fi
+
+
+
+
+
+
+
+
+
+
+
 

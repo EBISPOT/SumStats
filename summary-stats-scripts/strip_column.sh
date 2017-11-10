@@ -42,15 +42,6 @@ else
 	get_column > .column_$file
 	awk 'BEGIN{FS="'$extra_delimiter'"}{
 		print $'$position'
-	}' .column_$file > .info_from_position_$file
-	rm .column_$file
-
-	if [ ! -z "$extra_filtering_character" ];then
-		while read line; do
-			echo "$line" | cut -d"$extra_filtering_character" -f1
-		done < .info_from_position_$file
-	else
-		awk '{print}' .info_from_position_$file
-	fi
-	rm .info_from_position_$file
+	}' .column_$file
+	rm -f .column_$file
 fi

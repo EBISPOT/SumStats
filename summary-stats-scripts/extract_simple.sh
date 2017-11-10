@@ -38,10 +38,18 @@ else
 	echo -ne "Enter any prefix - to be removed - (if any) and press [ENTER], OR just press [ENTER]: "
 	read prefix
 
-	if [ ! -z $prefix ];then
+    echo -ne "Enter any suffix - to be removed - (if any) and press [ENTER], OR just press [ENTER]: "
+    read suffix
+
+	if [ ! -z $prefix ] || [ ! -z $suffix ] ;then
+        echo "Removing prefix and/or suffix, please wait..."
          while read line; do
-             echo "${line#$prefix}" >> .tmp
+             no_prefix=${line#$prefix}
+             no_suffix=${no_prefix%$suffix}
+             echo "${no_suffix}" >> .tmp
          done < "$short_name"_"$file"
          mv .tmp "$short_name"_"$file"
+         echo "Done!"
 	fi
 fi
+echo -e "File saved in: ${GREEN} "$short_name"_"$file"${NC} "

@@ -21,6 +21,8 @@ if [ ! -s "$file" ]; then
     exit
 fi
 clear
+echo "Pre-processing file, please wait..."
+dos2unix $file
 $base/make_tab.sh $file
 mv .tab $file
 
@@ -36,10 +38,11 @@ options=("Select first 50 lines"
        "List all files in directory"
        "Create directory for file"
        "Get all unconventional variant ids"
+       "Look at found strange variant ids"
        "Extract variant"
        "Extract chromosome"
        "Extract base pair location"
-        "Extract effect"
+       "Extract effect"
        "Extract other"
        "Extract frequency"
        "Extract odds ratio"
@@ -72,10 +75,22 @@ case $opt in
         echo "Creating new directory and copying file there..."
         mkdir sum-stats-dir-$file
         cp $file sum-stats-dir-$file
+        cd sum-stats-dir-$file
         echo -e "Created directory called: ${GREEN}sum-stats-dir-$file ${NC} and copied $file there"
         ;;
     "Get all unconventional variant ids")
-        $base/get_all_strange_variant_ids.sh $file
+        $base/strip_strange_variant_ids.sh $file
+        ;;
+    "Look at found strange variant ids")
+        if [ ! -s strange_variant_ids_"$file" ];then
+            echo "File does not exist. Might be that there are no strange"
+            echo "variant ids or that you didn't request for them to be found."
+        else
+            echo ""
+            echo -e "${GREEN}Opening list of strange variants, press [ENTER] to view more or [q] to close the file${NC}"
+            echo ""
+            more strange_variant_ids_"$file"
+        fi
         ;;
     "Extract variant")
         $base/extract_variant_ids.sh $file

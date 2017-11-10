@@ -5,7 +5,7 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 echo ""
-
+echo "Final file creation starting..."
 file=$1
 
 if [ -z $file ] ;
