@@ -96,37 +96,81 @@ case $opt in
         $base/extract_variant_ids.sh $file
         ;;
     "Extract chromosome")
-        $base/extract_simple.sh $file "chromosome" "chr"
+        if [ ! -s "$file"_clean ];then
+            echo "You first need to extract the variant column before you proceed"
+        else
+            $base/extract_simple.sh $file "chromosome" "chr"
+        fi
         ;;
     "Extract base pair location")
-        $base/extract_simple.sh $file "base pair location" "bp"
+		if [ ! -s "$file"_clean ];then
+             echo "You first need to extract the variant column before you proceed"
+        else
+        	$base/extract_simple.sh $file "base pair location" "bp"
+		fi
         ;;
     "Extract effect")
-        $base/extract_simple.sh $file "minor allele" "effect"
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+         else
+        	$base/extract_simple.sh $file "minor allele" "effect"
+		fi
         ;;
     "Extract other")
-        $base/extract_simple.sh $file "reference allele" "other"
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+         else
+        	$base/extract_simple.sh $file "reference allele" "other"
+		fi
         ;;
     "Extract frequency")
-        $base/extract_simple.sh $file "minor allele frequency in controls" "freq"
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+         else
+        	$base/extract_simple.sh $file "minor allele frequency in controls" "freq"
+		fi
         ;;
     "Extract odds ratio")
-        $base/extract_simple.sh $file "odds ratio" "or"
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+         else
+        	$base/extract_simple.sh $file "odds ratio" "or"
+		fi
         ;;
     "Extract standard error")
-        $base/extract_simple.sh $file "standard error" "se"
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+         else
+        	$base/extract_simple.sh $file "standard error" "se"
+		fi
         ;;
     "Extract beta")
-        $base/extract_simple.sh $file "beta" "beta"
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+         else
+        	$base/extract_simple.sh $file "beta" "beta"
+		fi
         ;;
     "Extract p-value")
-        $base/extract_simple.sh $file "p-value" "pval"
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+         else
+        	$base/extract_simple.sh $file "p-value" "pval"
+		fi
         ;;
     "Extract range")
-        $base/extract_simple.sh $file "range" "range"
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+         else
+        	$base/extract_simple.sh $file "range" "range"
+		fi
         ;;
     "Combine all info")
-        $base/combine_all_info.sh $file
+		if [ ! -s "$file"_clean ];then
+              echo "You first need to extract the variant column before you proceed"
+        else
+        	$base/combine_all_info.sh $file
+		fi
         ;;
     "Delete all intermediate files")
         $base/delete_all_intermediates.sh $file

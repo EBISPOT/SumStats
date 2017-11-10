@@ -31,7 +31,7 @@ awk 'BEGIN{FS="\t"}
                  }
              }
          }
-     }' $file
+     }' "$file"_clean
 
 }
 

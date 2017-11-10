@@ -36,18 +36,22 @@ if [[ $include =~ [$yes] ]];then
     read types_to_include
 fi
 
-if [ -z $types_to_include ]; then
-    echo "No types to include"
-    echo "Proceding with variant id exctraction"
-    $base/extract_simple.sh $file "variant id" "variant"
-else
+if [ ! -z $types_to_include ];then
     echo "Types to include: $types_to_include"
     find_pattern=$(echo "^$types_to_include" | sed 's/,/\\|^/g')
-    find_pattern="$find_pattern\\|^rs\\|^ch"
-    $base/extract_simple.sh $file "variant id" "variant"
-    cat variant_$file | grep "$find_pattern" > variant_ids_$file
-    mv variant_ids_$file variant_$file
 fi
+if [ ! -z $find_pattern ];then
+    find_pattern="$find_pattern\\|^rs\\|^ch"
+else
+    find_pattern="^rs\\|^ch"
+fi
+echo "Cleaning up any stray variant ids..."
+cat $file | grep "$find_pattern" | grep -v "^\.\|NA" > "$file"_clean
+
+awk '{print;exit}' $file | cat - "$file"_clean > .tmp
+mv .tmp "$file"_clean
+
+$base/extract_simple.sh "$file" "variant id" variant
 
 
 

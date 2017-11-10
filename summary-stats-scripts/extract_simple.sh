@@ -3,7 +3,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
-
+clear
 echo ""
 
 file=$1
@@ -11,12 +11,11 @@ long_name=$2
 short_name=$3
 base=$(dirname "$0")
 
-if [ -z $file ] || [ -z $long_name ] || [ -z $short_name ] ;
+if [ -z "$file" ] || [ -z "$long_name" ] || [ -z "$short_name" ] ;
 then
     echo "$0 You need to provide the correct arguments! Exiting..."
     exit
 fi
-clear
 
 $base/peek.sh $file
 
@@ -29,9 +28,9 @@ if [ -z $var_header ] ; then
 fi
 
 if [ $var_header == "NA" ];then
-    awk '{print "-1"}' $file > "$short_name"_"$file"
+    awk '{print "-1"}' "$file" > "$short_name"_"$file"
 else
-    $base/extract_column.sh $file $var_header $short_name
+    $base/extract_column.sh "$file" $var_header $short_name
     echo -n "Showing first line of extracted column: "
     awk '{print;exit}' "$short_name"_"$file"
 

@@ -17,7 +17,7 @@ clear
 
  options=("variant"
         "pval"
-        "chromosome"
+        "chr"
         "or"
         "bp"
         "effect"
@@ -33,6 +33,7 @@ for opt in "${options[@]}"; do
         rm "$opt"_"$file"
     fi
 done
+rm "$file"_clean
 
 echo "Intermediate files have been deleted"
 

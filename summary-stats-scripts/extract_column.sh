@@ -29,8 +29,9 @@ if [[ $has_more_data =~ [$yes] ]];then
         echo "No delimiter entered! Exiting..."
         exit 1
     fi
-    echo "Type in the position of $element based on the $column_delimiter "
-    echo -n "(e.g. for 34590:chr1_A_D and delimiter \":\", then you need to type 2) and press [ENTER]: "
+    echo "What is the position of \"$element\" based on the $column_delimiter delimiter?"
+    echo "Example: for extracting chromosome from: \"34590:chr1_A_D\" and delimiter \":\", you need to type in: 2"
+    echo -n "Type in the position and press [ENTER]: "
     read position
     if [ -z $position ]; then
          echo "No position entered! Exiting..."
