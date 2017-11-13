@@ -59,10 +59,10 @@ options=("Select first 50 lines"
 select opt in "${options[@]}"
 do
 case $opt in
-    "Select first 50 lines of $file")
+    "Select first 50 lines")
         $base/select_first_50.sh $file
         ;;
-    "Select first 50 lines of specific file")
+    "Select first 50 lines of file")
         $base/select_lines_from_file.sh
         ;;
     "Peek into file")

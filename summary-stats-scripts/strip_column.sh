@@ -14,7 +14,6 @@ if [ -z $file ] || [ -z $col_header ]; then
     exit 1
 fi
 
-
 function get_column () {
 
 awk 'BEGIN{FS="\t"}
@@ -31,7 +30,7 @@ awk 'BEGIN{FS="\t"}
                  }
              }
          }
-     }' "$file"_clean
+     }' $file
 
 }
 

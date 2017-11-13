@@ -3,7 +3,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
-
+base=$(dirname "$0")
 echo ""
 
 echo -n "Enter the name of the file that you want to delete and press [ENTER]: "
