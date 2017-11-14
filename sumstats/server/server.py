@@ -14,7 +14,7 @@ if __name__ == '__main__':
     server = cherrypy._cpserver.Server()
 
     server.socket_host = "0.0.0.0"
-    server.socket_port = 8080
+    server.socket_port = 8081
     server.socket_pool = 30
 
     # Subscribe this server

@@ -4,48 +4,65 @@ from os.path import isfile, join
 import sumstats.trait.searcher as trait_searcher
 
 
-def main():
-    args = argument_parser()
-    path = args.path
-    if path is None:
-        print("Setting default location for output files")
-        path = ""
+class Explorer():
 
-    output_path = path + "/output"
+    def __init__(self, path=None):
+        if path is None:
+            print("Setting default location for output files")
+            path = ""
+        self.output_path = path + "/output"
 
-    if args.traits:
-        trait_dir_path = output_path + "/bytrait"
+    def get_list_of_traits(self):
+        trait_dir_path = self.output_path + "/bytrait"
         h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         traits = []
         for h5file in h5files:
             searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
             traits.extend(searcher.list_traits())
 
-        for trait in traits:
-            print(trait)
+        return traits
 
-    if args.studies:
-        trait_dir_path = output_path + "/bytrait"
+    def get_list_of_studies(self):
+        trait_dir_path = self.output_path + "/bytrait"
         h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         studies = []
         for h5file in h5files:
             searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
             studies.extend(searcher.list_studies())
 
-        for study in studies:
-            print(study)
+        return studies
 
-    if args.study is not None:
-        trait_dir_path = output_path + "/bytrait"
+    def get_info_on_study(self, study_to_find):
+        trait_dir_path = self.output_path + "/bytrait"
         h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         for h5file in h5files:
             searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
             for study in searcher.list_studies():
-                if args.study == study.split(":")[1].strip(" "):
-                    print(study)
-                    return
+                if study_to_find == study.split(":")[1].strip(" "):
+                    return study
 
-        print("The study does not exist: ", args.study)
+
+def main():
+    args = argument_parser()
+    path = args.path
+    explorer = Explorer(path)
+
+    if args.traits:
+        traits = explorer.get_list_of_traits()
+        for trait in traits:
+            print(trait)
+
+    if args.studies:
+        studies = explorer.get_list_of_studies()
+        for study in studies:
+            print(study)
+
+    if args.study is not None:
+        study = explorer.get_info_on_study(args.study)
+        if study is None:
+            print("The study does not exist: ", args.study)
+        else:
+            print(study)
 
 
 if __name__ == "__main__":

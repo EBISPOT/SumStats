@@ -18,8 +18,8 @@ def get_all_groups_from_parent(parent_group):
 
 def get_dset(group, dset_name):
     dset = group.get(dset_name)
-    if dset is not None:
-        dset = dset[:]
+    # if dset is not None:
+    #     dset = dset[:]
     return dset
 
 

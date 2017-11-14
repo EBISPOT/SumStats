@@ -7,9 +7,13 @@ COPY setup.py /application/
 
 RUN pip install /application/ 
 
+# Expose ports
+EXPOSE 8081
+
 # Set the default directory where CMD will execute
 WORKDIR /application
 
 # Set the default command to execute
 # when creating a new container
-CMD bash
+#CMD bash
+CMD python sumstats/server/server.py
