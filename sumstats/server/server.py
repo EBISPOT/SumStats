@@ -2,8 +2,8 @@ from sumstats.server.app import app
 
 import cherrypy
 
-if __name__ == '__main__':
 
+def main():
     # Mount the application
     cherrypy.tree.graft(app, "/")
 
@@ -24,3 +24,6 @@ if __name__ == '__main__':
     cherrypy.engine.start()
     cherrypy.engine.block()
 
+
+if __name__ == '__main__':
+    main()

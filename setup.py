@@ -7,7 +7,8 @@ setup(
     entry_points = {
         "console_scripts": ['gwas-load = sumstats.load:main',
                             'gwas-search = sumstats.search:main',
-                            'gwas-explore = sumstats.explorer:main']
+                            'gwas-explore = sumstats.explorer:main',
+                            'gwas-server = sumstats.server.server:main']
     },
     url='https://github.com/EBISPOT/SumStats',
     license='',
