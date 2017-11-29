@@ -37,8 +37,6 @@ options=("Select first 50 lines"
        "Peek into file"
        "List all files in directory"
        "Create directory for file"
-       "Get all unconventional variant ids"
-       "Look at found strange variant ids"
        "Extract variant"
        "Extract chromosome"
        "Extract base pair location"
@@ -53,7 +51,6 @@ options=("Select first 50 lines"
        "Combine all info"
        "Delete all intermediate files"
        "Delete specific file"
-       "Explain options"
        "Quit")
 
 select opt in "${options[@]}"
@@ -78,108 +75,47 @@ case $opt in
         cd sum-stats-dir-$file
         echo -e "Created directory called: ${GREEN}sum-stats-dir-$file ${NC} and copied $file there"
         ;;
-    "Get all unconventional variant ids")
-        $base/strip_strange_variant_ids.sh $file
-        ;;
-    "Look at found strange variant ids")
-        if [ ! -s strange_variant_ids_"$file" ];then
-            echo "File does not exist. Might be that there are no strange"
-            echo "variant ids or that you didn't request for them to be found."
-        else
-            echo ""
-            echo -e "${GREEN}Opening list of strange variants, press [ENTER] to view more or [q] to close the file${NC}"
-            echo ""
-            more strange_variant_ids_"$file"
-        fi
-        ;;
     "Extract variant")
-        $base/extract_variant_ids.sh $file
+        $base/extract_simple.sh $file "variant" "variant"
         ;;
     "Extract chromosome")
-        if [ ! -s "$file"_clean ];then
-            echo "You first need to extract the variant column before you proceed"
-        else
             $base/extract_simple.sh $file "chromosome" "chr"
-        fi
         ;;
     "Extract base pair location")
-		if [ ! -s "$file"_clean ];then
-             echo "You first need to extract the variant column before you proceed"
-        else
         	$base/extract_simple.sh $file "base pair location" "bp"
-		fi
         ;;
     "Extract effect")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-         else
         	$base/extract_simple.sh $file "minor allele" "effect"
-		fi
         ;;
     "Extract other")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-         else
         	$base/extract_simple.sh $file "reference allele" "other"
-		fi
         ;;
     "Extract frequency")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-         else
         	$base/extract_simple.sh $file "minor allele frequency in controls" "freq"
-		fi
         ;;
     "Extract odds ratio")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-         else
         	$base/extract_simple.sh $file "odds ratio" "or"
-		fi
         ;;
     "Extract standard error")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-         else
         	$base/extract_simple.sh $file "standard error" "se"
-		fi
         ;;
     "Extract beta")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-         else
         	$base/extract_simple.sh $file "beta" "beta"
-		fi
         ;;
     "Extract p-value")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-         else
         	$base/extract_simple.sh $file "p-value" "pval"
-		fi
         ;;
     "Extract range")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-         else
         	$base/extract_simple.sh $file "range" "range"
-		fi
         ;;
     "Combine all info")
-		if [ ! -s "$file"_clean ];then
-              echo "You first need to extract the variant column before you proceed"
-        else
         	$base/combine_all_info.sh $file
-		fi
         ;;
     "Delete all intermediate files")
         $base/delete_all_intermediates.sh $file
         ;;
     "Delete specific file")
         $base/delete_file.sh
-        ;;
-    "Explain options")
-        $base/explain.sh $file
         ;;
     "Quit")
         break

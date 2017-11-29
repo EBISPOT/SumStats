@@ -7,7 +7,6 @@ file=$1
 col_header=$2
 extra_delimiter=$3
 position=$4
-extra_filtering_character=$5
 
 if [ -z $file ] || [ -z $col_header ]; then
     echo "File name and column header not specified!"

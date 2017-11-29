@@ -41,6 +41,6 @@ if [[ $has_more_data =~ [$yes] ]];then
 
 fi
 echo "Starting column extraction..."
-$base/strip_column.sh $file $var_header $column_delimiter $position $more_cleaning > "$element"_"$file"
+$base/strip_column.sh $file $var_header $column_delimiter $position > "$element"_"$file"
 echo "Column extraction done!"
 

@@ -33,7 +33,6 @@ for opt in "${options[@]}"; do
         rm "$opt"_"$file"
     fi
 done
-rm "$file"_clean
 
 echo "Intermediate files have been deleted"
 
