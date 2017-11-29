@@ -13,7 +13,9 @@ base=$(dirname "$0")
 
 if [ -z $file ] || [ -z $var_header ] || [ -z $element ];
 then
+    echo ""
     echo "$0 not enough parameters provided! Exiting..."
+    echo ""
     exit
 fi
 
@@ -26,11 +28,15 @@ if [[ $has_more_data =~ [$yes] ]];then
     echo -n "Type the delimiter that separates the data in this column? (e.g. , : - ) and press [ENTER]: "
     read column_delimiter
     if [ -z $column_delimiter ]; then
+        echo ""
         echo "No delimiter entered! Exiting..."
+        echo ""
         exit 1
     fi
-    echo "What is the position of \"$element\" based on the $column_delimiter delimiter?"
-    echo "Example: for extracting chromosome from: \"34590:chr1_A_D\" and delimiter \":\", you need to type in: 2"
+    echo ""
+    echo "What is the position of \"$element\" based on the \"$column_delimiter\" delimiter?"
+    echo -e "${GREEN}Example:${NC} for extracting BP from \"chr1:3456\" with delimiter \":\", you need to type in \"2\""
+    echo ""
     echo -n "Type in the position and press [ENTER]: "
     read position
     if [ -z $position ]; then

@@ -3,7 +3,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
-
+clear
 echo ""
 echo "Final file creation starting..."
 file=$1
@@ -39,5 +39,4 @@ paste variant_"$file" pval_"$file" chr_"$file" or_"$file" bp_"$file" effect_"$fi
 echo -e "variant\tpval\tchr\tor\tbp\teffect\tother\tfreq\tbeta\trange\tse" | cat - loadable_$file > .tmp
 mv .tmp loadable_$file
 echo -e "The final format of the file is saved here: ${GREEN}loadable_$file${NC}"
-
-
+echo ""

@@ -21,22 +21,32 @@ if [ ! -s "$file" ]; then
     exit
 fi
 clear
-echo "Pre-processing file, please wait..."
-dos2unix $file
-$base/make_tab.sh $file
-mv .tab $file
+
+if [ ! -d sumstats-$file ]; then
+    mkdir sumstats-$file
+    cp $file sumstats-$file
+    cd sumstats-$file
+    echo "Pre-processing file, please wait..."
+    dos2unix $file
+    $base/make_tab.sh $file
+    mv .tab $file
+    echo ""
+    echo -e "Created directory called: ${GREEN}sumstats-$file ${NC} and copied the file there"
+else
+    cd sumstats-$file
+    echo -e "${GREEN}Running script for $file file!${NC}"
+fi
 
 echo ""
-pwd
 echo ""
-echo -e "${GREEN}Running script for $file file!${NC}"
 echo ""
 PS3='Please enter your choice (ENTER to show the list of options): '
 options=("Select first 50 lines"
        "Select first 50 lines of file"
        "Peek into file"
        "List all files in directory"
-       "Create directory for file"
+       "MERGE two colums of the file"
+       "Refresh original file"
        "Extract variant"
        "Extract chromosome"
        "Extract base pair location"
@@ -68,12 +78,12 @@ case $opt in
     "List all files in directory")
         ls | grep -v .sh
         ;;
-    "Create directory for file")
-        echo "Creating new directory and copying file there..."
-        mkdir sum-stats-dir-$file
-        cp $file sum-stats-dir-$file
-        cd sum-stats-dir-$file
-        echo -e "Created directory called: ${GREEN}sum-stats-dir-$file ${NC} and copied $file there"
+    "MERGE two colums of the file")
+        $base/column_merge.sh $file
+        ;;
+    "Refresh original file")
+        cp ../$file .
+        echo "You now have a copy of the original file"
         ;;
     "Extract variant")
         $base/extract_simple.sh $file "variant" "variant"
