@@ -29,7 +29,7 @@ options=("variant"
 for opt in "${options[@]}"; do
 
     if [ ! -s "$opt"_"$file" ];then
-        awk '{print "-1"}' variant_"$file" > "$opt"_"$file"
+        awk '{print "NA"}' variant_"$file" > "$opt"_"$file"
     fi
 
 done
