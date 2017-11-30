@@ -60,7 +60,6 @@ options=("Select first 50 lines"
        "Extract range"
        "Combine all info"
        "Delete all intermediate files"
-       "Delete specific file"
        "Quit")
 
 select opt in "${options[@]}"
@@ -82,8 +81,14 @@ case $opt in
         $base/column_merge.sh $file
         ;;
     "Refresh original file")
+        echo ""
+        echo "Refreshing file, please wait..."
         cp ../$file .
+		dos2unix $file
+     	$base/make_tab.sh $file
+     	mv .tab $file
         echo "You now have a copy of the original file"
+        echo ""
         ;;
     "Extract variant")
         $base/extract_simple.sh $file "variant" "variant"
@@ -123,9 +128,6 @@ case $opt in
         ;;
     "Delete all intermediate files")
         $base/delete_all_intermediates.sh $file
-        ;;
-    "Delete specific file")
-        $base/delete_file.sh
         ;;
     "Quit")
         break
