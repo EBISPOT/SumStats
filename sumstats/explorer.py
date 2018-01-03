@@ -8,7 +8,7 @@ class Explorer():
 
     def __init__(self, path=None):
         if path is None:
-            print("Setting default location for output files")
+            print("Explorer: setting default location for output files")
             path = ""
         self.output_path = path + "/output"
 

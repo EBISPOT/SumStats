@@ -1,7 +1,6 @@
 import os
-import pytest
 import sumstats.snp.loader as loader
-import sumstats.snp.query_utils as query
+import sumstats.snp.query as query
 from sumstats.snp.constants import *
 from tests.snp.test_constants import *
 
@@ -30,6 +29,8 @@ class TestUnitQueryUtils(object):
 
         # open h5 file in read/write mode
         self.f = h5py.File(self.h5file, mode="a")
+        self.start = 0
+        self.size = 20
 
     def teardown_method(self, method):
         os.remove(self.h5file)
@@ -37,7 +38,7 @@ class TestUnitQueryUtils(object):
     def test_get_dsets_group(self):
         snp_group = self.f.get("rs7085086")
 
-        name_to_dset = query.get_dsets_from_group(snp_group)
+        name_to_dset = query.get_dsets_from_group(snp_group, self.start, self.size)
         assert len(name_to_dset) == 9
         for dset_name, dset in name_to_dset.items():
             if dset_name is "study":

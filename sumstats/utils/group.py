@@ -16,10 +16,14 @@ def get_all_groups_from_parent(parent_group):
     return [group for group in parent_group.values()]
 
 
-def get_dset(group, dset_name):
+def get_dset(group, dset_name, start, size):
     dset = group.get(dset_name)
-    # if dset is not None:
-    #     dset = dset[:]
+    if dset is not None:
+        if start <= dset.shape[0]:
+            end = min(dset.shape[0], (start + size))
+            dset = dset[start:end]
+        else:
+            dset = None
     return dset
 
 
@@ -52,25 +56,26 @@ def check_element_not_loaded_in_dset(group, element, dset_name):
         raise AssertionError(element + " already exists in " + dset_name + "!")
 
 
-def extend_dsets_for_group(group, name_to_dataset):
+def extend_dsets_for_group(group, name_to_dataset, start, size):
     for name, dataset in name_to_dataset.items():
-        dataset.extend(_get_dset_from_group(name, group))
+        dataset.extend(_get_dset_from_group(name, group, start, size))
 
     return name_to_dataset
 
 
-def extend_dsets_for_group_missing(missing_value, group, name_to_dataset, missing_dset, existing_dset):
+def extend_dsets_for_group_missing(missing_value, group, name_to_dataset, missing_dset, start, size):
+    size_of_new_dataset = 0
     for name, dataset in name_to_dataset.items():
         if name != missing_dset:
-            dataset.extend(_get_dset_from_group(name, group))
-
-    temp_dset = _get_dset_from_group(existing_dset, group)
-    name_to_dataset[missing_dset].extend(_create_dset_placeholder(len(temp_dset), missing_value))
+            dset = _get_dset_from_group(name, group, start, size)
+            size_of_new_dataset = len(dset)
+            dataset.extend(dset)
+    name_to_dataset[missing_dset].extend(_create_dset_placeholder(size_of_new_dataset, missing_value))
     return name_to_dataset
 
 
-def _get_dset_from_group(dset_name, group):
-    dataset = get_dset(group, dset_name)
+def _get_dset_from_group(dset_name, group, start, size):
+    dataset = get_dset(group, dset_name, start, size)
     if dataset is None:
         dataset = []
     return Dataset(dataset)

@@ -19,13 +19,11 @@
     Can filter based on p-value thresholds, bp position thresholds, and specific study
 """
 
-import sumstats.chr.query_utils as myutils
-from sumstats.utils.restrictions import *
+import sumstats.chr.query as query
 from sumstats.chr.constants import *
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
 from sumstats.utils.interval import *
-import sumstats.utils.argument_utils as au
 
 
 def fill_in_block_limits(bp_interval):
@@ -44,14 +42,14 @@ class Search():
         self.f = h5py.File(h5file, 'r')
         self.name_to_dset = {}
 
-    def query_for_chromosome(self, chromosome):
+    def query_for_chromosome(self, chromosome, start, size):
         chr_group = gu.get_group_from_parent(self.f, chromosome)
 
         all_chr_block_groups = gu.get_all_groups_from_parent(chr_group)
         print("block size", len(all_chr_block_groups))
-        self.name_to_dset = myutils.get_dsets_from_plethora_of_blocks(all_chr_block_groups)
+        self.name_to_dset = query.get_dsets_from_plethora_of_blocks(all_chr_block_groups, start, size)
 
-    def query_chr_for_block_range(self, chromosome, bp_interval):
+    def query_chr_for_block_range(self, chromosome, bp_interval, start, size):
 
         chr_group = gu.get_group_from_parent(self.f, chromosome)
         bp_interval = fill_in_block_limits(bp_interval)
@@ -61,11 +59,11 @@ class Search():
         # for block size 100, if I say I want BP range 250 - 350 that means
         # I need to search for block 300 (200-300) and block 400 (300-400)
 
-        from_block = myutils.get_block_number(bp_interval.floor())
-        to_block = myutils.get_block_number(bp_interval.ceil())
+        from_block = query.get_block_number(bp_interval.floor())
+        to_block = query.get_block_number(bp_interval.ceil())
 
         block_interval = IntInterval().set_tuple(from_block, to_block)
-        block_groups = myutils.get_block_groups_from_parent_within_block_range(chr_group, block_interval)
+        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group, block_interval)
 
         # we might need to filter further if they don't fit exactly
         # e.g. we got the snps for range 200-400 now we need to filter 250-350
@@ -74,7 +72,7 @@ class Search():
         if block_interval.ceil() != bp_interval.ceil():
             filter_block_ceil = bp_interval.ceil()
 
-        name_to_dset = myutils.get_dsets_from_plethora_of_blocks(block_groups)
+        name_to_dset = query.get_dsets_from_plethora_of_blocks(block_groups, start, size)
         bp_mask = name_to_dset[BP_DSET].interval_mask(filter_block_floor, filter_block_ceil)
 
         if bp_mask is not None:
@@ -102,28 +100,3 @@ class Search():
 
     def get_result(self):
         return self.name_to_dset
-
-
-def main():
-    args = au.search_argument_parser()
-    trait, study, chr, bp_interval, snp, pval_interval = au.convert_search_args(args)
-
-    search = Search(args.h5file)
-
-    if bp_interval is None:
-        search.query_for_chromosome(chr)
-    else:
-        search.query_chr_for_block_range(chr, bp_interval)
-
-    search.apply_restrictions(study=study, pval_interval=pval_interval)
-
-    name_to_dataset = search.get_result()
-
-    print("Number of snp's retrieved", len(name_to_dataset[SNP_DSET]))
-    for dset in name_to_dataset:
-        print(dset)
-        print(name_to_dataset[dset][:10])
-
-
-if __name__ == "__main__":
-    main()

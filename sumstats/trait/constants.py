@@ -17,3 +17,4 @@ MANTISSA_DSET = 'mantissa'
 EXP_DSET = 'exp'
 CHR_DSET = 'chr'
 STUDY_DSET = 'study'
+REFERENCE_DSET = MANTISSA_DSET

@@ -18,11 +18,10 @@
     Can filter based on p-value thresholds and/or specific study
 """
 
-import sumstats.snp.query_utils as myutils
+import sumstats.snp.query as query
 from sumstats.snp.constants import *
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
-import sumstats.utils.argument_utils as au
 
 
 class Search():
@@ -34,11 +33,12 @@ class Search():
         self.name_to_dset = {}
 
     def snp_in_file(self, snp):
+        print("snp", snp)
         return snp in self.f
 
-    def query_for_snp(self, snp):
+    def query_for_snp(self, snp, start, size):
         snp_group = gu.get_group_from_parent(self.f, snp)
-        self.name_to_dset = myutils.get_dsets_from_group(snp_group)
+        self.name_to_dset = query.get_dsets_from_group(snp_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
         restrict_dict = {}
@@ -59,25 +59,3 @@ class Search():
 
     def get_result(self):
         return self.name_to_dset
-
-
-def main():
-    args = au.search_argument_parser()
-    trait, study, chr, bp_interval, snp, pval_interval = au.convert_search_args(args)
-
-    search = Search(args.h5file)
-
-    search.query_for_snp(snp)
-
-    search.apply_restrictions(study=study, pval_interval=pval_interval)
-
-    name_to_dataset = search.get_result()
-
-    print("Number of studies retrieved", len(name_to_dataset[STUDY_DSET]))
-    for dset in name_to_dataset:
-        print(dset)
-        print(name_to_dataset[dset][:10])
-
-
-if __name__ == "__main__":
-    main()

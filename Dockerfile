@@ -8,7 +8,7 @@ COPY setup.py /application/
 RUN pip install /application/ 
 
 # Expose ports
-EXPOSE 8081
+EXPOSE 8080
 
 # Set the default directory where CMD will execute
 WORKDIR /application

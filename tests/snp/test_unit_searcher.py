@@ -27,6 +27,8 @@ class TestUnitSearcher(object):
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
 
+        self.start = 0
+        self.size = 20
         self.query = Search(self.h5file)
 
     def teardown_method(self, method):
@@ -35,7 +37,7 @@ class TestUnitSearcher(object):
     def test_query_for_snp(self):
         snp = "rs7085086"
 
-        self.query.query_for_snp(snp)
+        self.query.query_for_snp(snp, self.start, self.size)
         name_to_dataset = self.query.get_result()
 
         assert isinstance(name_to_dataset, dict)

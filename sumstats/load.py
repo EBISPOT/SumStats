@@ -45,6 +45,7 @@ def main():
 
         to_store = output_path + "/bychr/file_" + str(chromosome) + ".h5"
         loader = chr_loader.Loader(to_load, to_store, study)
+        # loader.check_study_not_loaded()
         loader.load()
         print("Load complete!")
 

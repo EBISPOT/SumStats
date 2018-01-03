@@ -1,7 +1,7 @@
 import os
 import pytest
 import sumstats.chr.loader as loader
-import sumstats.chr.query_utils as query
+import sumstats.chr.query as query
 from sumstats.chr.constants import *
 from tests.chr.test_constants import *
 from sumstats.utils.interval import *
@@ -31,6 +31,8 @@ class TestUnitQueryUtils(object):
 
         # open h5 file in read/write mode
         self.f = h5py.File(self.h5file, mode="a")
+        self.start = 0
+        self.size = 20
 
     def teardown_method(self, method):
         os.remove(self.h5file)
@@ -73,7 +75,7 @@ class TestUnitQueryUtils(object):
         bp_interval = IntInterval().set_tuple(48500000, 49200000)
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
 
-        name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups)
+        name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups, self.start, self.size)
         assert name_to_dataset.__class__ is dict
 
         for dset_name in TO_QUERY_DSETS:
@@ -82,7 +84,7 @@ class TestUnitQueryUtils(object):
 
         bp_interval = IntInterval().set_tuple(48600000, 48600000)
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
-        name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups)
+        name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups, self.start, self.size)
         for dset_name in TO_QUERY_DSETS:
             # no SNP bp falls into this group
             assert len(name_to_dataset[dset_name]) == 0
@@ -94,7 +96,7 @@ class TestUnitQueryUtils(object):
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
         block_group = block_groups[0]
 
-        name_to_dset = query.get_dsets_from_group(block_group)
+        name_to_dset = query.get_dsets_from_group(block_group, self.start, self.size)
         assert len(name_to_dset) == len(TO_STORE_DSETS)
         for dset_name, dset in name_to_dset.items():
             if dset_name is STUDY_DSET:

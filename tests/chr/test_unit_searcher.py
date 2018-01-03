@@ -29,13 +29,15 @@ class TestUnitSearcher(object):
         load = loader.Loader(None, self.h5file, 'PM003', dict)
         load.load()
 
+        self.start = 0
+        self.size = 20
         self.query = Search(self.h5file)
 
     def teardown_method(self, method):
         os.remove(self.h5file)
 
     def test_query_for_chromosome(self):
-        self.query.query_for_chromosome("2")
+        self.query.query_for_chromosome("2", self.start, self.size)
         name_to_dataset = self.query.get_result()
 
         assert len(name_to_dataset[BP_DSET]) == 6
@@ -47,7 +49,7 @@ class TestUnitSearcher(object):
         block_upper_limit = 49129966
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
 
-        self.query.query_chr_for_block_range("2", bp_interval)
+        self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
         name_to_dataset = self.query.get_result()
 
         assert isinstance(name_to_dataset, dict)
@@ -59,12 +61,12 @@ class TestUnitSearcher(object):
         block_upper_limit = 48480252
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
         with pytest.raises(ValueError):
-            self.query.query_chr_for_block_range("2", bp_interval)
+            self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
 
         block_lower_limit = 49129966
         block_upper_limit = 49200000
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
-        self.query.query_chr_for_block_range("2", bp_interval)
+        self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
         name_to_dataset = self.query.get_result()
 
         assert isinstance(name_to_dataset, dict)

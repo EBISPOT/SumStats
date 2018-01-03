@@ -8,6 +8,10 @@ import sumstats.utils.utils as utils
 from sumstats.utils.dataset import Dataset
 
 
+start = 0
+size = 20
+
+
 class TestUnitGroup(object):
     h5file = ".testfile.h5"
     f = None
@@ -54,10 +58,10 @@ class TestUnitGroup(object):
         data = [1, 2, 3]
         group.create_dataset("dset", data=data)
 
-        dataset = gu.get_dset(group, "dset")
+        dataset = gu.get_dset(group, "dset", start, size)
         assert np.array_equal(dataset, data)
 
-        dataset = gu.get_dset(group, "dset1")
+        dataset = gu.get_dset(group, "dset1", start, size)
         assert dataset is None
 
     def test_check_group_dsets_shape(self):
@@ -112,7 +116,7 @@ class TestUnitGroup(object):
 
     def test_get_dset_from_group(self):
         chr_group_2 = self.f.create_group("/2")
-        snp_group = gu._get_dset_from_group('snp', chr_group_2)
+        snp_group = gu._get_dset_from_group('snp', chr_group_2, start, size)
         assert utils.empty_array(snp_group)
 
     def test_create_dset_placeholder(self):
@@ -137,8 +141,7 @@ class TestUnitGroup(object):
         name_to_dset = utils.create_dictionary_of_empty_dsets(TO_QUERY)
         name_to_dset = gu.extend_dsets_for_group_missing(missing_value="group_name", group=group,
                                                          name_to_dataset=name_to_dset,
-                                                         missing_dset="dset3",
-                                                         existing_dset="dset2")
+                                                         missing_dset="dset3", start=start, size=size)
 
         data3 = ["group_name", "group_name", "group_name"]
         assert np.array_equal(name_to_dset['dset1'], data1)

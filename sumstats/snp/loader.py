@@ -64,8 +64,12 @@ def save_info_in_group(group, name_to_dataset):
         if snp in group:
             snp_group = gu.get_group_from_parent(group, snp)
 
-            gu.check_group_dsets_shape(snp_group, TO_STORE_DSETS)
-            gu.check_element_not_loaded_in_dset(snp_group, name_to_dataset[STUDY_DSET][0], STUDY_DSET)
+            # gu.check_group_dsets_shape(snp_group, TO_STORE_DSETS)
+            # try:
+            #     gu.check_element_not_loaded_in_dset(snp_group, name_to_dataset[STUDY_DSET][0], STUDY_DSET)
+            # except AssertionError:
+            #     print(snp)
+            #     continue
 
             for dset_name in TO_STORE_DSETS:
                 expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])

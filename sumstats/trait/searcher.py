@@ -18,11 +18,10 @@
     Can filter based on p-value thresholds, bp position thresholds, SNP, CHR
 """
 
-import sumstats.trait.query_utils as myutils
+import sumstats.trait.query as query
 from sumstats.trait.constants import *
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
-import sumstats.utils.argument_utils as au
 
 
 class Search():
@@ -32,15 +31,18 @@ class Search():
         self.f = h5py.File(h5file, 'r')
         self.name_to_dset = {}
 
-    def query_for_trait(self, trait):
-        trait_group = gu.get_group_from_parent(self.f, trait)
-        self.name_to_dset = myutils.get_dsets_from_trait_group(trait_group)
+    def query_for_all_associations(self, start, size):
+        self.name_to_dset = query.get_dsets_from_file(self.f, start, size)
 
-    def query_for_study(self, trait, study):
+    def query_for_trait(self, trait, start, size):
+        trait_group = gu.get_group_from_parent(self.f, trait)
+        self.name_to_dset = query.get_dsets_from_trait_group(trait_group, start, size)
+
+    def query_for_study(self, trait, study, start, size):
         trait_group = gu.get_group_from_parent(self.f, trait)
         study_group = gu.get_group_from_parent(trait_group, study)
 
-        self.name_to_dset = myutils.get_dsets_from_group(study, study_group)
+        self.name_to_dset = query.get_dsets_from_group_directly(study, study_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
         restrict_dict = {}
@@ -73,30 +75,3 @@ class Search():
         for trait_group in trait_groups:
             study_groups.extend(gu.get_all_groups_from_parent(trait_group))
         return [study_group.name.strip("/").replace("/",": ") for study_group in study_groups]
-
-
-
-
-def main():
-    args = au.search_argument_parser()
-    trait, study, chr, bp_interval, snp, pval_interval = au.convert_search_args(args)
-
-    search = Search(args.h5file)
-
-    if study is None:
-        search.query_for_trait(trait)
-    else:
-        search.query_for_study(trait, study)
-
-    search.apply_restrictions(snp=snp, chr=chr, pval_interval=pval_interval, bp_interval=bp_interval)
-
-    name_to_dataset = search.get_result()
-
-    print("Number of snp's retrieved", len(name_to_dataset[SNP_DSET]))
-    for dset in name_to_dataset:
-        print(dset)
-        print(name_to_dataset[dset][:10])
-
-
-if __name__ == "__main__":
-    main()
