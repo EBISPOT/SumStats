@@ -196,3 +196,49 @@ class TestUnitLoader(object):
 
         notreached = loader.block_limit_not_reached_max(max_bp + BLOCK_SIZE + 1, max_bp)
         assert not notreached
+
+    def test_already_loaded_chromosome_not_there(self):
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        assert not load.already_loaded()
+
+    def test_already_loaded_block_group_with_no_data(self):
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load.load()
+        bparray_new = [1, 1, 1, 1]
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray_new,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        assert not load.already_loaded()
+
+    def test_already_loaded_study_not_loaded(self):
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load.load()
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        assert not load.already_loaded()
+
+    def test_already_loaded_study_already_loaded(self):
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load.load()
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        assert load.already_loaded()

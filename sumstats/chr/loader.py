@@ -22,6 +22,7 @@ import pandas as pd
 from sumstats.utils import utils
 from sumstats.chr.constants import *
 import sumstats.utils.group as gu
+import sumstats.chr.query as query
 
 
 def create_dataset(group, dset_name, data):
@@ -94,7 +95,7 @@ class Loader():
 
         if tsv is not None:
             name_to_list = {}
-            assert dict_of_data is None, "dic_of_data is ignored"
+            assert dict_of_data is None, "dict_of_data is ignored"
             print(time.strftime('%a %H:%M:%S'))
             for name in TO_LOAD_DSET_HEADERS:
                 name_to_list[name] = \
@@ -121,10 +122,11 @@ class Loader():
         self.f = h5py.File(self.h5file, 'a')
 
     def load(self):
-        name_to_dataset = self.name_to_dataset
+        if self.already_loaded():
+            raise ValueError("This study has already been loaded! Study:", self.study)
 
-        unique_chromosomes_in_file = set(name_to_dataset[CHR_DSET])
-        chromosome_array = np.array([x for x in unique_chromosomes_in_file])
+        name_to_dataset = self.name_to_dataset
+        chromosome_array = self.get_chromosome_array()
         create_groups_in_parent(self.f, chromosome_array)
 
         for chromosome in chromosome_array:
@@ -148,6 +150,28 @@ class Loader():
                     save_info_in_block_group(block_group, dsets_block_slices)
 
                 block_floor, block_ceil = increment_block_limits(block_ceil)
+
+    def already_loaded(self):
+        study = self.study
+        random_chr = self.name_to_dataset[CHR_DSET][0]
+        try:
+            chr_group = gu.get_group_from_parent(self.f, random_chr)
+        except ValueError:
+            return False
+        random_bp = self.name_to_dataset[BP_DSET][0]
+        block_number = query.get_block_number(random_bp)
+        block_group = get_block_group_from_block_ceil(chr_group, block_number)
+        if STUDY_DSET not in block_group:
+            return False
+        study_dset = block_group[STUDY_DSET]
+        if study in study_dset:
+            return True
+        return False
+
+    def get_chromosome_array(self):
+        name_to_dataset = self.name_to_dataset
+        unique_chromosomes_in_file = set(name_to_dataset[CHR_DSET])
+        return np.array([x for x in unique_chromosomes_in_file])
 
 
 def main():
