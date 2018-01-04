@@ -63,14 +63,6 @@ def save_info_in_group(group, name_to_dataset):
         snp = snps[i]
         if snp in group:
             snp_group = gu.get_group_from_parent(group, snp)
-
-            # gu.check_group_dsets_shape(snp_group, TO_STORE_DSETS)
-            # try:
-            #     gu.check_element_not_loaded_in_dset(snp_group, name_to_dataset[STUDY_DSET][0], STUDY_DSET)
-            # except AssertionError:
-            #     print(snp)
-            #     continue
-
             for dset_name in TO_STORE_DSETS:
                 expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
         else:
@@ -112,8 +104,22 @@ class Loader():
         self.file = h5py.File(self.h5file, 'a')
 
     def load(self):
+        if self.already_loaded():
+            raise ValueError("This study has already been loaded! Study:", self.study)
         name_to_dataset = self.name_to_dataset
         save_info_in_group(self.file, name_to_dataset)
+
+    def already_loaded(self):
+        name_to_dataset = self.name_to_dataset
+        study = self.study
+        file = self.file
+
+        snps = name_to_dataset[SNP_DSET]
+        random_snp = snps[0]
+        if random_snp not in file:
+            return False
+        snp_group = gu.get_group_from_parent(file, random_snp)
+        return gu.already_loaded_in_group(snp_group, study, STUDY_DSET)
 
 
 def main():

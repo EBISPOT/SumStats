@@ -33,7 +33,6 @@ def main():
     if loader_type == "trait":
         assert trait is not None, "You have chosen the trait loader but haven't specified a trait"
         assert study is not None, "You have chosen the trait loader but haven't specified a study association"
-        # assert study is not None, "You have chosen the trait loader but haven't specified a trait"
         to_store = output_path + "/bytrait/file_" + trait + ".h5"
         loader = trait_loader.Loader(to_load, to_store, study, trait)
         loader.load()

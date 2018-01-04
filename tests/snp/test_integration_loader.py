@@ -64,3 +64,19 @@ class TestLoader(object):
         assert studies[:][0] == "PM001"
         assert studies[:][1] == "PM002"
         assert studies[:][2] == "PM003"
+
+    def test_study_already_loaded_raises_error(self):
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        with pytest.raises(ValueError):
+            load.load()
+
+    def test_study_already_loaded_doesnt_raise_error_on_new_study(self):
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM004', dict)
+        load.load()

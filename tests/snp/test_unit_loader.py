@@ -3,7 +3,7 @@ import pytest
 import sumstats.snp.loader as loader
 from tests.snp.test_constants import *
 from sumstats.snp.constants import *
-
+import sumstats.utils.group as gu
 
 class TestUnitLoader(object):
     h5file = ".testfile.h5"
@@ -128,3 +128,52 @@ class TestUnitLoader(object):
         dset = random_group.get(dset_name)
         dataset = dset[:]
         assert len(dataset) == 2
+
+    def test_already_loaded_snp_not_in_file(self):
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load.load()
+
+        snpsarray_new = ['rs1', 'rs1', 'rs1', 'rs1']
+        dict = {"snp": snpsarray_new, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        assert not load.already_loaded()
+
+    def test_already_loaded_snp_group_exists_but_with_no_data(self):
+        snp = 'rs1'
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load.file.create_group(snp)
+
+        assert not load.already_loaded()
+
+    def test_already_loaded_study_not_loaded(self):
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load.load()
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        assert not load.already_loaded()
+
+    def test_already_loaded_study_already_loaded(self):
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load.load()
+
+        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+
+        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        assert load.already_loaded()

@@ -80,9 +80,8 @@ def block_limit_not_reached_max(block_ceil, max_bp):
 
 
 def save_info_in_block_group(block_group, name_to_dataset):
-
     gu.check_group_dsets_shape(block_group, TO_STORE_DSETS)
-    gu.check_element_not_loaded_in_dset(block_group, name_to_dataset[STUDY_DSET][0], STUDY_DSET)
+
     for dset_name in TO_STORE_DSETS:
         expand_dataset(block_group, dset_name, name_to_dataset[dset_name])
 
@@ -161,12 +160,7 @@ class Loader():
         random_bp = self.name_to_dataset[BP_DSET][0]
         block_number = query.get_block_number(random_bp)
         block_group = get_block_group_from_block_ceil(chr_group, block_number)
-        if STUDY_DSET not in block_group:
-            return False
-        study_dset = block_group[STUDY_DSET]
-        if study in study_dset:
-            return True
-        return False
+        return gu.already_loaded_in_group(block_group, study, STUDY_DSET)
 
     def get_chromosome_array(self):
         name_to_dataset = self.name_to_dataset

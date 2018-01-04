@@ -22,8 +22,6 @@ def get_dset(group, dset_name, start, size):
         if start <= dset.shape[0]:
             end = min(dset.shape[0], (start + size))
             dset = dset[start:end]
-        else:
-            dset = None
     return dset
 
 
@@ -48,12 +46,13 @@ def _assert_all_dsets_have_same_shape(first_dset, dsets):
             "Group has datasets with inconsistent shape!"
 
 
-def check_element_not_loaded_in_dset(group, element, dset_name):
+def already_loaded_in_group(group, element, dset_name):
     dataset = group.get(dset_name)
     if dataset is None:
-        return
+        return False
     if element in dataset:
-        raise AssertionError(element + " already exists in " + dset_name + "!")
+        return True
+    return False
 
 
 def extend_dsets_for_group(group, name_to_dataset, start, size):

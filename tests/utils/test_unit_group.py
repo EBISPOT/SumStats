@@ -107,12 +107,9 @@ class TestUnitGroup(object):
         study_dset = np.array(['study1', 'study2'], dtype=h5py.special_dtype(vlen=str))
         dset_name = 'study'
         group.create_dataset(name=dset_name, data=study_dset, maxshape=(None,))
-        with pytest.raises(AssertionError):
-            gu.check_element_not_loaded_in_dset(group, 'study1', dset_name)
-
-        gu.check_element_not_loaded_in_dset(group, 'study', dset_name)
-
-        gu.check_element_not_loaded_in_dset(group, 'study1', 'non existing dset name')
+        assert gu.already_loaded_in_group(group, 'study1', dset_name)
+        assert not gu.already_loaded_in_group(group, 'study', dset_name)
+        assert not gu.already_loaded_in_group(group, 'study1', 'non existing dset name')
 
     def test_get_dset_from_group(self):
         chr_group_2 = self.f.create_group("/2")
