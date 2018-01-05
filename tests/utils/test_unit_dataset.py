@@ -57,7 +57,7 @@ class TestUnitDataset(object):
         mask2 = [True, False]
         expected_mask = [True, False]
         list_of_masks = [mask1, mask2]
-        mask = combine_list_of_masks(list_of_masks)
+        mask = logical_and_on_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
     def combine_list_of_not_same_size_masks(self):
@@ -65,7 +65,7 @@ class TestUnitDataset(object):
         mask2 = [True, False, True]
         expected_mask = [True, False]
         list_of_masks = [mask1, mask2]
-        mask = combine_list_of_masks(list_of_masks)
+        mask = logical_and_on_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
     def combine_mask_with_none_mask(self):
@@ -73,7 +73,7 @@ class TestUnitDataset(object):
         mask2 = None
         expected_mask = mask1
         list_of_masks = [mask1, mask2]
-        mask = combine_list_of_masks(list_of_masks)
+        mask = logical_and_on_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
     def combine_none_masks(self):
@@ -81,7 +81,7 @@ class TestUnitDataset(object):
         mask2 = None
         expected_mask = None
         list_of_masks = [mask1, mask2]
-        mask = combine_list_of_masks(list_of_masks)
+        mask = logical_and_on_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
     def get_cutoff_mask(self):

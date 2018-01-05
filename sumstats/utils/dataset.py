@@ -41,7 +41,7 @@ class Dataset(list):
         mask_u = self.get_upper_limit_mask(upper_limit)
         mask_l = self.get_lower_limit_mask(lower_limit)
         list_of_masks = [mask_l, mask_u]
-        return combine_list_of_masks(list_of_masks)
+        return logical_and_on_list_of_masks(list_of_masks)
 
     def filter_by_mask(self, mask):
         return list(itertools.compress(self, mask))
@@ -60,7 +60,7 @@ class Dataset(list):
                             "" + str(type(self[0])) + ' using value of type ' + str(type(value)))
 
 
-def combine_list_of_masks(list_of_masks):
+def logical_and_on_list_of_masks(list_of_masks):
     not_none_masks = [mask for mask in list_of_masks if mask is not None]
 
     if len(not_none_masks) == 0:
@@ -68,3 +68,13 @@ def combine_list_of_masks(list_of_masks):
     if len(not_none_masks) == 1:
         return not_none_masks[0]
     return reduce(lambda mask1, mask2: [all(tup) for tup in zip(mask1, mask2)], not_none_masks)
+
+
+def logical_or_on_list_of_masks(list_of_masks):
+    not_none_masks = [mask for mask in list_of_masks if mask is not None]
+
+    if len(not_none_masks) == 0:
+        return None
+    if len(not_none_masks) == 1:
+        return not_none_masks[0]
+    return reduce(lambda mask1, mask2: [any(tup) for tup in zip(mask1, mask2)], not_none_masks)

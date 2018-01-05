@@ -16,7 +16,7 @@ def filter_dictionary_by_mask(dictionary, mask):
 def filter_dsets_with_restrictions(name_to_dataset, restrictions):
     list_of_masks = [restriction.get_mask() for restriction in restrictions]
 
-    filtering_mask = combine_list_of_masks(list_of_masks)
+    filtering_mask = logical_and_on_list_of_masks(list_of_masks)
     if filtering_mask is not None:
         return filter_dictionary_by_mask(name_to_dataset, filtering_mask)
 
