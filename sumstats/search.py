@@ -34,6 +34,7 @@ class Search():
                 searcher.apply_restrictions(snp=snp, chr=chromosome, pval_interval=pval_interval,
                                             bp_interval=bp_interval)
                 result = searcher.get_result()
+                searcher.close_file()
                 dset_size = len(result[REFERENCE_DSET])
 
                 all_groups_size += dset_size
@@ -43,6 +44,7 @@ class Search():
                     searcher.apply_restrictions(snp=snp, chr=chromosome, pval_interval=pval_interval,
                                                 bp_interval=bp_interval)
                     tmp_result = searcher.get_result()
+                    searcher.close_file()
                     all_groups_size += len(tmp_result[REFERENCE_DSET])
 
                 trait_list.extend([trait for _ in range(dset_size)])
@@ -70,6 +72,7 @@ class Search():
             searcher.query_for_trait(trait, start, size)
             searcher.apply_restrictions(snp=snp, chr=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
             result = searcher.get_result()
+            searcher.close_file()
         return result
 
     def search_study(self, trait, study, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
@@ -82,6 +85,7 @@ class Search():
 
             searcher.apply_restrictions(snp=snp, chr=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
             result = searcher.get_result()
+            searcher.close_file()
         return result
 
     def search_chromosome(self, chromosome, start, size, bp_interval=None, study=None, pval_interval=None):
@@ -96,6 +100,7 @@ class Search():
                 searcher.query_for_chromosome(chromosome, start, size)
             searcher.apply_restrictions(study=study, pval_interval=pval_interval)
             result = searcher.get_result()
+            searcher.close_file()
         return result
 
     def search_snp(self, snp, start, size, study=None, pval_interval=None):
@@ -109,7 +114,9 @@ class Search():
                 if searcher.snp_in_file(snp):
                     searcher.query_for_snp(snp, start, size)
                     searcher.apply_restrictions(study=study, pval_interval=pval_interval)
-                    return searcher.get_result()
+                    result = searcher.get_result()
+                    searcher.close_file()
+                    return result
 
         return result
 

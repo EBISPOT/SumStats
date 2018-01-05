@@ -26,20 +26,19 @@ import sumstats.utils.utils as utils
 
 class Search():
     def __init__(self, h5file):
-        self.h5file = h5file
         # Open the file with read permissions
-        self.f = h5py.File(h5file, 'r')
+        self.file = h5py.File(h5file, 'r')
         self.name_to_dset = {}
 
     def query_for_all_associations(self, start, size):
-        self.name_to_dset = query.get_dsets_from_file(self.f, start, size)
+        self.name_to_dset = query.get_dsets_from_file(self.file, start, size)
 
     def query_for_trait(self, trait, start, size):
-        trait_group = gu.get_group_from_parent(self.f, trait)
+        trait_group = gu.get_group_from_parent(self.file, trait)
         self.name_to_dset = query.get_dsets_from_trait_group(trait_group, start, size)
 
     def query_for_study(self, trait, study, start, size):
-        trait_group = gu.get_group_from_parent(self.f, trait)
+        trait_group = gu.get_group_from_parent(self.file, trait)
         study_group = gu.get_group_from_parent(trait_group, study)
 
         self.name_to_dset = query.get_dsets_from_group_directly(study, study_group, start, size)
@@ -65,13 +64,16 @@ class Search():
         return self.name_to_dset
 
     def list_traits(self):
-        trait_groups = gu.get_all_groups_from_parent(self.f)
+        trait_groups = gu.get_all_groups_from_parent(self.file)
         return [trait_group.name.strip("/") for trait_group in trait_groups]
 
     def list_studies(self):
-        trait_groups = gu.get_all_groups_from_parent(self.f)
+        trait_groups = gu.get_all_groups_from_parent(self.file)
         study_groups = []
 
         for trait_group in trait_groups:
             study_groups.extend(gu.get_all_groups_from_parent(trait_group))
         return [study_group.name.strip("/").replace("/",": ") for study_group in study_groups]
+
+    def close_file(self):
+        self.file.close()

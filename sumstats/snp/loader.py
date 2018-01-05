@@ -56,24 +56,27 @@ def create_study_list(study, length_of):
     return [study for _ in range(length_of)]
 
 
-def save_info_in_group(group, name_to_dataset):
+def save_info_in_file(file, name_to_dataset):
     snps = name_to_dataset[SNP_DSET]
 
     for i in range(len(snps)):
         snp = snps[i]
-        if snp in group:
-            snp_group = gu.get_group_from_parent(group, snp)
+        if snp in file:
+            snp_group = gu.get_group_from_parent(file, snp)
             for dset_name in TO_STORE_DSETS:
                 expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
+                # flush file after writing to prevent data corruption
+                file.flush()
         else:
-            snp_group = group.create_group(snp)
+            snp_group = file.create_group(snp)
             for dset_name in TO_STORE_DSETS:
                 create_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
+                # flush file after writing to prevent data corruption
+                file.flush()
 
 
 class Loader():
     def __init__(self, tsv, h5file, study, dict_of_data=None):
-        self.h5file = h5file
         self.study = study
 
         if tsv is not None:
@@ -101,13 +104,13 @@ class Loader():
 
         self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
         # Open the file with read/write permissions and create if it doesn't exist
-        self.file = h5py.File(self.h5file, 'a')
+        self.file = h5py.File(h5file, 'a')
 
     def load(self):
         if self.already_loaded():
             raise ValueError("This study has already been loaded! Study:", self.study)
         name_to_dataset = self.name_to_dataset
-        save_info_in_group(self.file, name_to_dataset)
+        save_info_in_file(self.file, name_to_dataset)
 
     def already_loaded(self):
         name_to_dataset = self.name_to_dataset
@@ -120,6 +123,9 @@ class Loader():
             return False
         snp_group = gu.get_group_from_parent(file, random_snp)
         return gu.already_loaded_in_group(snp_group, study, STUDY_DSET)
+
+    def close_file(self):
+        self.file.close()
 
 
 def main():
@@ -135,6 +141,7 @@ def main():
 
     loader = Loader(tsv, h5file, study)
     loader.load()
+    loader.close_file()
 
 
 if __name__ == "__main__":

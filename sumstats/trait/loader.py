@@ -50,7 +50,7 @@ def create_dataset(group, dset_name, data):
 class Loader():
 
     def __init__(self, tsv, h5file, study, trait, dict_of_data=None):
-        self.h5file = h5file
+        h5file = h5file
         self.study = study
         self.trait = trait
 
@@ -79,22 +79,26 @@ class Loader():
 
         self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
 
+        # Open the file with read/write permissions and create if it doesn't exist
+        self.file = h5py.File(h5file, 'a')
+
     def load(self):
 
-        h5file = self.h5file
         study = self.study
         trait = self.trait
         name_to_dataset = self.name_to_dataset
 
-        # Open the file with read/write permissions and create if it doesn't exist
-        f = h5py.File(h5file, 'a')
-
-        trait_group = create_trait_group(f, trait)
+        trait_group = create_trait_group(self.file, trait)
         study_group = create_study_group(trait_group, study)
 
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
             create_dataset(study_group, dset_name, name_to_dataset[dset_name])
+            # flush after saving each dataset
+            self.file.flush()
+
+    def close_file(self):
+        self.file.close()
 
 
 def main():
@@ -112,6 +116,7 @@ def main():
 
     loader = Loader(tsv, h5file, study, trait)
     loader.load()
+    loader.close_file()
 
 
 if __name__ == '__main__':

@@ -19,6 +19,7 @@ class Explorer():
         for h5file in h5files:
             searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
             traits.extend(searcher.list_traits())
+            searcher.close_file()
 
         return traits
 
@@ -29,6 +30,7 @@ class Explorer():
         for h5file in h5files:
             searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
             studies.extend(searcher.list_studies())
+            searcher.close_file()
 
         return studies
 
@@ -39,7 +41,9 @@ class Explorer():
             searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
             for study in searcher.list_studies():
                 if study_to_find == study.split(":")[1].strip(" "):
+                    searcher.close_file()
                     return study
+            searcher.close_file()
 
 
 def main():

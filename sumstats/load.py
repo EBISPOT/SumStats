@@ -36,6 +36,7 @@ def main():
         to_store = output_path + "/bytrait/file_" + trait + ".h5"
         loader = trait_loader.Loader(to_load, to_store, study, trait)
         loader.load()
+        loader.close_file()
         print("Load complete!")
 
     if loader_type == "chr":
@@ -45,6 +46,7 @@ def main():
         to_store = output_path + "/bychr/file_" + str(chromosome) + ".h5"
         loader = chr_loader.Loader(to_load, to_store, study)
         loader.load()
+        loader.close_file()
         print("Load complete!")
 
     if loader_type == "snp":
@@ -55,6 +57,7 @@ def main():
         to_store = output_path + "/bysnp/file_" + str(chromosome) + ".h5"
         loader = snp_loader.Loader(to_load, to_store, study)
         loader.load()
+        loader.close_file()
         print("Load complete!")
 
 

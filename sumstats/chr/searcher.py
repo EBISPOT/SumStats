@@ -37,13 +37,12 @@ def fill_in_block_limits(bp_interval):
 
 class Search():
     def __init__(self, h5file):
-        self.h5file = h5file
         # Open the file with read permissions
-        self.f = h5py.File(h5file, 'r')
+        self.file = h5py.File(h5file, 'r')
         self.name_to_dset = {}
 
     def query_for_chromosome(self, chromosome, start, size):
-        chr_group = gu.get_group_from_parent(self.f, chromosome)
+        chr_group = gu.get_group_from_parent(self.file, chromosome)
 
         all_chr_block_groups = gu.get_all_groups_from_parent(chr_group)
         print("block size", len(all_chr_block_groups))
@@ -51,7 +50,7 @@ class Search():
 
     def query_chr_for_block_range(self, chromosome, bp_interval, start, size):
 
-        chr_group = gu.get_group_from_parent(self.f, chromosome)
+        chr_group = gu.get_group_from_parent(self.file, chromosome)
         bp_interval = fill_in_block_limits(bp_interval)
 
         filter_block_ceil = None
@@ -100,3 +99,6 @@ class Search():
 
     def get_result(self):
         return self.name_to_dset
+
+    def close_file(self):
+        self.file.close()

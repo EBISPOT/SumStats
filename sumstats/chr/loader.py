@@ -88,7 +88,6 @@ def save_info_in_block_group(block_group, name_to_dataset):
 
 class Loader():
     def __init__(self, tsv, h5file, study, dict_of_data=None):
-        self.h5file = h5file
         self.study = study
         assert self.study is not None, "You need to specify a study accession"
 
@@ -118,7 +117,7 @@ class Loader():
         self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
 
         # Open the file with read/write permissions and create if it doesn't exist
-        self.f = h5py.File(self.h5file, 'a')
+        self.file = h5py.File(h5file, 'a')
 
     def load(self):
         if self.already_loaded():
@@ -126,11 +125,11 @@ class Loader():
 
         name_to_dataset = self.name_to_dataset
         chromosome_array = self.get_chromosome_array()
-        create_groups_in_parent(self.f, chromosome_array)
+        create_groups_in_parent(self.file, chromosome_array)
 
         for chromosome in chromosome_array:
             print("Loading chromosome:", chromosome)
-            chr_group = gu.get_group_from_parent(self.f, chromosome)
+            chr_group = gu.get_group_from_parent(self.file, chromosome)
 
             dsets_sliced_by_chr = slice_datasets_where_chromosome(chromosome, name_to_dataset)
 
@@ -147,6 +146,8 @@ class Loader():
                 if np.any(block_mask):
                     dsets_block_slices = utils.filter_dictionary_by_mask(dsets_sliced_by_chr, block_mask)
                     save_info_in_block_group(block_group, dsets_block_slices)
+                    # flush file after writing to prevent data corruption
+                    self.file.flush()
 
                 block_floor, block_ceil = increment_block_limits(block_ceil)
 
@@ -154,7 +155,7 @@ class Loader():
         study = self.study
         random_chr = self.name_to_dataset[CHR_DSET][0]
         try:
-            chr_group = gu.get_group_from_parent(self.f, random_chr)
+            chr_group = gu.get_group_from_parent(self.file, random_chr)
         except ValueError:
             return False
         random_bp = self.name_to_dataset[BP_DSET][0]
@@ -166,6 +167,9 @@ class Loader():
         name_to_dataset = self.name_to_dataset
         unique_chromosomes_in_file = set(name_to_dataset[CHR_DSET])
         return np.array([x for x in unique_chromosomes_in_file])
+
+    def close_file(self):
+        self.file.close()
 
 
 def main():
@@ -181,6 +185,7 @@ def main():
 
     loader = Loader(tsv, h5file, study)
     loader.load()
+    loader.close_file()
 
 
 if __name__ == "__main__":

@@ -17,3 +17,10 @@ htmlcov
 
 # hdf5 specific files
 *.h5
+
+# tsv and txt files
+*.txt 
+*.csv
+
+# the files folder 
+files

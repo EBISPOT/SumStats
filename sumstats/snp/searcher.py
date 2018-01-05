@@ -27,17 +27,15 @@ import sumstats.utils.utils as utils
 class Search():
 
     def __init__(self, h5file):
-        self.h5file = h5file
         # Open the file with read permissions
-        self.f = h5py.File(h5file, 'r')
+        self.file = h5py.File(h5file, 'r')
         self.name_to_dset = {}
 
     def snp_in_file(self, snp):
-        print("snp", snp)
-        return snp in self.f
+        return snp in self.file
 
     def query_for_snp(self, snp, start, size):
-        snp_group = gu.get_group_from_parent(self.f, snp)
+        snp_group = gu.get_group_from_parent(self.file, snp)
         self.name_to_dset = query.get_dsets_from_group(snp_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
@@ -59,3 +57,6 @@ class Search():
 
     def get_result(self):
         return self.name_to_dset
+
+    def close_file(self):
+        self.file.close()
