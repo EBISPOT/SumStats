@@ -27,34 +27,35 @@ class TestUnitGroup(object):
         self.group = self.f.create_group("1")
         self.f.create_group("1/sub1")
         self.f.create_group("1/sub2")
-        self.group.create_dataset(simple_dset_name, data=simple_dset)
 
     def teardown_method(self, method):
         os.remove(self.h5file)
 
-    def get_group_from_parent(self):
+    def test_get_group_from_parent(self):
         group = gu.get_group_from_parent(self.f, 1)
         assert group.name == "/1"
 
-    def get_non_existing_group_from_parent_raises_error(self):
+    def test_get_non_existing_group_from_parent_raises_error(self):
         with pytest.raises(ValueError):
             gu.get_group_from_parent(self.f, "23")
 
-    def get_all_groups_from_parent(self):
+    def test_get_all_groups_from_parent(self):
         group1 = gu.get_group_from_parent(self.f, 1)
         groups = gu.get_all_groups_from_parent(group1)
+        print(groups)
         assert len(groups) == 2
         assert isinstance(groups[0], h5py._hl.group.Group)
 
-    def get_dset(self):
+    def test_get_dset(self):
+        self.group.create_dataset(simple_dset_name, data=simple_dset)
         dataset = gu.get_dset(self.group, simple_dset_name, start, size)
         assert np.array_equal(dataset, simple_dset)
 
-    def get_non_existing_dset_returns_none(self):
+    def test_get_non_existing_dset_returns_none(self):
         dataset = gu.get_dset(self.group, not_saved_dset_name, start, size)
         assert dataset is None
 
-    def check_group_dsets_shape(self):
+    def test_check_group_dsets_shape(self):
         group = self.f.create_group("/rs185339560")
         study_dset = np.array(['study1'], dtype=h5py.special_dtype(vlen=str))
         mantissa_dset = np.array([0.1, 0.2], dtype=float)
@@ -66,7 +67,7 @@ class TestUnitGroup(object):
         with pytest.raises(AssertionError):
             gu.check_group_dsets_shape(group, TO_STORE_DSETS)
 
-    def check_group_dsets_shape_one_dset_empty(self):
+    def test_check_group_dsets_shape_one_dset_empty(self):
         group = self.f.create_group("/rs185339560")
         study_dset = np.array(['study1'], dtype=h5py.special_dtype(vlen=str))
 
@@ -76,12 +77,12 @@ class TestUnitGroup(object):
         with pytest.raises(AssertionError):
             gu.check_group_dsets_shape(group, TO_STORE_DSETS)
 
-    def check_group_dsets_shape_first_load(self):
+    def test_check_group_dsets_shape_first_load(self):
         group = self.f.create_group("/rs185339560")
         TO_STORE_DSETS = ['study', 'mantissa']
         gu.check_group_dsets_shape(group, TO_STORE_DSETS)
 
-    def check_group_dsets_shape_all_ok(self):
+    def test_check_group_dsets_shape_all_ok(self):
         group = self.f.create_group("/rs185339560")
         study_dset = np.array(['study1', 'study2'], dtype=h5py.special_dtype(vlen=str))
         mantissa_dset = np.array([0.1, 0.2], dtype=float)
@@ -92,33 +93,36 @@ class TestUnitGroup(object):
 
         gu.check_group_dsets_shape(group, TO_STORE_DSETS)
 
-    def already_loaded_returns_true_for_loaded_data(self):
+    def test_already_loaded_returns_true_for_loaded_data(self):
+        self.group.create_dataset(simple_dset_name, data=simple_dset)
         assert gu.already_loaded_in_group(self.group, simple_dset[0], simple_dset_name)
 
-    def already_loaded_returns_false_for_data_non_existing_data(self):
+    def test_already_loaded_returns_false_for_data_non_existing_data(self):
         assert not gu.already_loaded_in_group(self.group, non_existing_data, simple_dset_name)
 
-    def already_loaded_returns_false_for_non_existing_dataset_name(self):
+    def test_already_loaded_returns_false_for_non_existing_dataset_name(self):
         assert not gu.already_loaded_in_group(self.group, simple_dset[0], not_saved_dset_name)
 
-    def get_non_existing_dset_from_group_returns_empty_array(self):
+    def test_get_non_existing_dset_from_group_returns_empty_array(self):
         snp_group = gu._get_dset_from_group(not_saved_dset_name, self.group, start, size)
         assert utils.empty_array(snp_group)
 
-    def create_dset_placeholder_raises_error_for_none_value(self):
-        size = 5
+    def test_create_dset_placeholder_raises_error_for_none_value(self):
+        placeholder_size = 5
         value = None
         with pytest.raises(AssertionError):
-            gu._create_dset_placeholder(size, value)
+            gu._create_dset_placeholder(placeholder_size, value)
 
-    def create_dset_placeholder_creates_dataset_of_size_and_value(self):
+    def test_create_dset_placeholder_creates_dataset_of_size_and_value(self):
+        placeholder_size = 5
         value = 1
-        placeholder = gu._create_dset_placeholder(size, value)
+        placeholder = gu._create_dset_placeholder(placeholder_size, value)
         assert len(placeholder) == 5
         assert len(set(placeholder)) == 1
         assert isinstance(placeholder, Dataset)
 
-    def extend_dsets_for_group_doesnt_change_other_arrays_in_dictionary(self):
+    def test_extend_dsets_for_group_doesnt_change_other_arrays_in_dictionary(self):
+        self.group.create_dataset(simple_dset_name, data=simple_dset)
         new_dset_name = 'dset_new'
         TO_QUERY = [simple_dset_name, new_dset_name]
         name_to_dset = utils.create_dictionary_of_empty_dsets(TO_QUERY)
@@ -129,7 +133,8 @@ class TestUnitGroup(object):
         assert np.array_equal(name_to_dset[simple_dset_name], simple_dset)
 
 
-    def extend_dsets_for_group_extends_dictionary_with_array(self):
+    def test_extend_dsets_for_group_extends_dictionary_with_array(self):
+        self.group.create_dataset(simple_dset_name, data=simple_dset)
         new_dset_name = 'dset_new'
         TO_QUERY = [simple_dset_name, new_dset_name]
         name_to_dset = utils.create_dictionary_of_empty_dsets(TO_QUERY)

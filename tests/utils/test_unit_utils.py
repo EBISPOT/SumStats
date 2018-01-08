@@ -2,7 +2,6 @@ import os
 import h5py
 import numpy as np
 import pytest
-from sumstats.utils.restrictions import *
 import sumstats.utils.utils as utils
 from sumstats.utils.dataset import Dataset
 from sumstats.utils.interval import *
@@ -43,72 +42,6 @@ class TestUnitUtils(object):
         dict = utils.filter_dictionary_by_mask(dict, mask)
         assert np.array_equal(dict["dset1"], ["b", "c"])
         assert np.array_equal(dict["dset2"], ["d", "e"])
-
-    def test_filter_dsets_with_restrictions(self):
-        name_to_dataset = {'snp': Dataset(["rs1", "rs1", "rs1", "rs2", "rs3"]), 'pval': Dataset([1., 2.1, 3, 3.1, 4]),
-                           'chr': Dataset([1, 1, 1, 1, 2])}
-
-        restrictions = [EqualityRestriction("rs1", name_to_dataset["snp"]),
-                        IntervalRestriction(1., 2.1, name_to_dataset["pval"]),
-                        EqualityRestriction(1, name_to_dataset["chr"])]
-
-        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
-
-        assert len(list(filtered_dsets.keys())) == 3
-
-        assert len(filtered_dsets['snp']) == 2
-        assert len(set(filtered_dsets['snp'])) == 1
-        assert filtered_dsets['snp'][0] == "rs1"
-
-        assert len(filtered_dsets['pval']) == 2
-        for pval in filtered_dsets['pval']:
-            assert pval >= 1.
-            assert pval <= 2.1
-
-        assert len(filtered_dsets['chr']) == 2
-        for chr in filtered_dsets['chr']:
-            assert chr == 1
-
-        restrictions = [IntervalRestriction(3., 3.1, name_to_dataset["pval"]),
-                        EqualityRestriction(1, name_to_dataset["chr"])]
-
-        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
-        assert len(list(filtered_dsets.keys())) == 3
-        assert len(filtered_dsets['snp']) == 2
-
-        assert filtered_dsets['snp'][0] == "rs1"
-        assert filtered_dsets['snp'][1] == "rs2"
-
-        assert len(filtered_dsets['pval']) == 2
-        for pval in filtered_dsets['pval']:
-            assert pval >= 3.
-            assert pval <= 3.1
-
-        assert len(filtered_dsets['chr']) == 2
-        for chr in filtered_dsets['chr']:
-            assert chr == 1
-
-        restrictions = [IntervalRestriction(4., 4., name_to_dataset["pval"]), ]
-
-        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
-        assert len(list(filtered_dsets.keys())) == 3
-        assert len(filtered_dsets['snp']) == 1
-
-        assert filtered_dsets['snp'][0] == "rs3"
-
-        assert len(filtered_dsets['pval']) == 1
-        assert filtered_dsets['pval'][0] == 4.
-
-        assert len(filtered_dsets['chr']) == 1
-        assert filtered_dsets['chr'][0] == 2
-
-        #
-        restrictions = []
-
-        filtered_dsets = utils.filter_dsets_with_restrictions(name_to_dataset, restrictions)
-        assert len(list(filtered_dsets.keys())) == 3
-        for dset_name in name_to_dataset:
-            assert len(name_to_dataset[dset_name]) == 5
 
     def test_evaluate_datasets(self):
         name_to_dataset = {}
@@ -173,69 +106,6 @@ class TestUnitUtils(object):
 
         assert isinstance(name_to_dsets['dset2'], Dataset)
         assert len(name_to_dsets['dset2']) == 0
-
-    def test_create_restrictions(self):
-        name_to_dsets = {'dset1': Dataset([1, 2, 3]), 'dset2': Dataset(['1,' '2', '3']), 'dset3': Dataset([1., 2., 3.])}
-
-        restrict_dictionary = {}
-        restrictions = utils.create_restrictions(name_to_dsets, restrict_dictionary)
-        assert len(restrictions) == 0
-
-        restrict_dictionary = {'dset1': None}
-        restrictions = utils.create_restrictions(name_to_dsets, restrict_dictionary)
-        assert len(restrictions) == 0
-
-        restrict_dictionary = {'dset1': 1, 'dset2': None}
-        restrictions = utils.create_restrictions(name_to_dsets, restrict_dictionary)
-        assert len(restrictions) == 1
-        assert isinstance(restrictions[0], EqualityRestriction)
-
-        restrict_dictionary = {'dset1' : 1}
-        restrictions = utils.create_restrictions(name_to_dsets, restrict_dictionary)
-        assert len(restrictions) == 1
-        assert isinstance(restrictions[0], EqualityRestriction)
-
-        restrict_dictionary = {'dset2': '1'}
-        restrictions = utils.create_restrictions(name_to_dsets, restrict_dictionary)
-        assert len(restrictions) == 1
-        assert isinstance(restrictions[0], EqualityRestriction)
-
-        restrict_dictionary = {'dset1': 1, 'dset2': '1'}
-        restrictions = utils.create_restrictions(name_to_dsets, restrict_dictionary)
-        assert len(restrictions) == 2
-        assert isinstance(restrictions[0], EqualityRestriction)
-        assert isinstance(restrictions[1], EqualityRestriction)
-
-        restrict_dictionary = {'dset1': 1, 'dset2': '1', 'dset3' : FloatInterval().set_string_tuple("1:2")}
-        restrictions = utils.create_restrictions(name_to_dsets, restrict_dictionary)
-        assert len(restrictions) == 3
-        assert isinstance(restrictions[0], EqualityRestriction)
-        assert isinstance(restrictions[1], EqualityRestriction)
-        assert isinstance(restrictions[2], IntervalRestriction)
-
-        restrict_dictionary = {'dset1': IntInterval().set_string_tuple("1:2"), 'dset2': '1', 'dset3': FloatInterval().set_string_tuple("1:2")}
-        restrictions = utils.create_restrictions(name_to_dsets, restrict_dictionary)
-        assert len(restrictions) == 3
-        assert isinstance(restrictions[0], IntervalRestriction)
-        assert isinstance(restrictions[1], EqualityRestriction)
-        assert isinstance(restrictions[2], IntervalRestriction)
-
-    def test_get_restriction(self):
-        dataset_float = Dataset([1., 2., 3.])
-        dataset_int = Dataset([1, 2, 3])
-        dataset_str = Dataset(['rs1', 'rs2', 'rs3'])
-
-        restriction = utils.get_restriction(1., dataset_float)
-        assert isinstance(restriction, EqualityRestriction)
-
-        restriction = utils.get_restriction(FloatInterval().set_string_tuple("1.:2."), dataset_float)
-        assert isinstance(restriction, IntervalRestriction)
-
-        restriction = utils.get_restriction(FloatInterval().set_string_tuple("1.:2."), dataset_int)
-        assert isinstance(restriction, IntervalRestriction)
-
-        restriction = utils.get_restriction('rs1', dataset_str)
-        assert isinstance(restriction, EqualityRestriction)
 
     def test_is_interval_value(self):
         interval = FloatInterval().set_string_tuple("2:1")

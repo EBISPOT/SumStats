@@ -2,10 +2,8 @@
 General methods used across the modules
 """
 
-import sumstats.utils.pval as pu
 from sumstats.utils.dataset import *
 from sumstats.utils.restrictions import *
-from sumstats.utils.constants import *
 from sumstats.utils.interval import *
 
 

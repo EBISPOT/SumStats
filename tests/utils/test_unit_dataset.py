@@ -18,41 +18,41 @@ class TestUnitDataset(object):
     def teardown_method(self, method):
         os.remove(self.h5file)
 
-    def get_upper_limit_int_mask(self):
+    def test_get_upper_limit_int_mask(self):
         upper_limit = 3
         expected_mask = [True, True, True, False]
         mask = vector_int.get_upper_limit_mask(upper_limit)
         assert np.array_equal(expected_mask, mask)
 
-    def get_upper_limit_str_mask(self):
+    def test_get_upper_limit_str_mask(self):
         upper_limit = "2"
         expected_mask = [True, True, False, False]
         mask = vector_str.get_upper_limit_mask(upper_limit)
         assert np.array_equal(expected_mask, mask)
 
-    def get_upper_limit_raises_type_error(self):
+    def test_get_upper_limit_raises_type_error(self):
         upper_limit = 2
         with pytest.raises(TypeError):
             vector_str.get_upper_limit_mask(upper_limit)
 
-    def get_lower_limit_int_mask(self):
+    def test_get_lower_limit_int_mask(self):
         lower_limit = 3
         expected_mask = [False, False, True, True]
         mask = vector_int.get_lower_limit_mask(lower_limit)
         assert np.array_equal(expected_mask, mask)
 
-    def get_lower_limit_str_mask(self):
+    def test_get_lower_limit_str_mask(self):
         lower_limit = "2"
         expected_mask = [False, True, True, True]
         mask = vector_str.get_lower_limit_mask(lower_limit)
         assert np.array_equal(expected_mask, mask)
 
-    def get_lower_limit_raises_type_error(self):
+    def test_get_lower_limit_raises_type_error(self):
         lower_limit = 2
         with pytest.raises(TypeError):
             vector_str.get_lower_limit_mask(lower_limit)
 
-    def combine_list_of_same_size_masks(self):
+    def test_combine_list_of_same_size_masks(self):
         mask1 = [True, True]
         mask2 = [True, False]
         expected_mask = [True, False]
@@ -60,7 +60,7 @@ class TestUnitDataset(object):
         mask = logical_and_on_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
-    def combine_list_of_not_same_size_masks(self):
+    def test_combine_list_of_not_same_size_masks(self):
         mask1 = [True, True]
         mask2 = [True, False, True]
         expected_mask = [True, False]
@@ -68,7 +68,7 @@ class TestUnitDataset(object):
         mask = logical_and_on_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
-    def combine_mask_with_none_mask(self):
+    def test_combine_mask_with_none_mask(self):
         mask1 = [True, True]
         mask2 = None
         expected_mask = mask1
@@ -76,7 +76,7 @@ class TestUnitDataset(object):
         mask = logical_and_on_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
-    def combine_none_masks(self):
+    def test_combine_none_masks(self):
         mask1 = None
         mask2 = None
         expected_mask = None
@@ -84,7 +84,7 @@ class TestUnitDataset(object):
         mask = logical_and_on_list_of_masks(list_of_masks)
         assert np.array_equal(expected_mask, mask)
 
-    def get_cutoff_mask(self):
+    def test_get_cutoff_mask(self):
         block_floor = 0
         block_ceil = block_size = 100000
         bp_chr_array = Dataset([0, 100000, 100001, 1, 50000, 200000])
@@ -121,7 +121,7 @@ class TestUnitDataset(object):
             bp_chr_array = Dataset(["a", "b", "c", "d", "d", "d", "d", "d"])
             bp_chr_array.interval_mask(block_floor, block_ceil)
 
-    def get_equality_mask(self):
+    def test_get_equality_mask(self):
         chromosome_array = Dataset([1, 2, 3, 1])
         with pytest.raises(TypeError):
             chromosome_array.equality_mask("1")
@@ -145,7 +145,7 @@ class TestUnitDataset(object):
         expected_mask = [True, True, False, False]
         assert np.array_equal(expected_mask, mask)
 
-    def filter_by_mask(self):
+    def test_filter_by_mask(self):
         mask = [True, False, False, True]
         masked_vector = vector_int.filter_by_mask(mask)
         assert len(masked_vector) == 2

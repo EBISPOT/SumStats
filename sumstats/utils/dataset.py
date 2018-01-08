@@ -49,11 +49,11 @@ class Dataset(list):
     def _check_type_compatibility(self, value):
         if value is None:
             return
-        elif np.issubdtype(np.array([self[0]]).dtype, int) and np.issubdtype(np.array([value]).dtype, int):
+        elif np.int64 == np.array([self[0]]).dtype and  np.int64 == np.array([value]).dtype:
             return
-        elif np.issubdtype(np.array([self[0]]).dtype, float) and np.issubdtype(np.array([value]).dtype, float):
+        elif np.float64 == np.array([self[0]]).dtype and np.float64 == np.array([value]).dtype:
             return
-        elif np.issubdtype(np.array([self[0]]).dtype, str) and np.issubdtype(np.array([value]).dtype, str):
+        elif np.str_ == np.dtype(np.array([self[0]]).dtype).type and np.str_ == np.dtype(np.array([value]).dtype).type:
             return
         else:
             raise TypeError("Failed to create boolean mask of array of type "
