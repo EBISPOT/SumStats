@@ -121,6 +121,10 @@ class TestUnitDataset(object):
             bp_chr_array = Dataset(["a", "b", "c", "d", "d", "d", "d", "d"])
             bp_chr_array.interval_mask(block_floor, block_ceil)
 
+        with pytest.raises(AssertionError):
+            bp_chr_array = Dataset([1, 2, 3, 4])
+            bp_chr_array.interval_mask(2, 1)
+
     def test_get_equality_mask(self):
         chromosome_array = Dataset([1, 2, 3, 1])
         with pytest.raises(TypeError):

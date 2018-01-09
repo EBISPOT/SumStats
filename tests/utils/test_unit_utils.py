@@ -109,10 +109,10 @@ class TestUnitUtils(object):
 
     def test_is_interval_value(self):
         interval = FloatInterval().set_string_tuple("2:1")
-        assert utils.is_interval_value(interval)
+        assert is_interval(interval)
 
         interval = IntInterval().set_string_tuple("2:1")
-        assert utils.is_interval_value(interval)
+        assert is_interval(interval)
 
-        assert not utils.is_interval_value(2)
+        assert not is_interval(2)
 

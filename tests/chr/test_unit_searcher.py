@@ -2,7 +2,6 @@ import os
 import pytest
 import sumstats.chr.loader as loader
 from sumstats.chr.searcher import Search
-from sumstats.chr.constants import *
 from tests.chr.test_constants import *
 from sumstats.utils.interval import *
 
@@ -43,7 +42,7 @@ class TestUnitSearcher(object):
         assert len(name_to_dataset[BP_DSET]) == 6
         assert len(name_to_dataset[SNP_DSET]) == 6
 
-    def test_query_for_block_range(self):
+    def test_query_with_two_blocks_in_range(self):
 
         block_lower_limit = 48480252
         block_upper_limit = 49129966
@@ -57,11 +56,15 @@ class TestUnitSearcher(object):
         for dset_name in name_to_dataset:
             assert len(name_to_dataset[dset_name]) == 6
 
+    def test_query_raises_error_when_lower_limit_higher_than_upper_limit(self):
+
         block_lower_limit = 49129966
         block_upper_limit = 48480252
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
         with pytest.raises(ValueError):
             self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
+
+    def test_query_upper_limit_on_edge(self):
 
         block_lower_limit = 49129966
         block_upper_limit = 49200000
@@ -74,3 +77,27 @@ class TestUnitSearcher(object):
         for dset_name in name_to_dataset:
             assert len(name_to_dataset[dset_name]) == 3
 
+    def test_query_with_none_upper_block_limit(self):
+
+        block_lower_limit = 49129966
+        block_upper_limit = None
+        bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
+        self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
+        name_to_dataset = self.query.get_result()
+
+        assert isinstance(name_to_dataset, dict)
+
+        for dset_name in name_to_dataset:
+            assert len(name_to_dataset[dset_name]) == 3
+
+    def test_query_with_none_lower_block_limit(self):
+        block_lower_limit = None
+        block_upper_limit = 49129966
+        bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
+        self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
+        name_to_dataset = self.query.get_result()
+
+        assert isinstance(name_to_dataset, dict)
+
+        for dset_name in name_to_dataset:
+            assert len(name_to_dataset[dset_name]) == 3

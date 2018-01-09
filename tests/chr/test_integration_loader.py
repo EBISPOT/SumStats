@@ -2,7 +2,6 @@ import os
 import pytest
 import numpy as np
 import sumstats.chr.loader as loader
-from sumstats.chr.constants import *
 from tests.chr.test_constants import *
 
 
@@ -91,7 +90,7 @@ class TestLoader(object):
             dataset = block11.get(dset_name)
             assert dataset is not None
             assert len(dataset[:]) > 0
-        assert "chr10_2622752_D" in block22.get(SNP_DSET)[:]
+        assert "rs12345" in block22.get(SNP_DSET)[:]
 
     def test_block_group_content(self):
         block1 = self.f.get("/1/1200000")

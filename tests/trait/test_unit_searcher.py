@@ -3,7 +3,6 @@ import pytest
 import sumstats.trait.loader as loader
 from sumstats.trait.searcher import Search
 from tests.trait.test_constants import *
-from sumstats.trait.constants import *
 
 
 class TestUnitSearcher(object):

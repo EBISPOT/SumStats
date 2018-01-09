@@ -2,8 +2,7 @@ import os
 import pytest
 import sumstats.snp.loader as loader
 from tests.snp.test_constants import *
-from sumstats.snp.constants import *
-import sumstats.utils.group as gu
+
 
 class TestUnitLoader(object):
     h5file = ".testfile.h5"

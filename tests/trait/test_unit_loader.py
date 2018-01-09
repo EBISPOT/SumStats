@@ -3,7 +3,6 @@ import pytest
 import os
 from tests.trait.test_constants import *
 from sumstats.utils.dataset import Dataset
-from sumstats.trait.constants import *
 
 
 class TestUnitLoader(object):

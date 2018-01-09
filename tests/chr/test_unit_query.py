@@ -2,7 +2,6 @@ import os
 import pytest
 import sumstats.chr.loader as loader
 import sumstats.chr.query as query
-from sumstats.chr.constants import *
 from tests.chr.test_constants import *
 from sumstats.utils.interval import *
 

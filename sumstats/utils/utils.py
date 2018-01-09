@@ -3,22 +3,11 @@ General methods used across the modules
 """
 
 from sumstats.utils.dataset import *
-from sumstats.utils.restrictions import *
-from sumstats.utils.interval import *
+import sumstats.utils.pval as pu
 
 
 def filter_dictionary_by_mask(dictionary, mask):
     return {dset: Dataset(dataset.filter_by_mask(mask)) for dset, dataset in dictionary.items()}
-
-
-def filter_dsets_with_restrictions(name_to_dataset, restrictions):
-    list_of_masks = [restriction.get_mask() for restriction in restrictions]
-
-    filtering_mask = logical_and_on_list_of_masks(list_of_masks)
-    if filtering_mask is not None:
-        return filter_dictionary_by_mask(name_to_dataset, filtering_mask)
-
-    return name_to_dataset
 
 
 def assert_datasets_not_empty(name_to_dataset):
@@ -52,24 +41,3 @@ def create_datasets_from_lists(name_to_dsets):
 
 def create_dictionary_of_empty_dsets(names):
     return {name : Dataset([]) for name in names}
-
-
-def create_restrictions(name_to_dset, restrict_dictionary):
-    restrictions = []
-
-    for dset_name, restriction in restrict_dictionary.items():
-        if restriction is not None:
-            restrictions.append(get_restriction(restriction, name_to_dset[dset_name]))
-
-    return restrictions
-
-
-def get_restriction(restriction, dataset):
-    if is_interval_value(restriction):
-        return IntervalRestriction(restriction.floor(), restriction.ceil(), dataset)
-    else:
-        return EqualityRestriction(restriction, dataset)
-
-
-def is_interval_value(value):
-    return isinstance(value, FloatInterval) or isinstance(value, IntInterval)

@@ -20,10 +20,12 @@
 """
 
 import sumstats.chr.query as query
-from sumstats.chr.constants import *
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
 from sumstats.utils.interval import *
+from sumstats.chr.constants import *
+import sumstats.utils.restrictions as rst
+import h5py
 
 
 def fill_in_block_limits(bp_interval):
@@ -80,22 +82,7 @@ class Search():
         self.name_to_dset = name_to_dset
 
     def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
-        restrict_dict = {}
-        if SNP_DSET in self.name_to_dset:
-            restrict_dict[SNP_DSET] = snp
-        if STUDY_DSET in self.name_to_dset:
-            restrict_dict[STUDY_DSET] = study
-        if CHR_DSET in self.name_to_dset:
-            restrict_dict[CHR_DSET] = chr
-        if MANTISSA_DSET in self.name_to_dset:
-            restrict_dict[MANTISSA_DSET] = pval_interval
-        if BP_DSET in self.name_to_dset:
-            restrict_dict[BP_DSET] = bp_interval
-
-        restrictions = utils.create_restrictions(self.name_to_dset, restrict_dict)
-
-        if restrictions:
-            self.name_to_dset = utils.filter_dsets_with_restrictions(self.name_to_dset, restrictions)
+        self.name_to_dset = rst.apply_restrictions(self.name_to_dset, snp, study, chr, pval_interval, bp_interval)
 
     def get_result(self):
         return self.name_to_dset

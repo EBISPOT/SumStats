@@ -65,6 +65,10 @@ class IntInterval():
         return self.upper_limit
 
 
+def is_interval(value):
+    return isinstance(value, FloatInterval) or isinstance(value, IntInterval)
+
+
 def _check_string_validity(interval_string):
     if ":" not in interval_string:
         raise ValueError("Limits need have a colon \":\" even if one limit is missing. e.g. 2: ")

@@ -2,7 +2,6 @@ import os
 import pytest
 import sumstats.chr.loader as loader
 from tests.chr.test_constants import *
-from sumstats.chr.constants import *
 from sumstats.utils.dataset import Dataset
 
 

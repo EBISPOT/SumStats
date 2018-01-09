@@ -2,7 +2,6 @@ import os
 import sumstats.trait.loader as loader
 import sumstats.trait.query as query
 from tests.trait.test_constants import *
-from sumstats.trait.constants import *
 
 
 class TestUnitQueryUtils(object):

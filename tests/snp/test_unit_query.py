@@ -1,7 +1,6 @@
 import os
 import sumstats.snp.loader as loader
 import sumstats.snp.query as query
-from sumstats.snp.constants import *
 from tests.snp.test_constants import *
 
 

@@ -1,8 +1,6 @@
 import os
 import pytest
-import numpy as np
 import sumstats.snp.loader as loader
-from sumstats.snp.constants import *
 from tests.snp.test_constants import *
 
 

@@ -1,6 +1,5 @@
 import os
 import sumstats.trait.loader as loader
-from sumstats.trait.constants import *
 from tests.trait.test_constants import *
 
 
