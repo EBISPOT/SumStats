@@ -92,7 +92,6 @@ class Loader():
             name_to_list = dict_of_data
 
         pval_list = name_to_list[PVAL_DSET]
-
         mantissa_dset, exp_dset = utils.get_mantissa_and_exp_lists(pval_list)
         del name_to_list[PVAL_DSET]
 
@@ -111,18 +110,28 @@ class Loader():
             raise ValueError("This study has already been loaded! Study:", self.study)
         name_to_dataset = self.name_to_dataset
         save_info_in_file(self.file, name_to_dataset)
+        # if not self.load_completed():
+        #     raise ValueError("An error occurred when loading this study! Study:", self.study)
 
     def already_loaded(self):
         name_to_dataset = self.name_to_dataset
-        study = self.study
-        file = self.file
-
         snps = name_to_dataset[SNP_DSET]
-        random_snp = snps[0]
-        if random_snp not in file:
+        first_snp = snps[0]
+
+        if first_snp not in self.file:
             return False
-        snp_group = gu.get_group_from_parent(file, random_snp)
-        return gu.already_loaded_in_group(snp_group, study, STUDY_DSET)
+        snp_group = gu.get_group_from_parent(self.file, first_snp)
+        return gu.already_loaded_in_group(snp_group, self.study, STUDY_DSET)
+
+    def load_completed(self):
+        name_to_dataset = self.name_to_dataset
+        last_snp = name_to_dataset[SNP_DSET][-1]
+
+        if last_snp not in self.file:
+            return False
+
+        snp_group = gu.get_group_from_parent(self.file, last_snp)
+        return gu.already_loaded_in_group(snp_group, self.study, STUDY_DSET)
 
     def close_file(self):
         self.file.close()
