@@ -212,7 +212,7 @@ class TestUnitUtils(object):
         dataset_mantissa = Dataset([1, 12, 13])
         dataset_exp = Dataset([-1, -2 ,-3])
 
-        restriction = get_restriction(FloatInterval().set_string_tuple("1e-3:1e-2"), (dataset_mantissa, dataset_exp))
+        restriction = get_restriction(FloatInterval().set_string_tuple("1e-3:1e-2"), [dataset_mantissa, dataset_exp])
         assert isinstance(restriction, IntervalRestrictionPval)
 
     def test_apply_no_restriction(self):

@@ -97,7 +97,7 @@ def apply_restrictions(name_to_dataset, snp=None, study=None, chr=None, pval_int
         restriction = pval_interval
         dataset_mantissa = name_to_dataset[MANTISSA_DSET]
         dataset_exp = name_to_dataset[EXP_DSET]
-        restrictions.append(get_restriction(restriction, (dataset_mantissa, dataset_exp)))
+        restrictions.append(get_restriction(restriction, [dataset_mantissa, dataset_exp]))
     if dataset_present(BP_DSET, name_to_dataset) and bp_interval is not None:
         restriction = bp_interval
         dataset = name_to_dataset[BP_DSET]
@@ -115,8 +115,10 @@ def dataset_present(dataset_name, dictionary):
 
 def get_restriction(restriction, datasets):
     if interval.is_interval(restriction):
-        if datasets.__class__ == tuple:
-            return IntervalRestrictionPval(restriction.floor(), restriction.ceil(), datasets[0], datasets[1])
+        if type(datasets) is list:
+            # interval restriction for p-value examines mantissa and exponent
+            if len(datasets) == 2:
+                return IntervalRestrictionPval(restriction.floor(), restriction.ceil(), datasets[0], datasets[1])
         else:
             return IntervalRestriction(restriction.floor(), restriction.ceil(), datasets)
     else:
