@@ -3,7 +3,7 @@ import pytest
 import sumstats.chr.loader as loader
 from tests.chr.test_constants import *
 from sumstats.utils.dataset import Dataset
-
+import sumstats.utils.group as gu
 
 class TestUnitLoader(object):
     h5file = ".testfile.h5"
@@ -12,34 +12,32 @@ class TestUnitLoader(object):
     def setup_method(self, method):
         # open h5 file in read/write mode
         self.f = h5py.File(self.h5file, mode='a')
+        self.name_to_dset = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
     def teardown_method(self, method):
         os.remove(self.h5file)
 
     def test_open_with_empty_array(self):
         other_array = []
-
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": other_array, 'freq': frequencyarray}
-
+        self.name_to_dset['other'] = other_array
         with pytest.raises(AssertionError):
-            loader.Loader(None, self.h5file, "PM001", dict)
+            loader.Loader(None, self.h5file, "PM001", self.name_to_dset)
 
     def test_open_with_None_array(self):
 
         other_array = None
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": other_array}
+        self.name_to_dset['other'] = other_array
 
         with pytest.raises(AssertionError):
-            loader.Loader(None, self.h5file, "PM001", dict)
+            loader.Loader(None, self.h5file, "PM001", self.name_to_dset)
 
     def test_create_dataset(self):
         random_group = self.f.create_group("random_group")
         data = ['string 1', 'str2']
         dset_name = STUDY_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
         dataset = dset[:]
@@ -49,7 +47,7 @@ class TestUnitLoader(object):
 
         data = [1, 2]
         dset_name = BP_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
         dataset = dset[:]
@@ -59,7 +57,7 @@ class TestUnitLoader(object):
 
         data = [0.2, 0.3]
         dset_name = OR_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, data)
         dset = random_group.get(dset_name)
         assert dset is not None
         dataset = dset[:]
@@ -69,14 +67,14 @@ class TestUnitLoader(object):
 
         dset_name = "random name"
         with pytest.raises(KeyError):
-            loader.create_dataset(random_group, dset_name, data)
+            gu.create_dataset(random_group, dset_name, data)
 
     def test_expand_dataset(self):
         random_group = self.f.create_group("random group")
 
         data = ['string1', 'str2']
         dset_name = STUDY_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, data)
         data2 = ['string3', 'random string']
         loader.expand_dataset(random_group, dset_name, data2)
 
@@ -91,7 +89,7 @@ class TestUnitLoader(object):
 
         data = [1, 2]
         dset_name = CHR_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, data)
         data2 = [3, 4]
         loader.expand_dataset(random_group, dset_name, data2)
 
@@ -106,7 +104,7 @@ class TestUnitLoader(object):
 
         data = [0.1, 0.2]
         dset_name = MANTISSA_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, data)
         data2 = [0.3, 0.4]
         loader.expand_dataset(random_group, dset_name, data2)
 
@@ -141,7 +139,8 @@ class TestUnitLoader(object):
 
     def test_create_groups_in_parent(self):
         array_of_chromosomes = ["1", 2, "X"]
-        loader.create_groups_in_parent(self.f, array_of_chromosomes)
+        load = loader.Loader(None, self.h5file, "PM001", self.name_to_dset)
+        load._create_groups_in_file(array_of_chromosomes)
         chr1 = self.f.get("1")
         assert chr1 is not None
         chr2 = self.f.get("2")
@@ -150,8 +149,12 @@ class TestUnitLoader(object):
         assert chrX is not None
 
     def test_slice_datasets_where_chromosome(self):
-        name_to_dataset = {CHR_DSET : Dataset([1, 1, 2, 2]), SNP_DSET : Dataset(['snp1', 'snp2', 'snp3', 'snp4'])}
-        name_to_dataset = loader.slice_datasets_where_chromosome(1, name_to_dataset)
+
+        self.name_to_dset[CHR_DSET] = Dataset([1, 1, 2, 2])
+        self.name_to_dset[SNP_DSET] = Dataset(['snp1', 'snp2', 'snp3', 'snp4'])
+
+        load = loader.Loader(None, self.h5file, "PM001", self.name_to_dset)
+        name_to_dataset = load._slice_datasets_where_chromosome(1)
 
         assert len(name_to_dataset[CHR_DSET]) == 2
         assert set(name_to_dataset[CHR_DSET]).pop() == 1
@@ -196,48 +199,48 @@ class TestUnitLoader(object):
         notreached = loader.block_limit_not_reached_max(max_bp + BLOCK_SIZE + 1, max_bp)
         assert not notreached
 
-    def test_already_loaded_chromosome_not_there(self):
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
-        assert not load.already_loaded()
-
-    def test_already_loaded_block_group_with_no_data(self):
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
-        load.load()
-        bparray_new = [1, 1, 1, 1]
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray_new,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
-        assert not load.already_loaded()
-
-    def test_already_loaded_study_not_loaded(self):
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
-        load.load()
-
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
-        assert not load.already_loaded()
-
-    def test_already_loaded_study_already_loaded(self):
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
-        load.load()
-
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
-        assert load.already_loaded()
+    # def test_already_loaded_chromosome_not_there(self):
+    #     dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+    #             "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+    #
+    #     load = loader.Loader(None, self.h5file, 'PM003', dict)
+    #     assert not load.already_loaded()
+    #
+    # def test_already_loaded_block_group_with_no_data(self):
+    #     dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+    #             "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+    #
+    #     load = loader.Loader(None, self.h5file, 'PM003', dict)
+    #     load.load()
+    #     bparray_new = [1, 1, 1, 1]
+    #     dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray_new,
+    #             "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+    #
+    #     load = loader.Loader(None, self.h5file, 'PM003', dict)
+    #     assert not load.already_loaded()
+    #
+    # def test_already_loaded_study_not_loaded(self):
+    #     dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+    #             "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+    #
+    #     load = loader.Loader(None, self.h5file, 'PM003', dict)
+    #     load.load()
+    #
+    #     dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+    #             "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+    #
+    #     load = loader.Loader(None, self.h5file, 'PM001', dict)
+    #     assert not load.already_loaded()
+    #
+    # def test_already_loaded_study_already_loaded(self):
+    #     dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+    #             "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+    #
+    #     load = loader.Loader(None, self.h5file, 'PM003', dict)
+    #     load.load()
+    #
+    #     dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+    #             "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+    #
+    #     load = loader.Loader(None, self.h5file, 'PM003', dict)
+    #     assert load.already_loaded()

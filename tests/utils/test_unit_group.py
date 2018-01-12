@@ -32,16 +32,12 @@ class TestUnitGroup(object):
         os.remove(self.h5file)
 
     def test_get_group_from_parent(self):
-        group = gu.get_group_from_parent(self.f, 1)
+        group = gu.create_group_from_parent(self.f, 1)
         assert group.name == "/1"
 
-    def test_get_non_existing_group_from_parent_raises_error(self):
-        with pytest.raises(ValueError):
-            gu.get_group_from_parent(self.f, "23")
-
     def test_get_all_groups_from_parent(self):
-        group1 = gu.get_group_from_parent(self.f, 1)
-        groups = gu.get_all_groups_from_parent(group1)
+        group1 = gu.create_group_from_parent(self.f, 1)
+        groups = gu.get_all_subgroups(group1)
         print(groups)
         assert len(groups) == 2
         assert isinstance(groups[0], h5py._hl.group.Group)
@@ -95,13 +91,13 @@ class TestUnitGroup(object):
 
     def test_already_loaded_returns_true_for_loaded_data(self):
         self.group.create_dataset(simple_dset_name, data=simple_dset)
-        assert gu.already_loaded_in_group(self.group, simple_dset[0], simple_dset_name)
+        assert gu.value_in_dataset(self.group, simple_dset[0], simple_dset_name)
 
     def test_already_loaded_returns_false_for_data_non_existing_data(self):
-        assert not gu.already_loaded_in_group(self.group, non_existing_data, simple_dset_name)
+        assert not gu.value_in_dataset(self.group, non_existing_data, simple_dset_name)
 
     def test_already_loaded_returns_false_for_non_existing_dataset_name(self):
-        assert not gu.already_loaded_in_group(self.group, simple_dset[0], not_saved_dset_name)
+        assert not gu.value_in_dataset(self.group, simple_dset[0], not_saved_dset_name)
 
     def test_get_non_existing_dset_from_group_returns_empty_array(self):
         snp_group = gu._get_dset_from_group(not_saved_dset_name, self.group, start, size)
@@ -121,25 +117,10 @@ class TestUnitGroup(object):
         assert len(set(placeholder)) == 1
         assert isinstance(placeholder, Dataset)
 
-    def test_extend_dsets_for_group_doesnt_change_other_arrays_in_dictionary(self):
-        self.group.create_dataset(simple_dset_name, data=simple_dset)
-        new_dset_name = 'dset_new'
-        TO_QUERY = [simple_dset_name, new_dset_name]
-        name_to_dset = utils.create_dictionary_of_empty_dsets(TO_QUERY)
-        name_to_dset = gu.extend_dsets_for_group_missing(missing_value=dataset_with_same_values[0], group=self.group,
-                                                         name_to_dataset=name_to_dset,
-                                                         missing_dset=new_dset_name, start=start, size=size)
-
-        assert np.array_equal(name_to_dset[simple_dset_name], simple_dset)
-
-
     def test_extend_dsets_for_group_extends_dictionary_with_array(self):
         self.group.create_dataset(simple_dset_name, data=simple_dset)
-        new_dset_name = 'dset_new'
-        TO_QUERY = [simple_dset_name, new_dset_name]
-        name_to_dset = utils.create_dictionary_of_empty_dsets(TO_QUERY)
-        name_to_dset = gu.extend_dsets_for_group_missing(missing_value=dataset_with_same_values[0], group=self.group,
-                                                         name_to_dataset=name_to_dset,
-                                                         missing_dset=new_dset_name, start=start, size=size)
 
-        assert np.array_equal(name_to_dset[new_dset_name], dataset_with_same_values)
+        new_dset = gu.create_dataset_from_value(dataset_with_same_values[0], size)
+        print(new_dset)
+        print(dataset_with_same_values)
+        assert np.array_equal(new_dset, dataset_with_same_values)

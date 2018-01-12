@@ -23,30 +23,6 @@ import numpy as np
 import argparse
 
 
-def create_trait_group(file, trait):
-    if trait in file:
-        return gu.get_group_from_parent(file, trait)
-    else:
-        return file.create_group(trait)
-
-
-def create_study_group(trait_group, study):
-    if study in trait_group:
-        raise ValueError("Study already exists for this trait!", study)
-    else:
-        return trait_group.create_group(study)
-
-
-def create_dataset(group, dset_name, data):
-    """
-    :param data: a np.array of data elements (string, int, float)
-    """
-    if dset_name in group:
-        raise ValueError("Dataset already exists in group!", dset_name, group)
-    data = np.array(data, dtype=DSET_TYPES[dset_name])
-    group.create_dataset(dset_name, data=data, compression="gzip")
-
-
 class Loader():
 
     def __init__(self, tsv, h5file, study, trait, dict_of_data=None):
@@ -84,18 +60,24 @@ class Loader():
 
     def load(self):
 
-        study = self.study
-        trait = self.trait
         name_to_dataset = self.name_to_dataset
 
-        trait_group = create_trait_group(self.file, trait)
-        study_group = create_study_group(trait_group, study)
+        trait_group = self._create_trait_group()
+        study_group = self._create_study_group(trait_group)
 
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
-            create_dataset(study_group, dset_name, name_to_dataset[dset_name])
+            gu.create_dataset(study_group, dset_name, name_to_dataset[dset_name])
             # flush after saving each dataset
             self.file.flush()
+
+    def _create_trait_group(self):
+        return gu.create_group_from_parent(self.file, self.trait)
+
+    def _create_study_group(self, trait_group):
+        if gu.subgroup_exists(trait_group, self.study):
+            raise ValueError("Study already exists for this trait! Study:", self.study + " Trait: ", self.trait)
+        return gu.create_group_from_parent(trait_group, self.study)
 
     def close_file(self):
         self.file.close()

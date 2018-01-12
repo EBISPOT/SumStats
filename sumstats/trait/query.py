@@ -74,8 +74,6 @@ def calculate_remaining_start_and_size(retrieved_size, groups_size, start, size)
 
 
 def get_dsets_from_group_directly(study, study_group, start, size):
-    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-    return gu.extend_dsets_for_group_missing(missing_value=study, group=study_group,
-                                             name_to_dataset=name_to_dataset,
-                                             missing_dset=STUDY_DSET,
-                                             start=start, size=size)
+    name_to_dataset = gu.load_dsets_from_group(study_group, TO_QUERY_DSETS, start, size)
+    name_to_dataset[STUDY_DSET] = gu.create_dataset_from_value(study, size)
+    return name_to_dataset

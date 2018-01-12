@@ -26,13 +26,11 @@ def get_block_groups_from_parent_within_block_range(chr_group, bp_interval):
 
 
 def get_dsets_from_plethora_of_blocks(groups, start, size):
-    dict_groups = {group: group for group in groups}
     return get_dsets_from_parent_group(groups, start, size)
 
 
 def get_dsets_from_group(group, start, size):
-    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-    return gu.extend_dsets_for_group(group=group, name_to_dataset=name_to_dataset, start=start, size=size)
+    return gu.load_dsets_from_group(group=group, dset_names=TO_QUERY_DSETS, start=start, size=size)
 
 
 def get_block_number(bp_position):

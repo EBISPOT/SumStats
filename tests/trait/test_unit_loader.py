@@ -3,6 +3,7 @@ import pytest
 import os
 from tests.trait.test_constants import *
 from sumstats.utils.dataset import Dataset
+import sumstats.utils.group as gu
 
 
 class TestUnitLoader(object):
@@ -12,6 +13,8 @@ class TestUnitLoader(object):
     def setup_method(self, method):
         # open h5 file in read/write mode
         self.f = h5py.File(self.h5file, mode="a")
+        self.name_to_dset = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
     def teardown_method(self, method):
         os.remove(self.h5file)
@@ -19,54 +22,61 @@ class TestUnitLoader(object):
     def test_open_with_empty_array(self):
         otherarray = []
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+        self.name_to_dset['other'] = otherarray
 
         with pytest.raises(AssertionError):
-            loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
+            loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
 
     def test_open_with_None_array(self):
         otherarray = None
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+        self.name_to_dset['other'] = otherarray
 
         with pytest.raises(AssertionError):
-            loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
+            loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
 
     def test_create_trait_group(self):
-        group = loader.create_trait_group(self.f, "Trait1")
+        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        group = load._create_trait_group()
         assert group is not None
         assert group.name == "/Trait1"
 
-        group_retrieved = loader.create_trait_group(self.f, "Trait1")
+    def test_create_trait_group_twice(self):
+        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        group = load._create_trait_group()
+        assert group is not None
+        assert group.name == "/Trait1"
+
+        group_retrieved = load._create_trait_group()
         assert group_retrieved == group
         assert group.name == "/Trait1"
 
-        group_2 = loader.create_trait_group(self.f, "Trait2")
-        assert group_2 is not None
-        assert group_2.name == "/Trait2"
-
     def test_create_study_group(self):
-        trait_group = loader.create_trait_group(self.f, "Trait1")
-        study_group = loader.create_study_group(trait_group, "Study1")
+        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        trait_group = load._create_trait_group()
+        study_group = load._create_study_group(trait_group)
+
+        assert study_group is not None
+        assert study_group.name == "/Trait1/Study1"
+
+    def test_create_study_group_twice_raises_error(self):
+        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        trait_group = load._create_trait_group()
+        study_group = load._create_study_group(trait_group)
 
         assert study_group is not None
         assert study_group.name == "/Trait1/Study1"
 
         with pytest.raises(ValueError):
-            loader.create_study_group(trait_group, "Study1")
-
-        study_group_2 = loader.create_study_group(trait_group, "Study2")
-        assert study_group_2 is not None
-        assert study_group_2.name == "/Trait1/Study2"
+            load._create_study_group(trait_group)
 
     def test_create_dataset(self):
-        trait_group = loader.create_trait_group(self.f, "Trait1")
-        study_group = loader.create_study_group(trait_group, "Study1")
+        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        trait_group = load._create_trait_group()
+        study_group = load._create_study_group(trait_group)
         dset_name = CHR_DSET
         data = Dataset([1, 2, 3])
-        loader.create_dataset(study_group, dset_name, data)
+        gu.create_dataset(study_group, dset_name, data)
 
         dataset = self.f.get("/Trait1/Study1/" + CHR_DSET)
 
@@ -75,9 +85,9 @@ class TestUnitLoader(object):
         assert len(dataset[:]) == len(data)
 
         data_2 = Dataset([2, 3, 4])
-        with pytest.raises(ValueError):
-            loader.create_dataset(study_group, dset_name, data_2)
+        with pytest.raises(RuntimeError):
+            gu.create_dataset(study_group, dset_name, data_2)
 
         dset_name = "random"
         with pytest.raises(KeyError):
-            loader.create_dataset(study_group, dset_name, data_2)
+            gu.create_dataset(study_group, dset_name, data_2)

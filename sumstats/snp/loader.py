@@ -24,19 +24,6 @@ from sumstats.snp.constants import *
 import sumstats.utils.group as gu
 
 
-def create_dataset(group, dset_name, data):
-    """
-    Datasets with maxshape = ((None,)) so they can be extended
-    max actual number of values we can store per array is 2^64 - 1
-    data element needs to be converted to np.array first, otherwise it will
-    be saved as a scalar, and won't be able to be extended later on into an array
-
-    :param data: a single data element (string, int, float)
-    """
-    data = np.array([data], dtype=DSET_TYPES[dset_name])
-    group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
-
-
 def expand_dataset(group, dset_name, data):
     """
     Epands the dset_name dataset by 1 element (data)
@@ -46,7 +33,7 @@ def expand_dataset(group, dset_name, data):
     """
     dset = group.get(dset_name)
     if dset is None:
-        create_dataset(group, dset_name, data)
+        gu.create_dataset(group, dset_name, [data])
     else:
         dset.resize((dset.shape[0] + 1,))
         dset[-1] = data
@@ -106,8 +93,8 @@ class Loader():
         if snp not in self.file:
             return False
 
-        snp_group = gu.get_group_from_parent(self.file, snp)
-        return gu.already_loaded_in_group(snp_group, self.study, STUDY_DSET)
+        snp_group = gu.create_group_from_parent(self.file, snp)
+        return gu.value_in_dataset(snp_group, self.study, STUDY_DSET)
 
     def close_file(self):
         self.file.close()
@@ -123,13 +110,14 @@ class Loader():
                 file.flush()
             snp = snps[i]
             if snp in file:
-                snp_group = gu.get_group_from_parent(file, snp)
+                snp_group = gu.create_group_from_parent(file, snp)
                 for dset_name in TO_STORE_DSETS:
                     expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
             else:
                 snp_group = file.create_group(snp)
                 for dset_name in TO_STORE_DSETS:
-                    create_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
+                    data_point = name_to_dataset[dset_name][i]
+                    gu.create_dataset(snp_group, dset_name, [data_point])
 
 
 def main():

@@ -2,6 +2,7 @@ import os
 import pytest
 import sumstats.snp.loader as loader
 from tests.snp.test_constants import *
+import sumstats.utils.group as gu
 
 
 class TestUnitLoader(object):
@@ -38,7 +39,7 @@ class TestUnitLoader(object):
         random_group = self.f.create_group("random_group")
         data = 'string1'
         dset_name = STUDY_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, [data])
         dset = random_group.get(dset_name)
         assert dset is not None
         dataset = dset[:]
@@ -47,7 +48,7 @@ class TestUnitLoader(object):
 
         data = 1
         dset_name = BP_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, [data])
         dset = random_group.get(dset_name)
         assert dset is not None
         dataset = dset[:]
@@ -56,7 +57,7 @@ class TestUnitLoader(object):
 
         data = 0.2
         dset_name = OR_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, [data])
         dset = random_group.get(dset_name)
         assert dset is not None
         dataset = dset[:]
@@ -65,14 +66,14 @@ class TestUnitLoader(object):
 
         dset_name = "random name"
         with pytest.raises(KeyError):
-            loader.create_dataset(random_group, dset_name, data)
+            gu.create_dataset(random_group, dset_name, [data])
 
     def test_expand_dataset(self):
         random_group = self.f.create_group("random group")
 
         data = 'string1'
         dset_name = STUDY_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, [data])
         data2 = 'random string4'
         loader.expand_dataset(random_group, dset_name, data2)
 
@@ -85,7 +86,7 @@ class TestUnitLoader(object):
 
         data = 1
         dset_name = CHR_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, [data])
         data2 = 2
         loader.expand_dataset(random_group, dset_name, data2)
 
@@ -98,7 +99,7 @@ class TestUnitLoader(object):
 
         data = 0.1
         dset_name = MANTISSA_DSET
-        loader.create_dataset(random_group, dset_name, data)
+        gu.create_dataset(random_group, dset_name, [data])
         data2 = 0.2
         loader.expand_dataset(random_group, dset_name, data2)
 
@@ -186,4 +187,4 @@ def prepare_load_object_with_study(h5file, study):
 def save_snps_and_study_in_file(opened_file, list_of_snps, study):
     for snp in list_of_snps:
         group = opened_file.create_group(snp)
-        loader.create_dataset(group, 'study', study)
+        gu.create_dataset(group, 'study', [study])

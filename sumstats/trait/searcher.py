@@ -50,15 +50,15 @@ class Search():
         return self.name_to_dset
 
     def list_traits(self):
-        trait_groups = gu.get_all_groups_from_parent(self.file)
+        trait_groups = gu.get_all_subgroups(self.file)
         return [trait_group.name.strip("/") for trait_group in trait_groups]
 
     def list_studies(self):
-        trait_groups = gu.get_all_groups_from_parent(self.file)
+        trait_groups = gu.get_all_subgroups(self.file)
         study_groups = []
 
         for trait_group in trait_groups:
-            study_groups.extend(gu.get_all_groups_from_parent(trait_group))
+            study_groups.extend(gu.get_all_subgroups(trait_group))
         return [study_group.name.strip("/").replace("/",": ") for study_group in study_groups]
 
     def close_file(self):

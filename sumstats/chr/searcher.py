@@ -46,7 +46,7 @@ class Search():
     def query_for_chromosome(self, chromosome, start, size):
         chr_group = gu.get_group_from_parent(self.file, chromosome)
 
-        all_chr_block_groups = gu.get_all_groups_from_parent(chr_group)
+        all_chr_block_groups = gu.get_all_subgroups(chr_group)
         print("block size", len(all_chr_block_groups))
         self.name_to_dset = query.get_dsets_from_plethora_of_blocks(all_chr_block_groups, start, size)
 

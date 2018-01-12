@@ -8,5 +8,4 @@ import sumstats.utils.group as gu
 
 
 def get_dsets_from_group(group, start, size):
-    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-    return gu.extend_dsets_for_group(group=group, name_to_dataset=name_to_dataset, start=start, size=size)
+    return gu.load_dsets_from_group(group=group, dset_names=TO_QUERY_DSETS, start=start, size=size)

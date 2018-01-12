@@ -3,6 +3,12 @@ Utilities for hdf5 groups
 """
 
 from sumstats.utils.dataset import Dataset
+import numpy as np
+from sumstats.common_constants import *
+
+
+def subgroup_exists(parent_group, subgroup_name):
+    return str(subgroup_name) in parent_group
 
 
 def get_group_from_parent(parent_group, child_group):
@@ -12,8 +18,29 @@ def get_group_from_parent(parent_group, child_group):
     return group
 
 
-def get_all_groups_from_parent(parent_group):
+def create_group_from_parent(parent_group, group_name):
+    group_name = str(group_name)
+    if group_name in parent_group:
+        return parent_group.get(group_name)
+    else:
+        return parent_group.create_group(group_name)
+
+
+def get_all_subgroups(parent_group):
     return [group for group in parent_group.values()]
+
+
+def create_dataset(group, dset_name, data):
+    """
+    Datasets with maxshape = ((None,)) so they can be extended
+    max actual number of values we can store per array is 2^64 - 1
+    data element needs to be converted to np.array first, otherwise it will
+    be saved as a scalar, and won't be able to be extended later on into an array
+
+    :param data: a list of data elements (string, int, float)
+    """
+    data = np.array(data, dtype=DSET_TYPES[dset_name])
+    group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
 
 
 def get_dset(group, dset_name, start, size):
@@ -46,7 +73,7 @@ def _assert_all_dsets_have_same_shape(first_dset, dsets):
             "Group has datasets with inconsistent shape!"
 
 
-def already_loaded_in_group(group, element, dset_name):
+def value_in_dataset(group, element, dset_name):
     dataset = group.get(dset_name)
     if dataset is None:
         return False
@@ -55,22 +82,16 @@ def already_loaded_in_group(group, element, dset_name):
     return False
 
 
-def extend_dsets_for_group(group, name_to_dataset, start, size):
-    for name, dataset in name_to_dataset.items():
-        dataset.extend(_get_dset_from_group(name, group, start, size))
+def load_dsets_from_group(group, dset_names, start, size):
+    name_to_dataset = {}
+    for name in dset_names:
+        name_to_dataset[name] = _get_dset_from_group(name, group, start, size)
 
     return name_to_dataset
 
 
-def extend_dsets_for_group_missing(missing_value, group, name_to_dataset, missing_dset, start, size):
-    size_of_new_dataset = 0
-    for name, dataset in name_to_dataset.items():
-        if name != missing_dset:
-            dset = _get_dset_from_group(name, group, start, size)
-            size_of_new_dataset = len(dset)
-            dataset.extend(dset)
-    name_to_dataset[missing_dset].extend(_create_dset_placeholder(size_of_new_dataset, missing_value))
-    return name_to_dataset
+def create_dataset_from_value(missing_value, size):
+    return _create_dset_placeholder(size, missing_value)
 
 
 def _get_dset_from_group(dset_name, group, start, size):
