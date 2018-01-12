@@ -52,11 +52,11 @@ class TestUnitUtils(object):
         utils.assert_datasets_not_empty(name_to_dataset)
 
         name_to_dataset = {'snp': None}
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             utils.assert_datasets_not_empty(name_to_dataset)
 
         name_to_dataset = {'snp': []}
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             utils.assert_datasets_not_empty(name_to_dataset)
 
     def test_empty_array(self):

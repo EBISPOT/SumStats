@@ -21,7 +21,7 @@ class TestUnitLoader(object):
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": other_array, 'freq': frequencyarray}
 
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             loader.Loader(None, self.h5file, "PM001", dict)
 
     def test_open_with_None_array(self):
@@ -31,7 +31,7 @@ class TestUnitLoader(object):
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": other_array}
 
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             loader.Loader(None, self.h5file, "PM001", dict)
 
     def test_create_dataset(self):
@@ -128,58 +128,52 @@ class TestUnitLoader(object):
         dataset = dset[:]
         assert len(dataset) == 2
 
-    def test_already_loaded_snp_not_in_file(self):
+    def test_snp_loaded_with_study_snp_not_in_file(self):
+        snp = 'rs185339560'
         load = prepare_load_object_with_study(self.h5file, "PM001")
-        load.load()
 
-        snpsarray_new = ['rs1', 'rs1', 'rs1', 'rs1']
-        dict = {"snp": snpsarray_new, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+        assert not load.snp_loaded_with_study(snp)
 
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
-        assert not load.already_loaded()
-
-    def test_already_loaded_snp_group_exists_but_with_no_data(self):
-        snp = 'rs1'
+    def test_snp_loaded_with_study_snp_in_file_but_has_no_data(self):
+        snp = 'rs185339560'
         load = prepare_load_object_with_study(self.h5file, "PM001")
         load.file.create_group(snp)
 
-        assert not load.already_loaded()
+        assert not load.snp_loaded_with_study(snp)
 
-    def test_already_loaded_study_not_loaded(self):
-        load = prepare_load_object_with_study(self.h5file, "PM003")
-        load.load()
-
+    def test_snp_loaded_with_study_snp_in_file_and_has_loaded_data(self):
+        snp = 'rs185339560'
         load = prepare_load_object_with_study(self.h5file, "PM001")
-        assert not load.already_loaded()
-
-    def test_already_loaded_study_already_loaded(self):
-        load = prepare_load_object_with_study(self.h5file, "PM003")
         load.load()
 
-        load = prepare_load_object_with_study(self.h5file, "PM003")
-        assert load.already_loaded()
+        assert load.snp_loaded_with_study(snp)
 
-    def test_study_not_loaded_correctly_snp_not_saved(self):
-        # load whole dataset except last one
-        dict = {"snp": snpsarray[:-1], "pval": pvalsarray[:-1], "chr": chrarray[:-1], "or": orarray[:-1], "bp": bparray[:-1],
-                "effect": effectarray[:-1], "other": otherarray[:-1], 'freq': frequencyarray[:-1]}
+    def test_is_loaded_only_first_snp_is_loaded_raises_error(self):
+        first_snp = 'rs185339560'
+        study = 'PM001'
+        save_snps_and_study_in_file(self.f, [first_snp], study)
+        load = prepare_load_object_with_study(self.h5file, study)
 
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        with pytest.raises(RuntimeError):
+            load.is_loaded()
+
+    def test_is_loaded_only_last_snp_loaded_but_not_first(self):
+        last_snp = 'rs7085086'
+        study = 'PM001'
+        save_snps_and_study_in_file(self.f, [last_snp], study)
+        load = prepare_load_object_with_study(self.h5file, study)
+
+        with pytest.raises(RuntimeError):
+            load.is_loaded()
+
+    def test_is_loaded_returns_false_for_no_snps_loaded(self):
+        load = prepare_load_object_with_study(self.h5file, 'PM001')
+        assert not load.is_loaded()
+
+    def test_is_loaded_returns_true_for_snps_loaded(self):
+        load = prepare_load_object_with_study(self.h5file, 'PM001')
         load.load()
-
-        # give the object the correct dictionary
-        load = prepare_load_object_with_study(self.h5file, "PM003")
-
-        assert not load.load_completed()
-
-    def test_study_not_loaded_correctly_info_missing(self):
-        load = prepare_load_object_with_study(self.h5file, "PM003")
-        load.load()
-
-        load = prepare_load_object_with_study(self.h5file, "PM001")
-
-        assert not load.load_completed()
+        assert load.is_loaded()
 
 
 def prepare_load_object_with_study(h5file, study):
@@ -187,3 +181,9 @@ def prepare_load_object_with_study(h5file, study):
             "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
     return loader.Loader(None, h5file, study, dict)
+
+
+def save_snps_and_study_in_file(opened_file, list_of_snps, study):
+    for snp in list_of_snps:
+        group = opened_file.create_group(snp)
+        loader.create_dataset(group, 'study', study)

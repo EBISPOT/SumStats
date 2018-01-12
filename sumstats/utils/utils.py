@@ -12,8 +12,7 @@ def filter_dictionary_by_mask(dictionary, mask):
 
 def assert_datasets_not_empty(name_to_dataset):
     for dset_name, dataset in name_to_dataset.items():
-        if empty_array(dataset):
-            raise ValueError("Array is None or empty: " + dset_name)
+        assert not empty_array(dataset), "Array is None or empty: " + dset_name
 
 
 def empty_array(array):

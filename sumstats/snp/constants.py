@@ -8,3 +8,6 @@ TO_QUERY_DSETS = ['mantissa', 'exp', 'or', 'study', 'chr', 'bp', 'effect', 'othe
 vlen_dtype = h5py.special_dtype(vlen=str)
 DSET_TYPES = {'snp' : vlen_dtype, 'pval' : vlen_dtype, 'mantissa': float, 'exp': int, 'study' : vlen_dtype,
               'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype, 'freq': float}
+
+
+REFERENCE_DSET = MANTISSA_DSET

@@ -10,3 +10,5 @@ DSET_TYPES = {'snp' : vlen_dtype, 'pval' : vlen_dtype, 'mantissa': float, 'exp':
               'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype, 'freq': float}
 
 BLOCK_SIZE = 100000
+
+REFERENCE_DSET = MANTISSA_DSET

@@ -52,29 +52,6 @@ def expand_dataset(group, dset_name, data):
         dset[-1] = data
 
 
-def create_study_list(study, length_of):
-    return [study for _ in range(length_of)]
-
-
-def save_info_in_file(file, name_to_dataset):
-    snps = name_to_dataset[SNP_DSET]
-
-    for i in range(len(snps)):
-        snp = snps[i]
-        if snp in file:
-            snp_group = gu.get_group_from_parent(file, snp)
-            for dset_name in TO_STORE_DSETS:
-                expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
-                # flush file after writing to prevent data corruption
-                file.flush()
-        else:
-            snp_group = file.create_group(snp)
-            for dset_name in TO_STORE_DSETS:
-                create_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
-                # flush file after writing to prevent data corruption
-                file.flush()
-
-
 class Loader():
     def __init__(self, tsv, h5file, study, dict_of_data=None):
         self.study = study
@@ -98,7 +75,7 @@ class Loader():
         name_to_list[MANTISSA_DSET] = mantissa_dset
         name_to_list[EXP_DSET] = exp_dset
 
-        name_to_list[STUDY_DSET] = create_study_list(study, len(name_to_list[MANTISSA_DSET]))
+        name_to_list[STUDY_DSET] = [study for _ in range(len(name_to_list[REFERENCE_DSET]))]
         utils.assert_datasets_not_empty(name_to_list)
 
         self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
@@ -106,35 +83,55 @@ class Loader():
         self.file = h5py.File(h5file, 'a')
 
     def load(self):
-        if self.already_loaded():
+        if self.is_loaded():
             raise ValueError("This study has already been loaded! Study:", self.study)
-        name_to_dataset = self.name_to_dataset
-        save_info_in_file(self.file, name_to_dataset)
-        # if not self.load_completed():
-        #     raise ValueError("An error occurred when loading this study! Study:", self.study)
+        self._save_info_in_file()
 
-    def already_loaded(self):
+    def is_loaded(self):
         name_to_dataset = self.name_to_dataset
         snps = name_to_dataset[SNP_DSET]
         first_snp = snps[0]
+        last_snp = snps[-1]
 
-        if first_snp not in self.file:
+        first_snp_loaded = self.snp_loaded_with_study(first_snp)
+        last_snp_loaded = self.snp_loaded_with_study(last_snp)
+        print(first_snp, first_snp_loaded)
+        print(last_snp, last_snp_loaded)
+
+        # true iff one is true and other is false (xor)
+        if first_snp_loaded ^ last_snp_loaded:
+            raise RuntimeError("Study is half loaded! Study:", self.study)
+        else:
+            return first_snp_loaded and last_snp_loaded
+
+    def snp_loaded_with_study(self, snp):
+        if snp not in self.file:
             return False
-        snp_group = gu.get_group_from_parent(self.file, first_snp)
-        return gu.already_loaded_in_group(snp_group, self.study, STUDY_DSET)
 
-    def load_completed(self):
-        name_to_dataset = self.name_to_dataset
-        last_snp = name_to_dataset[SNP_DSET][-1]
-
-        if last_snp not in self.file:
-            return False
-
-        snp_group = gu.get_group_from_parent(self.file, last_snp)
+        snp_group = gu.get_group_from_parent(self.file, snp)
         return gu.already_loaded_in_group(snp_group, self.study, STUDY_DSET)
 
     def close_file(self):
         self.file.close()
+
+    def _save_info_in_file(self):
+        name_to_dataset = self.name_to_dataset
+        file = self.file
+
+        snps = name_to_dataset[SNP_DSET]
+
+        for i in range(len(snps)):
+            if i % 100000 == 0:
+                file.flush()
+            snp = snps[i]
+            if snp in file:
+                snp_group = gu.get_group_from_parent(file, snp)
+                for dset_name in TO_STORE_DSETS:
+                    expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
+            else:
+                snp_group = file.create_group(snp)
+                for dset_name in TO_STORE_DSETS:
+                    create_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
 
 
 def main():

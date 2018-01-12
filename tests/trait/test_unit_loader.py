@@ -22,7 +22,7 @@ class TestUnitLoader(object):
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
 
     def test_open_with_None_array(self):
@@ -31,7 +31,7 @@ class TestUnitLoader(object):
         dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
 
     def test_create_trait_group(self):

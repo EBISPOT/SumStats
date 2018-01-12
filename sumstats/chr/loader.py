@@ -153,13 +153,13 @@ class Loader():
 
     def already_loaded(self):
         study = self.study
-        random_chr = self.name_to_dataset[CHR_DSET][0]
+        first_chr = self.name_to_dataset[CHR_DSET][0]
         try:
-            chr_group = gu.get_group_from_parent(self.file, random_chr)
+            chr_group = gu.get_group_from_parent(self.file, first_chr)
         except ValueError:
             return False
-        random_bp = self.name_to_dataset[BP_DSET][0]
-        block_number = query.get_block_number(random_bp)
+        first_bp = self.name_to_dataset[BP_DSET][0]
+        block_number = query.get_block_number(first_bp)
         block_group = get_block_group_from_block_ceil(chr_group, block_number)
         return gu.already_loaded_in_group(block_group, study, STUDY_DSET)
 
