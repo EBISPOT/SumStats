@@ -95,8 +95,6 @@ class Loader():
 
         first_snp_loaded = self.snp_loaded_with_study(first_snp)
         last_snp_loaded = self.snp_loaded_with_study(last_snp)
-        print(first_snp, first_snp_loaded)
-        print(last_snp, last_snp_loaded)
 
         # true iff one is true and other is false (xor)
         if first_snp_loaded ^ last_snp_loaded:
