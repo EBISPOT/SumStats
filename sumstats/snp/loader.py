@@ -65,7 +65,7 @@ class Loader():
         name_to_list[STUDY_DSET] = [study for _ in range(len(name_to_list[REFERENCE_DSET]))]
         utils.assert_datasets_not_empty(name_to_list)
 
-        self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
+        self.datasets = utils.create_datasets_from_lists(name_to_list)
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
 
@@ -75,8 +75,8 @@ class Loader():
         self._save_info_in_file()
 
     def is_loaded(self):
-        name_to_dataset = self.name_to_dataset
-        snps = name_to_dataset[SNP_DSET]
+        datasets = self.datasets
+        snps = datasets[SNP_DSET]
         first_snp = snps[0]
         last_snp = snps[-1]
 
@@ -100,10 +100,10 @@ class Loader():
         self.file.close()
 
     def _save_info_in_file(self):
-        name_to_dataset = self.name_to_dataset
+        datasets = self.datasets
         file = self.file
 
-        snps = name_to_dataset[SNP_DSET]
+        snps = datasets[SNP_DSET]
 
         for i in range(len(snps)):
             if i % 100000 == 0:
@@ -112,11 +112,11 @@ class Loader():
             if snp in file:
                 snp_group = gu.create_group_from_parent(file, snp)
                 for dset_name in TO_STORE_DSETS:
-                    expand_dataset(snp_group, dset_name, name_to_dataset[dset_name][i])
+                    expand_dataset(snp_group, dset_name, datasets[dset_name][i])
             else:
                 snp_group = file.create_group(snp)
                 for dset_name in TO_STORE_DSETS:
-                    data_point = name_to_dataset[dset_name][i]
+                    data_point = datasets[dset_name][i]
                     gu.create_dataset(snp_group, dset_name, [data_point])
 
 

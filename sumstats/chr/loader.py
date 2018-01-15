@@ -58,11 +58,11 @@ def block_limit_not_reached_max(block_ceil, max_bp):
     return int(block_ceil) <= (int(max_bp) + int(BLOCK_SIZE))
 
 
-def save_info_in_block_group(block_group, name_to_dataset):
+def save_info_in_block_group(block_group, datasets):
     gu.check_group_dsets_shape(block_group, TO_STORE_DSETS)
 
     for dset_name in TO_STORE_DSETS:
-        expand_dataset(block_group, dset_name, name_to_dataset[dset_name])
+        expand_dataset(block_group, dset_name, datasets[dset_name])
 
 
 class Loader():
@@ -93,7 +93,7 @@ class Loader():
         name_to_list[STUDY_DSET] = [study for _ in range(len(name_to_list[MANTISSA_DSET]))]
         utils.assert_datasets_not_empty(name_to_list)
 
-        self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
+        self.datasets = utils.create_datasets_from_lists(name_to_list)
 
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
@@ -109,18 +109,18 @@ class Loader():
 
     def already_loaded(self):
         study = self.study
-        first_chr = self.name_to_dataset[CHR_DSET][0]
+        first_chr = self.datasets[CHR_DSET][0]
         if not gu.subgroup_exists(self.file, first_chr):
             return False
         chr_group = gu.create_group_from_parent(self.file, first_chr)
-        first_bp = self.name_to_dataset[BP_DSET][0]
+        first_bp = self.datasets[BP_DSET][0]
         block_number = query.get_block_number(first_bp)
         block_group = get_block_group_from_block_ceil(chr_group, block_number)
         return gu.value_in_dataset(block_group, study, STUDY_DSET)
 
     def _get_chromosome_array(self):
-        name_to_dataset = self.name_to_dataset
-        unique_chromosomes_in_file = set(name_to_dataset[CHR_DSET])
+        datasets = self.datasets
+        unique_chromosomes_in_file = set(datasets[CHR_DSET])
         return np.array([x for x in unique_chromosomes_in_file])
 
     def _create_groups_in_file(self, list_of_groups):
@@ -154,8 +154,8 @@ class Loader():
 
     def _slice_datasets_where_chromosome(self, chromosome):
         # get the slices from all the arrays where chromosome position == i
-        chr_mask = self.name_to_dataset[CHR_DSET].equality_mask(chromosome)
-        return utils.filter_dictionary_by_mask(self.name_to_dataset, chr_mask)
+        chr_mask = self.datasets[CHR_DSET].equality_mask(chromosome)
+        return utils.filter_dictionary_by_mask(self.datasets, chr_mask)
 
     def close_file(self):
         self.file.close()

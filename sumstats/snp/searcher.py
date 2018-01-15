@@ -29,20 +29,20 @@ class Search():
     def __init__(self, h5file):
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')
-        self.name_to_dset = {}
+        self.datasets = {}
 
     def snp_in_file(self, snp):
         return snp in self.file
 
     def query_for_snp(self, snp, start, size):
         snp_group = gu.get_group_from_parent(self.file, snp)
-        self.name_to_dset = query.get_dsets_from_group(snp_group, start, size)
+        self.datasets = query.get_dsets_from_group(snp_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
-        self.name_to_dset = rst.apply_restrictions(self.name_to_dset, snp, study, chr, pval_interval, bp_interval)
+        self.datasets = rst.apply_restrictions(self.datasets, snp, study, chr, pval_interval, bp_interval)
 
     def get_result(self):
-        return self.name_to_dset
+        return self.datasets
 
     def close_file(self):
         self.file.close()

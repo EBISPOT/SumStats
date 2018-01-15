@@ -53,21 +53,21 @@ class Loader():
 
         utils.assert_datasets_not_empty(name_to_list)
 
-        self.name_to_dataset = utils.create_datasets_from_lists(name_to_list)
+        self.datasets = utils.create_datasets_from_lists(name_to_list)
 
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
 
     def load(self):
 
-        name_to_dataset = self.name_to_dataset
+        datasets = self.datasets
 
         trait_group = self._create_trait_group()
         study_group = self._create_study_group(trait_group)
 
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
-            gu.create_dataset(study_group, dset_name, name_to_dataset[dset_name])
+            gu.create_dataset(study_group, dset_name, datasets[dset_name])
             # flush after saving each dataset
             self.file.flush()
 

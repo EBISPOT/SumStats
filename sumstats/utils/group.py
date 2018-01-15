@@ -83,15 +83,20 @@ def value_in_dataset(group, element, dset_name):
 
 
 def load_dsets_from_group(group, dset_names, start, size):
-    name_to_dataset = {}
+    datasets = {}
     for name in dset_names:
-        name_to_dataset[name] = _get_dset_from_group(name, group, start, size)
+        datasets[name] = _get_dset_from_group(name, group, start, size)
 
-    return name_to_dataset
+    return datasets
 
 
-def create_dataset_from_value(missing_value, size):
-    return _create_dset_placeholder(size, missing_value)
+def create_dataset_from_value(missing_value, group, start, size):
+    reference_dset = get_dset(group, REFERENCE_DSET, start, size)
+    if reference_dset is None:
+        # this group doesn't have any data so we won't create the dataset
+        return []
+    create_size = min(len(reference_dset), size)
+    return _create_dset_placeholder(missing_value, create_size)
 
 
 def _get_dset_from_group(dset_name, group, start, size):
@@ -101,6 +106,6 @@ def _get_dset_from_group(dset_name, group, start, size):
     return Dataset(dataset)
 
 
-def _create_dset_placeholder(size, value):
+def _create_dset_placeholder(value, size):
     assert value is not None, "Can't create dataset with empty content!"
     return Dataset([value for _ in range(size)])

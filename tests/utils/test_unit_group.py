@@ -6,6 +6,7 @@ import pytest
 import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
 from sumstats.utils.dataset import Dataset
+from sumstats.common_constants import *
 
 
 start = 0
@@ -107,20 +108,19 @@ class TestUnitGroup(object):
         placeholder_size = 5
         value = None
         with pytest.raises(AssertionError):
-            gu._create_dset_placeholder(placeholder_size, value)
+            gu._create_dset_placeholder(value, placeholder_size)
 
     def test_create_dset_placeholder_creates_dataset_of_size_and_value(self):
         placeholder_size = 5
         value = 1
-        placeholder = gu._create_dset_placeholder(placeholder_size, value)
-        assert len(placeholder) == 5
-        assert len(set(placeholder)) == 1
+        placeholder = gu._create_dset_placeholder(value, placeholder_size)
+
+        assert len(placeholder) == placeholder_size
+        assert len(set(placeholder)) == value
         assert isinstance(placeholder, Dataset)
 
     def test_extend_dsets_for_group_extends_dictionary_with_array(self):
-        self.group.create_dataset(simple_dset_name, data=simple_dset)
+        self.group.create_dataset(REFERENCE_DSET, data=simple_dset)
+        new_dset = gu.create_dataset_from_value(dataset_with_same_values[0], self.group, start, size)
 
-        new_dset = gu.create_dataset_from_value(dataset_with_same_values[0], size)
-        print(new_dset)
-        print(dataset_with_same_values)
         assert np.array_equal(new_dset, dataset_with_same_values)

@@ -2,7 +2,8 @@ import os
 import pytest
 import numpy as np
 import sumstats.chr.loader as loader
-from tests.chr.test_constants import *
+from tests.prep_tests import *
+from sumstats.chr.constants import *
 
 
 class TestLoader(object):
@@ -11,20 +12,13 @@ class TestLoader(object):
 
     def setup_method(self, method):
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM002', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM002', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM003', loader)
         load.load()
 
         # open h5 file in read/write mode

@@ -41,14 +41,14 @@ class Search():
     def __init__(self, h5file):
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')
-        self.name_to_dset = {}
+        self.datasets = {}
 
     def query_for_chromosome(self, chromosome, start, size):
         chr_group = gu.get_group_from_parent(self.file, chromosome)
 
         all_chr_block_groups = gu.get_all_subgroups(chr_group)
         print("block size", len(all_chr_block_groups))
-        self.name_to_dset = query.get_dsets_from_plethora_of_blocks(all_chr_block_groups, start, size)
+        self.datasets = query.get_dsets_from_plethora_of_blocks(all_chr_block_groups, start, size)
 
     def query_chr_for_block_range(self, chromosome, bp_interval, start, size):
 
@@ -73,19 +73,19 @@ class Search():
         if block_interval.ceil() != bp_interval.ceil():
             filter_block_ceil = bp_interval.ceil()
 
-        name_to_dset = query.get_dsets_from_plethora_of_blocks(block_groups, start, size)
-        bp_mask = name_to_dset[BP_DSET].interval_mask(filter_block_floor, filter_block_ceil)
+        datasets = query.get_dsets_from_plethora_of_blocks(block_groups, start, size)
+        bp_mask = datasets[BP_DSET].interval_mask(filter_block_floor, filter_block_ceil)
 
         if bp_mask is not None:
-            name_to_dset = utils.filter_dictionary_by_mask(name_to_dset, bp_mask)
+            datasets = utils.filter_dictionary_by_mask(datasets, bp_mask)
 
-        self.name_to_dset = name_to_dset
+        self.datasets = datasets
 
     def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
-        self.name_to_dset = rst.apply_restrictions(self.name_to_dset, snp, study, chr, pval_interval, bp_interval)
+        self.datasets = rst.apply_restrictions(self.datasets, snp, study, chr, pval_interval, bp_interval)
 
     def get_result(self):
-        return self.name_to_dset
+        return self.datasets
 
     def close_file(self):
         self.file.close()

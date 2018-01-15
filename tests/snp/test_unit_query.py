@@ -1,7 +1,7 @@
 import os
 import sumstats.snp.loader as loader
 import sumstats.snp.query as query
-from tests.snp.test_constants import *
+from tests.prep_tests import *
 
 
 class TestUnitQueryUtils(object):
@@ -10,20 +10,13 @@ class TestUnitQueryUtils(object):
 
     def setup_method(self, method):
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq' : frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM002', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM002', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM003', loader)
         load.load()
 
         # open h5 file in read/write mode
@@ -37,9 +30,9 @@ class TestUnitQueryUtils(object):
     def test_get_dsets_group(self):
         snp_group = self.f.get("rs7085086")
 
-        name_to_dset = query.get_dsets_from_group(snp_group, self.start, self.size)
-        assert len(name_to_dset) == 9
-        for dset_name, dset in name_to_dset.items():
+        datasets = query.get_dsets_from_group(snp_group, self.start, self.size)
+        assert len(datasets) == 9
+        for dset_name, dset in datasets.items():
             if dset_name is "study":
                 assert len(set(dset)) == 3
             else:

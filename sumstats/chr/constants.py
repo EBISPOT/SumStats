@@ -5,5 +5,3 @@ TO_STORE_DSETS = ['snp', 'mantissa', 'exp', 'or', 'study', 'bp', 'effect', 'othe
 TO_QUERY_DSETS = ['snp', 'mantissa', 'exp', 'or', 'study', 'bp', 'effect', 'other', 'freq']
 
 BLOCK_SIZE = 100000
-
-REFERENCE_DSET = MANTISSA_DSET

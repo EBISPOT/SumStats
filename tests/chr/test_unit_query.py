@@ -2,8 +2,9 @@ import os
 import pytest
 import sumstats.chr.loader as loader
 import sumstats.chr.query as query
-from tests.chr.test_constants import *
+from tests.prep_tests import *
 from sumstats.utils.interval import *
+from sumstats.chr.constants import *
 
 
 class TestUnitQueryUtils(object):
@@ -12,20 +13,13 @@ class TestUnitQueryUtils(object):
 
     def setup_method(self, method):
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq' : frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM002', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM002', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM003', loader)
         load.load()
 
         # open h5 file in read/write mode
@@ -74,19 +68,19 @@ class TestUnitQueryUtils(object):
         bp_interval = IntInterval().set_tuple(48500000, 49200000)
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
 
-        name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups, self.start, self.size)
-        assert name_to_dataset.__class__ is dict
+        datasets = query.get_dsets_from_plethora_of_blocks(block_groups, self.start, self.size)
+        assert datasets.__class__ is dict
 
         for dset_name in TO_QUERY_DSETS:
             # 2 values for each of 3 studies that we loaded
-            assert len(name_to_dataset[dset_name]) == 6
+            assert len(datasets[dset_name]) == 6
 
         bp_interval = IntInterval().set_tuple(48600000, 48600000)
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
-        name_to_dataset = query.get_dsets_from_plethora_of_blocks(block_groups, self.start, self.size)
+        datasets = query.get_dsets_from_plethora_of_blocks(block_groups, self.start, self.size)
         for dset_name in TO_QUERY_DSETS:
             # no SNP bp falls into this group
-            assert len(name_to_dataset[dset_name]) == 0
+            assert len(datasets[dset_name]) == 0
 
     def test_get_dsets_group(self):
         chr_group_2 = self.f.get("/2")
@@ -95,9 +89,9 @@ class TestUnitQueryUtils(object):
         block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
         block_group = block_groups[0]
 
-        name_to_dset = query.get_dsets_from_group(block_group, self.start, self.size)
-        assert len(name_to_dset) == len(TO_STORE_DSETS)
-        for dset_name, dset in name_to_dset.items():
+        datasets = query.get_dsets_from_group(block_group, self.start, self.size)
+        assert len(datasets) == len(TO_STORE_DSETS)
+        for dset_name, dset in datasets.items():
             if dset_name is STUDY_DSET:
                 assert len(set(dset)) == 3
             else:

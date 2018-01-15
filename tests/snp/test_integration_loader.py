@@ -1,7 +1,8 @@
 import os
 import pytest
 import sumstats.snp.loader as loader
-from tests.snp.test_constants import *
+from tests.prep_tests import *
+from sumstats.snp.constants import *
 
 
 class TestLoader(object):
@@ -10,20 +11,13 @@ class TestLoader(object):
 
     def setup_method(self, method):
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM002', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM002', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM003', loader)
         load.load()
 
         # open h5 file in read/write mode
@@ -65,16 +59,6 @@ class TestLoader(object):
 
     def test_study_already_loaded_raises_error(self):
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
         with pytest.raises(ValueError):
             load.load()
-
-    def test_study_already_loaded_doesnt_raise_error_on_new_study(self):
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM004', dict)
-        load.load()

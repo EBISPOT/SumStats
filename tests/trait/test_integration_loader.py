@@ -1,6 +1,8 @@
 import os
+
 import sumstats.trait.loader as loader
-from tests.trait.test_constants import *
+from tests.prep_tests import *
+from sumstats.trait.constants import *
 
 
 class TestLoader(object):
@@ -9,20 +11,13 @@ class TestLoader(object):
 
     def setup_method(self, method):
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', 'Trait1', dict)
+        load = prepare_load_object_with_study_and_trait(self.h5file, 'PM001', 'Trait1', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM002', 'Trait1', dict)
+        load = prepare_load_object_with_study_and_trait(self.h5file, 'PM002', 'Trait1', loader)
         load.load()
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM003', 'Trait2', dict)
+        load = prepare_load_object_with_study_and_trait(self.h5file, 'PM003', 'Trait2', loader)
         load.load()
 
         # open h5 file in read/write mode

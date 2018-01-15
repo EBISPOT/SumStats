@@ -28,26 +28,26 @@ class Search():
     def __init__(self, h5file):
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')
-        self.name_to_dset = {}
+        self.datasets = {}
 
     def query_for_all_associations(self, start, size):
-        self.name_to_dset = query.get_dsets_from_file(self.file, start, size)
+        self.datasets = query.get_dsets_from_file(self.file, start, size)
 
     def query_for_trait(self, trait, start, size):
         trait_group = gu.get_group_from_parent(self.file, trait)
-        self.name_to_dset = query.get_dsets_from_trait_group(trait_group, start, size)
+        self.datasets = query.get_dsets_from_trait_group(trait_group, start, size)
 
     def query_for_study(self, trait, study, start, size):
         trait_group = gu.get_group_from_parent(self.file, trait)
         study_group = gu.get_group_from_parent(trait_group, study)
 
-        self.name_to_dset = query.get_dsets_from_group_directly(study, study_group, start, size)
+        self.datasets = query.get_dsets_from_group_directly(study, study_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
-        self.name_to_dset = rst.apply_restrictions(self.name_to_dset, snp, study, chr, pval_interval, bp_interval)
+        self.datasets = rst.apply_restrictions(self.datasets, snp, study, chr, pval_interval, bp_interval)
 
     def get_result(self):
-        return self.name_to_dset
+        return self.datasets
 
     def list_traits(self):
         trait_groups = gu.get_all_subgroups(self.file)

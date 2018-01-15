@@ -12,3 +12,8 @@ PVAL_DSET = 'pval'
 CHR_DSET = 'chr'
 STUDY_DSET = 'study'
 OR_DSET = 'or'
+EFFECT_DSET = 'effect'
+OTHER_DSET = 'other'
+FREQ_DSET = 'freq'
+
+REFERENCE_DSET = MANTISSA_DSET

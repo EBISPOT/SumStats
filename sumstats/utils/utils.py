@@ -10,8 +10,8 @@ def filter_dictionary_by_mask(dictionary, mask):
     return {dset: Dataset(dataset.filter_by_mask(mask)) for dset, dataset in dictionary.items()}
 
 
-def assert_datasets_not_empty(name_to_dataset):
-    for dset_name, dataset in name_to_dataset.items():
+def assert_datasets_not_empty(datasets):
+    for dset_name, dataset in datasets.items():
         assert not empty_array(dataset), "Array is None or empty: " + dset_name
 
 
@@ -34,8 +34,8 @@ def get_mantissa_and_exp_lists(string_list):
     return mantissa_dset, exp_dset
 
 
-def create_datasets_from_lists(name_to_dsets):
-    return {dset_name : Dataset(dset_vector) for dset_name, dset_vector in name_to_dsets.items()}
+def create_datasets_from_lists(datasets):
+    return {dset_name : Dataset(dset_vector) for dset_name, dset_vector in datasets.items()}
 
 
 def create_dictionary_of_empty_dsets(names):

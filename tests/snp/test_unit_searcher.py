@@ -1,7 +1,7 @@
 import os
 import sumstats.snp.loader as loader
 from sumstats.snp.searcher import Search
-from tests.snp.test_constants import *
+from tests.prep_tests import *
 
 
 class TestUnitSearcher(object):
@@ -9,21 +9,13 @@ class TestUnitSearcher(object):
     f = None
 
     def setup_method(self, method):
-
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq' : frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
         load.load()
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-        load = loader.Loader(None, self.h5file, 'PM002', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM002', loader)
         load.load()
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM003', loader)
         load.load()
 
         self.start = 0
@@ -37,12 +29,12 @@ class TestUnitSearcher(object):
         snp = "rs7085086"
 
         self.query.query_for_snp(snp, self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
-        assert isinstance(name_to_dataset, dict)
+        assert isinstance(datasets, dict)
 
-        for dset_name in name_to_dataset:
-            assert len(name_to_dataset[dset_name]) == 3
+        for dset_name in datasets:
+            assert len(datasets[dset_name]) == 3
 
-        assert len(set(name_to_dataset[CHR_DSET])) == 1
-        assert set(name_to_dataset[CHR_DSET]).pop() == 2
+        assert len(set(datasets[CHR_DSET])) == 1
+        assert set(datasets[CHR_DSET]).pop() == 2

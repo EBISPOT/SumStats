@@ -55,48 +55,48 @@ def get_block_number(bp_position):
 
 
 def get_dsets_from_parent_group(group, start, size):
-    name_to_dataset = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+    datasets = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
 
     end = start + size
     if isinstance(group, h5py._hl.group.Group):
         for child_group_name, child_group in group.items():
             dset_size = get_standard_group_dset_size(child_group)
             if group_has_groups(child_group):
-                name_to_dataset = get_dsets_from_parent_group(child_group, start, size)
-                dset_size = len(name_to_dataset[MANTISSA_DSET])
+                datasets = get_dsets_from_parent_group(child_group, start, size)
+                dset_size = len(datasets[MANTISSA_DSET])
 
             if continue_to_next_group(start, dset_size):
                 continue
             else:
                 subset_of_datasets = get_dsets_from_group(child_group, start, size)
-                name_to_dataset = extend_dsets_with_subset(name_to_dataset, subset_of_datasets)
+                datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
 
                 if end <= dset_size:
-                    return name_to_dataset
+                    return datasets
                 else:
                     size = calculate_remaining_size_from_data_subset(size, subset_of_datasets)
                     continue
-        return name_to_dataset
+        return datasets
     else:
         for child_group in group:
             dset_size = get_standard_group_dset_size(child_group)
             if group_has_groups(child_group):
-                name_to_dataset = get_dsets_from_parent_group(child_group, start, size)
-                dset_size = len(name_to_dataset[MANTISSA_DSET])
+                datasets = get_dsets_from_parent_group(child_group, start, size)
+                dset_size = len(datasets[MANTISSA_DSET])
 
             if continue_to_next_group(start, dset_size):
                 print("next group")
                 continue
             else:
                 subset_of_datasets = get_dsets_from_group(child_group, start, size)
-                name_to_dataset = extend_dsets_with_subset(name_to_dataset, subset_of_datasets)
+                datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
 
                 if end <= dset_size:
-                    return name_to_dataset
+                    return datasets
                 else:
                     size = calculate_remaining_size_from_data_subset(size, subset_of_datasets)
                     continue
-        return name_to_dataset
+        return datasets
 
 
 def get_standard_group_dset_size(group):
@@ -118,10 +118,10 @@ def continue_to_next_group(start, dset_size):
     return start >= dset_size
 
 
-def extend_dsets_with_subset(name_to_dataset, subset):
-    for dset_name, dataset in name_to_dataset.items():
+def extend_dsets_with_subset(datasets, subset):
+    for dset_name, dataset in datasets.items():
         dataset.extend(subset[dset_name])
-    return name_to_dataset
+    return datasets
 
 
 def calculate_remaining_size_from_data_subset(size, subset):

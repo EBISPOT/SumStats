@@ -2,8 +2,8 @@ import os
 import pytest
 import sumstats.chr.loader as loader
 from sumstats.chr.searcher import Search
-from tests.chr.test_constants import *
 from sumstats.utils.interval import *
+from tests.prep_tests import *
 
 
 class TestUnitSearcher(object):
@@ -12,20 +12,13 @@ class TestUnitSearcher(object):
 
     def setup_method(self, method):
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq' : frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
         load.load()
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-        load = loader.Loader(None, self.h5file, 'PM002', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM002', loader)
         load.load()
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-        load = loader.Loader(None, self.h5file, 'PM003', dict)
+        load = prepare_load_object_with_study(self.h5file, 'PM003', loader)
         load.load()
 
         self.start = 0
@@ -37,10 +30,10 @@ class TestUnitSearcher(object):
 
     def test_query_for_chromosome(self):
         self.query.query_for_chromosome("2", self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
-        assert len(name_to_dataset[BP_DSET]) == 6
-        assert len(name_to_dataset[SNP_DSET]) == 6
+        assert len(datasets[BP_DSET]) == 6
+        assert len(datasets[SNP_DSET]) == 6
 
     def test_query_with_two_blocks_in_range(self):
 
@@ -49,12 +42,12 @@ class TestUnitSearcher(object):
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
 
         self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
-        assert isinstance(name_to_dataset, dict)
+        assert isinstance(datasets, dict)
 
-        for dset_name in name_to_dataset:
-            assert len(name_to_dataset[dset_name]) == 6
+        for dset_name in datasets:
+            assert len(datasets[dset_name]) == 6
 
     def test_query_raises_error_when_lower_limit_higher_than_upper_limit(self):
 
@@ -70,12 +63,12 @@ class TestUnitSearcher(object):
         block_upper_limit = 49200000
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
         self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
-        assert isinstance(name_to_dataset, dict)
+        assert isinstance(datasets, dict)
 
-        for dset_name in name_to_dataset:
-            assert len(name_to_dataset[dset_name]) == 3
+        for dset_name in datasets:
+            assert len(datasets[dset_name]) == 3
 
     def test_query_with_none_upper_block_limit(self):
 
@@ -83,21 +76,21 @@ class TestUnitSearcher(object):
         block_upper_limit = None
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
         self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
-        assert isinstance(name_to_dataset, dict)
+        assert isinstance(datasets, dict)
 
-        for dset_name in name_to_dataset:
-            assert len(name_to_dataset[dset_name]) == 3
+        for dset_name in datasets:
+            assert len(datasets[dset_name]) == 3
 
     def test_query_with_none_lower_block_limit(self):
         block_lower_limit = None
         block_upper_limit = 49129966
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
         self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
-        assert isinstance(name_to_dataset, dict)
+        assert isinstance(datasets, dict)
 
-        for dset_name in name_to_dataset:
-            assert len(name_to_dataset[dset_name]) == 3
+        for dset_name in datasets:
+            assert len(datasets[dset_name]) == 3

@@ -1,3 +1,5 @@
+from sumstats.common_constants import *
+
 snpsarray = ["rs185339560", "rs11250701", "rs12345", "rs7085086"]
 pvalsarray = ["0.4865", "0.4314", "0.5986", "0.07057"]
 chrarray = [1, 1, 2, 2]

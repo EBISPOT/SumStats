@@ -1,7 +1,9 @@
 import os
+
 import sumstats.trait.loader as loader
 import sumstats.trait.query as query
-from tests.trait.test_constants import *
+from tests.test_constants import *
+from sumstats.trait.constants import *
 
 
 class TestUnitQueryUtils(object):
@@ -11,22 +13,22 @@ class TestUnitQueryUtils(object):
     def setup_method(self, method):
         chrarray = [10, 10, 10, 10]
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
+        load = loader.Loader(None, self.h5file, "PM001", "Trait1", loader_dictionary)
         load.load()
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, "PM002", "Trait1", dict)
+        load = loader.Loader(None, self.h5file, "PM002", "Trait1", loader_dictionary)
         load.load()
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, "PM003", "Trait2", dict)
+        load = loader.Loader(None, self.h5file, "PM003", "Trait2", loader_dictionary)
         load.load()
 
         # open h5 file in read/write mode
@@ -38,30 +40,30 @@ class TestUnitQueryUtils(object):
         os.remove(self.h5file)
 
     def test_get_dsets_from_file(self):
-        name_to_dataset = query.get_dsets_from_file(self.f, self.start, self.size)
-        assert len(set(name_to_dataset[STUDY_DSET])) == 3
+        datasets = query.get_dsets_from_file(self.f, self.start, self.size)
+        assert len(set(datasets[STUDY_DSET])) == 3
         for dset_name in TO_QUERY_DSETS:
-            assert len(name_to_dataset[dset_name]) == 12
+            assert len(datasets[dset_name]) == 12
 
     def test_get_dsets_from_trait_group(self):
         trait_group = self.f.get("Trait2")
-        name_to_dsets = query.get_dsets_from_trait_group(trait_group, self.start, self.size)
+        datasets = query.get_dsets_from_trait_group(trait_group, self.start, self.size)
 
-        assert len(set(name_to_dsets[STUDY_DSET])) == 1
+        assert len(set(datasets[STUDY_DSET])) == 1
         for dset_name in TO_QUERY_DSETS:
-            assert len(name_to_dsets[dset_name]) == 4
+            assert len(datasets[dset_name]) == 4
 
         trait_group = self.f.get("Trait1")
-        name_to_dsets = query.get_dsets_from_trait_group(trait_group, self.start, self.size)
+        datasets = query.get_dsets_from_trait_group(trait_group, self.start, self.size)
 
-        assert len(set(name_to_dsets[STUDY_DSET])) == 2
+        assert len(set(datasets[STUDY_DSET])) == 2
         for dset_name in TO_QUERY_DSETS:
-            assert len(name_to_dsets[dset_name]) == 8
+            assert len(datasets[dset_name]) == 8
 
     def test_get_dsets_from_group(self):
         study_group = self.f.get("Trait2/PM003")
-        name_to_dsets = query.get_dsets_from_group_directly("PM003", study_group, self.start, self.size)
+        datasets = query.get_dsets_from_group_directly("PM003", study_group, self.start, self.size)
 
-        assert len(set(name_to_dsets[STUDY_DSET])) == 1
+        assert len(set(datasets[STUDY_DSET])) == 1
         for dset_name in TO_QUERY_DSETS:
-            assert len(name_to_dsets[dset_name]) == 4
+            assert len(datasets[dset_name]) == 4

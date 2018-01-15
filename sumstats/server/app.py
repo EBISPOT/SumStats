@@ -13,20 +13,20 @@ def generate(array):
         yield ",".join(row) + "\n"
 
 
-def get_array_to_display(name_to_dataset):
-    if name_to_dataset is None:
+def get_array_to_display(datasets):
+    if datasets is None:
         return {}
-    for dset, dataset in name_to_dataset.items():
+    for dset, dataset in datasets.items():
         if len(dataset) <= 0:
             return {}
         if np.issubdtype(type(dataset[0]), np.dtype):
-            name_to_dataset[dset] = np.array(dataset).tolist()
+            datasets[dset] = np.array(dataset).tolist()
 
     data_dict = {}
-    length = len(name_to_dataset[list(name_to_dataset.keys())[0]])
+    length = len(datasets[list(datasets.keys())[0]])
     for i in range(length):
         element_info = {}
-        for dset, dataset in name_to_dataset.items():
+        for dset, dataset in datasets.items():
             element_info[dset] = dataset[i]
         data_dict[i] = element_info
     return data_dict
@@ -110,17 +110,17 @@ def get_assocs():
     try:
         if trait is not None:
             if study is not None:
-                name_to_dataset = searcher.search_study(trait, study)
+                datasets = searcher.search_study(trait, study)
             else:
-                name_to_dataset = searcher.search_trait(trait)
+                datasets = searcher.search_trait(trait)
         elif chr is not None:
-            name_to_dataset = searcher.search_chromosome(chr)
+            datasets = searcher.search_chromosome(chr)
         elif variant is not None:
-            name_to_dataset = searcher.search_snp(variant)
+            datasets = searcher.search_snp(variant)
         else:
-            name_to_dataset = searcher.search_all_assocs()
+            datasets = searcher.search_all_assocs()
 
-        data_dict = get_array_to_display(name_to_dataset)
+        data_dict = get_array_to_display(datasets)
         response = {"_embedded": {"trait": trait, "data": data_dict}}
 
         prev = get_previous(start, size)

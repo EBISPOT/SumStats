@@ -1,9 +1,11 @@
 import os
 import pytest
 import sumstats.chr.loader as loader
-from tests.chr.test_constants import *
+from tests.prep_tests import *
 from sumstats.utils.dataset import Dataset
 import sumstats.utils.group as gu
+from sumstats.chr.constants import *
+
 
 class TestUnitLoader(object):
     h5file = ".testfile.h5"
@@ -12,26 +14,25 @@ class TestUnitLoader(object):
     def setup_method(self, method):
         # open h5 file in read/write mode
         self.f = h5py.File(self.h5file, mode='a')
-        self.name_to_dset = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+        self.loader_dictionary = prepare_dictionary()
 
     def teardown_method(self, method):
         os.remove(self.h5file)
 
     def test_open_with_empty_array(self):
         other_array = []
-        self.name_to_dset['other'] = other_array
+        self.loader_dictionary['other'] = other_array
         with pytest.raises(AssertionError):
-            loader.Loader(None, self.h5file, "PM001", self.name_to_dset)
+            loader.Loader(None, self.h5file, "PM001", self.loader_dictionary)
 
     def test_open_with_None_array(self):
 
         other_array = None
 
-        self.name_to_dset['other'] = other_array
+        self.loader_dictionary['other'] = other_array
 
         with pytest.raises(AssertionError):
-            loader.Loader(None, self.h5file, "PM001", self.name_to_dset)
+            loader.Loader(None, self.h5file, "PM001", self.loader_dictionary)
 
     def test_create_dataset(self):
         random_group = self.f.create_group("random_group")
@@ -139,7 +140,7 @@ class TestUnitLoader(object):
 
     def test_create_groups_in_parent(self):
         array_of_chromosomes = ["1", 2, "X"]
-        load = loader.Loader(None, self.h5file, "PM001", self.name_to_dset)
+        load = loader.Loader(None, self.h5file, "PM001", self.loader_dictionary)
         load._create_groups_in_file(array_of_chromosomes)
         chr1 = self.f.get("1")
         assert chr1 is not None
@@ -150,20 +151,20 @@ class TestUnitLoader(object):
 
     def test_slice_datasets_where_chromosome(self):
 
-        self.name_to_dset[CHR_DSET] = Dataset([1, 1, 2, 2])
-        self.name_to_dset[SNP_DSET] = Dataset(['snp1', 'snp2', 'snp3', 'snp4'])
+        self.loader_dictionary[CHR_DSET] = Dataset([1, 1, 2, 2])
+        self.loader_dictionary[SNP_DSET] = Dataset(['snp1', 'snp2', 'snp3', 'snp4'])
 
-        load = loader.Loader(None, self.h5file, "PM001", self.name_to_dset)
-        name_to_dataset = load._slice_datasets_where_chromosome(1)
+        load = loader.Loader(None, self.h5file, "PM001", self.loader_dictionary)
+        datasets = load._slice_datasets_where_chromosome(1)
 
-        assert len(name_to_dataset[CHR_DSET]) == 2
-        assert set(name_to_dataset[CHR_DSET]).pop() == 1
+        assert len(datasets[CHR_DSET]) == 2
+        assert set(datasets[CHR_DSET]).pop() == 1
 
-        assert len(name_to_dataset[SNP_DSET]) == 2
-        assert "snp1" in name_to_dataset[SNP_DSET]
-        assert "snp2" in name_to_dataset[SNP_DSET]
-        assert "snp3" not in name_to_dataset[SNP_DSET]
-        assert "snp4" not in name_to_dataset[SNP_DSET]
+        assert len(datasets[SNP_DSET]) == 2
+        assert "snp1" in datasets[SNP_DSET]
+        assert "snp2" in datasets[SNP_DSET]
+        assert "snp3" not in datasets[SNP_DSET]
+        assert "snp4" not in datasets[SNP_DSET]
 
     def test_initialize_block_limits(self):
         floor, ceil = loader.initialize_block_limits()

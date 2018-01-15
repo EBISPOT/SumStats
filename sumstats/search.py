@@ -18,7 +18,7 @@ class Search():
         self.output_path = path + "/output"
 
     def search_all_assocs(self, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
-        name_to_dset = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+        datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         trait_list = []
         print("Searching for all associations!")
         explorer = ex.Explorer()
@@ -48,12 +48,12 @@ class Search():
                     all_groups_size += len(tmp_result[REFERENCE_DSET])
 
                 trait_list.extend([trait for _ in range(dset_size)])
-                for dset_name, dataset in name_to_dset.items():
+                for dset_name, dataset in datasets.items():
                     dataset.extend(result[dset_name])
 
                 if size <= dset_size:
-                    name_to_dset['trait'] = trait_list
-                    return name_to_dset
+                    datasets['trait'] = trait_list
+                    return datasets
                 else:
                     retrieved_size = len(result[REFERENCE_DSET])
 
@@ -61,7 +61,7 @@ class Search():
                     start = start - all_groups_size + retrieved_size
                     continue
 
-        return name_to_dset
+        return datasets
 
     def search_trait(self, trait, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
         result = None

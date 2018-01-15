@@ -1,9 +1,10 @@
-from sumstats.trait import loader
-import pytest
 import os
-from tests.trait.test_constants import *
+
+import pytest
+
+from sumstats.trait import loader
 from sumstats.utils.dataset import Dataset
-import sumstats.utils.group as gu
+from tests.prep_tests import *
 
 
 class TestUnitLoader(object):
@@ -13,36 +14,35 @@ class TestUnitLoader(object):
     def setup_method(self, method):
         # open h5 file in read/write mode
         self.f = h5py.File(self.h5file, mode="a")
-        self.name_to_dset = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
     def teardown_method(self, method):
         os.remove(self.h5file)
 
     def test_open_with_empty_array(self):
-        otherarray = []
-
-        self.name_to_dset['other'] = otherarray
+        other_array = []
+        loader_dictionary = prepare_dictionary()
+        loader_dictionary['other'] = other_array
 
         with pytest.raises(AssertionError):
-            loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+            loader.Loader(None, self.h5file, "Study1", "Trait1", loader_dictionary)
 
     def test_open_with_None_array(self):
-        otherarray = None
+        other_array = None
 
-        self.name_to_dset['other'] = otherarray
+        loader_dictionary = prepare_dictionary()
+        loader_dictionary['other'] = other_array
 
         with pytest.raises(AssertionError):
-            loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+            loader.Loader(None, self.h5file, "Study1", "Trait1", loader_dictionary)
 
     def test_create_trait_group(self):
-        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
         group = load._create_trait_group()
         assert group is not None
         assert group.name == "/Trait1"
 
     def test_create_trait_group_twice(self):
-        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
         group = load._create_trait_group()
         assert group is not None
         assert group.name == "/Trait1"
@@ -52,7 +52,7 @@ class TestUnitLoader(object):
         assert group.name == "/Trait1"
 
     def test_create_study_group(self):
-        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
         trait_group = load._create_trait_group()
         study_group = load._create_study_group(trait_group)
 
@@ -60,7 +60,7 @@ class TestUnitLoader(object):
         assert study_group.name == "/Trait1/Study1"
 
     def test_create_study_group_twice_raises_error(self):
-        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
         trait_group = load._create_trait_group()
         study_group = load._create_study_group(trait_group)
 
@@ -71,7 +71,7 @@ class TestUnitLoader(object):
             load._create_study_group(trait_group)
 
     def test_create_dataset(self):
-        load = loader.Loader(None, self.h5file, "Study1", "Trait1", self.name_to_dset)
+        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
         trait_group = load._create_trait_group()
         study_group = load._create_study_group(trait_group)
         dset_name = CHR_DSET

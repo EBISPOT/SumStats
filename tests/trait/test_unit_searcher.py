@@ -1,8 +1,11 @@
 import os
+
 import pytest
+
 import sumstats.trait.loader as loader
 from sumstats.trait.searcher import Search
-from tests.trait.test_constants import *
+from tests.test_constants import *
+from sumstats.trait.constants import TO_STORE_DSETS
 
 
 class TestUnitSearcher(object):
@@ -12,22 +15,22 @@ class TestUnitSearcher(object):
     def setup_method(self, method):
         chrarray = [10, 10, 10, 10]
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, "PM001", "Trait1", dict)
+        load = loader.Loader(None, self.h5file, "PM001", "Trait1", loader_dictionary)
         load.load()
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, "PM002", "Trait1", dict)
+        load = loader.Loader(None, self.h5file, "PM002", "Trait1", loader_dictionary)
         load.load()
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, "PM003", "Trait2", dict)
+        load = loader.Loader(None, self.h5file, "PM003", "Trait2", loader_dictionary)
         load.load()
 
         self.start = 0
@@ -40,43 +43,43 @@ class TestUnitSearcher(object):
 
     def test_query_for_trait(self):
         self.query.query_for_trait("Trait1", self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
         for dset_name in TO_STORE_DSETS:
-            assert len(name_to_dataset[dset_name]) == 8
+            assert len(datasets[dset_name]) == 8
 
-        study_set = set(name_to_dataset[STUDY_DSET])
+        study_set = set(datasets[STUDY_DSET])
 
         assert study_set.__len__() == 2
 
         self.query.query_for_trait("Trait2", self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
         for dset_name in TO_STORE_DSETS:
-            assert len(name_to_dataset[dset_name]) == 4
+            assert len(datasets[dset_name]) == 4
 
-        study_set = set(name_to_dataset[STUDY_DSET])
+        study_set = set(datasets[STUDY_DSET])
 
         assert study_set.__len__() == 1
 
     def test_query_for_study(self):
         self.query.query_for_study("Trait1", "PM001", self.start, self.size)
 
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
         for dset_name in TO_STORE_DSETS:
-            assert len(name_to_dataset[dset_name]) == 4
+            assert len(datasets[dset_name]) == 4
 
-        study_set = set(name_to_dataset[STUDY_DSET])
+        study_set = set(datasets[STUDY_DSET])
 
         assert study_set.__len__() == 1
         assert "PM001" in study_set.pop()
 
         self.query.query_for_study("Trait1", "PM001", self.start, self.size)
-        name_to_dataset = self.query.get_result()
+        datasets = self.query.get_result()
 
         for dset_name in TO_STORE_DSETS:
-            assert len(name_to_dataset[dset_name]) == 4
+            assert len(datasets[dset_name]) == 4
 
     def test_non_existing_trait(self):
         with pytest.raises(ValueError):

@@ -79,34 +79,34 @@ class IntervalRestrictionPval():
         return mask_between_exp_limits
 
 
-def apply_restrictions(name_to_dataset, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
+def apply_restrictions(datasets, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
     restrictions = []
-    if dataset_present(SNP_DSET, name_to_dataset) and snp is not None:
+    if dataset_present(SNP_DSET, datasets) and snp is not None:
         restriction = snp
-        dataset = name_to_dataset[SNP_DSET]
+        dataset = datasets[SNP_DSET]
         restrictions.append(get_restriction(restriction, dataset))
-    if dataset_present(STUDY_DSET, name_to_dataset) and study is not None:
+    if dataset_present(STUDY_DSET, datasets) and study is not None:
         restriction = study
-        dataset = name_to_dataset[STUDY_DSET]
+        dataset = datasets[STUDY_DSET]
         restrictions.append(get_restriction(restriction, dataset))
-    if dataset_present(CHR_DSET, name_to_dataset) and chr is not None:
+    if dataset_present(CHR_DSET, datasets) and chr is not None:
         restriction = chr
-        dataset = name_to_dataset[CHR_DSET]
+        dataset = datasets[CHR_DSET]
         restrictions.append(get_restriction(restriction, dataset))
-    if dataset_present(MANTISSA_DSET, name_to_dataset) and pval_interval is not None:
+    if dataset_present(MANTISSA_DSET, datasets) and pval_interval is not None:
         restriction = pval_interval
-        dataset_mantissa = name_to_dataset[MANTISSA_DSET]
-        dataset_exp = name_to_dataset[EXP_DSET]
+        dataset_mantissa = datasets[MANTISSA_DSET]
+        dataset_exp = datasets[EXP_DSET]
         restrictions.append(get_restriction(restriction, [dataset_mantissa, dataset_exp]))
-    if dataset_present(BP_DSET, name_to_dataset) and bp_interval is not None:
+    if dataset_present(BP_DSET, datasets) and bp_interval is not None:
         restriction = bp_interval
-        dataset = name_to_dataset[BP_DSET]
+        dataset = datasets[BP_DSET]
         restrictions.append(get_restriction(restriction, dataset))
 
     if restrictions:
-        return filter_dsets_with_restrictions(name_to_dataset, restrictions)
+        return filter_dsets_with_restrictions(datasets, restrictions)
 
-    return name_to_dataset
+    return datasets
 
 
 def dataset_present(dataset_name, dictionary):
@@ -125,13 +125,13 @@ def get_restriction(restriction, datasets):
         return EqualityRestriction(restriction, datasets)
 
 
-def filter_dsets_with_restrictions(name_to_dataset, restrictions):
+def filter_dsets_with_restrictions(datasets, restrictions):
     list_of_masks = [restriction.get_mask() for restriction in restrictions]
 
     filtering_mask = logical_and_on_list_of_masks(list_of_masks)
     if filtering_mask is not None:
-        return utils.filter_dictionary_by_mask(name_to_dataset, filtering_mask)
+        return utils.filter_dictionary_by_mask(datasets, filtering_mask)
 
-    return name_to_dataset
+    return datasets
 
 
