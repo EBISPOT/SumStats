@@ -43,6 +43,85 @@ class TestUnitGroup(object):
         assert len(groups) == 2
         assert isinstance(groups[0], h5py._hl.group.Group)
 
+    def test_create_dataset_single_data_element(self):
+        random_group = self.f.create_group("random_group")
+
+        data = 1
+        dset_name = BP_DSET
+        gu.create_dataset(random_group, dset_name, [data])
+        dset = random_group.get(dset_name)
+        assert dset is not None
+        dataset = dset[:]
+        assert len(dataset) == 1
+        assert dataset[0] == data
+
+    def test_creat_dataset_raises_error_with_unknown_dset_name(self):
+        random_group = self.f.create_group("random_group")
+
+        data = 1
+        dset_name = "random name"
+        with pytest.raises(KeyError):
+            gu.create_dataset(random_group, dset_name, [data])
+
+    def test_expand_dataset_signle_element(self):
+        random_group = self.f.create_group("random group")
+
+        data = 'string1'
+        dset_name = STUDY_DSET
+        gu.create_dataset(random_group, dset_name, [data])
+        data2 = 'random string4'
+        gu.expand_dataset(random_group, dset_name, [data2])
+
+        dset = random_group.get(dset_name)
+        assert dset is not None
+        assert len(dset) == 2
+        dataset = dset[:]
+        assert dataset[0] == 'string1'
+        assert dataset[1] == 'random string4'
+
+    def test_expand_not_existing_dataset(self):
+        random_group = self.f.create_group("random group")
+
+        data = 'string1'
+        dset_name = STUDY_DSET
+        gu.expand_dataset(random_group, dset_name, [data])
+        dset = random_group.get(dset_name)
+
+        assert dset is not None
+        dataset = dset[:]
+        assert len(dataset) == 1
+        assert dataset[0] == 'string1'
+
+    def test_create_dataset_list_of_elements(self):
+        random_group = self.f.create_group("random_group")
+        data = ['string 1', 'str2']
+        dset_name = STUDY_DSET
+        gu.create_dataset(random_group, dset_name, data)
+        dset = random_group.get(dset_name)
+        assert dset is not None
+        dataset = dset[:]
+        assert len(dataset) == 2
+        assert dataset[0] == data[0]
+        assert dataset[1] == data[1]
+
+    def test_expand_dataset_list_of_elements(self):
+        random_group = self.f.create_group("random group")
+
+        data = ['string1', 'str2']
+        dset_name = STUDY_DSET
+        gu.create_dataset(random_group, dset_name, data)
+        data2 = ['string3', 'random string']
+        gu.expand_dataset(random_group, dset_name, data2)
+
+        dataset = random_group.get(dset_name)
+        assert dataset is not None
+        assert len(dataset) == 4
+        dset_data = dataset[:]
+        assert dset_data[0] == data[0]
+        assert dset_data[1] == data[1]
+        assert dset_data[2] == data2[0]
+        assert dset_data[3] == data2[1]
+
     def test_get_dset(self):
         self.group.create_dataset(simple_dset_name, data=simple_dset)
         dataset = gu.get_dset(self.group, simple_dset_name, start, size)

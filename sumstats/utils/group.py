@@ -43,6 +43,16 @@ def create_dataset(group, dset_name, data):
     group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
 
 
+def expand_dataset(group, dset_name, data):
+    dset = group.get(dset_name)
+    if dset is None:
+        create_dataset(group, dset_name, data)
+    else:
+        last_index_before_resize = dset.shape[0]
+        dset.resize(((dset.shape[0] + len(data)),))
+        dset[last_index_before_resize:] = data
+
+
 def get_dset(group, dset_name, start, size):
     dset = group.get(dset_name)
     if dset is not None:

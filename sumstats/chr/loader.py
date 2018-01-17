@@ -22,18 +22,7 @@ import pandas as pd
 from sumstats.utils import utils
 from sumstats.chr.constants import *
 import sumstats.utils.group as gu
-import sumstats.chr.query as query
 import sumstats.chr.block as bk
-
-
-def expand_dataset(group, dset_name, data):
-    dset = group.get(dset_name)
-    if dset is None:
-        gu.create_dataset(group, dset_name, data)
-    else:
-        last_index_before_resize = dset.shape[0]
-        dset.resize(((dset.shape[0] + len(data)),))
-        dset[last_index_before_resize:] = data
 
 
 def initialize_block_limits():
@@ -56,7 +45,7 @@ def save_info_in_block_group(block_group, datasets):
     gu.check_group_dsets_shape(block_group, TO_STORE_DSETS)
 
     for dset_name in TO_STORE_DSETS:
-        expand_dataset(block_group, dset_name, datasets[dset_name])
+        gu.expand_dataset(block_group, dset_name, datasets[dset_name])
 
 
 class Loader():

@@ -24,21 +24,6 @@ from sumstats.snp.constants import *
 import sumstats.utils.group as gu
 
 
-def expand_dataset(group, dset_name, data):
-    """
-    Epands the dset_name dataset by 1 element (data)
-    Resizes first by 1 element, and then saves the new data point in the last position
-
-    :param data: a single data element (string, int, float)
-    """
-    dset = group.get(dset_name)
-    if dset is None:
-        gu.create_dataset(group, dset_name, [data])
-    else:
-        dset.resize((dset.shape[0] + 1,))
-        dset[-1] = data
-
-
 class Loader():
     def __init__(self, tsv, h5file, study, dict_of_data=None):
         self.study = study
@@ -112,7 +97,8 @@ class Loader():
             if snp in file:
                 snp_group = gu.create_group_from_parent(file, snp)
                 for dset_name in TO_STORE_DSETS:
-                    expand_dataset(snp_group, dset_name, datasets[dset_name][i])
+                    data = datasets[dset_name][i]
+                    gu.expand_dataset(snp_group, dset_name, [data])
             else:
                 snp_group = file.create_group(snp)
                 for dset_name in TO_STORE_DSETS:
