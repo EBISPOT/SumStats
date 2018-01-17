@@ -99,7 +99,7 @@ class Loader():
         self.file = h5py.File(h5file, 'a')
 
     def load(self):
-        if self.already_loaded():
+        if self._is_loaded():
             raise ValueError("This study has already been loaded! Study:", self.study)
 
         chromosome_array = self._get_chromosome_array()
@@ -107,55 +107,69 @@ class Loader():
         for chromosome in chromosome_array:
             self._save_chr_info_to_file(chromosome)
 
-    def already_loaded(self):
-        study = self.study
-        first_chr = self.datasets[CHR_DSET][0]
-        if not gu.subgroup_exists(self.file, first_chr):
-            return False
-        chr_group = gu.create_group_from_parent(self.file, first_chr)
+    def _is_loaded(self):
+        first_chromosome = self.datasets[CHR_DSET][0]
         first_bp = self.datasets[BP_DSET][0]
-        block_number = query.get_block_number(first_bp)
-        block_group = get_block_group_from_block_ceil(chr_group, block_number)
-        return gu.value_in_dataset(block_group, study, STUDY_DSET)
+        last_chromosome = self.datasets[CHR_DSET][-1]
+        last_bp = self.datasets[BP_DSET][-1]
+
+        first_bp_loaded = self._is_block_loaded_with_study(first_chromosome, first_bp)
+        last_bp_loaded = self._is_block_loaded_with_study(last_chromosome, last_bp)
+
+        if first_bp_loaded ^ last_bp_loaded:
+            raise RuntimeError("Study is half loaded! Study:", self.study)
+        return first_bp_loaded and last_bp_loaded
+
+    def _is_block_loaded_with_study(self, chr, bp_position):
+        chr = str(chr)
+        block_number = query.get_block_number(bp_position)
+        if not gu.subgroup_exists(self.file, chr):
+            return False
+        chr_group = gu.get_group_from_parent(self.file, chr)
+
+        if not gu.subgroup_exists(chr_group, block_number):
+            return False
+
+        block_group = gu.get_group_from_parent(chr_group, block_number)
+        return gu.value_in_dataset(block_group, self.study, STUDY_DSET)
 
     def _get_chromosome_array(self):
         datasets = self.datasets
         unique_chromosomes_in_file = set(datasets[CHR_DSET])
         return np.array([x for x in unique_chromosomes_in_file])
 
-    def _create_groups_in_file(self, list_of_groups):
-        for new_group in list_of_groups:
-            if str(new_group) not in self.file:
-                self.file.create_group(str(new_group))
-
     def _save_chr_info_to_file(self, chromosome):
         print("Loading chromosome:", chromosome)
-
         chr_group = gu.create_group_from_parent(self.file, chromosome)
         dsets_sliced_by_chr = self._slice_datasets_where_chromosome(chromosome)
 
-        bp_list_chr = dsets_sliced_by_chr[BP_DSET]
-        max_bp = max(bp_list_chr)
+        self._save_block_info_to_file(chr_group, dsets_sliced_by_chr)
 
+    def _slice_datasets_where_chromosome(self, chromosome):
+        # get the slices from all the arrays where chromosome position == i
+        chr_mask = self.datasets[CHR_DSET].equality_mask(chromosome)
+        return utils.filter_dictionary_by_mask(self.datasets, chr_mask)
+
+    def _save_block_info_to_file(self, chr_group, datasets):
+        max_bp = self._max_bp_location(datasets)
         print("max base pair location in chromosome:", max_bp)
 
         block_floor, block_ceil = initialize_block_limits()
 
         while block_limit_not_reached_max(block_ceil, max_bp):
             block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
-            block_mask = dsets_sliced_by_chr[BP_DSET].interval_mask(block_floor, block_ceil)
+            block_mask = datasets[BP_DSET].interval_mask(block_floor, block_ceil)
             if np.any(block_mask):
-                dsets_block_slices = utils.filter_dictionary_by_mask(dsets_sliced_by_chr, block_mask)
+                dsets_block_slices = utils.filter_dictionary_by_mask(datasets, block_mask)
                 save_info_in_block_group(block_group, dsets_block_slices)
                 # flush file after writing to prevent data corruption
                 self.file.flush()
 
             block_floor, block_ceil = increment_block_limits(block_ceil)
 
-    def _slice_datasets_where_chromosome(self, chromosome):
-        # get the slices from all the arrays where chromosome position == i
-        chr_mask = self.datasets[CHR_DSET].equality_mask(chromosome)
-        return utils.filter_dictionary_by_mask(self.datasets, chr_mask)
+    def _max_bp_location(self, datasets):
+        bp_list_chr = datasets[BP_DSET]
+        return max(bp_list_chr)
 
     def close_file(self):
         self.file.close()
