@@ -23,6 +23,7 @@ from sumstats.utils import utils
 from sumstats.chr.constants import *
 import sumstats.utils.group as gu
 import sumstats.chr.query as query
+import sumstats.chr.block as bk
 
 
 def expand_dataset(group, dset_name, data):
@@ -45,13 +46,6 @@ def increment_block_limits(block_ceil):
     block_floor = block_ceil + 1
     block_ceil += BLOCK_SIZE
     return block_floor, block_ceil
-
-
-def get_block_group_from_block_ceil(chr_group, block_ceil):
-    block_group = chr_group.get(str(block_ceil))
-    if block_group is None:
-        block_group = chr_group.create_group(str(block_ceil))
-    return block_group
 
 
 def block_limit_not_reached_max(block_ceil, max_bp):
@@ -122,7 +116,7 @@ class Loader():
 
     def _is_block_loaded_with_study(self, chr, bp_position):
         chr = str(chr)
-        block_number = query.get_block_number(bp_position)
+        block_number = bk.get_block_number(bp_position)
         if not gu.subgroup_exists(self.file, chr):
             return False
         chr_group = gu.get_group_from_parent(self.file, chr)
@@ -157,7 +151,7 @@ class Loader():
         block_floor, block_ceil = initialize_block_limits()
 
         while block_limit_not_reached_max(block_ceil, max_bp):
-            block_group = get_block_group_from_block_ceil(chr_group, block_ceil)
+            block_group = gu.create_group_from_parent(chr_group, block_ceil)
             block_mask = datasets[BP_DSET].interval_mask(block_floor, block_ceil)
             if np.any(block_mask):
                 dsets_block_slices = utils.filter_dictionary_by_mask(datasets, block_mask)

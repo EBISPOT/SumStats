@@ -40,3 +40,9 @@ def create_datasets_from_lists(datasets):
 
 def create_dictionary_of_empty_dsets(names):
     return {name : Dataset([]) for name in names}
+
+
+def extend_dsets_with_subset(datasets, subset):
+    for dset_name, dataset in datasets.items():
+        dataset.extend(subset[dset_name])
+    return datasets

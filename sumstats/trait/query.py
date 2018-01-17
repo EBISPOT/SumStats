@@ -60,12 +60,6 @@ def continue_to_next_group(start, dset_size):
     return start >= dset_size
 
 
-def extend_dsets_with_subset(datasets, subset):
-    for dset_name, dataset in datasets.items():
-        dataset.extend(subset[dset_name])
-    return datasets
-
-
 def calculate_remaining_start_and_size(retrieved_size, groups_size, start, size):
     size = size - retrieved_size
     start = start - groups_size + retrieved_size

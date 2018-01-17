@@ -5,6 +5,7 @@ import sumstats.chr.query as query
 from tests.prep_tests import *
 from sumstats.utils.interval import *
 from sumstats.chr.constants import *
+import sumstats.chr.block as bk
 
 
 class TestUnitQueryUtils(object):
@@ -34,41 +35,40 @@ class TestUnitQueryUtils(object):
         chr_group_1 = self.f.get("1")
         chr_group_2 = self.f.get("2")
 
-        with pytest.raises(ValueError):
-            bp_interval = IntInterval().set_tuple(1118275, 1118276)
-            query.get_block_groups_from_parent_within_block_range(chr_group_1, bp_interval)
-
-        with pytest.raises(TypeError):
-            bp_interval = IntInterval().set_tuple(None, 1118276)
-            query.get_block_groups_from_parent_within_block_range(chr_group_1, bp_interval)
-
         with pytest.raises(AttributeError):
             bp_interval = IntInterval().set_tuple(1200000, 1200000)
-            query.get_block_groups_from_parent_within_block_range(None, bp_interval)
+            block = bk.Block(bp_interval)
+            block.get_block_groups_from_parent(None)
 
         bp_interval = IntInterval().set_string_tuple("1200000:1200000")
-        blocks = query.get_block_groups_from_parent_within_block_range(chr_group_1, bp_interval)
+        block = bk.Block(bp_interval)
+        blocks = block.get_block_groups_from_parent(chr_group_1)
+
         assert blocks.__class__ is list
         assert len(blocks) == 1
         assert blocks[0].__class__ == h5py._hl.group.Group
 
         bp_interval = IntInterval().set_string_tuple("48500000:49200000")
-        blocks = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
+        block = bk.Block(bp_interval)
+        blocks = block.get_block_groups_from_parent(chr_group_2)
+
         assert len(blocks) == 8
         assert blocks[0].name == "/2/48500000"
         assert blocks[7].name == "/2/49200000"
 
         with pytest.raises(ValueError):
             bp_interval = IntInterval().set_string_tuple("49200000:48500000")
-            query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
+            block = bk.Block(bp_interval)
+            block.get_block_groups_from_parent(chr_group_2)
 
     def test_get_dsets_from_plethora_of_blocks(self):
         chr_group_2 = self.f.get("/2")
 
         bp_interval = IntInterval().set_tuple(48500000, 49200000)
-        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
+        block = bk.Block(bp_interval)
+        block_groups = block.get_block_groups_from_parent(chr_group_2)
 
-        datasets = query.get_dsets_from_plethora_of_blocks(block_groups, self.start, self.size)
+        datasets = query.load_datasets_from_groups(block_groups, self.start, self.size)
         assert datasets.__class__ is dict
 
         for dset_name in TO_QUERY_DSETS:
@@ -76,8 +76,10 @@ class TestUnitQueryUtils(object):
             assert len(datasets[dset_name]) == 6
 
         bp_interval = IntInterval().set_tuple(48600000, 48600000)
-        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
-        datasets = query.get_dsets_from_plethora_of_blocks(block_groups, self.start, self.size)
+        block = bk.Block(bp_interval)
+        block_groups = block.get_block_groups_from_parent(chr_group_2)
+
+        datasets = query.load_datasets_from_groups(block_groups, self.start, self.size)
         for dset_name in TO_QUERY_DSETS:
             # no SNP bp falls into this group
             assert len(datasets[dset_name]) == 0
@@ -86,7 +88,9 @@ class TestUnitQueryUtils(object):
         chr_group_2 = self.f.get("/2")
 
         bp_interval = IntInterval().set_tuple(48500000, 48500000)
-        block_groups = query.get_block_groups_from_parent_within_block_range(chr_group_2, bp_interval)
+        block = bk.Block(bp_interval)
+        block_groups = block.get_block_groups_from_parent(chr_group_2)
+
         block_group = block_groups[0]
 
         datasets = query.get_dsets_from_group(block_group, self.start, self.size)
@@ -101,34 +105,34 @@ class TestUnitQueryUtils(object):
         print()
         bp = 0
         block_size = 100000
-        assert query.get_block_number(bp) == block_size
+        assert bk.get_block_number(bp) == block_size
 
         bp = 50000
-        assert query.get_block_number(bp) == block_size
+        assert bk.get_block_number(bp) == block_size
 
         bp = 100000
-        assert query.get_block_number(bp) == block_size
+        assert bk.get_block_number(bp) == block_size
 
         bp = 100001
-        assert query.get_block_number(bp) == 2*block_size
+        assert bk.get_block_number(bp) == 2*block_size
 
         bp = 110000
-        assert query.get_block_number(bp) == 2*block_size
+        assert bk.get_block_number(bp) == 2*block_size
 
         bp = 200000
-        assert query.get_block_number(bp) == bp
+        assert bk.get_block_number(bp) == bp
 
         bp = 900000
-        assert query.get_block_number(bp) == bp
+        assert bk.get_block_number(bp) == bp
 
         bp = 900001
-        assert query.get_block_number(bp) == 1000000
+        assert bk.get_block_number(bp) == 1000000
 
         bp = 999999
-        assert query.get_block_number(bp) == 1000000
+        assert bk.get_block_number(bp) == 1000000
 
         bp = 1100000
-        assert query.get_block_number(bp) == bp
+        assert bk.get_block_number(bp) == bp
 
         bp = 1100001
-        assert query.get_block_number(bp) == 1200000
+        assert bk.get_block_number(bp) == 1200000

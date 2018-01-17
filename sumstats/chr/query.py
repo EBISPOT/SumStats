@@ -7,51 +7,12 @@ from sumstats.utils.utils import *
 import sumstats.utils.group as gu
 
 
-def get_block_groups_from_parent_within_block_range(chr_group, bp_interval):
-    """
-    block_lower and block_upper should be concrete blocks (i.e. factor of the block_size)
-    for block size 100, when I say I want block 100-200 I need to get back block groups[100, 200]
-     (i.e. all the positions from 0-200)
-    """
-    if (bp_interval.floor() % BLOCK_SIZE != 0) or (bp_interval.ceil() % BLOCK_SIZE != 0):
-        raise ValueError(
-            "block sizes not conforming to the block size: %s, block_lower: %ds(s), block_upper: %ds(s)" % (
-                BLOCK_SIZE, bp_interval.floor(), bp_interval.ceil()))
-    if bp_interval.floor() > bp_interval.ceil():
-        raise ValueError("lower limit is bigger than upper limit")
-
-    blocks = [gu.get_group_from_parent(chr_group, block) for block in
-              range(bp_interval.floor(), (bp_interval.ceil() + BLOCK_SIZE), BLOCK_SIZE)]
-    return blocks
-
-
-def get_dsets_from_plethora_of_blocks(groups, start, size):
+def load_datasets_from_groups(groups, start, size):
     return get_dsets_from_parent_group(groups, start, size)
 
 
 def get_dsets_from_group(group, start, size):
     return gu.load_dsets_from_group(group=group, dset_names=TO_QUERY_DSETS, start=start, size=size)
-
-
-def get_block_number(bp_position):
-    """
-    Calculates the block that this BP (base pair location) will belong
-    Blocks are saved with their upper limit, i.e. for block size = 100 if
-    bp == 50 then it is saved in the block 0-100, so we will get back
-    the block name called "100"
-
-    :param bp_position: the base pair location
-    :return: the upper limit of the block that the bp belongs to
-    """
-
-    if bp_position <= BLOCK_SIZE:
-        return BLOCK_SIZE
-    else:
-        is_factor_of_block_size = bp_position % BLOCK_SIZE == 0
-        if is_factor_of_block_size:
-            return bp_position
-        else:
-            return bp_position - (bp_position % BLOCK_SIZE) + BLOCK_SIZE
 
 
 def get_dsets_from_parent_group(group, start, size):
@@ -116,12 +77,6 @@ def group_has_groups(group):
 
 def continue_to_next_group(start, dset_size):
     return start >= dset_size
-
-
-def extend_dsets_with_subset(datasets, subset):
-    for dset_name, dataset in datasets.items():
-        dataset.extend(subset[dset_name])
-    return datasets
 
 
 def calculate_remaining_size_from_data_subset(size, subset):
