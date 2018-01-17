@@ -31,36 +31,6 @@ class TestUnitQueryUtils(object):
     def teardown_method(self, method):
         os.remove(self.h5file)
 
-    def test_get_block_groups_from_parent_within_block_range(self):
-        chr_group_1 = self.f.get("1")
-        chr_group_2 = self.f.get("2")
-
-        with pytest.raises(AttributeError):
-            bp_interval = IntInterval().set_tuple(1200000, 1200000)
-            block = bk.Block(bp_interval)
-            block.get_block_groups_from_parent(None)
-
-        bp_interval = IntInterval().set_string_tuple("1200000:1200000")
-        block = bk.Block(bp_interval)
-        blocks = block.get_block_groups_from_parent(chr_group_1)
-
-        assert blocks.__class__ is list
-        assert len(blocks) == 1
-        assert blocks[0].__class__ == h5py._hl.group.Group
-
-        bp_interval = IntInterval().set_string_tuple("48500000:49200000")
-        block = bk.Block(bp_interval)
-        blocks = block.get_block_groups_from_parent(chr_group_2)
-
-        assert len(blocks) == 8
-        assert blocks[0].name == "/2/48500000"
-        assert blocks[7].name == "/2/49200000"
-
-        with pytest.raises(ValueError):
-            bp_interval = IntInterval().set_string_tuple("49200000:48500000")
-            block = bk.Block(bp_interval)
-            block.get_block_groups_from_parent(chr_group_2)
-
     def test_get_dsets_from_plethora_of_blocks(self):
         chr_group_2 = self.f.get("/2")
 
@@ -100,39 +70,3 @@ class TestUnitQueryUtils(object):
                 assert len(set(dset)) == 3
             else:
                 assert len(set(dset)) == 1
-
-    def test_get_block_number(self):
-        print()
-        bp = 0
-        block_size = 100000
-        assert bk.get_block_number(bp) == block_size
-
-        bp = 50000
-        assert bk.get_block_number(bp) == block_size
-
-        bp = 100000
-        assert bk.get_block_number(bp) == block_size
-
-        bp = 100001
-        assert bk.get_block_number(bp) == 2*block_size
-
-        bp = 110000
-        assert bk.get_block_number(bp) == 2*block_size
-
-        bp = 200000
-        assert bk.get_block_number(bp) == bp
-
-        bp = 900000
-        assert bk.get_block_number(bp) == bp
-
-        bp = 900001
-        assert bk.get_block_number(bp) == 1000000
-
-        bp = 999999
-        assert bk.get_block_number(bp) == 1000000
-
-        bp = 1100000
-        assert bk.get_block_number(bp) == bp
-
-        bp = 1100001
-        assert bk.get_block_number(bp) == 1200000
