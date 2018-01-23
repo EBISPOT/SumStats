@@ -1,0 +1,16 @@
+#!/bin/bash
+
+base=$(cd ${0%/*}/../..; pwd)
+
+file=$1
+
+if [ -z $file ]; then
+        echo "Need to provide the file"                                     
+        exit
+fi   
+
+filename=$(basename $file)
+study=$(echo "$filename" | cut -d"-" -f2)
+trait=$(echo "$filename" | cut -d"-" -f3)
+
+bsub -g "/sumstatsloader" -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv $filename -study $study -trait $trait -loader trait"

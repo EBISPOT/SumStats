@@ -1,0 +1,33 @@
+#!/bin/bash 
+
+base=$(cd ${0%/*}/..; pwd)
+
+file=$1
+
+if [ -z $file ]; then
+        echo "Need to provide the file"                                     
+        exit
+fi   
+
+filename=$(basename $file)
+
+
+# takes the file given as input and creates a clean one with "_clean" appended to it
+echo "FILE: $file"
+bsub -K -o $base/output.txt -e $base/error.txt $base/bin/utils/clean_input.sh $base/$filename
+# move it to the correct location
+mv $base/"$filename"_clean $base/files/toload/"$filename"
+
+# split up the script into one per chromosome
+# do this in the toload location
+filename="$filename"
+
+bsub -K -o $base/output.txt -e $base/error.txt $base/bin/utils/split_by_chr.sh "$filename"
+bsub -K -o $base/output.txt -e $base/error.txt $base/bin/utils/append_header.sh "$filename"
+
+for i in {1..23} 
+do
+	$base/bin/load/submit_chr.sh $filename $i
+	$base/bin/load/submit_snp.sh $filename $i
+done
+$base/bin/load/submit_trait.sh $filename

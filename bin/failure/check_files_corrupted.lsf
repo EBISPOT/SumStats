@@ -1,0 +1,12 @@
+#!/bin/bash
+
+base=$(cd ${0%/*}/../..; pwd)
+
+# clean output and error files
+> $base/corruption_o.txt
+> $base/corruption_e.txt
+
+# submit job
+# 'bin' mounted as 'scripts' on docker container
+bsub -K -g "/sumstatscorruptioncheck" -o $base/corruption_o.txt -e $base/corruption_e.txt -a 'docker('$base'/sumstatscdf.yml)' "/scripts/failure/run_h5debug_on_files.sh"
+

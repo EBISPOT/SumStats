@@ -1,0 +1,26 @@
+#!/bin/bash
+
+base=$(cd ${0%/*}/../..; pwd)
+
+file=$1
+chromosome=$2
+
+if [ -z $file ]; then                                                       
+        echo "Need to provide the file"                                     
+        exit                                                                
+fi   
+
+if [ -z $chromosome ]; then
+	echo "Need to give chromosome number"
+	exit
+fi
+
+filename=$(basename $file)
+study=$(echo "$filename" | cut -d"-" -f2)
+trait=$(echo "$filename" | cut -d"-" -f3)
+
+    # check to see if it exists
+    if [ -s $base/files/toload/chr"$chromosome"_"$filename" ];
+    then
+        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv chr"$chromosome"_"$filename" -study $study -loader chr -chr $chromosome "
+    fi

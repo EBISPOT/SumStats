@@ -1,0 +1,61 @@
+#!/bin/bash
+
+base=$(cd ${0%/*}/../..; pwd)
+
+file=$1
+report_file=$2
+report_failed_file=$3
+
+output_loc=$4
+
+filename=$(basename $file)
+
+trait=$(echo "$filename" | cut -d"-" -f3)
+
+if [ -z $file ]; then
+	echo "Need to provide the file"
+	exit
+fi
+
+if [ -z $report_file ]; then
+        echo "Need to provide the report file name"
+        exit
+fi
+
+if [ -z $report_failed_file ]; then
+        echo "Need to provide the failed file name"
+        exit
+fi
+
+# delete output files
+rm -f $base/snp_output*
+rm -f $base/snp_error*
+rm -f $base/chr_output*
+rm -f $base/chr_error*
+rm -f $base/trait_output*
+rm -f $base/trait_error*
+
+while read line; do
+    jobtype=$(echo $line | cut -d":" -f1)
+    chromosome=$(echo $line | cut -d":" -f2)
+
+    if [ $jobtype == "snp" ]; then
+        # replace with backup
+        $base/bin/utils/rollback.sh $output_loc bysnp file_"$chromosome".h5
+        # resubmit job
+        $base/bin/load/submit_snp.sh $file $chromosome
+    elif [ $jobtype == "chr" ]; then
+        # replace with backup
+        $base/bin/utils/rollback.sh $output_loc bychr file_"$chromosome".h5
+        # resubmit job
+        $base/bin/load/submit_chr.sh $file $chromosome
+    elif [ $jobtype == "trait" ]; then
+        # replace with backup
+        $base/bin/utils/rollback.sh $output_loc bytrait file_"$trait".h5
+        # resubmit job
+        $base/bin/load/submit_trait.sh $file
+    fi
+done < $report_failed_file
+
+# clean up failed_file
+> $report_failed_file

@@ -1,7 +1,9 @@
 #!/bin/bash
 
+base=$(cd ${0%/*}/../..; pwd)
+
 file=$1
-base=$(pwd);
+
 cd $base/files/toload
 
 for chr in {1..23}
