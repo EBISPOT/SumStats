@@ -76,7 +76,8 @@ class Loader():
 
     def _create_study_group(self, trait_group):
         if gu.subgroup_exists(trait_group, self.study):
-            raise ValueError("Study already exists for this trait! Study:", self.study + " Trait: ", self.trait)
+            self.close_file()
+            raise ValueError("This study has already been loaded! Study:", self.study)
         return gu.create_group_from_parent(trait_group, self.study)
 
     def close_file(self):

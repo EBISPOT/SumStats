@@ -10,7 +10,7 @@ if [ -z $output_loc ]; then
 fi
 
 # backup files
-cp $output_loc/bychr/* $output_loc/bk_bychr/
-cp $output_loc/bysnp/* $output_loc/bk_bysnp/
-cp $output_loc/bytrait/* $output_loc/bk_bytrait/
+cp $output_loc/bychr/* $output_loc/bk_bychr/ &
+cp $output_loc/bysnp/* $output_loc/bk_bysnp/ &
+cp $output_loc/bytrait/* $output_loc/bk_bytrait/ &
 

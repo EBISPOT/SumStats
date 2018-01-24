@@ -83,6 +83,7 @@ class Loader():
 
     def load(self):
         if self._is_loaded():
+            self.close_file()
             raise ValueError("This study has already been loaded! Study:", self.study)
 
         chromosome_array = self._get_chromosome_array()

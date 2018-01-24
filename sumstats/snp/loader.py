@@ -56,6 +56,7 @@ class Loader():
 
     def load(self):
         if self.is_loaded():
+            self.close_file()
             raise ValueError("This study has already been loaded! Study:", self.study)
         self._save_info_in_file()
 
@@ -91,8 +92,6 @@ class Loader():
         snps = datasets[SNP_DSET]
 
         for i in range(len(snps)):
-            if i % 100000 == 0:
-                file.flush()
             snp = snps[i]
             if snp in file:
                 snp_group = gu.create_group_from_parent(file, snp)
