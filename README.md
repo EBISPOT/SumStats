@@ -31,7 +31,7 @@ Files produced by the sumstats package (.h5 files) should be generated in the fi
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
   - bin/setup_configuration.sh <to_load_filename>
   
-# Folder directory
+# Directory layout
 The directories that are created are files/toload and files/output
 In the files/output directory 3 subdirectories will be created:
 - bytrait
