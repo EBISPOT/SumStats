@@ -15,12 +15,12 @@
 """
 
 import argparse
-import time
 import numpy as np
-import pandas as pd
 
+from sumstats.utils import fileload as fl
 from sumstats.utils import utils
 from sumstats.chr.constants import *
+import sumstats.chr.constants as const
 import sumstats.utils.group as gu
 import sumstats.chr.block as bk
 
@@ -48,35 +48,13 @@ def save_info_in_block_group(block_group, datasets):
         gu.expand_dataset(block_group, dset_name, datasets[dset_name])
 
 
-class Loader():
+class Loader:
     def __init__(self, tsv, h5file, study, dict_of_data=None):
         self.study = study
         assert self.study is not None, "You need to specify a study accession"
 
-        if tsv is not None:
-            name_to_list = {}
-            assert dict_of_data is None, "dict_of_data is ignored"
-            print(time.strftime('%a %H:%M:%S'))
-            for name in TO_LOAD_DSET_HEADERS:
-                name_to_list[name] = \
-                pd.read_csv(tsv, dtype=DSET_TYPES[name], usecols=[name], delimiter="\t").to_dict(orient='list')[name]
-            print("Loaded tsv file: ", tsv)
-            print(time.strftime('%a %H:%M:%S'))
-        else:
-            name_to_list = dict_of_data
-
-        pval_list = name_to_list[PVAL_DSET]
-
-        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_lists(pval_list)
-        del name_to_list[PVAL_DSET]
-
-        name_to_list[MANTISSA_DSET] = mantissa_dset
-        name_to_list[EXP_DSET] = exp_dset
-
-        name_to_list[STUDY_DSET] = [study for _ in range(len(name_to_list[MANTISSA_DSET]))]
-        utils.assert_datasets_not_empty(name_to_list)
-
-        self.datasets = utils.create_datasets_from_lists(name_to_list)
+        datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
+        self.datasets = fl.format_datasets(datasets_as_lists, study, const)
 
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
@@ -127,33 +105,33 @@ class Loader():
         chr_group = gu.create_group_from_parent(self.file, chromosome)
         dsets_sliced_by_chr = self._slice_datasets_where_chromosome(chromosome)
 
-        self._save_block_info_to_file(chr_group, dsets_sliced_by_chr)
-
-    def _slice_datasets_where_chromosome(self, chromosome):
-        # get the slices from all the arrays where chromosome position == i
-        chr_mask = self.datasets[CHR_DSET].equality_mask(chromosome)
-        return utils.filter_dictionary_by_mask(self.datasets, chr_mask)
-
-    def _save_block_info_to_file(self, chr_group, datasets):
-        max_bp = self._max_bp_location(datasets)
+        max_bp = self._max_bp_location(dsets_sliced_by_chr)
         print("max base pair location in chromosome:", max_bp)
 
         block_floor, block_ceil = initialize_block_limits()
 
         while block_limit_not_reached_max(block_ceil, max_bp):
             block_group = gu.create_group_from_parent(chr_group, block_ceil)
-            block_mask = datasets[BP_DSET].interval_mask(block_floor, block_ceil)
-            if np.any(block_mask):
-                dsets_block_slices = utils.filter_dictionary_by_mask(datasets, block_mask)
-                save_info_in_block_group(block_group, dsets_block_slices)
-                # flush file after writing to prevent data corruption
-                self.file.flush()
+            block_mask = dsets_sliced_by_chr[BP_DSET].interval_mask(block_floor, block_ceil)
+            self._save_block(block_group, block_mask, dsets_sliced_by_chr)
 
             block_floor, block_ceil = increment_block_limits(block_ceil)
+
+    def _slice_datasets_where_chromosome(self, chromosome):
+        # get the slices from all the arrays where chromosome position == i
+        chr_mask = self.datasets[CHR_DSET].equality_mask(chromosome)
+        return utils.filter_dictionary_by_mask(self.datasets, chr_mask)
 
     def _max_bp_location(self, datasets):
         bp_list_chr = datasets[BP_DSET]
         return max(bp_list_chr)
+
+    def _save_block(self, block_group, block_mask, datasets):
+        if np.any(block_mask):
+            dsets_block_slices = utils.filter_dictionary_by_mask(datasets, block_mask)
+            save_info_in_block_group(block_group, dsets_block_slices)
+            # flush file after writing to prevent data corruption
+            self.file.flush()
 
     def close_file(self):
         self.file.close()

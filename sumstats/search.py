@@ -153,7 +153,7 @@ def main():
         result = search.search_chromosome(chromosome, start, size, bp_interval, study, pval_interval)
 
     elif snp is not None:
-        result = search.search_snp(snp, start,size, study, pval_interval)
+        result = search.search_snp(snp, start, size, study, pval_interval)
     else:
         raise ValueError("Input is wrong!")
 

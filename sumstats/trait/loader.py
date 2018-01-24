@@ -14,16 +14,14 @@
 
 """
 
-import time
-from sumstats.utils import utils
-import pandas as pd
 from sumstats.trait.constants import *
+import sumstats.trait.constants as const
+import sumstats.utils.fileload as fl
 import sumstats.utils.group as gu
-import numpy as np
 import argparse
 
 
-class Loader():
+class Loader:
 
     def __init__(self, tsv, h5file, study, trait, dict_of_data=None):
         h5file = h5file
@@ -32,28 +30,8 @@ class Loader():
 
         assert trait is not None, "You need to specify a trait with the trait loader!"
 
-        if tsv is not None:
-            name_to_list = {}
-            assert dict_of_data is None, "dict_of_data is ignored"
-            print(time.strftime('%a %H:%M:%S'))
-            for name in TO_LOAD_DSET_HEADERS:
-                name_to_list[name] = \
-                pd.read_csv(tsv, dtype=DSET_TYPES[name], usecols=[name], delimiter="\t").to_dict(orient='list')[name]
-            print("Loaded tsv file: ", tsv)
-            print(time.strftime('%a %H:%M:%S'))
-        else:
-            name_to_list = dict_of_data
-
-        pval_list = name_to_list[PVAL_DSET]
-        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_lists(pval_list)
-        del name_to_list[PVAL_DSET]
-
-        name_to_list[MANTISSA_DSET] = mantissa_dset
-        name_to_list[EXP_DSET] = exp_dset
-
-        utils.assert_datasets_not_empty(name_to_list)
-
-        self.datasets = utils.create_datasets_from_lists(name_to_list)
+        datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
+        self.datasets = fl.format_datasets(datasets_as_lists, study, const)
 
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')

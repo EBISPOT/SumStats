@@ -24,7 +24,7 @@ import h5py
 import sumstats.utils.restrictions as rst
 
 
-class Search():
+class Search:
 
     def __init__(self, h5file):
         # Open the file with read permissions

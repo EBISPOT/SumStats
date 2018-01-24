@@ -15,42 +15,20 @@
 """
 
 import argparse
-import time
-import numpy as np
-import pandas as pd
 
-from sumstats.utils import utils
+import sumstats.utils.fileload as fl
 from sumstats.snp.constants import *
+import sumstats.snp.constants as const
 import sumstats.utils.group as gu
 
 
-class Loader():
+class Loader:
     def __init__(self, tsv, h5file, study, dict_of_data=None):
         self.study = study
 
-        if tsv is not None:
-            name_to_list = {}
-            assert dict_of_data is None, "dic_of_data is ignored"
-            print(time.strftime('%a %H:%M:%S'))
-            for name in TO_LOAD_DSET_HEADERS:
-                name_to_list[name] = \
-                pd.read_csv(tsv, dtype=DSET_TYPES[name], usecols=[name], delimiter="\t").to_dict(orient='list')[name]
-            print("Loaded tsv file: ", tsv)
-            print(time.strftime('%a %H:%M:%S'))
-        else:
-            name_to_list = dict_of_data
+        datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
+        self.datasets = fl.format_datasets(datasets_as_lists, study, const)
 
-        pval_list = name_to_list[PVAL_DSET]
-        mantissa_dset, exp_dset = utils.get_mantissa_and_exp_lists(pval_list)
-        del name_to_list[PVAL_DSET]
-
-        name_to_list[MANTISSA_DSET] = mantissa_dset
-        name_to_list[EXP_DSET] = exp_dset
-
-        name_to_list[STUDY_DSET] = [study for _ in range(len(name_to_list[REFERENCE_DSET]))]
-        utils.assert_datasets_not_empty(name_to_list)
-
-        self.datasets = utils.create_datasets_from_lists(name_to_list)
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
 
@@ -87,22 +65,18 @@ class Loader():
 
     def _save_info_in_file(self):
         datasets = self.datasets
-        file = self.file
-
         snps = datasets[SNP_DSET]
 
         for i in range(len(snps)):
-            snp = snps[i]
-            if snp in file:
-                snp_group = gu.create_group_from_parent(file, snp)
-                for dset_name in TO_STORE_DSETS:
-                    data = datasets[dset_name][i]
-                    gu.expand_dataset(snp_group, dset_name, [data])
-            else:
-                snp_group = file.create_group(snp)
-                for dset_name in TO_STORE_DSETS:
-                    data_point = datasets[dset_name][i]
-                    gu.create_dataset(snp_group, dset_name, [data_point])
+            self._save_snp(snps[i], i)
+
+    def _save_snp(self, snp, snp_index):
+
+        snp_group = gu.create_group_from_parent(self.file, snp)
+
+        for dset_name in TO_STORE_DSETS:
+            data_point = self.datasets[dset_name][snp_index]
+            gu.expand_dataset(snp_group, dset_name, [data_point])
 
 
 def main():
