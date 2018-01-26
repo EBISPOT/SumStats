@@ -63,6 +63,8 @@ class TestUnitLoader(object):
         assert floor == BLOCK_SIZE + 1
         assert ceil == 2 * BLOCK_SIZE
 
+    def test_increment_block_limits_twice(self):
+        floor, ceil = loader.increment_block_limits(BLOCK_SIZE)
         floor, ceil = loader.increment_block_limits(ceil)
 
         assert floor == 2 * BLOCK_SIZE + 1

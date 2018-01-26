@@ -11,7 +11,7 @@ import sumstats.utils.interval as interval
 from sumstats.common_constants import *
 
 
-class IntervalRestriction():
+class IntervalRestriction:
     def __init__(self, lower, upper, dataset):
         assert lower <= upper, "Lower limit must be numerically lower than upper limit!"
         self.lower = lower
@@ -22,7 +22,7 @@ class IntervalRestriction():
         return self.dataset.interval_mask(self.lower, self.upper)
 
 
-class EqualityRestriction():
+class EqualityRestriction:
     def __init__(self, value, dataset):
         self.value = value
         self.dataset = dataset
@@ -31,7 +31,7 @@ class EqualityRestriction():
         return self.dataset.equality_mask(self.value)
 
 
-class IntervalRestrictionPval():
+class IntervalRestrictionPval:
     def __init__(self, lower, upper, mantissa_dset, exponent_dset):
         assert lower <= upper, "Lower limit must be numerically lower than upper limit!"
         self.mantissa_lower, self.exp_lower = pu.convert_to_mantissa_and_exponent(str(lower))

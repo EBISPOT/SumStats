@@ -105,7 +105,7 @@ def get_assocs():
     start = int(retrieve_argument(args, "start", 0))
     size = int(retrieve_argument(args, "size", 20))
 
-    searcher = search.Search(start, size)
+    searcher = search.Search(start=start, size=size)
 
     try:
         if trait is not None:

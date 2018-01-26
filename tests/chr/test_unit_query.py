@@ -32,7 +32,7 @@ class TestUnitQueryUtils(object):
         os.remove(self.h5file)
 
     def test_get_dsets_from_plethora_of_blocks(self):
-        chr_group_2 = self.f.get("/2")
+        chr_group_2 = gu.Group(self.f.get("/2"))
 
         bp_interval = IntInterval().set_tuple(48500000, 49200000)
         block = bk.Block(bp_interval)
@@ -55,7 +55,7 @@ class TestUnitQueryUtils(object):
             assert len(datasets[dset_name]) == 0
 
     def test_get_dsets_group(self):
-        chr_group_2 = self.f.get("/2")
+        chr_group_2 = gu.Group(self.f.get("/2"))
 
         bp_interval = IntInterval().set_tuple(48500000, 48500000)
         block = bk.Block(bp_interval)

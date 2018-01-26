@@ -39,17 +39,16 @@ class TestUnitLoader(object):
         load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
         group = load._create_trait_group()
         assert group is not None
-        assert group.name == "/Trait1"
+        assert group.get_name() == "/Trait1"
 
     def test_create_trait_group_twice(self):
         load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
         group = load._create_trait_group()
         assert group is not None
-        assert group.name == "/Trait1"
+        assert group.get_name() == "/Trait1"
 
         group_retrieved = load._create_trait_group()
-        assert group_retrieved == group
-        assert group.name == "/Trait1"
+        assert group_retrieved.get_name() == "/Trait1"
 
     def test_create_study_group(self):
         load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
@@ -57,7 +56,7 @@ class TestUnitLoader(object):
         study_group = load._create_study_group(trait_group)
 
         assert study_group is not None
-        assert study_group.name == "/Trait1/Study1"
+        assert study_group.get_name() == "/Trait1/Study1"
 
     def test_create_study_group_twice_raises_error(self):
         load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
@@ -65,7 +64,7 @@ class TestUnitLoader(object):
         study_group = load._create_study_group(trait_group)
 
         assert study_group is not None
-        assert study_group.name == "/Trait1/Study1"
+        assert study_group.get_name() == "/Trait1/Study1"
 
         with pytest.raises(ValueError):
             load._create_study_group(trait_group)
@@ -76,7 +75,7 @@ class TestUnitLoader(object):
         study_group = load._create_study_group(trait_group)
         dset_name = CHR_DSET
         data = Dataset([1, 2, 3])
-        gu.create_dataset(study_group, dset_name, data)
+        study_group.generate_dataset(dset_name, data)
 
         dataset = self.f.get("/Trait1/Study1/" + CHR_DSET)
 
@@ -86,8 +85,8 @@ class TestUnitLoader(object):
 
         data_2 = Dataset([2, 3, 4])
         with pytest.raises(RuntimeError):
-            gu.create_dataset(study_group, dset_name, data_2)
+            study_group.generate_dataset(dset_name, data_2)
 
         dset_name = "random"
         with pytest.raises(KeyError):
-            gu.create_dataset(study_group, dset_name, data_2)
+            study_group.generate_dataset(dset_name, data_2)

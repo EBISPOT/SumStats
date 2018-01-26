@@ -33,17 +33,17 @@ class Search:
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')
         self.datasets = {}
+        self.file_group = gu.Group(self.file)
 
     def query_for_chromosome(self, chromosome, start, size):
-        chr_group = gu.get_group_from_parent(self.file, chromosome)
+        chr_group = self.file_group.get_subgroup(chromosome)
 
-        all_chr_sub_groups = gu.get_all_subgroups(chr_group)
+        all_chr_sub_groups = chr_group.get_all_subgroups()
         print("block size", len(all_chr_sub_groups))
         self.datasets = query.load_datasets_from_groups(all_chr_sub_groups, start, size)
 
     def query_chr_for_block_range(self, chromosome, bp_interval, start, size):
-
-        chr_group = gu.get_group_from_parent(self.file, chromosome)
+        chr_group = self.file_group.get_subgroup(chromosome)
         block = bk.Block(bp_interval)
 
         filter_block_ceil = None
@@ -68,8 +68,8 @@ class Search:
 
         self.datasets = datasets
 
-    def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
-        self.datasets = rst.apply_restrictions(self.datasets, snp, study, chr, pval_interval, bp_interval)
+    def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
+        self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)
 
     def get_result(self):
         return self.datasets

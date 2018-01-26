@@ -31,7 +31,7 @@ class Search():
             if os.path.isfile(h5file):
                 searcher = trait_searcher.Search(h5file)
                 searcher.query_for_trait(trait, start, size)
-                searcher.apply_restrictions(snp=snp, chr=chromosome, pval_interval=pval_interval,
+                searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval,
                                             bp_interval=bp_interval)
                 result = searcher.get_result()
                 searcher.close_file()
@@ -41,7 +41,7 @@ class Search():
                 if dset_size == 0:
                     searcher = trait_searcher.Search(h5file)
                     searcher.query_for_trait(trait, 0, start)
-                    searcher.apply_restrictions(snp=snp, chr=chromosome, pval_interval=pval_interval,
+                    searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval,
                                                 bp_interval=bp_interval)
                     tmp_result = searcher.get_result()
                     searcher.close_file()
@@ -70,7 +70,7 @@ class Search():
         if os.path.isfile(h5file):
             searcher = trait_searcher.Search(h5file)
             searcher.query_for_trait(trait, start, size)
-            searcher.apply_restrictions(snp=snp, chr=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
+            searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
             result = searcher.get_result()
             searcher.close_file()
         return result
@@ -83,7 +83,7 @@ class Search():
             searcher = trait_searcher.Search(h5file)
             searcher.query_for_study(trait, study, start, size)
 
-            searcher.apply_restrictions(snp=snp, chr=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
+            searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
             result = searcher.get_result()
             searcher.close_file()
         return result
@@ -127,7 +127,7 @@ def main():
 
     trait, study, chromosome, bp_interval, snp, pval_interval = au.convert_search_args(args)
     path = args.path
-    all = args.all
+    fins_all = args.all
     start = args.start
     if start is None:
         start = 0
@@ -141,7 +141,7 @@ def main():
 
     search = Search(path)
 
-    if all:
+    if fins_all:
         result = search.search_all_assocs(start, size, snp, chromosome, pval_interval, bp_interval)
     elif trait is not None:
         if study is not None:

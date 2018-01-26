@@ -31,6 +31,7 @@ class Loader:
 
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
+        self.file_group = gu.Group(self.file)
 
     def load(self):
         if self.is_loaded():
@@ -57,8 +58,9 @@ class Loader:
         if snp not in self.file:
             return False
 
-        snp_group = gu.create_group_from_parent(self.file, snp)
-        return gu.value_in_dataset(snp_group, self.study, STUDY_DSET)
+        self.file_group.create_subgroup(snp)
+        snp_group = self.file_group.get_subgroup(snp)
+        return snp_group.is_value_in_dataset(self.study, STUDY_DSET)
 
     def close_file(self):
         self.file.close()
@@ -67,16 +69,17 @@ class Loader:
         datasets = self.datasets
         snps = datasets[SNP_DSET]
 
-        for i in range(len(snps)):
-            self._save_snp(snps[i], i)
+        for i, snp in enumerate(snps):
+            self._save_snp(snp, i)
 
     def _save_snp(self, snp, snp_index):
 
-        snp_group = gu.create_group_from_parent(self.file, snp)
+        self.file_group.create_subgroup(snp)
+        snp_group = self.file_group.get_subgroup(snp)
 
         for dset_name in TO_STORE_DSETS:
             data_point = self.datasets[dset_name][snp_index]
-            gu.expand_dataset(snp_group, dset_name, [data_point])
+            snp_group.expand_dataset(dset_name, [data_point])
 
 
 def main():

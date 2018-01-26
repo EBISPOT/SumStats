@@ -35,6 +35,7 @@ class Loader:
 
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
+        self.file_group = gu.Group(self.file)
 
     def load(self):
 
@@ -45,18 +46,20 @@ class Loader:
 
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
-            gu.create_dataset(study_group, dset_name, datasets[dset_name])
+            study_group.generate_dataset(dset_name, datasets[dset_name])
             # flush after saving each dataset
             self.file.flush()
 
     def _create_trait_group(self):
-        return gu.create_group_from_parent(self.file, self.trait)
+        self.file_group.create_subgroup(self.trait)
+        return self.file_group.get_subgroup(self.trait)
 
     def _create_study_group(self, trait_group):
-        if gu.subgroup_exists(trait_group, self.study):
+        if trait_group.subgroup_exists(self.study):
             self.close_file()
             raise ValueError("This study has already been loaded! Study:", self.study)
-        return gu.create_group_from_parent(trait_group, self.study)
+        trait_group.create_subgroup(self.study)
+        return trait_group.get_subgroup(self.study)
 
     def close_file(self):
         self.file.close()

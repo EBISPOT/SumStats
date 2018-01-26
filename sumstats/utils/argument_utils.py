@@ -21,9 +21,9 @@ def convert_search_args(args):
     study = args.study
     snp = args.snp
 
-    chr = args.chr
-    if chr is not None:
-        chr = int(chr)
+    chromosome = args.chr
+    if chromosome is not None:
+        chromosome = int(chromosome)
 
     pval_interval = args.pval
     pval_interval = FloatInterval().set_string_tuple(pval_interval)
@@ -31,7 +31,7 @@ def convert_search_args(args):
     bp_interval = args.bp
     bp_interval = IntInterval().set_string_tuple(bp_interval)
 
-    return trait, study, chr, bp_interval, snp, pval_interval
+    return trait, study, chromosome, bp_interval, snp, pval_interval
 
 
 def load_argument_parser():

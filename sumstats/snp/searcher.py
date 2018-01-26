@@ -30,16 +30,17 @@ class Search:
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')
         self.datasets = {}
+        self.file_group = gu.Group(self.file)
 
     def snp_in_file(self, snp):
         return snp in self.file
 
     def query_for_snp(self, snp, start, size):
-        snp_group = gu.get_group_from_parent(self.file, snp)
+        snp_group = self.file_group.get_subgroup(snp)
         self.datasets = query.get_dsets_from_group(snp_group, start, size)
 
-    def apply_restrictions(self, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
-        self.datasets = rst.apply_restrictions(self.datasets, snp, study, chr, pval_interval, bp_interval)
+    def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
+        self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)
 
     def get_result(self):
         return self.datasets

@@ -47,11 +47,12 @@ class TestUnitQueryUtils(object):
     def test_get_block_groups_from_parent(self):
         bp_interval = IntInterval().set_string_tuple("1200000:1200000")
         block = bk.Block(bp_interval)
-        blocks = block.get_block_groups_from_parent(self.chr_group_1)
+        chrgroup_1 = gu.Group(self.chr_group_1)
+        blocks = block.get_block_groups_from_parent(chrgroup_1)
 
         assert blocks.__class__ is list
         assert len(blocks) == 1
-        assert blocks[0].__class__ == h5py._hl.group.Group
+        assert blocks[0].__class__ == gu.Group
 
     def test_get_block_number(self):
         print()

@@ -1,7 +1,8 @@
-from sumstats.utils.constants import *
+
+INTERVAL_DELIMITER = ':'
 
 
-class FloatInterval():
+class FloatInterval:
     pass
 
     def set_tuple(self, lower_limit, upper_limit):

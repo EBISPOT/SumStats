@@ -39,9 +39,9 @@ class TestLoader(object):
         info = list(snp1.keys())
         assert len(info) == len(TO_STORE_DSETS)
 
-        chr = snp1.get(CHR_DSET)
-        assert len(chr[:]) == 3  # loaded 3 times for 3 diff studies
-        assert chr[:][0] == 1
+        chromosome = snp1.get(CHR_DSET)
+        assert len(chromosome[:]) == 3  # loaded 3 times for 3 diff studies
+        assert chromosome[:][0] == 1
 
         mantissa = snp1.get(MANTISSA_DSET)
         assert len(mantissa[:]) == 3  # loaded 3 times for 3 diff studies

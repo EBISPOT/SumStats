@@ -1,5 +1,4 @@
 from sumstats.chr.constants import *
-import sumstats.utils.group as gu
 from sumstats.utils.interval import *
 
 
@@ -35,7 +34,7 @@ def get_block_number(bp_position):
             return bp_position - (bp_position % BLOCK_SIZE) + BLOCK_SIZE
 
 
-class Block():
+class Block:
 
     def __init__(self, bp_interval):
         bp_interval = fill_in_block_limits(bp_interval)
@@ -54,6 +53,6 @@ class Block():
         if self.floor_block > self.ceil_block:
             raise ValueError("lower limit is bigger than upper limit")
 
-        blocks = [gu.get_group_from_parent(parent_group, block) for block in
+        blocks = [parent_group.get_subgroup(block) for block in
                   range(self.floor_block, (self.ceil_block + BLOCK_SIZE), BLOCK_SIZE)]
         return blocks

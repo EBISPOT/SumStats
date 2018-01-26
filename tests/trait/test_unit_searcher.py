@@ -41,6 +41,13 @@ class TestUnitSearcher(object):
     def teardown_method(self, method):
         os.remove(self.h5file)
 
+    def test_query_for_all_assocs(self):
+        self.query.query_for_all_associations(self.start, self.size)
+        datasets = self.query.get_result()
+        study_set = set(datasets[STUDY_DSET])
+
+        assert study_set.__len__() == 3
+
     def test_query_for_trait(self):
         self.query.query_for_trait("Trait1", self.start, self.size)
         datasets = self.query.get_result()

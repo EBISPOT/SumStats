@@ -28,7 +28,7 @@ class TestUnitQueryUtils(object):
         os.remove(self.h5file)
 
     def test_get_dsets_group(self):
-        snp_group = self.f.get("rs7085086")
+        snp_group = gu.Group(self.f.get("rs7085086"))
 
         datasets = query.get_dsets_from_group(snp_group, self.start, self.size)
         assert len(datasets) == 9

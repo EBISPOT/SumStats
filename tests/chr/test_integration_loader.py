@@ -107,16 +107,16 @@ class TestLoader(object):
 
     def test_study_already_loaded_raises_error(self):
 
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM001', dict)
+        load = loader.Loader(None, self.h5file, 'PM001', loader_dictionary)
         with pytest.raises(ValueError):
             load.load()
 
     def test_study_already_loaded_doesnt_raise_error_on_new_study(self):
-        dict = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
                 "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
 
-        load = loader.Loader(None, self.h5file, 'PM004', dict)
+        load = loader.Loader(None, self.h5file, 'PM004', loader_dictionary)
         load.load()
