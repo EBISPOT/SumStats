@@ -20,7 +20,7 @@ def get_dsets_from_parent_group(group, start, size):
 
     end = start + size
     if isinstance(group, gu.Group):
-        for child_group_name, child_group in group.get_items():
+        for child_group in group.get_values():
             dset_size = get_standard_group_dset_size(child_group)
             if group_has_groups(child_group):
                 datasets = get_dsets_from_parent_group(child_group, start, size)

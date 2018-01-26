@@ -3,7 +3,6 @@ import pytest
 import sumstats.chr.loader as loader
 from tests.prep_tests import *
 from sumstats.utils.dataset import Dataset
-import sumstats.utils.group as gu
 from sumstats.chr.constants import *
 
 

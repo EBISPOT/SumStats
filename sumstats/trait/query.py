@@ -52,8 +52,8 @@ def get_standard_group_dset_size(group):
 
 def group_has_groups(group):
     if isinstance(group, gu.Group):
-        for name, item in group.get_items():
-            return isinstance(item, gu.Group)
+        for value in group.get_values():
+            return isinstance(value, gu.Group)
     else:
         return False
 

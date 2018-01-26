@@ -94,7 +94,7 @@ class TestUnitUtils(object):
     def test_create_dataset_objects(self):
         datasets = {'dset1' : [1, 2, 3], 'dset2' : ['1,' '2', '3'], 'dset3' : [1., 2., 3.]}
         datasets = utils.create_datasets_from_lists(datasets)
-        for name, dataset in datasets.items():
+        for dataset in datasets.values():
             assert isinstance(dataset, Dataset)
 
     def test_create_dictionary_of_empty_dsets(self):

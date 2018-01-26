@@ -14,6 +14,13 @@ class Group:
             raise TypeError("Trying to intialize Group object with something other than a hdf5 group or hdf5 file!")
         self.group = group
 
+    def get_values(self):
+        for dataset in self.group.values():
+            if isinstance(dataset, h5py.Group):
+                yield Group(dataset)
+            else:
+                yield dataset
+
     def get_items(self):
         for name, dataset in self.group.items():
             if isinstance(dataset, h5py.Group):

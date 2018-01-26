@@ -146,8 +146,8 @@ class TestUnitUtils(object):
             assert pval <= 2.1
 
         assert len(filtered_dsets[CHR_DSET]) == 2
-        for chr in filtered_dsets[CHR_DSET]:
-            assert chr == 1
+        for chromosome in filtered_dsets[CHR_DSET]:
+            assert chromosome == 1
 
         restrictions = [IntervalRestriction(3., 3.1, datasets["pval"]),
                         EqualityRestriction(1, datasets["chr"])]
@@ -165,8 +165,8 @@ class TestUnitUtils(object):
             assert pval <= 3.1
 
         assert len(filtered_dsets[CHR_DSET]) == 2
-        for chr in filtered_dsets[CHR_DSET]:
-            assert chr == 1
+        for chromosome in filtered_dsets[CHR_DSET]:
+            assert chromosome == 1
 
         restrictions = [IntervalRestriction(4., 4., datasets["pval"]), ]
 
@@ -227,7 +227,7 @@ class TestUnitUtils(object):
 
         filtered_dsets = apply_restrictions(datasets, 'rs185339560')
 
-        for name, dataset in filtered_dsets.items():
+        for dataset in filtered_dsets.values():
             assert len(dataset) == 1
 
     def test_apply_pval_restriction(self):
@@ -256,7 +256,7 @@ class TestUnitUtils(object):
     def test_apply_chr_restriction(self):
         datasets = self.loader_dictionary
 
-        filtered_dsets = apply_restrictions(datasets, chr=1)
+        filtered_dsets = apply_restrictions(datasets, chromosome=1)
         for name, dataset in filtered_dsets.items():
             assert len(dataset) == 2
 

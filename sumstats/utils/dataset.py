@@ -11,7 +11,6 @@ from functools import reduce
 
 
 class Dataset(list):
-    pass
 
     def equality_mask(self, value):
         self._check_type_compatibility(value)

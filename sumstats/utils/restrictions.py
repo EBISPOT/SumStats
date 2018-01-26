@@ -79,7 +79,7 @@ class IntervalRestrictionPval:
         return mask_between_exp_limits
 
 
-def apply_restrictions(datasets, snp=None, study=None, chr=None, pval_interval=None, bp_interval=None):
+def apply_restrictions(datasets, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
     restrictions = []
     if dataset_present(SNP_DSET, datasets) and snp is not None:
         restriction = snp
@@ -89,8 +89,8 @@ def apply_restrictions(datasets, snp=None, study=None, chr=None, pval_interval=N
         restriction = study
         dataset = datasets[STUDY_DSET]
         restrictions.append(get_restriction(restriction, dataset))
-    if dataset_present(CHR_DSET, datasets) and chr is not None:
-        restriction = chr
+    if dataset_present(CHR_DSET, datasets) and chromosome is not None:
+        restriction = chromosome
         dataset = datasets[CHR_DSET]
         restrictions.append(get_restriction(restriction, dataset))
     if dataset_present(MANTISSA_DSET, datasets) and pval_interval is not None:

@@ -98,27 +98,27 @@ def get_assocs():
     args = request.args.to_dict()
     trait = retrieve_argument(args, "trait")
     study = retrieve_argument(args, "study")
-    chr = retrieve_argument(args, "chr")
-    if chr is not None:
-        chr = int(chr)
+    chromosome = retrieve_argument(args, "chr")
+    if chromosome is not None:
+        chromosome = int(chromosome)
     variant = retrieve_argument(args, "variant")
     start = int(retrieve_argument(args, "start", 0))
     size = int(retrieve_argument(args, "size", 20))
 
-    searcher = search.Search(start=start, size=size)
+    searcher = search.Search()
 
     try:
         if trait is not None:
             if study is not None:
-                datasets = searcher.search_study(trait, study)
+                datasets = searcher.search_study(trait=trait, study=study, start=start, size=size)
             else:
-                datasets = searcher.search_trait(trait)
-        elif chr is not None:
-            datasets = searcher.search_chromosome(chr)
+                datasets = searcher.search_trait(trait=trait, start=start, size=size)
+        elif chromosome is not None:
+            datasets = searcher.search_chromosome(chromosome=chromosome, start=start, size=size)
         elif variant is not None:
-            datasets = searcher.search_snp(variant)
+            datasets = searcher.search_snp(snp=variant, start=start, size=size)
         else:
-            datasets = searcher.search_all_assocs()
+            datasets = searcher.search_all_assocs(start=start, size=size)
 
         data_dict = get_array_to_display(datasets)
         response = {"_embedded": {"trait": trait, "data": data_dict}}
@@ -128,25 +128,25 @@ def get_assocs():
 
         if prev >= 0:
             previous_link = str(
-                url_for('get_assocs', trait=trait, study=study, chr=chr, variant=variant, start=prev, size=size,
+                url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, start=prev, size=size,
                         _external=True))
         else:
             previous_link = str(
-                url_for('get_assocs', trait=trait, study=study, chr=chr, variant=variant, start=0, size=size,
+                url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, start=0, size=size,
                         _external=True))
 
         response["_links"] = {
             "first": {"href": str(
-                url_for('get_assocs', trait=trait, study=study, chr=chr, variant=variant, start=0, size=size,
+                url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, start=0, size=size,
                         _external=True))},
             "next": {"href": str(
-                url_for('get_assocs', trait=trait, study=study, chr=chr, variant=variant, start=start_new,
+                url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, start=start_new,
                         size=size,
                         _external=True))},
             "prev": {"href": previous_link},
             "self": {
                 "href": str(
-                    url_for('get_assocs', trait=trait, study=study, chr=chr, variant=variant, _external=True))}}
+                    url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, _external=True))}}
 
         return json.dumps(response)
 

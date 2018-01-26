@@ -3,7 +3,8 @@ INTERVAL_DELIMITER = ':'
 
 
 class FloatInterval:
-    pass
+    def __init__(self):
+        pass
 
     def set_tuple(self, lower_limit, upper_limit):
 
