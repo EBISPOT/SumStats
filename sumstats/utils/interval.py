@@ -35,8 +35,9 @@ class FloatInterval:
         return self.upper_limit
 
 
-class IntInterval():
-    pass
+class IntInterval:
+    def __init__(self):
+        pass
 
     def set_tuple(self, lower_limit, upper_limit):
 

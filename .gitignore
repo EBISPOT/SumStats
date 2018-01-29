@@ -21,6 +21,7 @@ htmlcov
 # tsv and txt files
 *.txt 
 *.csv
+*.xml
 
 # the files folder 
 files

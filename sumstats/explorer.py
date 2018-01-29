@@ -4,8 +4,7 @@ from os.path import isfile, join
 import sumstats.trait.searcher as trait_searcher
 
 
-class Explorer():
-
+class Explorer:
     def __init__(self, path=None):
         if path is None:
             print("Explorer: setting default location for output files")

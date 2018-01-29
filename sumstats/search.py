@@ -9,7 +9,7 @@ import argparse
 import os.path
 
 
-class Search():
+class Search:
     def __init__(self, path=None):
         if path is None:
             print("Search: setting default location for output files")

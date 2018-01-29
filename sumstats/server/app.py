@@ -1,5 +1,5 @@
 import json
-from flask import Flask, url_for, Response, request
+from flask import Flask, url_for, request
 
 import sumstats.explorer as ex
 import sumstats.search as search
