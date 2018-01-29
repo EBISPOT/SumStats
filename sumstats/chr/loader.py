@@ -134,8 +134,6 @@ class Loader:
         if np.any(block_mask):
             dsets_block_slices = utils.filter_dictionary_by_mask(datasets, block_mask)
             save_info_in_block_group(block_group, dsets_block_slices)
-            # flush file after writing to prevent data corruption
-            self.file.flush()
 
     def close_file(self):
         self.file.close()

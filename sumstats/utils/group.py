@@ -70,9 +70,13 @@ class Group:
         if dset is None:
             self.generate_dataset(dset_name, data)
         else:
-            last_index_before_resize = dset.shape[0]
-            dset.resize(((dset.shape[0] + len(data)),))
-            dset[last_index_before_resize:] = data
+            old_shape = dset.shape[0]
+            data_length = len(data)
+            dset.resize(((old_shape + data_length),))
+            if data_length > 1:
+                dset[old_shape:] = data
+            else:
+                dset[-1] = data
 
     def get_dset(self, dset_name, start, size):
         dset = self.group.get(dset_name)

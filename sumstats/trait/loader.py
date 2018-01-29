@@ -47,8 +47,6 @@ class Loader:
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
             study_group.generate_dataset(dset_name, datasets[dset_name])
-            # flush after saving each dataset
-            self.file.flush()
 
     def _create_trait_group(self):
         self.file_group.create_subgroup(self.trait)
