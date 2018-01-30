@@ -27,12 +27,13 @@ def get_dsets_from_parent_group(group, start, size):
             datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
             dset_size = len(datasets[REFERENCE_DSET])
             all_groups_size += dset_size
-        if continue_to_next_group(start, all_groups_size):
+        if continue_to_next_group(end, size, all_groups_size):
             start, size = calculate_remaining_start_and_size(0, all_groups_size, start, size)
             continue
         else:
             subset_of_datasets = get_dsets_from_group_directly(child_group_name, child_group, start, size)
             datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
+            dset_size = len(datasets[REFERENCE_DSET])
             if end <= dset_size:
                 return datasets
             else:
@@ -58,8 +59,8 @@ def group_has_groups(group):
         return False
 
 
-def continue_to_next_group(start, dset_size):
-    return start >= dset_size
+def continue_to_next_group(end, size, dset_size):
+    return (end - size) >= dset_size
 
 
 def calculate_remaining_start_and_size(retrieved_size, groups_size, start, size):

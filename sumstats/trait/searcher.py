@@ -52,7 +52,7 @@ class Search:
 
     def list_traits(self):
         trait_groups = self.file_group.get_all_subgroups()
-        return [trait_group.name.strip("/") for trait_group in trait_groups]
+        return [trait_group.get_name().strip("/") for trait_group in trait_groups]
 
     def list_studies(self):
         trait_groups = self.file_group.get_all_subgroups()
@@ -60,7 +60,7 @@ class Search:
 
         for trait_group in trait_groups:
             study_groups.extend(trait_group.get_all_subgroups())
-        return [study_group.name.strip("/").replace("/",": ") for study_group in study_groups]
+        return [study_group.get_name().strip("/").replace("/",": ") for study_group in study_groups]
 
     def close_file(self):
         self.file.close()

@@ -15,13 +15,14 @@ class Search:
             print("Search: setting default location for output files")
             path = ""
 
+        self.path = path
         self.output_path = path + "/output"
 
     def search_all_assocs(self, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
         datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         trait_list = []
         print("Searching for all associations!")
-        explorer = ex.Explorer()
+        explorer = ex.Explorer(self.path)
         available_traits = explorer.get_list_of_traits()
         all_groups_size = 0
 
@@ -30,7 +31,7 @@ class Search:
             h5file = self.output_path + "/bytrait/file_" + trait + ".h5"
             if os.path.isfile(h5file):
                 searcher = trait_searcher.Search(h5file)
-                searcher.query_for_trait(trait, start, size)
+                searcher.query_for_trait(trait=trait, start=start, size=size)
                 searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval,
                                             bp_interval=bp_interval)
                 result = searcher.get_result()
@@ -39,8 +40,10 @@ class Search:
 
                 all_groups_size += dset_size
                 if dset_size == 0:
+                    # query to get to know how big the first trait is!
+                    # TODO: is their a smarter way to do this without actually querying for everything?
                     searcher = trait_searcher.Search(h5file)
-                    searcher.query_for_trait(trait, 0, start)
+                    searcher.query_for_trait(trait=trait, start=0, size=start)
                     searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval,
                                                 bp_interval=bp_interval)
                     tmp_result = searcher.get_result()
@@ -69,7 +72,7 @@ class Search:
         h5file = self.output_path + "/bytrait/file_" + trait + ".h5"
         if os.path.isfile(h5file):
             searcher = trait_searcher.Search(h5file)
-            searcher.query_for_trait(trait, start, size)
+            searcher.query_for_trait(trait=trait, start=start, size=size)
             searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
             result = searcher.get_result()
             searcher.close_file()
@@ -81,7 +84,7 @@ class Search:
         h5file = self.output_path + "/bytrait/file_" + trait + ".h5"
         if os.path.isfile(h5file):
             searcher = trait_searcher.Search(h5file)
-            searcher.query_for_study(trait, study, start, size)
+            searcher.query_for_study(trait=trait, study=study, start=start, size=size)
 
             searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
             result = searcher.get_result()
@@ -95,9 +98,9 @@ class Search:
         if os.path.isfile(h5file):
             searcher = chr_searcher.Search(h5file)
             if bp_interval is not None:
-                searcher.query_chr_for_block_range(chromosome, bp_interval, start, size)
+                searcher.query_chr_for_block_range(chromosome=chromosome, bp_interval=bp_interval, start=start, size=size)
             else:
-                searcher.query_for_chromosome(chromosome, start, size)
+                searcher.query_for_chromosome(chromosome=chromosome, start=start, size=size)
             searcher.apply_restrictions(study=study, pval_interval=pval_interval)
             result = searcher.get_result()
             searcher.close_file()
@@ -112,7 +115,7 @@ class Search:
             if os.path.isfile(h5file):
                 searcher = snp_searcher.Search(h5file)
                 if searcher.snp_in_file(snp):
-                    searcher.query_for_snp(snp, start, size)
+                    searcher.query_for_snp(snp=snp, start=start, size=size)
                     searcher.apply_restrictions(study=study, pval_interval=pval_interval)
                     result = searcher.get_result()
                     searcher.close_file()
@@ -142,18 +145,18 @@ def main():
     search = Search(path)
 
     if fins_all:
-        result = search.search_all_assocs(start, size, snp, chromosome, pval_interval, bp_interval)
+        result = search.search_all_assocs(start=start, size=size, snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
     elif trait is not None:
         if study is not None:
-            result = search.search_study(trait, study, start, size, snp, chromosome, pval_interval, bp_interval)
+            result = search.search_study(trait=trait, study=study, start=start, size=size, snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
         else:
-            result = search.search_trait(trait, start, size, snp, chromosome, pval_interval, bp_interval)
+            result = search.search_trait(trait=trait, start=start, size=size, snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
 
     elif chromosome is not None:
-        result = search.search_chromosome(chromosome, start, size, bp_interval, study, pval_interval)
+        result = search.search_chromosome(chromosome=chromosome, start=start, size=size, bp_interval=bp_interval, study=study, pval_interval=pval_interval)
 
     elif snp is not None:
-        result = search.search_snp(snp, start, size, study, pval_interval)
+        result = search.search_snp(snp=snp, start=start, size=size, study=study, pval_interval=pval_interval)
     else:
         raise ValueError("Input is wrong!")
 

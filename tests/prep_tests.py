@@ -2,9 +2,13 @@ from tests.test_constants import *
 import sumstats.utils.group as gu
 
 
-def prepare_dictionary():
-    return {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-            "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+def prepare_dictionary(test_arrays=None):
+    if test_arrays is None:
+        return {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
+                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+    else:
+        return {"snp": test_arrays.snpsarray, "pval": test_arrays.pvalsarray, "chr": test_arrays.chrarray, "or": test_arrays.orarray, "bp": test_arrays.bparray,
+                "effect": test_arrays.effectarray, "other": test_arrays.otherarray, 'freq': test_arrays.frequencyarray}
 
 
 def prepare_load_object_with_study(h5file, study, loader):
@@ -12,8 +16,8 @@ def prepare_load_object_with_study(h5file, study, loader):
     return loader.Loader(None, h5file, study, loader_dictionary)
 
 
-def prepare_load_object_with_study_and_trait(h5file, study, trait, loader):
-    loader_dictionary = prepare_dictionary()
+def prepare_load_object_with_study_and_trait(h5file, study, trait, loader, test_arrays=None):
+    loader_dictionary = prepare_dictionary(test_arrays)
     return loader.Loader(None, h5file, study, trait, loader_dictionary)
 
 
