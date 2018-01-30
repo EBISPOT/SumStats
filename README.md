@@ -1,4 +1,7 @@
 # SumStats
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f6cc10c38dcc4b82a193aab3c569bb33)](https://www.codacy.com/app/olgavrou/SumStats?utm_source=github.com&utm_medium=referral&utm_content=EBISPOT/SumStats&utm_campaign=badger)
+
 Summary statistics with HDF5
 
 
