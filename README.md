@@ -2,6 +2,8 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f6cc10c38dcc4b82a193aab3c569bb33)](https://www.codacy.com/app/olgavrou/SumStats?utm_source=github.com&utm_medium=referral&utm_content=EBISPOT/SumStats&utm_campaign=badger)
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/365f6d92792c46f3b8b446bb1151eb4c)](https://www.codacy.com/app/olgavrou/SumStats?utm_source=github.com&utm_medium=referral&utm_content=EBISPOT/SumStats&utm_campaign=Badge_Coverage)
+
 Summary statistics with HDF5
 
 
