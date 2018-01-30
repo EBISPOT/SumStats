@@ -16,35 +16,34 @@ def get_dsets_from_trait_group(trait_group, start, size):
 def get_dsets_from_parent_group(group, start, size):
     _assert_is_group(group)
     end = start + size
-    all_groups_size = 0
-
+    max_traversed = 0
     datasets = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
     for child_group_name, child_group in group.get_items():
-        dset_size = get_standard_group_dset_size(child_group)
-        all_groups_size += dset_size
+        group_max_size = get_group_dset_size(child_group)
+        max_traversed += group_max_size
+
         if group_has_groups(child_group):
             subset_of_datasets = get_dsets_from_parent_group(child_group, start, size)
             datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
-            dset_size = len(datasets[REFERENCE_DSET])
-            all_groups_size += dset_size
-        if continue_to_next_group(end, size, all_groups_size):
-            start, size = calculate_remaining_start_and_size(0, all_groups_size, start, size)
+            max_traversed += len(subset_of_datasets[REFERENCE_DSET])
+        if continue_to_next_group(end, size, max_traversed):
+            start = start - max_traversed
             continue
-        else:
-            subset_of_datasets = get_dsets_from_group_directly(child_group_name, child_group, start, size)
-            datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
-            dset_size = len(datasets[REFERENCE_DSET])
-            if end <= dset_size:
-                return datasets
-            else:
-                retrieved_size = len(subset_of_datasets[REFERENCE_DSET])
-                start, size = calculate_remaining_start_and_size(retrieved_size, all_groups_size, start, size)
-                continue
+
+        subset_of_datasets = get_dsets_from_group_directly(child_group_name, child_group, start, size)
+        datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
+        total_retrieved = len(datasets[REFERENCE_DSET])
+        if end <= total_retrieved:
+            return datasets
+
+        retrieved_size = len(subset_of_datasets[REFERENCE_DSET])
+        start = start - max_traversed + retrieved_size
+        size = size - retrieved_size
 
     return datasets
 
 
-def get_standard_group_dset_size(group):
+def get_group_dset_size(group):
     if group.contains_dataset(REFERENCE_DSET):
         return group.get_dset_shape(REFERENCE_DSET)[0]
     else:
@@ -61,12 +60,6 @@ def group_has_groups(group):
 
 def continue_to_next_group(end, size, dset_size):
     return (end - size) >= dset_size
-
-
-def calculate_remaining_start_and_size(retrieved_size, groups_size, start, size):
-    size = size - retrieved_size
-    start = start - groups_size + retrieved_size
-    return start, size
 
 
 def get_dsets_from_group_directly(study, study_group, start, size):

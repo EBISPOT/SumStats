@@ -21,6 +21,7 @@
 import sumstats.trait.query as query
 import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
+from sumstats.common_constants import *
 import h5py
 
 
@@ -49,6 +50,11 @@ class Search:
 
     def get_result(self):
         return self.datasets
+
+    def get_trait_size(self, trait):
+        trait_group = self.file_group.get_subgroup(trait)
+        size = sum(study_group.get_dset_shape(REFERENCE_DSET)[0] for study_group in trait_group.get_all_subgroups())
+        return size
 
     def list_traits(self):
         trait_groups = self.file_group.get_all_subgroups()

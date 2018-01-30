@@ -33,7 +33,7 @@ class Search:
         self.file_group = gu.Group(self.file)
 
     def snp_in_file(self, snp):
-        return snp in self.file
+        return self.file_group.subgroup_exists(snp)
 
     def query_for_snp(self, snp, start, size):
         snp_group = self.file_group.get_subgroup(snp)

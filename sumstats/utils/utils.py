@@ -43,6 +43,8 @@ def create_dictionary_of_empty_dsets(names):
 
 
 def extend_dsets_with_subset(datasets, subset):
+    extended_datasets = {}
     for dset_name, dataset in datasets.items():
-        dataset.extend(subset[dset_name])
-    return datasets
+        extended_datasets[dset_name] = Dataset(dataset)
+        extended_datasets[dset_name].extend(subset[dset_name])
+    return extended_datasets

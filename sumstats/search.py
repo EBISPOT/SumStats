@@ -21,107 +21,97 @@ class Search:
     def search_all_assocs(self, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
         datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         trait_list = []
-        print("Searching for all associations!")
-        explorer = ex.Explorer(self.path)
-        available_traits = explorer.get_list_of_traits()
-        all_groups_size = 0
+        available_traits = self._get_all_traits()
+        total_traversed = 0
 
         for trait in available_traits:
-            print("searching trait:", trait)
-            h5file = self.output_path + "/bytrait/file_" + trait + ".h5"
-            if os.path.isfile(h5file):
-                searcher = trait_searcher.Search(h5file)
-                searcher.query_for_trait(trait=trait, start=start, size=size)
-                searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval,
-                                            bp_interval=bp_interval)
-                result = searcher.get_result()
-                searcher.close_file()
-                dset_size = len(result[REFERENCE_DSET])
+            h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
+            if not os.path.isfile(h5file):
+                continue
+            result = self._search_trait(trait=trait, start=start, size=size)
+            retrieved_size = len(result[REFERENCE_DSET])
+            total_traversed += self._get_traversed_size(retrieved_size=retrieved_size, trait=trait)
 
-                all_groups_size += dset_size
-                if dset_size == 0:
-                    # query to get to know how big the first trait is!
-                    # TODO: is their a smarter way to do this without actually querying for everything?
-                    searcher = trait_searcher.Search(h5file)
-                    searcher.query_for_trait(trait=trait, start=0, size=start)
-                    searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval,
-                                                bp_interval=bp_interval)
-                    tmp_result = searcher.get_result()
-                    searcher.close_file()
-                    all_groups_size += len(tmp_result[REFERENCE_DSET])
+            datasets = utils.extend_dsets_with_subset(datasets, result)
+            trait_list.extend([trait for _ in range(retrieved_size)])
 
-                trait_list.extend([trait for _ in range(dset_size)])
-                for dset_name, dataset in datasets.items():
-                    dataset.extend(result[dset_name])
-
-                if size <= dset_size:
-                    datasets['trait'] = trait_list
-                    return datasets
-                else:
-                    retrieved_size = len(result[REFERENCE_DSET])
-
-                    size = size - retrieved_size
-                    start = start - all_groups_size + retrieved_size
-                    continue
+            if size <= retrieved_size:
+                datasets['trait'] = trait_list
+                return datasets
+            else:
+                size = size - retrieved_size
+                start = start - total_traversed + retrieved_size
+                continue
 
         return datasets
 
-    def search_trait(self, trait, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
-        result = None
-        print("Searching for Trait!")
-        h5file = self.output_path + "/bytrait/file_" + trait + ".h5"
-        if os.path.isfile(h5file):
+    def _get_all_traits(self):
+        explorer = ex.Explorer(self.path)
+        return explorer.get_list_of_traits()
+
+    def _get_traversed_size(self, retrieved_size, trait):
+        inc_size = retrieved_size
+        if retrieved_size == 0:
+            h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
             searcher = trait_searcher.Search(h5file)
-            searcher.query_for_trait(trait=trait, start=start, size=size)
-            searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
-            result = searcher.get_result()
+            inc_size = searcher.get_trait_size(trait)
             searcher.close_file()
+        return inc_size
+
+    def search_trait(self, trait, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
+        h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
+        if not os.path.isfile(h5file):
+            return None
+        return self._search_trait(trait=trait, start=start, size=size)
+
+    def _search_trait(self, trait, start, size):
+        h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
+        searcher = trait_searcher.Search(h5file)
+        searcher.query_for_trait(trait=trait, start=start, size=size)
+        result = searcher.get_result()
+        searcher.close_file()
         return result
 
     def search_study(self, trait, study, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
-        result = None
-        print("Searching for Study!")
-        h5file = self.output_path + "/bytrait/file_" + trait + ".h5"
-        if os.path.isfile(h5file):
-            searcher = trait_searcher.Search(h5file)
-            searcher.query_for_study(trait=trait, study=study, start=start, size=size)
+        h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
+        if not os.path.isfile(h5file):
+            return None
+        searcher = trait_searcher.Search(h5file)
+        searcher.query_for_study(trait=trait, study=study, start=start, size=size)
 
-            searcher.apply_restrictions(snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
-            result = searcher.get_result()
-            searcher.close_file()
+        result = searcher.get_result()
+        searcher.close_file()
         return result
 
     def search_chromosome(self, chromosome, start, size, bp_interval=None, study=None, pval_interval=None):
-        result = None
-        print("Searching for CHROMOSOME!")
-        h5file = self.output_path + "/bychr/file_" + str(chromosome) + ".h5"
-        if os.path.isfile(h5file):
-            searcher = chr_searcher.Search(h5file)
-            if bp_interval is not None:
-                searcher.query_chr_for_block_range(chromosome=chromosome, bp_interval=bp_interval, start=start, size=size)
-            else:
-                searcher.query_for_chromosome(chromosome=chromosome, start=start, size=size)
-            searcher.apply_restrictions(study=study, pval_interval=pval_interval)
-            result = searcher.get_result()
-            searcher.close_file()
+        h5file = self._get_file_path(dir_name="bychr", file_name=chromosome)
+        if not os.path.isfile(h5file):
+            return None
+        searcher = chr_searcher.Search(h5file)
+        if bp_interval is not None:
+            searcher.query_chr_for_block_range(chromosome=chromosome, bp_interval=bp_interval, start=start, size=size)
+        else:
+            searcher.query_for_chromosome(chromosome=chromosome, start=start, size=size)
+        result = searcher.get_result()
+        searcher.close_file()
         return result
 
     def search_snp(self, snp, start, size, study=None, pval_interval=None):
-        result = None
-        print("Searching for SNP!")
         for chromosome in range(1, 23):
-            h5file = self.output_path + "/bysnp/file_" + str(chromosome) + ".h5"
-            print("file", h5file)
-            if os.path.isfile(h5file):
-                searcher = snp_searcher.Search(h5file)
-                if searcher.snp_in_file(snp):
-                    searcher.query_for_snp(snp=snp, start=start, size=size)
-                    searcher.apply_restrictions(study=study, pval_interval=pval_interval)
-                    result = searcher.get_result()
-                    searcher.close_file()
-                    return result
+            h5file = self._get_file_path(dir_name="bysnp", file_name=chromosome)
+            if not os.path.isfile(h5file):
+                continue
+            searcher = snp_searcher.Search(h5file)
+            if searcher.snp_in_file(snp):
+                searcher.query_for_snp(snp=snp, start=start, size=size)
+                result = searcher.get_result()
+                searcher.close_file()
+                return result
 
-        return result
+        return None
+
+    def _get_file_path(self, dir_name, file_name):
+        return self.output_path + "/" + dir_name + "/file_" + str(file_name) + ".h5"
 
 
 def main():
