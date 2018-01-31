@@ -85,7 +85,7 @@ def apply_restrictions(datasets, snp=None, study=None, chromosome=None, pval_int
                     create_simple_restriction(datasets=datasets, datset_name=CHR_DSET, restriction=chromosome),
                     create_simple_restriction(datasets=datasets, datset_name=BP_DSET, restriction=bp_interval)]
 
-    restrictions = [restriction for restriction in restrictions if restriction != None]
+    restrictions = [restriction for restriction in restrictions if restriction is not None]
 
     if MANTISSA_DSET in datasets and pval_interval is not None:
         restriction = pval_interval
@@ -118,7 +118,7 @@ def get_restriction(restriction, datasets):
 
 
 def filter_dsets_with_restrictions(datasets, restrictions):
-    list_of_masks = [restriction.get_mask() for restriction in restrictions]
+    list_of_masks = [restriction.get_mask() for restriction in restrictions if restriction is not None]
 
     filtering_mask = logical_and_on_list_of_masks(list_of_masks)
     if filtering_mask is not None:

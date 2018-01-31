@@ -48,7 +48,7 @@ class Dataset(list):
         return list(itertools.compress(self, mask))
 
     def _check_type_compatibility(self, value):
-        if value is None:
+        if value is None or not self:
             return
         elif np.int64 == np.array([self[0]]).dtype and  np.int64 == np.array([value]).dtype:
             return
