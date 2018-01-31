@@ -106,16 +106,10 @@ class Group:
         dataset = self.group.get(dset_name)
         if dataset is None:
             return False
-        if element in dataset:
-            return True
-        return False
+        return element in dataset
 
     def load_datasets(self, dset_names, start, size):
-        datasets = {}
-        for name in dset_names:
-            datasets[name] = self.get_dset(name, start, size)
-
-        return datasets
+        return {name : self.get_dset(name, start, size) for name in dset_names}
 
     def create_dataset_from_value(self, missing_value, start, size):
         reference_dset = self.get_dset(REFERENCE_DSET, start, size)

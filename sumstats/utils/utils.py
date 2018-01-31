@@ -18,9 +18,7 @@ def assert_datasets_not_empty(datasets):
 def empty_array(array):
     if array is None:
         return True
-    if len(array) == 0:
-        return True
-    return False
+    return len(array) == 0
 
 
 def get_mantissa_and_exp_lists(string_list):

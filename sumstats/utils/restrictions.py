@@ -80,28 +80,18 @@ class IntervalRestrictionPval:
 
 
 def apply_restrictions(datasets, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
-    restrictions = []
-    if dataset_present(SNP_DSET, datasets) and snp is not None:
-        restriction = snp
-        dataset = datasets[SNP_DSET]
-        restrictions.append(get_restriction(restriction, dataset))
-    if dataset_present(STUDY_DSET, datasets) and study is not None:
-        restriction = study
-        dataset = datasets[STUDY_DSET]
-        restrictions.append(get_restriction(restriction, dataset))
-    if dataset_present(CHR_DSET, datasets) and chromosome is not None:
-        restriction = chromosome
-        dataset = datasets[CHR_DSET]
-        restrictions.append(get_restriction(restriction, dataset))
-    if dataset_present(MANTISSA_DSET, datasets) and pval_interval is not None:
+    restrictions = [create_simple_restriction(datasets=datasets, datset_name=SNP_DSET, restriction=snp),
+                    create_simple_restriction(datasets=datasets, datset_name=STUDY_DSET, restriction=study),
+                    create_simple_restriction(datasets=datasets, datset_name=CHR_DSET, restriction=chromosome),
+                    create_simple_restriction(datasets=datasets, datset_name=BP_DSET, restriction=bp_interval)]
+
+    restrictions = [restriction for restriction in restrictions if restriction != None]
+
+    if MANTISSA_DSET in datasets and pval_interval is not None:
         restriction = pval_interval
         dataset_mantissa = datasets[MANTISSA_DSET]
         dataset_exp = datasets[EXP_DSET]
         restrictions.append(get_restriction(restriction, [dataset_mantissa, dataset_exp]))
-    if dataset_present(BP_DSET, datasets) and bp_interval is not None:
-        restriction = bp_interval
-        dataset = datasets[BP_DSET]
-        restrictions.append(get_restriction(restriction, dataset))
 
     if restrictions:
         return filter_dsets_with_restrictions(datasets, restrictions)
@@ -109,8 +99,10 @@ def apply_restrictions(datasets, snp=None, study=None, chromosome=None, pval_int
     return datasets
 
 
-def dataset_present(dataset_name, dictionary):
-    return dataset_name in dictionary
+def create_simple_restriction(datasets, datset_name, restriction):
+    if datset_name in datasets and restriction is not None:
+        dataset = datasets[datset_name]
+        return get_restriction(restriction, dataset)
 
 
 def get_restriction(restriction, datasets):
