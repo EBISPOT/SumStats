@@ -46,3 +46,7 @@ def extend_dsets_with_subset(datasets, subset):
         extended_datasets[dset_name] = Dataset(dataset)
         extended_datasets[dset_name].extend(subset[dset_name])
     return extended_datasets
+
+
+def create_file_path(path, dir_name, file_name):
+    return path + "/" + dir_name + "/file_" + str(file_name) + ".h5"

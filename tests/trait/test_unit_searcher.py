@@ -3,9 +3,9 @@ import os
 import pytest
 
 import sumstats.trait.loader as loader
-from sumstats.trait.searcher import Search
-from tests.test_constants import *
 from sumstats.trait.constants import TO_STORE_DSETS
+from sumstats.trait.search.access.service import Service
+from tests.test_constants import *
 
 
 class TestUnitSearcher(object):
@@ -36,7 +36,7 @@ class TestUnitSearcher(object):
         self.start = 0
         self.size = 20
 
-        self.query = Search(self.h5file)
+        self.query = Service(self.h5file)
 
     def teardown_method(self, method):
         os.remove(self.h5file)

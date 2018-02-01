@@ -1,11 +1,12 @@
 import os
 
-import sumstats.trait.loader as loader
-import sumstats.trait.query as query
-from tests.test_constants import *
-from sumstats.trait.constants import *
-import sumstats.utils.group as gu
 import pytest
+
+import sumstats.trait.loader as loader
+import sumstats.trait.search.access.repository as query
+import sumstats.utils.group as gu
+from sumstats.trait.constants import *
+from tests.test_constants import *
 
 
 class TestUnitQueryUtils(object):

@@ -18,14 +18,13 @@
     Can filter based on p-value thresholds, bp position thresholds, SNP, CHR
 """
 
-import sumstats.trait.query as query
+import sumstats.trait.search.access.repository as repo
 import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
 from sumstats.common_constants import *
-import h5py
 
 
-class Search:
+class Service:
     def __init__(self, h5file):
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')
@@ -33,17 +32,17 @@ class Search:
         self.file_group = gu.Group(self.file)
 
     def query_for_all_associations(self, start, size):
-        self.datasets = query.get_dsets_from_file_group(self.file_group, start, size)
+        self.datasets = repo.get_dsets_from_file_group(self.file_group, start, size)
 
     def query_for_trait(self, trait, start, size):
         trait_group = self.file_group.get_subgroup(trait)
-        self.datasets = query.get_dsets_from_trait_group(trait_group, start, size)
+        self.datasets = repo.get_dsets_from_trait_group(trait_group, start, size)
 
     def query_for_study(self, trait, study, start, size):
         trait_group = self.file_group.get_subgroup(trait)
         study_group = trait_group.get_subgroup(study)
 
-        self.datasets = query.get_dsets_from_group_directly(study, study_group, start, size)
+        self.datasets = repo.get_dsets_from_group_directly(study, study_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
         self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)

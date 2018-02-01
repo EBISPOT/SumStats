@@ -44,7 +44,7 @@ class TestLoader(object):
         load.load()
 
         # initialize searcher with local path
-        self.searcher = search.Search(path=".")
+        self.searcher = search.Search(path="./output")
 
     def teardown_method(self, method):
         shutil.rmtree('./output')

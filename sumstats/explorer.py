@@ -1,22 +1,23 @@
 import argparse
 from os import listdir
 from os.path import isfile, join
-import sumstats.trait.searcher as trait_searcher
+
+import sumstats.trait.search.access.service as trait_searcher
 
 
 class Explorer:
     def __init__(self, path=None):
         if path is None:
             print("Explorer: setting default location for output files")
-            path = ""
-        self.output_path = path + "/output"
+            path = "/output"
+        self.output_path = path
 
     def get_list_of_traits(self):
         trait_dir_path = self.output_path + "/bytrait"
         h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         traits = []
         for h5file in h5files:
-            searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
+            searcher = trait_searcher.Service(trait_dir_path + "/" + h5file)
             traits.extend(searcher.list_traits())
             searcher.close_file()
 
@@ -27,7 +28,7 @@ class Explorer:
         h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         studies = []
         for h5file in h5files:
-            searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
+            searcher = trait_searcher.Service(trait_dir_path + "/" + h5file)
             studies.extend(searcher.list_studies())
             searcher.close_file()
 
@@ -37,7 +38,7 @@ class Explorer:
         trait_dir_path = self.output_path + "/bytrait"
         h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         for h5file in h5files:
-            searcher = trait_searcher.Search(trait_dir_path + "/" + h5file)
+            searcher = trait_searcher.Service(trait_dir_path + "/" + h5file)
             for study in searcher.list_studies():
                 if study_to_find == study.split(":")[1].strip(" "):
                     searcher.close_file()
