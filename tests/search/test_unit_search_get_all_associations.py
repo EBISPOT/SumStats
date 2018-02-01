@@ -50,42 +50,42 @@ class TestLoader(object):
         shutil.rmtree('./output')
 
     def test_size_start_0_size_50_returns_only_first_and_study(self):
-        datasets = self.searcher.search_all_assocs(start=0, size=50)
+        datasets, next_index = self.searcher.search_all_assocs(start=0, size=50)
         assert_only_list_of_studies_returned(datasets, ['s1'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 50)
 
     def test_size_51_returns_first_and_second_study(self):
-        datasets = self.searcher.search_all_assocs(start=0, size=51)
+        datasets, next_index = self.searcher.search_all_assocs(start=0, size=51)
         assert_only_list_of_studies_returned(datasets, ['s1', 's2'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS,51)
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 50)
         assert_number_of_times_study_is_in_datasets(datasets, 's2', 1)
 
     def test_start_0_size_0(self):
-        datasets = self.searcher.search_all_assocs(start=0, size=0)
+        datasets, next_index = self.searcher.search_all_assocs(start=0, size=0)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 0)
 
     def test_start_50_size_50_returns_only_second_study(self):
-        datasets = self.searcher.search_all_assocs(start=50, size=50)
+        datasets, next_index = self.searcher.search_all_assocs(start=50, size=50)
         assert_only_list_of_studies_returned(datasets, ['s2'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 50)
 
     def test_start_49_size_51_returns_first_and_second_study(self):
-        datasets = self.searcher.search_all_assocs(start=49, size=51)
+        datasets, next_index = self.searcher.search_all_assocs(start=49, size=51)
         assert_only_list_of_studies_returned(datasets, ['s1', 's2'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 51)
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 1)
         assert_number_of_times_study_is_in_datasets(datasets, 's2', 50)
 
     def test_start_100_size_100_returns_third_and_fourth_study(self):
-        datasets = self.searcher.search_all_assocs(start=100, size=100)
+        datasets, next_index = self.searcher.search_all_assocs(start=100, size=100)
         assert_only_list_of_studies_returned(datasets, ['s3', 's4'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 100)
         assert_number_of_times_study_is_in_datasets(datasets, 's3', 50)
         assert_number_of_times_study_is_in_datasets(datasets, 's4', 50)
 
     def test_get_all(self):
-        datasets = self.searcher.search_all_assocs(start=0, size=200)
+        datasets, next_index = self.searcher.search_all_assocs(start=0, size=200)
         assert_only_list_of_studies_returned(datasets, ['s1', 's2', 's3', 's4'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 200)
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 50)
@@ -94,7 +94,7 @@ class TestLoader(object):
         assert_number_of_times_study_is_in_datasets(datasets, 's4', 50)
 
     def test_get_all_size_bigger_than_existing_data(self):
-        datasets = self.searcher.search_all_assocs(start=0, size=220)
+        datasets, next_index = self.searcher.search_all_assocs(start=0, size=220)
         assert_only_list_of_studies_returned(datasets, ['s1', 's2', 's3', 's4'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 200)
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 50)
@@ -105,17 +105,17 @@ class TestLoader(object):
     def test_get_all_loop_through_size_20(self):
         start = 0
         size = 20
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         while len(datasets[REFERENCE_DSET]) > 0:
             assert_datasets_have_size(datasets, TO_QUERY_DSETS, size)
             start = start + size
-            datasets = self.searcher.search_all_assocs(start=start, size=size)
+            datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
 
     def test_get_all_loop_through_0_to_20(self):
         start = 0
         size = 20
         # first 20 of study s1
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s1'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
 
@@ -123,7 +123,7 @@ class TestLoader(object):
         start = 20
         size = 20
         # 20-40 of study s1
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s1'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
 
@@ -131,7 +131,7 @@ class TestLoader(object):
         start = 40
         size = 20
         # 40-50 of study s1 and first 10 (remaining) of study s2
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s1', 's2'])
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 10)
         assert_number_of_times_study_is_in_datasets(datasets, 's2', 10)
@@ -141,7 +141,7 @@ class TestLoader(object):
         start = 60
         size = 20
         # 10-30 of study s2
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s2'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
 
@@ -149,7 +149,7 @@ class TestLoader(object):
         start = 80
         size = 20
         # 30-50 of study s2
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s2'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
 
@@ -157,7 +157,7 @@ class TestLoader(object):
         start = 100
         size = 20
         # first 20 of study s3
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s3'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
 
@@ -165,7 +165,7 @@ class TestLoader(object):
         start = 120
         size = 20
         # 20 - 40 of study s3
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s3'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
 
@@ -173,7 +173,7 @@ class TestLoader(object):
         start = 140
         size = 20
         # 40 - 50 of study s3 and first 10 if study s4
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s3', 's4'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
         assert_number_of_times_study_is_in_datasets(datasets, 's3', 10)
@@ -183,7 +183,7 @@ class TestLoader(object):
         start = 160
         size = 20
         # 10 - 30 of study s4
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s4'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
 
@@ -191,7 +191,7 @@ class TestLoader(object):
         start = 180
         size = 20
         # 30 - 50 of study s4
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_only_list_of_studies_returned(datasets, ['s4'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
 
@@ -199,5 +199,5 @@ class TestLoader(object):
         start = 200
         size = 20
         # empty
-        datasets = self.searcher.search_all_assocs(start=start, size=size)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 0)

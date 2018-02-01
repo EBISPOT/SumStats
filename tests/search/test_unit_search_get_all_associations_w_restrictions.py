@@ -60,7 +60,7 @@ class TestLoader(object):
         start = 0
         size = 200
         pval_interval = FloatInterval().set_tuple(0.00001, 0.00001)
-        datasets = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
 
         assert_only_list_of_studies_returned(datasets, ['s1'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 50)
@@ -70,7 +70,7 @@ class TestLoader(object):
         size = 20
         # p-value range of s2
         pval_interval = FloatInterval().set_tuple(0.00005, 0.0001)
-        datasets = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
 
         assert_only_list_of_studies_returned(datasets, ['s2'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
@@ -79,7 +79,7 @@ class TestLoader(object):
         start = 0
         size = 200
         pval_interval = FloatInterval().set_tuple(0.06, 0.1)
-        datasets = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
 
         assert_only_list_of_studies_returned(datasets, ['s4'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 50)
@@ -89,7 +89,7 @@ class TestLoader(object):
         size = 10
         pval_interval = FloatInterval().set_tuple(0.04, 0.3)
 
-        datasets = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 10)
         assert_only_list_of_studies_returned(datasets, ['s3', 's4'])
         assert_number_of_times_study_is_in_datasets(datasets, 's3', 5)
@@ -100,7 +100,7 @@ class TestLoader(object):
         size = 10
         pval_interval = FloatInterval().set_tuple(0.04, 0.06)
 
-        datasets = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
         print(datasets)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 5)
         assert_only_list_of_studies_returned(datasets, ['s3'])
@@ -110,11 +110,59 @@ class TestLoader(object):
         start = 0
         size = 20
 
+        looped_through = 1
+
         # s2 and s3 p-value limits
         pval_interval = FloatInterval().set_tuple(0.00002, 0.06)
-        datasets = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+
+        while True:
+            datasets, next_index = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+            if len(datasets[REFERENCE_DSET]) <= 0:
+                break
+            if looped_through <= 2:
+                assert_only_list_of_studies_returned(datasets, ['s2'])
+                assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
+            elif looped_through == 3:
+                assert_only_list_of_studies_returned(datasets, ['s2', 's3'])
+                assert_number_of_times_study_is_in_datasets(datasets, 's2', 10)
+                assert_number_of_times_study_is_in_datasets(datasets, 's3', 10)
+            else:
+                assert_only_list_of_studies_returned(datasets, ['s3'])
+                assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
+            looped_through += 1
+            start = next_index
+
+    def test_loop_through_w_restrinction_and_always_get_size_45_results(self):
+        start = 0
+        size = 45
+
+        looped_through = 1
+
+        # s2 and s3 p-value limits
+        pval_interval = FloatInterval().set_tuple(0.00002, 0.06)
+
+        while True:
+            datasets, next_index = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+            if len(datasets[REFERENCE_DSET]) <= 0:
+                break
+            if looped_through <= 1:
+                assert_only_list_of_studies_returned(datasets, ['s2'])
+                assert_datasets_have_size(datasets, TO_QUERY_DSETS, 45)
+            elif looped_through == 2:
+                assert_only_list_of_studies_returned(datasets, ['s2', 's3'])
+                assert_number_of_times_study_is_in_datasets(datasets, 's2', 5)
+                assert_number_of_times_study_is_in_datasets(datasets, 's3', 40)
+            else:
+                assert_only_list_of_studies_returned(datasets, ['s3'])
+                assert_datasets_have_size(datasets, TO_QUERY_DSETS, 10)
+            looped_through += 1
+            start = next_index
+
+    def test_90_110_contains_s2_and_s3(self):
+        start = 90
+        size = 20
+        datasets, next_index = self.searcher.search_all_assocs(start=start, size=size)
         print(datasets[STUDY_DSET])
-        assert_only_list_of_studies_returned(datasets, ['s2'])
-        # while start < 200:
-        #     start = start + size
-        #     datasets = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+        assert_only_list_of_studies_returned(datasets, ['s2', 's3'])
+        assert_number_of_times_study_is_in_datasets(datasets, 's2', 10)
+        assert_number_of_times_study_is_in_datasets(datasets, 's3', 10)

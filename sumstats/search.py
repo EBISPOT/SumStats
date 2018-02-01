@@ -4,7 +4,6 @@ import sumstats.snp.searcher as snp_searcher
 import sumstats.utils.argument_utils as au
 import sumstats.explorer as ex
 from sumstats.trait.constants import *
-import sumstats.utils.restrictions as rst
 import sumstats.utils.utils as utils
 import argparse
 import os.path
@@ -20,48 +19,58 @@ class Search:
         self.output_path = path + "/output"
 
     def search_all_assocs(self, start, size, pval_interval=None):
+        
         datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         trait_list = []
         available_traits = self._get_all_traits()
-        total_traversed = 0
-
+        search_traversed = overall_search_index = 0
+        starting_point = start
+        
         for trait in available_traits:
             h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
             if not os.path.isfile(h5file):
                 continue
-            result, index_of_last_search = self._search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
-            retrieved_size = len(result[REFERENCE_DSET])
+            
+            result, current_trait_index = self._search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
+            overall_search_index += current_trait_index
+            currently_retrieved = len(result[REFERENCE_DSET])
 
-            total_traversed += self._get_traversed_size(retrieved_size=index_of_last_search, trait=trait)
-
+            search_traversed += self._get_traversed_size(retrieved_index=current_trait_index, trait=trait)
             datasets = utils.extend_dsets_with_subset(datasets, result)
-
-            trait_list.extend([trait for _ in range(retrieved_size)])
+            trait_list.extend([trait for _ in range(currently_retrieved)])
             total_retrieved = len(datasets[REFERENCE_DSET])
+
             if size <= total_retrieved:
                 datasets['trait'] = trait_list
-                return datasets
+                return datasets, starting_point + overall_search_index
             else:
-                size = size - retrieved_size
-                start = start - total_traversed + index_of_last_search
-                continue
+                size = size - currently_retrieved
+                start = self._next_start_index(current_search_index=current_trait_index, total_traversed=search_traversed, start=start)
 
-        return datasets
+        return datasets, starting_point + overall_search_index
 
     def _get_all_traits(self):
         explorer = ex.Explorer(self.path)
         return explorer.get_list_of_traits()
 
-    def _get_traversed_size(self, retrieved_size, trait):
-        inc_size = retrieved_size
-        if retrieved_size == 0:
+    def _get_traversed_size(self, retrieved_index, trait):
+        if retrieved_index == 0:
             h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
             searcher = trait_searcher.Search(h5file)
-            inc_size = searcher.get_trait_size(trait)
+            trait_size = searcher.get_trait_size(trait)
             searcher.close_file()
-        return inc_size
+            return trait_size
+        return retrieved_index
 
-    def search_trait(self, trait, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
+    @staticmethod
+    def _next_start_index(current_search_index, total_traversed, start):
+        if current_search_index == total_traversed:
+            # we have retrieved the trait from start to end
+            # retrieving next trait from it's beginning
+            return 0
+        return start - total_traversed + current_search_index
+
+    def search_trait(self, trait, start, size, pval_interval=None):
         h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
         if not os.path.isfile(h5file):
             return None
@@ -72,13 +81,13 @@ class Search:
         searcher = trait_searcher.Search(h5file)
 
         gather_results = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-        index_of_last_searched = 0
+        total_size_searched = 0
         max_size_of_trait = searcher.get_trait_size(trait)
         search_size_of_iteration = size
 
         while start < max_size_of_trait:
             searcher.query_for_trait(trait=trait, start=start, size=search_size_of_iteration)
-            index_of_last_searched += len(searcher.get_result()[REFERENCE_DSET])
+            total_size_searched += len(searcher.get_result()[REFERENCE_DSET])
 
             searcher.apply_restrictions(pval_interval=pval_interval)
 
@@ -90,7 +99,7 @@ class Search:
                 break
 
         searcher.close_file()
-        return gather_results, index_of_last_searched
+        return gather_results, total_size_searched
 
     def search_study(self, trait, study, start, size, snp=None, chromosome=None, pval_interval=None, bp_interval=None):
         h5file = self._get_file_path(dir_name="bytrait", file_name=trait)
@@ -155,7 +164,7 @@ def main():
     search = Search(path)
 
     if fins_all:
-        result = search.search_all_assocs(start=start, size=size, snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
+        result = search.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
     elif trait is not None:
         if study is not None:
             result = search.search_study(trait=trait, study=study, start=start, size=size, snp=snp, chromosome=chromosome, pval_interval=pval_interval, bp_interval=bp_interval)
