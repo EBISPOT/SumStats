@@ -56,7 +56,7 @@ class AssociationSearch:
         return self.size <= len(self.datasets[REFERENCE_DSET])
 
     def _get_next_index(self):
-        return self.starting_point + self.overall_search_index
+        return self.overall_search_index
 
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:

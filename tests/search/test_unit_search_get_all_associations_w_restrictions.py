@@ -130,7 +130,7 @@ class TestLoader(object):
                 assert_only_list_of_studies_returned(datasets, ['s3'])
                 assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
             looped_through += 1
-            start = next_index
+            start = start + next_index
 
     def test_loop_through_w_restrinction_and_always_get_size_45_results(self):
         start = 0
@@ -156,7 +156,7 @@ class TestLoader(object):
                 assert_only_list_of_studies_returned(datasets, ['s3'])
                 assert_datasets_have_size(datasets, TO_QUERY_DSETS, 10)
             looped_through += 1
-            start = next_index
+            start = start + next_index
 
     def test_90_110_contains_s2_and_s3(self):
         start = 90
