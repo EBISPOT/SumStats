@@ -52,8 +52,11 @@ class Service:
 
     def get_trait_size(self, trait):
         trait_group = self.file_group.get_subgroup(trait)
-        size = sum(study_group.get_dset_shape(REFERENCE_DSET)[0] for study_group in trait_group.get_all_subgroups())
-        return size
+        return sum(study_group.get_dset_shape(REFERENCE_DSET)[0] for study_group in trait_group.get_all_subgroups())
+
+    def get_study_size(self, trait, study):
+        trait_group = self.file_group.get_subgroup(trait)
+        return trait_group.get_subgroup(study).get_dset_shape(REFERENCE_DSET)[0]
 
     def list_traits(self):
         trait_groups = self.file_group.get_all_subgroups()

@@ -7,7 +7,6 @@ import sumstats.trait.loader as loader
 from tests.prep_tests import *
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
-from sumstats.utils.utils import *
 from sumstats.utils.interval import FloatInterval
 
 
