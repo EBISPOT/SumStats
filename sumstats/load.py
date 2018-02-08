@@ -20,14 +20,12 @@ def main():
 
     if output_path is None:
         print("Setting default location for output files")
-        output_path = ""
+        output_path = "/output"
 
     if input_path is None:
         print("Setting default location for input files")
-        input_path = ""
+        input_path = "/toload"
 
-    output_path = output_path + "/output"
-    input_path = input_path + "/toload"
     to_load = input_path + "/" + tsv
 
     if loader_type == "trait":

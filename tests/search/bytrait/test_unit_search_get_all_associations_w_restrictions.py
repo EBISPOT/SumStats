@@ -30,23 +30,23 @@ class TestLoader(object):
         search_arrays.chrarray = [1 for _ in range(50)]
         search_arrays.pvalsarray = ["0.00001" for _ in range(50)]
         h5file = self.output_location + 'file_t1.h5'
-        load = prepare_load_object_with_study_and_trait(h5file, 's1', 't1', loader, search_arrays)
+        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', trait='t1', loader=loader, test_arrays=search_arrays)
         load.load()
 
         search_arrays.chrarray = [2 for _ in range(50)]
         search_arrays.pvalsarray = ["0.0001" for _ in range(50)]
-        load = prepare_load_object_with_study_and_trait(h5file, 's2', 't1', loader, search_arrays)
+        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=loader, test_arrays=search_arrays)
         load.load()
 
         h5file = self.output_location + 'file_t2.h5'
         search_arrays.chrarray = [1 for _ in range(50)]
         search_arrays.pvalsarray = ["0.05" for _ in range(50)]
-        load = prepare_load_object_with_study_and_trait(h5file, 's3', 't2', loader, search_arrays)
+        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=loader, test_arrays=search_arrays)
         load.load()
 
         search_arrays.chrarray = [2 for _ in range(50)]
         search_arrays.pvalsarray = ["0.1" for _ in range(50)]
-        load = prepare_load_object_with_study_and_trait(h5file, 's4', 't2', loader, search_arrays)
+        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', trait='t2', loader=loader, test_arrays=search_arrays)
         load.load()
 
         # initialize searcher with local path

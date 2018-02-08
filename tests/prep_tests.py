@@ -16,9 +16,12 @@ def prepare_load_object_with_study(h5file, study, loader):
     return loader.Loader(None, h5file, study, loader_dictionary)
 
 
-def prepare_load_object_with_study_and_trait(h5file, study, trait, loader, test_arrays=None):
+def prepare_load_object_with_study_and_trait(h5file, study, loader, test_arrays=None, trait=None):
     loader_dictionary = prepare_dictionary(test_arrays)
-    return loader.Loader(None, h5file, study, trait, loader_dictionary)
+    if trait is not None:
+        return loader.Loader(None, h5file, study, trait, loader_dictionary)
+    else:
+        return loader.Loader(None, h5file, study, loader_dictionary)
 
 
 def save_snps_and_study_in_file(opened_file, list_of_snps, study):
