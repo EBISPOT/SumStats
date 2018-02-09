@@ -36,13 +36,13 @@ class TestUnitLoader(object):
             loader.Loader(None, self.h5file, "Study1", "Trait1", loader_dictionary)
 
     def test_create_trait_group(self):
-        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study="Study1", trait="Trait1", loader=loader)
         group = load._create_trait_group()
         assert group is not None
         assert group.get_name() == "/Trait1"
 
     def test_create_trait_group_twice(self):
-        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study="Study1", trait="Trait1", loader=loader)
         group = load._create_trait_group()
         assert group is not None
         assert group.get_name() == "/Trait1"
@@ -51,7 +51,7 @@ class TestUnitLoader(object):
         assert group_retrieved.get_name() == "/Trait1"
 
     def test_create_study_group(self):
-        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study="Study1", trait="Trait1", loader=loader)
         trait_group = load._create_trait_group()
         study_group = load._create_study_group(trait_group)
 
@@ -59,7 +59,7 @@ class TestUnitLoader(object):
         assert study_group.get_name() == "/Trait1/Study1"
 
     def test_create_study_group_twice_raises_error(self):
-        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study="Study1", trait="Trait1", loader=loader)
         trait_group = load._create_trait_group()
         study_group = load._create_study_group(trait_group)
 
@@ -70,7 +70,7 @@ class TestUnitLoader(object):
             load._create_study_group(trait_group)
 
     def test_create_dataset(self):
-        load = prepare_load_object_with_study_and_trait(self.h5file, "Study1", "Trait1", loader)
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study="Study1", trait="Trait1", loader=loader)
         trait_group = load._create_trait_group()
         study_group = load._create_study_group(trait_group)
         dset_name = CHR_DSET

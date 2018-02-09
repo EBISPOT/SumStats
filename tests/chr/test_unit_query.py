@@ -61,7 +61,7 @@ class TestUnitQueryUtils(object):
         block = bk.Block(bp_interval)
         block_groups = block.get_block_groups_from_parent(chr_group_2)
 
-        block_group = block_groups[0]
+        block_group = next(block_groups)
 
         datasets = query.get_dsets_from_group(block_group, self.start, self.size)
         assert len(datasets) == len(TO_STORE_DSETS)

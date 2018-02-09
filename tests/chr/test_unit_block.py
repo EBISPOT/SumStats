@@ -36,7 +36,8 @@ class TestUnitQueryUtils(object):
         with pytest.raises(AttributeError):
             bp_interval = IntInterval().set_tuple(1200000, 1200000)
             block = bk.Block(bp_interval)
-            block.get_block_groups_from_parent(None)
+            block_generator = block.get_block_groups_from_parent(None)
+            next(block_generator)
 
     def test_get_block_groups_from_parent_raises_error_when_lower_limit_bigger_than_upper_limit(self):
         with pytest.raises(ValueError):
@@ -48,9 +49,9 @@ class TestUnitQueryUtils(object):
         bp_interval = IntInterval().set_string_tuple("1200000:1200000")
         block = bk.Block(bp_interval)
         chrgroup_1 = gu.Group(self.chr_group_1)
-        blocks = block.get_block_groups_from_parent(chrgroup_1)
 
-        assert blocks.__class__ is list
+        blocks_generator = block.get_block_groups_from_parent(chrgroup_1)
+        blocks = [b for b in blocks_generator]
         assert len(blocks) == 1
         assert blocks[0].__class__ == gu.Group
 

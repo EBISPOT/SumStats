@@ -55,7 +55,7 @@ class TestLoader(object):
         size = 20
         datasets, index_marker = self.searcher.search_trait(trait='t1', start=start, size=size)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
-        assert_only_list_of_studies_returned(datasets, ['s1'])
+        assert_studies_from_list(datasets, ['s1'])
 
     def test_search_t1_40_60(self):
         start = 40
@@ -63,7 +63,7 @@ class TestLoader(object):
 
         datasets, index_marker = self.searcher.search_trait(trait='t1', start=start, size=size)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
-        assert_only_list_of_studies_returned(datasets, ['s1', 's2'])
+        assert_studies_from_list(datasets, ['s1', 's2'])
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 10)
         assert_number_of_times_study_is_in_datasets(datasets, 's2', 10)
 
@@ -73,7 +73,7 @@ class TestLoader(object):
 
         datasets, index_marker = self.searcher.search_trait(trait='t1', start=start, size=size)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 100)
-        assert_only_list_of_studies_returned(datasets, ['s1', 's2'])
+        assert_studies_from_list(datasets, ['s1', 's2'])
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 50)
         assert_number_of_times_study_is_in_datasets(datasets, 's2', 50)
 
@@ -90,10 +90,10 @@ class TestLoader(object):
 
             if looped_through <= 10:
                 assert_number_of_times_study_is_in_datasets(datasets, 's3', 5)
-                assert_only_list_of_studies_returned(datasets, ['s3'])
+                assert_studies_from_list(datasets, ['s3'])
             else:
                 assert_number_of_times_study_is_in_datasets(datasets, 's4', 5)
-                assert_only_list_of_studies_returned(datasets, ['s4'])
+                assert_studies_from_list(datasets, ['s4'])
             looped_through += 1
             start = start + index_marker
 
@@ -112,13 +112,13 @@ class TestLoader(object):
 
             if looped_through <= 1:
                 assert_number_of_times_study_is_in_datasets(datasets, 's3', 42)
-                assert_only_list_of_studies_returned(datasets, ['s3'])
+                assert_studies_from_list(datasets, ['s3'])
             elif looped_through == 2:
                 assert_number_of_times_study_is_in_datasets(datasets, 's3', 8)
                 assert_number_of_times_study_is_in_datasets(datasets, 's4', 34)
-                assert_only_list_of_studies_returned(datasets, ['s3', 's4'])
+                assert_studies_from_list(datasets, ['s3', 's4'])
             else:
                 assert_number_of_times_study_is_in_datasets(datasets, 's4', 16)
-                assert_only_list_of_studies_returned(datasets, ['s4'])
+                assert_studies_from_list(datasets, ['s4'])
             looped_through += 1
             start = start + index_marker

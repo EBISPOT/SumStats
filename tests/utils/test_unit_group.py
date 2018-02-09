@@ -56,19 +56,28 @@ class TestUnitGroup(object):
 
     def test_get_all_subgroups(self):
         group1 = self.file_group.get_subgroup(1)
-        groups = group1.get_all_subgroups()
+        groups_generator = group1.get_all_subgroups()
+        groups = []
+        for g in groups_generator:
+            groups.append(g)
         assert len(groups) == 2
         assert isinstance(groups[0], gu.Group)
 
     def test_get_all_subgroups_returns_empty_when_parent_group_only_has_datasets(self):
         group = self.file_group.get_subgroup(1).get_subgroup("sub1")
-        groups = group.get_all_subgroups()
+        groups_generator = group.get_all_subgroups()
+        groups = []
+        for g in groups_generator:
+            groups.append(g)
         assert len(groups) == 0
 
     def test_get_all_subgroups_returns_only_groups_and_no_dsets(self):
         group = self.file_group.get_subgroup(1).get_subgroup("sub1")
         group.create_subgroup("sub11")
-        groups = group.get_all_subgroups()
+        groups_generator = group.get_all_subgroups()
+        groups = []
+        for g in groups_generator:
+            groups.append(g)
         assert len(groups) == 1
         assert "sub11" in groups[0].get_name()
 

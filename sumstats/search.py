@@ -2,6 +2,7 @@ import sumstats.trait.retriever as tr
 import sumstats.chr.searcher as chr_searcher
 import sumstats.snp.searcher as snp_searcher
 import sumstats.utils.argument_utils as au
+from sumstats.common_constants import *
 import argparse
 import os.path
 
@@ -34,7 +35,7 @@ class Search:
             searcher.query_for_chromosome(chromosome=chromosome, start=start, size=size)
         result = searcher.get_result()
         searcher.close_file()
-        return result
+        return result, len(result[REFERENCE_DSET])
 
     def search_snp(self, snp, start, size, study=None, pval_interval=None):
         for chromosome in range(1, 23):

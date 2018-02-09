@@ -11,9 +11,22 @@ def assert_datasets_have_size(datasets, TO_QUERY_DSETS, size):
         assert len(datasets[name]) == size
 
 
-def assert_only_list_of_studies_returned(datasets, studies):
+def assert_studies_from_list(datasets, studies):
     unique_studies = set(datasets[STUDY_DSET])
     assert len(unique_studies) == len(studies)
 
     for study in unique_studies:
         assert study in studies
+
+
+def assert_studies_in_list(datasets, studies):
+    unique_studies = set(datasets[STUDY_DSET])
+    found = False
+    print(len(unique_studies))
+    if len(unique_studies) == 1:
+        for study in studies:
+            if study in unique_studies:
+                found = True
+        assert found
+    else:
+        assert_studies_from_list(datasets, studies)

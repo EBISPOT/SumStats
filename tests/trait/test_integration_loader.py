@@ -11,13 +11,13 @@ class TestLoader(object):
 
     def setup_method(self, method):
 
-        load = prepare_load_object_with_study_and_trait(self.h5file, 'PM001', 'Trait1', loader)
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study='PM001', trait='Trait1', loader=loader)
         load.load()
 
-        load = prepare_load_object_with_study_and_trait(self.h5file, 'PM002', 'Trait1', loader)
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study='PM002', trait='Trait1', loader=loader)
         load.load()
 
-        load = prepare_load_object_with_study_and_trait(self.h5file, 'PM003', 'Trait2', loader)
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study='PM003', trait='Trait2', loader=loader)
         load.load()
 
         # open h5 file in read/write mode

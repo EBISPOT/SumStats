@@ -51,7 +51,7 @@ class Group:
             self.group.create_group(group_name)
 
     def get_all_subgroups(self):
-        return [Group(group) for group in self.group.values() if isinstance(group, h5py.Group)]
+        return (Group(group) for group in self.group.values() if isinstance(group, h5py.Group))
 
     def generate_dataset(self, dset_name, data):
         """
@@ -83,10 +83,13 @@ class Group:
         if dset is not None:
             if start <= dset.shape[0]:
                 end = min(dset.shape[0], (start + size))
-                dset = dset[start:end]
-        else:
-            dset = []
-        return Dataset(dset)
+                return Dataset(dset[start:end])
+        return Dataset([])
+
+    def get_max_group_size(self):
+        if self.contains_dataset(REFERENCE_DSET):
+            return self.get_dset_shape(REFERENCE_DSET)[0]
+        return 0
 
     def get_dset_shape(self, dset_name):
         if dset_name in self.group:

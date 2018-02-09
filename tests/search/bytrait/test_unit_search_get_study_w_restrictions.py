@@ -62,7 +62,7 @@ class TestLoader(object):
         pval_interval = FloatInterval().set_tuple(0.00001, 0.00005)
         datasets, index_marker = self.searcher.search_study(trait='t1', study='s1', start=start, size=size, pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
-        assert_only_list_of_studies_returned(datasets, ['s1'])
+        assert_studies_from_list(datasets, ['s1'])
 
         assert index_marker == 20
 
@@ -73,7 +73,7 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search_study(trait='t1', study='s1', start=start, size=size,
                                                           pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
-        assert_only_list_of_studies_returned(datasets, ['s1'])
+        assert_studies_from_list(datasets, ['s1'])
 
         assert index_marker == 45
 
@@ -84,7 +84,7 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search_study(trait='t1', study='s1', start=start, size=size,
                                                           pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 25)
-        assert_only_list_of_studies_returned(datasets, ['s1'])
+        assert_studies_from_list(datasets, ['s1'])
 
         assert index_marker == 50
 
@@ -94,7 +94,7 @@ class TestLoader(object):
         pval_interval = FloatInterval().set_tuple(0.00005, 0.01)
         datasets, index_marker = self.searcher.search_study(trait='t1', study='s1', start=start, size=size,
                                                           pval_interval=pval_interval)
-        assert_only_list_of_studies_returned(datasets, ['s1'])
+        assert_studies_from_list(datasets, ['s1'])
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 25)
 
         assert index_marker == 50
@@ -106,7 +106,7 @@ class TestLoader(object):
         pval_interval = FloatInterval().set_tuple(0.006, 0.1)
         datasets, index_marker = self.searcher.search_study(trait='t2', study='s3', start=start, size=size,
                                                           pval_interval=pval_interval)
-        assert_only_list_of_studies_returned(datasets, ['s3'])
+        assert_studies_from_list(datasets, ['s3'])
         assert_number_of_times_study_is_in_datasets(datasets, 's3', 5)
 
         # retrived 5 in total so start + index_marker = 50 -> where we will query next (if there where more elements
@@ -130,7 +130,7 @@ class TestLoader(object):
                 # from the first loop, already traversed the lower pval range of the study
                 assert index_marker == 30
             assert_number_of_times_study_is_in_datasets(datasets, 's1', 5)
-            assert_only_list_of_studies_returned(datasets, ['s1'])
+            assert_studies_from_list(datasets, ['s1'])
             looped_through += 1
             start = start + index_marker
 
@@ -150,7 +150,7 @@ class TestLoader(object):
                 break
 
             assert_number_of_times_study_is_in_datasets(datasets, 's1', 25)
-            assert_only_list_of_studies_returned(datasets, ['s1'])
+            assert_studies_from_list(datasets, ['s1'])
 
             assert index_marker == 50
 

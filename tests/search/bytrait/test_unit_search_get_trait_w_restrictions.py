@@ -62,7 +62,7 @@ class TestLoader(object):
         pval_interval = FloatInterval().set_tuple(0.00001, 0.00001)
         datasets, index_marker = self.searcher.search_trait(trait='t1', start=start, size=size, pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 25)
-        assert_only_list_of_studies_returned(datasets, ['s1'])
+        assert_studies_from_list(datasets, ['s1'])
         # next index is the sum of the elements actually retrieved from the studies before restrictions are applied.
         # So in this case in the first search (start = 0, size = 50), we get 50 elements back from s1 without
         # restrictions. But with the restrictions we manage to collect 25 elements. So the next search performed
@@ -77,7 +77,7 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search_trait(trait='t1', start=start, size=size,
                                                           pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
-        assert_only_list_of_studies_returned(datasets, ['s1'])
+        assert_studies_from_list(datasets, ['s1'])
 
         assert index_marker == 45
 
@@ -87,7 +87,7 @@ class TestLoader(object):
         pval_interval = FloatInterval().set_tuple(0.00005, 0.1)
         datasets, index_marker = self.searcher.search_trait(trait='t1', start=start, size=size,
                                                           pval_interval=pval_interval)
-        assert_only_list_of_studies_returned(datasets, ['s1', 's2'])
+        assert_studies_from_list(datasets, ['s1', 's2'])
         assert_number_of_times_study_is_in_datasets(datasets, 's1', 25)
         assert_number_of_times_study_is_in_datasets(datasets, 's2', 25)
 
@@ -111,7 +111,7 @@ class TestLoader(object):
         pval_interval = FloatInterval().set_tuple(0.006, 0.1)
         datasets, index_marker = self.searcher.search_trait(trait='t2', start=start, size=size,
                                                           pval_interval=pval_interval)
-        assert_only_list_of_studies_returned(datasets, ['s3', 's4'])
+        assert_studies_from_list(datasets, ['s3', 's4'])
         assert_number_of_times_study_is_in_datasets(datasets, 's3', 5)
         assert_number_of_times_study_is_in_datasets(datasets, 's4', 15)
 
@@ -135,7 +135,7 @@ class TestLoader(object):
                 # all of s3 + the first 5 elements of s4
                 assert index_marker == 55
             assert_number_of_times_study_is_in_datasets(datasets, 's4', 5)
-            assert_only_list_of_studies_returned(datasets, ['s4'])
+            assert_studies_from_list(datasets, ['s4'])
 
             looped_through += 1
             start = start + index_marker

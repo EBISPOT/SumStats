@@ -4,7 +4,6 @@ Utils useful for querying
 
 from sumstats.chr.constants import *
 from sumstats.utils.utils import *
-import sumstats.utils.group as gu
 
 
 def load_datasets_from_groups(groups, start, size):
@@ -17,71 +16,37 @@ def get_dsets_from_group(group, start, size):
 
 def get_dsets_from_parent_group(group, start, size):
     datasets = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-
     end = start + size
-    if isinstance(group, gu.Group):
-        for child_group in group.get_values():
-            dset_size = get_standard_group_dset_size(child_group)
-            if group_has_groups(child_group):
-                datasets = get_dsets_from_parent_group(child_group, start, size)
-                dset_size = len(datasets[REFERENCE_DSET])
+    max_traversed = 0
+    original_start = start
 
-            if continue_to_next_group(start, dset_size):
-                continue
-            else:
-                subset_of_datasets = get_dsets_from_group(child_group, start, size)
-                datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
+    for child_group in group:
+        max_traversed += child_group.get_max_group_size()
 
-                if end <= dset_size:
-                    return datasets
-                else:
-                    size = calculate_remaining_size_from_data_subset(size, subset_of_datasets)
-                    continue
-        return datasets
-    else:
-        # is a list
-        print(group)
-        for child_group in group:
-            dset_size = get_standard_group_dset_size(child_group)
-            if group_has_groups(child_group):
-                datasets = get_dsets_from_parent_group(child_group, start, size)
-                dset_size = len(datasets[REFERENCE_DSET])
+        # we want to start higher than where we are now
+        if original_start >= max_traversed:
+            start = original_start - max_traversed
+            continue
 
-            if continue_to_next_group(start, dset_size):
-                print("next group")
-                continue
-            else:
-                subset_of_datasets = get_dsets_from_group(child_group, start, size)
-                datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
+        total_retrieved = len(datasets[REFERENCE_DSET])
+        if end <= total_retrieved:
+            return datasets
 
-                if end <= dset_size:
-                    return datasets
-                else:
-                    size = calculate_remaining_size_from_data_subset(size, subset_of_datasets)
-                    continue
-        return datasets
+        subset_of_datasets = get_dsets_from_group(child_group, start, size)
+        datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
+        retrieved_size = len(subset_of_datasets[REFERENCE_DSET])
+
+        max_traversed += retrieved_size
+        size = size - retrieved_size
+        # if I have already gathered some information
+        # then I am going on to the next dataset and what to query it from its start
+        start = _new_start_size(start=start, total_retrieved=len(datasets[REFERENCE_DSET]), retrieved=retrieved_size)
+    return datasets
 
 
-def get_standard_group_dset_size(group):
-    if group.contains_dataset(REFERENCE_DSET):
-        return group.get_dset_shape(REFERENCE_DSET)[0]
-    else:
+def _new_start_size(start, total_retrieved, retrieved):
+    if total_retrieved > 0:
         return 0
+    return start + retrieved
 
 
-def group_has_groups(group):
-    if isinstance(group, gu.Group):
-        for value in group.get_values():
-            return isinstance(value, gu.Group)
-    else:
-        return False
-
-
-def continue_to_next_group(start, dset_size):
-    return start >= dset_size
-
-
-def calculate_remaining_size_from_data_subset(size, subset):
-    retrieved_size = len(subset[REFERENCE_DSET])
-    size = size - retrieved_size
-    return size

@@ -39,7 +39,6 @@ class Search:
         chr_group = self.file_group.get_subgroup(chromosome)
 
         all_chr_sub_groups = chr_group.get_all_subgroups()
-        print("block size", len(all_chr_sub_groups))
         self.datasets = query.load_datasets_from_groups(all_chr_sub_groups, start, size)
 
     def query_chr_for_block_range(self, chromosome, bp_interval, start, size):
