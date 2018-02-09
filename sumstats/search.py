@@ -1,10 +1,10 @@
-import sumstats.trait.retriever as tr
-import sumstats.chr.searcher as chr_searcher
-import sumstats.snp.searcher as snp_searcher
-import sumstats.utils.argument_utils as au
-from sumstats.common_constants import *
 import argparse
 import os.path
+
+import sumstats.snp.searcher as snp_searcher
+import sumstats.trait.retriever as tr
+import sumstats.chr.retriever as cr
+import sumstats.utils.argument_utils as au
 
 
 class Search:
@@ -25,17 +25,7 @@ class Search:
         return tr.search_study(trait=trait, study=study, start=start, size=size, pval_interval=pval_interval, path=self.path)
 
     def search_chromosome(self, chromosome, start, size, bp_interval=None, study=None, pval_interval=None):
-        h5file = self._get_file_path(dir_name="bychr", file_name=chromosome)
-        if not os.path.isfile(h5file):
-            return None
-        searcher = chr_searcher.Search(h5file)
-        if bp_interval is not None:
-            searcher.query_chr_for_block_range(chromosome=chromosome, bp_interval=bp_interval, start=start, size=size)
-        else:
-            searcher.query_for_chromosome(chromosome=chromosome, start=start, size=size)
-        result = searcher.get_result()
-        searcher.close_file()
-        return result, len(result[REFERENCE_DSET])
+        return cr.search_chromosome(chromosome=chromosome, start=start, size=size, path=self.path, bp_interval=bp_interval, study=study, pval_interval=pval_interval)
 
     def search_snp(self, snp, start, size, study=None, pval_interval=None):
         for chromosome in range(1, 23):

@@ -1,11 +1,11 @@
 import os
-import pytest
-import sumstats.chr.loader as loader
-import sumstats.chr.query as query
-from tests.prep_tests import *
-from sumstats.utils.interval import *
-from sumstats.chr.constants import *
+
 import sumstats.chr.block as bk
+import sumstats.chr.loader as loader
+import sumstats.chr.search.access.repository as query
+from sumstats.chr.constants import *
+from sumstats.utils.interval import *
+from tests.prep_tests import *
 
 
 class TestUnitQueryUtils(object):

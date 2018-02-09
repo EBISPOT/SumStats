@@ -19,16 +19,15 @@
     Can filter based on p-value thresholds, bp position thresholds, and specific study
 """
 
-import sumstats.chr.query as query
+import sumstats.chr.block as bk
+import sumstats.chr.search.access.repository as query
 import sumstats.utils.group as gu
+import sumstats.utils.restrictions as rst
 import sumstats.utils.utils as utils
 from sumstats.common_constants import *
-import sumstats.utils.restrictions as rst
-import sumstats.chr.block as bk
-import h5py
 
 
-class Search:
+class Service:
     def __init__(self, h5file):
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')

@@ -1,7 +1,9 @@
 import os
+
 import pytest
+
 import sumstats.chr.loader as loader
-from sumstats.chr.searcher import Search
+from sumstats.chr.search.access.service import *
 from sumstats.utils.interval import *
 from tests.prep_tests import *
 
@@ -23,7 +25,7 @@ class TestUnitSearcher(object):
 
         self.start = 0
         self.size = 20
-        self.query = Search(self.h5file)
+        self.query = Service(self.h5file)
 
     def teardown_method(self, method):
         os.remove(self.h5file)
