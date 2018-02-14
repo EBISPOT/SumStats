@@ -27,17 +27,18 @@ class ChromosomeSearch:
     def search_chromosome(self, study=None, pval_interval=None):
         return self._search(study=study, pval_interval=pval_interval)
 
-    def search_chromosome_block(self, bp_interval):
-        self.searcher.query_chr_for_block_range(chromosome=self.chromosome, bp_interval=bp_interval, start=self.start, size=self.size)
-        result = self.searcher.get_result()
-        self.searcher.close_file()
-        return result, len(result[REFERENCE_DSET])
+    def search_chromosome_block(self, bp_interval, study=None, pval_interval=None):
+        return self._search(bp_interval=bp_interval, study=study, pval_interval=pval_interval)
 
-    def _search(self, study=None, pval_interval=None):
+    def _search(self, study=None, pval_interval=None, bp_interval=None):
         iteration_size = self.size
 
         while True:
-            self.searcher.query_for_chromosome(chromosome=self.chromosome, start=self.start, size=iteration_size)
+            if bp_interval is None:
+                self.searcher.query_for_chromosome(chromosome=self.chromosome, start=self.start, size=iteration_size)
+            else:
+                self.searcher.query_chr_for_block_range(chromosome=self.chromosome, start=self.start, size=self.size, bp_interval=bp_interval)
+
             result_before_filtering = self.searcher.get_result()
 
             if self._traversed(result_before_filtering):

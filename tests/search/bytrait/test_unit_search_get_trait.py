@@ -18,7 +18,6 @@ class TestLoader(object):
     size = 20
 
     def setup_method(self, method):
-        # output is always stored under a directory called: 'output'
         os.makedirs('./output/bytrait')
 
         # loaded s1/t1 -> 50 associations
