@@ -16,6 +16,9 @@ class TraitSearch:
         self.path = path
 
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+        # index marker will be returned along with the datasets
+        # it is the number that when added to the 'start' value that we started the query with
+        # will pinpoint where the next search needs to continue from
         self.index_marker = 0
 
         self.h5file = utils.create_file_path(self.path, dir_name="bytrait", file_name=trait)
@@ -46,7 +49,7 @@ class TraitSearch:
             self.searcher.apply_restrictions(pval_interval=pval_interval)
 
             self.datasets = utils.extend_dsets_with_subset(self.datasets, self.searcher.get_result())
-            self.start = self.start + self.size
+            self.start = self.start + iteration_size
             iteration_size = self._next_iteration_size()
 
             if self._search_complete():

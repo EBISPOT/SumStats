@@ -74,6 +74,7 @@ class TestLoader(object):
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
         assert_studies_in_list(datasets, ['s1', 's3'])
         assert index_marker == 20
+        assert len(set(datasets[SNP_DSET])) == len(datasets[SNP_DSET])
 
     def test_get_chromosome_1_20_40(self):
         start = 20
@@ -82,6 +83,7 @@ class TestLoader(object):
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
         assert_studies_from_list(datasets, ['s1', 's3'])
         assert index_marker == 20
+        assert len(set(datasets[SNP_DSET])) == len(datasets[SNP_DSET])
 
     def test_get_chromosome_1_40_60(self):
         start = 40
@@ -90,6 +92,7 @@ class TestLoader(object):
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
         assert_studies_from_list(datasets, ['s1', 's3'])
         assert index_marker == 20
+        assert len(set(datasets[SNP_DSET])) == len(datasets[SNP_DSET])
 
     def test_get_chromosome_1_loop_through_size_5(self):
         start = 0
@@ -109,7 +112,7 @@ class TestLoader(object):
 
         assert looped_through == 21
         # 100 unique variants
-        assert len(set(d[SNP_DSET])) == 100
+        assert len(set(d[SNP_DSET])) == len(d[SNP_DSET])
 
     def test_get_chromosome_1_loop_through_size_20(self):
         start = 0
@@ -130,7 +133,7 @@ class TestLoader(object):
 
         assert looped_through == 6
         # 100 unique variants
-        assert len(set(d[SNP_DSET])) == 100
+        assert len(set(d[SNP_DSET])) == len(d[SNP_DSET])
 
     def test_get_chromosome_1_loop_through_size_50(self):
         start = 0
@@ -149,4 +152,4 @@ class TestLoader(object):
             looped_through += 1
 
         assert looped_through == 3
-        assert len(set(d[SNP_DSET])) == 100
+        assert len(set(d[SNP_DSET])) == len(d[SNP_DSET])

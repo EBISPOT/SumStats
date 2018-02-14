@@ -18,7 +18,10 @@ class AssociationSearch:
         self.path = path
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.trait_list = []
-        self.overall_search_index = self.search_traversed = 0
+        # index marker will be returned along with the datasets
+        # it is the number that when added to the 'start' value that we started the query with
+        # will pinpoint where the next search needs to continue from
+        self.index_marker = self.search_traversed = 0
 
     def get_all_associations(self, pval_interval=None):
         available_traits = self._get_all_traits()
@@ -27,7 +30,7 @@ class AssociationSearch:
             search_trait = ts.TraitSearch(trait=trait, start=self.start, size=self.size, path=self.path)
             result, current_trait_index = search_trait.search_trait(pval_interval)
 
-            self.overall_search_index += current_trait_index
+            self.index_marker += current_trait_index
             self._extend_datasets(trait=trait, result=result)
             self._calculate_total_traversal_of_search(trait=trait, current_trait_index=current_trait_index)
 
@@ -56,7 +59,7 @@ class AssociationSearch:
         return self.size <= len(self.datasets[REFERENCE_DSET])
 
     def _get_next_index(self):
-        return self.overall_search_index
+        return self.index_marker
 
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:
