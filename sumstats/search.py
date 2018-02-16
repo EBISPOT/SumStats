@@ -1,9 +1,8 @@
 import argparse
-import os.path
 
-import sumstats.snp.searcher as snp_searcher
-import sumstats.trait.retriever as tr
 import sumstats.chr.retriever as cr
+import sumstats.snp.retriever as snpr
+import sumstats.trait.retriever as tr
 import sumstats.utils.argument_utils as au
 
 
@@ -28,21 +27,7 @@ class Search:
         return cr.search_chromosome(chromosome=chromosome, start=start, size=size, path=self.path, bp_interval=bp_interval, study=study, pval_interval=pval_interval)
 
     def search_snp(self, snp, start, size, study=None, pval_interval=None):
-        for chromosome in range(1, 23):
-            h5file = self._get_file_path(dir_name="bysnp", file_name=chromosome)
-            if not os.path.isfile(h5file):
-                continue
-            searcher = snp_searcher.Search(h5file)
-            if searcher.snp_in_file(snp):
-                searcher.query_for_snp(snp=snp, start=start, size=size)
-                result = searcher.get_result()
-                searcher.close_file()
-                return result
-
-        return None
-
-    def _get_file_path(self, dir_name, file_name):
-        return self.path + "/" + dir_name + "/file_" + str(file_name) + ".h5"
+        return snpr.search_snp(snp=snp, start=start, size=size, study=study, pval_interval=pval_interval, path=self.path)
 
 
 def main():

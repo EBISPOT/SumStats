@@ -18,13 +18,14 @@
     Can filter based on p-value thresholds and/or specific study
 """
 
-import sumstats.snp.query as query
-import sumstats.utils.group as gu
 import h5py
+
+import sumstats.snp.search.access.repository as repo
+import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
 
 
-class Search:
+class Service:
 
     def __init__(self, h5file):
         # Open the file with read permissions
@@ -37,7 +38,7 @@ class Search:
 
     def query_for_snp(self, snp, start, size):
         snp_group = self.file_group.get_subgroup(snp)
-        self.datasets = query.get_dsets_from_group(snp_group, start, size)
+        self.datasets = repo.get_dsets_from_group(snp_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
         self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)

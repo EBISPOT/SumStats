@@ -1,6 +1,7 @@
 import os
+
 import sumstats.snp.loader as loader
-import sumstats.snp.query as query
+import sumstats.snp.search.access.repository as query
 from tests.prep_tests import *
 
 

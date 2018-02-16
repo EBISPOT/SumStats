@@ -1,6 +1,7 @@
 import os
+
 import sumstats.snp.loader as loader
-from sumstats.snp.searcher import Search
+from sumstats.snp.search.access.service import Service
 from tests.prep_tests import *
 
 
@@ -20,7 +21,7 @@ class TestUnitSearcher(object):
 
         self.start = 0
         self.size = 20
-        self.query = Search(self.h5file)
+        self.query = Service(self.h5file)
 
     def teardown_method(self, method):
         os.remove(self.h5file)
