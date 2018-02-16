@@ -1,11 +1,6 @@
-import os
-import shutil
 
 import sumstats.search as search
-import tests.search.search_test_constants as search_arrays
-import sumstats.trait.loader as loader
 import sumstats.utils.utils as utils
-from tests.prep_tests import *
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
 from sumstats.utils.interval import *
@@ -13,67 +8,18 @@ from sumstats.utils.interval import *
 
 class TestLoader(object):
 
-    output_location = './output/bytrait/'
     file = None
     start = 0
     size = 20
 
-    def setup_method(self, method):
-        os.makedirs('./output/bytrait')
-
-        # loaded s1/t1 -> 50 associations
-        # loaded s2/t1 -> 50 associations
-        # loaded s3/t2 -> 50 associations
-        # loaded s4/t2 -> 50 associations
-        # total associations loaded : 200
-
-        search_arrays.chrarray = [1 for _ in range(50)]
-        search_arrays.pvalsarray = ["0.00001" for _ in range(25)]
-        search_arrays.pvalsarray.extend(["0.0001" for _ in range(25, 50)])
-        h5file = self.output_location + 'file_t1.h5'
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', trait='t1', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        search_arrays.chrarray = [2 for _ in range(50)]
-        search_arrays.pvalsarray = ["0.001" for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(50, 100)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        h5file = self.output_location + 'file_t2.h5'
-        search_arrays.chrarray = [1 for _ in range(50)]
-        search_arrays.pvalsarray = ["0.01" for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(100, 150)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        search_arrays.chrarray = [2 for _ in range(50)]
-        search_arrays.pvalsarray = ["0.1" for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(150, 200)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', trait='t2', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        h5file = self.output_location + 'file_t3.h5'
-        search_arrays.chrarray = [2 for _ in range(50)]
-        search_arrays.pvalsarray = ["0.00001" for _ in range(15)]
-        search_arrays.pvalsarray.extend(["0.1" for _ in range(15, 35)])
-        search_arrays.pvalsarray.extend(["0.00001" for _ in range(35, 40)])
-        search_arrays.pvalsarray.extend(["0.1" for _ in range(40, 50)])
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(150, 200)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s5', trait='t3', loader=loader,
-                                                        test_arrays=search_arrays)
-        load.load()
-
+    def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./output")
-
-    def teardown_method(self, method):
-        shutil.rmtree('./output')
+        self.searcher = search.Search(path="./outputtrait")
 
     def test_search_t3_0_20_lower_pval(self):
         start = 0
         size = 20
-        pval_interval = FloatInterval().set_tuple(0.00001, 0.00001)
+        pval_interval = FloatInterval().set_tuple(0.0000000001, 0.0000000001)
         datasets, index_marker = self.searcher.search_trait(trait='t3', start=start, size=size, pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
         assert_studies_from_list(datasets, ['s5'])
@@ -152,7 +98,7 @@ class TestLoader(object):
         size = 5
 
         looped_through = 1
-        pval_interval = FloatInterval().set_tuple(0.03, 0.3)
+        pval_interval = FloatInterval().set_tuple(0.06, 0.3)
         d = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
 
         while True:

@@ -8,63 +8,81 @@ from tests.prep_tests import *
 from sumstats.chr.constants import *
 from tests.search.test_utils import *
 import sumstats.utils.utils as utils
+import pytest
+
+
+@pytest.yield_fixture(scope="session", autouse=True)
+def load_studies(request):
+    os.makedirs('./outputchr/bychr')
+    output_location = './outputchr/bychr/'
+
+    # loaded s1/t1 -> 50 associations
+    # loaded s2/t1 -> 50 associations
+    # loaded s3/t2 -> 50 associations
+    # loaded s4/t2 -> 50 associations
+    # total associations loaded : 200
+
+    # studies s1 and s3 have the same chromosome (1)
+    # studies s2 and s4 have the same chromosome (2)
+
+    # there will be 2 distinct bp ranges : 0-1200000 / 48500000-49200000
+    # each range for one chromosome has 50 elements in it (25 per study, 2 studies per chromosome)
+
+    search_arrays.chrarray = [1 for _ in range(50)]
+
+    search_arrays.bparray = [1120431 for _ in range(25)]
+    search_arrays.bparray.extend([48480252 for _ in range(15)])
+    search_arrays.bparray.extend([49129966 for _ in range(10)])
+
+    h5file = output_location + 'file_1.h5'
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(50)]
+    search_arrays.pvalsarray = ["0.00001" for _ in range(25)]
+    search_arrays.pvalsarray.extend(["0.1" for _ in range(25, 35)])
+    search_arrays.pvalsarray.extend(["0.00001" for _ in range(35, 50)])
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    h5file = output_location + 'file_2.h5'
+    search_arrays.chrarray = [2 for _ in range(50)]
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(50, 100)]
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    h5file = output_location + 'file_1.h5'
+    search_arrays.chrarray = [1 for _ in range(50)]
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(100, 150)]
+    search_arrays.pvalsarray = ["0.00001" for _ in range(25)]
+    search_arrays.pvalsarray.extend(["0.1" for _ in range(25, 35)])
+    search_arrays.pvalsarray.extend(["0.00001" for _ in range(35, 50)])
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    h5file = output_location + 'file_2.h5'
+    search_arrays.chrarray = [2 for _ in range(50)]
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(150, 200)]
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    request.addfinalizer(remove_dir)
+
+
+def remove_dir():
+    shutil.rmtree('./outputchr')
 
 
 class TestLoader(object):
 
-    output_location = './output/bychr/'
     file = None
     start = 0
     size = 20
 
-    def setup_method(self, method):
-        os.makedirs('./output/bychr')
-
-        # loaded s1/t1 -> 50 associations
-        # loaded s2/t1 -> 50 associations
-        # loaded s3/t2 -> 50 associations
-        # loaded s4/t2 -> 50 associations
-        # total associations loaded : 200
-
-        # studies s1 and s3 have the same chromosome (1)
-        # studies s2 and s4 have the same chromosome (2)
-
-        # there will be 2 distinct bp ranges : 0-1200000 / 48500000-49200000
-        # each range for one chromosome has 50 elements in it (25 per study, 2 studies per chromosome)
-
-        search_arrays.chrarray = [1 for _ in range(50)]
-
-        search_arrays.bparray = [1120431 for _ in range(25)]
-        search_arrays.bparray.extend([48480252 for _ in range(15)])
-        search_arrays.bparray.extend([49129966 for _ in range(10)])
-
-        h5file = self.output_location + 'file_1.h5'
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        h5file = self.output_location + 'file_2.h5'
-        search_arrays.chrarray = [2 for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(50, 100)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        h5file = self.output_location + 'file_1.h5'
-        search_arrays.chrarray = [1 for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(100, 150)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        h5file = self.output_location + 'file_2.h5'
-        search_arrays.chrarray = [2 for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(150, 200)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', loader=loader, test_arrays=search_arrays)
-        load.load()
-
+    def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./output")
-
-    def teardown_method(self, method):
-        shutil.rmtree('./output')
+        self.searcher = search.Search(path="./outputchr")
 
     def test_get_chromosome_1_0_20(self):
         start = 0
@@ -111,7 +129,7 @@ class TestLoader(object):
 
         assert looped_through == 21
         # 100 unique variants
-        assert len(set(d[SNP_DSET])) == len(d[SNP_DSET])
+        assert len(set(d[SNP_DSET])) == len(d[SNP_DSET]) == 100
 
     def test_get_chromosome_1_loop_through_size_20(self):
         start = 0

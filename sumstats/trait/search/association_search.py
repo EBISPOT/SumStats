@@ -38,8 +38,7 @@ class AssociationSearch:
                 self.datasets['trait'] = self.trait_list
                 return self.datasets, self._get_next_index()
             else:
-                currently_retrieved = len(result[REFERENCE_DSET])
-                self.size = self.size - currently_retrieved
+                self.size = self.size - current_trait_index
                 self.start = self._next_start_index(current_search_index=current_trait_index)
 
         return self.datasets, self._get_next_index()
@@ -75,4 +74,7 @@ class AssociationSearch:
             # we have retrieved the trait from start to end
             # retrieving next trait from it's beginning
             return 0
-        return self.start - self.search_traversed + current_search_index
+        new_start = self.start - self.search_traversed + current_search_index
+        if new_start < 0:
+            return self.start + current_search_index
+        return new_start

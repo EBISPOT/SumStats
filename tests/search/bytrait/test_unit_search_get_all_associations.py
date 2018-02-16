@@ -8,51 +8,78 @@ import sumstats.utils.utils as utils
 from tests.prep_tests import *
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
+import pytest
+
+
+@pytest.yield_fixture(scope="session", autouse=True)
+def load_studies(request):
+    os.makedirs('./outputtrait/bytrait')
+    output_location = './outputtrait/bytrait/'
+
+    # loaded s1/t1 -> 50 associations
+    # loaded s2/t1 -> 50 associations
+    # loaded s3/t2 -> 50 associations
+    # loaded s4/t2 -> 50 associations
+    # total associations loaded : 200
+
+    search_arrays.chrarray = [1 for _ in range(50)]
+    search_arrays.pvalsarray = ["0.00001" for _ in range(25)]
+    search_arrays.pvalsarray.extend(["0.0001" for _ in range(25, 50)])
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(50)]
+    h5file = output_location + 'file_t1.h5'
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', trait='t1', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    search_arrays.chrarray = [2 for _ in range(50)]
+    search_arrays.pvalsarray = ["0.001" for _ in range(50)]
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(50, 100)]
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    h5file = output_location + 'file_t2.h5'
+    search_arrays.chrarray = [1 for _ in range(50)]
+    search_arrays.pvalsarray = ["0.05" for _ in range(50)]
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(100, 150)]
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    search_arrays.chrarray = [2 for _ in range(50)]
+    search_arrays.pvalsarray = ["0.1" for _ in range(50)]
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(150, 200)]
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', trait='t2', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    h5file = output_location + 'file_t3.h5'
+    search_arrays.chrarray = [2 for _ in range(50)]
+    search_arrays.pvalsarray = ["0.0000000001" for _ in range(15)]
+    search_arrays.pvalsarray.extend(["0.000001" for _ in range(15, 35)])
+    search_arrays.pvalsarray.extend(["0.0000000001" for _ in range(35, 40)])
+    search_arrays.pvalsarray.extend(["0.000001" for _ in range(40, 50)])
+    search_arrays.snpsarray = ['rs' + str(i) for i in range(200, 250)]
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s5', trait='t3', loader=loader,
+                                                    test_arrays=search_arrays)
+    load.load()
+
+    request.addfinalizer(remove_dir)
+
+
+def remove_dir():
+    shutil.rmtree('./outputtrait')
 
 
 class TestLoader(object):
 
-    output_location = './output/bytrait/'
     file = None
     start = 0
     size = 20
 
-    def setup_method(self, method):
-        os.makedirs('./output/bytrait')
-
-        # loaded s1/t1 -> 50 associations
-        # loaded s2/t1 -> 50 associations
-        # loaded s3/t2 -> 50 associations
-        # loaded s4/t2 -> 50 associations
-        # total associations loaded : 200
-
-        search_arrays.chrarray = [1 for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(50)]
-        h5file = self.output_location + 'file_t1.h5'
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', trait='t1', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        search_arrays.chrarray = [2 for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(50, 100)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        h5file = self.output_location + 'file_t2.h5'
-        search_arrays.chrarray = [1 for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(100, 150)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=loader, test_arrays=search_arrays)
-        load.load()
-
-        search_arrays.chrarray = [2 for _ in range(50)]
-        search_arrays.snpsarray = ['rs' + str(i) for i in range(150, 200)]
-        load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', trait='t2', loader=loader, test_arrays=search_arrays)
-        load.load()
-
+    def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./output")
-
-    def teardown_method(self, method):
-        shutil.rmtree('./output')
+        self.searcher = search.Search(path="./outputtrait")
 
     def test_size_start_0_size_50_returns_only_first_and_study(self):
         datasets, index_marker = self.searcher.search_all_assocs(start=0, size=50)
@@ -118,11 +145,15 @@ class TestLoader(object):
     def test_get_all_loop_through_size_20(self):
         start = 0
         size = 20
+
         d = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         datasets, index_marker = self.searcher.search_all_assocs(start=start, size=size)
         d = utils.extend_dsets_with_subset(d, datasets)
         while len(datasets[REFERENCE_DSET]) > 0:
-            assert_datasets_have_size(datasets, TO_QUERY_DSETS, size)
+            if start + index_marker >= 240:
+                assert_datasets_have_size(datasets, TO_QUERY_DSETS, 10)
+            else:
+                assert_datasets_have_size(datasets, TO_QUERY_DSETS, 20)
             start = start + index_marker
             datasets, index_marker = self.searcher.search_all_assocs(start=start, size=size)
             d = utils.extend_dsets_with_subset(d, datasets)
@@ -224,7 +255,7 @@ class TestLoader(object):
         assert len(set(datasets[SNP_DSET])) == len(datasets[SNP_DSET])
 
     def test_get_out_of_bounds(self):
-        start = 200
+        start = 250
         size = 20
         # empty
         datasets, index_marker = self.searcher.search_all_assocs(start=start, size=size)
