@@ -21,7 +21,6 @@ def load_studies(request):
     # studies s2 and s4 have p-value: 0.1
 
     search_arrays.chrarray = [1 for _ in range(1, 3)]
-    search_arrays.bparray = [1120431 for _ in range(1, 3)]
     search_arrays.snpsarray = ['rs' + str(i) for i in range(1, 3)]
     h5file = output_location + 'file_1.h5'
 
