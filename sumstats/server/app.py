@@ -44,10 +44,6 @@ def get_previous(start, size):
     return start - size
 
 
-def get_new_start(start, size):
-    return start + size
-
-
 @app.route("/")
 def hello():
     explorer = ex.Explorer()
@@ -110,21 +106,21 @@ def get_assocs():
     try:
         if trait is not None:
             if study is not None:
-                datasets = searcher.search_study(trait=trait, study=study, start=start, size=size)
+                datasets, index_marker = searcher.search_study(trait=trait, study=study, start=start, size=size)
             else:
-                datasets = searcher.search_trait(trait=trait, start=start, size=size)
+                datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size)
         elif chromosome is not None:
-            datasets = searcher.search_chromosome(chromosome=chromosome, start=start, size=size)
+            datasets, index_marker = searcher.search_chromosome(chromosome=chromosome, start=start, size=size)
         elif variant is not None:
-            datasets = searcher.search_snp(snp=variant, start=start, size=size)
+            datasets, index_marker = searcher.search_snp(snp=variant, start=start, size=size)
         else:
-            datasets = searcher.search_all_assocs(start=start, size=size)
+            datasets, index_marker = searcher.search_all_assocs(start=start, size=size)
 
         data_dict = get_array_to_display(datasets)
         response = {"_embedded": {"trait": trait, "data": data_dict}}
 
         prev = get_previous(start, size)
-        start_new = get_new_start(start, size)
+        start_new = start + index_marker
 
         if prev >= 0:
             previous_link = str(
