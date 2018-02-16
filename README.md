@@ -13,11 +13,11 @@ Docker documentation: https://docs.docker.com
   - `git clone https://github.com/EBISPOT/SumStats.git`
   - `cd SumStats`
 - Build the docker image
-  - `docker build -t sumstats`
+  - `docker build -t sumstats .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
   - bin/setup_configuration.sh <to_load_filename>
 - Create the container from the <sumstats> image
-  - `docker run -i -v $(pwd)/files/toload:/toload -v $(pwd)/files/output:/output -v $(pwd)/bin:/scripts -t sumstats`
+  - `docker run -i -p 8080:8080 -v $(pwd)/files/toload:/toload -v $(pwd)/files/output:/output -v $(pwd)/bin:/scripts -t sumstats`
 - Run the script to load a file on docker
   - load_on_docker.sh <to_load_filename>
  
