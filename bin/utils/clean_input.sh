@@ -11,5 +11,5 @@ filename=$(basename $file)
 echo "file: $file"
 echo "filename: $filename"
 
-awk 'BEGIN{FS="\t"}{if(($1 ~ /rs/ || $1 ~ /chr/) && !($0 ~ /NA/ || $0 ~ /na/)){print}else{print $1 >> "'$base'/non_valid_'$filename'"}}' $base/$filename > "$base"/"$filename"_clean
+awk 'BEGIN{FS="\t"}{if(($1 ~ /rs/ || $1 ~ /chr/)){print}else{print $1 >> "'$base'/non_valid_'$filename'"}}' $base/$filename > "$base"/"$filename"_clean
 

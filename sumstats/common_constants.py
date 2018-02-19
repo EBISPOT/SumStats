@@ -1,19 +1,33 @@
 import h5py
 
-vlen_dtype = h5py.special_dtype(vlen=str)
-DSET_TYPES = {'snp' : vlen_dtype, 'pval' : vlen_dtype, 'mantissa': float, 'exp': int, 'study' : vlen_dtype,
-              'chr': int, 'or' : float, 'bp' : int, 'effect' : vlen_dtype, 'other' : vlen_dtype, 'freq': float}
-
-SNP_DSET = 'snp'
-BP_DSET = 'bp'
+SNP_DSET = 'variant_id'
 MANTISSA_DSET = 'mantissa'
-EXP_DSET = 'exp'
-PVAL_DSET = 'pval'
-CHR_DSET = 'chr'
-STUDY_DSET = 'study'
-OR_DSET = 'or'
-EFFECT_DSET = 'effect'
-OTHER_DSET = 'other'
-FREQ_DSET = 'freq'
+EXP_DSET = 'exponent'
+PVAL_DSET = 'p-value'
+STUDY_DSET = 'study_accession'
+CHR_DSET = 'chromosome'
+BP_DSET = 'base_pair_location'
+OR_DSET = 'odds_ratio'
+RANGE_DSET = '95%CI'
+BETA_DSET = 'beta'
+SE_DSET = 'standard_error'
+EFFECT_DSET = 'effect_allele'
+OTHER_DSET = 'other_allele'
+FREQ_DSET = 'effect_allele_frequency'
+
+vlen_dtype = h5py.special_dtype(vlen=str)
+DSET_TYPES = {SNP_DSET: vlen_dtype, PVAL_DSET: vlen_dtype, MANTISSA_DSET: float, EXP_DSET: int,
+              STUDY_DSET: vlen_dtype,
+              CHR_DSET: int, BP_DSET: int, OR_DSET: float, RANGE_DSET: vlen_dtype,
+              BETA_DSET: float, SE_DSET: float,
+              EFFECT_DSET: vlen_dtype, OTHER_DSET: vlen_dtype, FREQ_DSET: float}
 
 REFERENCE_DSET = MANTISSA_DSET
+
+
+TO_LOAD_DSET_HEADERS = {SNP_DSET, PVAL_DSET, CHR_DSET, BP_DSET, OR_DSET, RANGE_DSET, BETA_DSET,
+                        SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET}
+TO_STORE_DSETS = {SNP_DSET, MANTISSA_DSET, EXP_DSET, STUDY_DSET, CHR_DSET, BP_DSET, OR_DSET, RANGE_DSET,
+                  BETA_DSET, SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET}
+TO_QUERY_DSETS = {SNP_DSET, MANTISSA_DSET, EXP_DSET, STUDY_DSET, CHR_DSET, BP_DSET, OR_DSET, RANGE_DSET, BETA_DSET,
+                  SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET}

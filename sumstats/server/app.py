@@ -1,4 +1,4 @@
-import json
+import simplejson
 from flask import Flask, url_for, request
 
 import sumstats.explorer as ex
@@ -144,7 +144,7 @@ def get_assocs():
                 "href": str(
                     url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, _external=True))}}
 
-        return json.dumps(response)
+        return simplejson.dumps(response, ignore_nan=True)
 
     except ValueError:
         return "Trait not in file: " + trait

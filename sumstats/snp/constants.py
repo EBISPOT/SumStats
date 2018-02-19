@@ -1,5 +1,4 @@
 from sumstats.common_constants import *
 
-TO_LOAD_DSET_HEADERS = ['snp', 'pval', 'chr', 'or', 'bp', 'effect', 'other', 'freq']
-TO_STORE_DSETS = ['mantissa', 'exp', 'or', 'study', 'chr', 'bp', 'effect', 'other', 'freq']
-TO_QUERY_DSETS = ['mantissa', 'exp', 'or', 'study', 'chr', 'bp', 'effect', 'other', 'freq']
+TO_STORE_DSETS.remove(SNP_DSET)
+TO_QUERY_DSETS.remove(SNP_DSET)

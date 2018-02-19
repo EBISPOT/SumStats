@@ -5,13 +5,15 @@
 # by default will take /toload and /output dirs as the location of the files to be loaded
 # and the location where the output files will be saved, respectively
 
-
 file=$1
+study=$2
+trait=$3
+
 base=$(cd ${0%/*}/..; pwd)
 
 filename=$(basename $file)
-study=$(echo "$filename" | cut -d"-" -f2)
-trait=$(echo "$filename" | cut -d"-" -f3)
+#study=$(echo "$filename" | cut -d"-" -f2)
+#trait=$(echo "$filename" | cut -d"-" -f3)
 
 gwas-load -tsv $filename -study $study -trait $trait -loader trait
 

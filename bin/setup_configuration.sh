@@ -23,12 +23,13 @@ mkdir -p $base/files/output/bysnp
 
 # takes the file given as input and creates a clean one with "_clean" appended to it
 echo "FILE: $file"
-$base/bin/utils/clean_input.sh "$file"
+header=$(head -n 1 $base/$filename)
+$base/bin/utils/clean_input.sh "$base/$filename"
 # move it to the correct location
 mv $base/"$filename"_clean $base/files/toload/"$filename"
 
 # split up the script into one per chromosome
 
 $base/bin/utils/split_by_chr.sh "$filename"
-$base/bin/utils/append_header.sh "$filename"
+$base/bin/utils/append_header.sh "$filename" "$header"
 

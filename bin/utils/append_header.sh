@@ -3,6 +3,7 @@
 base=$(cd ${0%/*}/../..; pwd)
 
 file=$1
+header=$2
 filename=$(basename $file)
 
 cd $base/files/toload
@@ -12,11 +13,11 @@ do
     chromosome_file=chr"$chr"_"$filename"
     if [ -s $chromosome_file ];
     then
-        cat $base/templates/headers $chromosome_file > temp
+        echo "$2" | cat - $chromosome_file > temp
         mv temp $chromosome_file
     fi
 done
 
-cat $base/templates/headers $filename > temp
+echo "$2" | cat - $filename > temp
 mv temp $filename
 cd $base
