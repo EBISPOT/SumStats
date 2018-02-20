@@ -10,3 +10,6 @@ effectarray = [random.choice(string.ascii_uppercase) for _ in range(array_range)
 otherarray = [random.choice(string.ascii_uppercase) for _ in range(array_range)]
 frequencyarray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]
 orarray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]
+searray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]
+betaarray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]
+rangearray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]

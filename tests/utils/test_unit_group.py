@@ -178,9 +178,9 @@ class TestUnitGroup(object):
         study_dset = np.array(['study1'], dtype=h5py.special_dtype(vlen=str))
         mantissa_dset = np.array([0.1, 0.2], dtype=float)
 
-        group.generate_dataset('study', study_dset)
-        group.generate_dataset('mantissa', mantissa_dset)
-        TO_STORE_DSETS = ['study', 'mantissa']
+        group.generate_dataset(STUDY_DSET, study_dset)
+        group.generate_dataset(MANTISSA_DSET, mantissa_dset)
+        TO_STORE_DSETS = [STUDY_DSET, MANTISSA_DSET]
 
         with pytest.raises(AssertionError):
             group.check_datasets_consistent(TO_STORE_DSETS)
@@ -190,8 +190,8 @@ class TestUnitGroup(object):
         group = self.file_group.get_subgroup("rs185339560")
         study_dset = np.array(['study1'], dtype=h5py.special_dtype(vlen=str))
 
-        group.generate_dataset('study', study_dset)
-        TO_STORE_DSETS = ['study', 'mantissa']
+        group.generate_dataset(STUDY_DSET, study_dset)
+        TO_STORE_DSETS = [STUDY_DSET, MANTISSA_DSET]
 
         with pytest.raises(AssertionError):
             group.check_datasets_consistent(TO_STORE_DSETS)
@@ -199,7 +199,7 @@ class TestUnitGroup(object):
     def test_check_group_dsets_shape_first_load(self):
         self.file_group.create_subgroup("/rs185339560")
         group = self.file_group.get_subgroup("/rs185339560")
-        TO_STORE_DSETS = ['study', 'mantissa']
+        TO_STORE_DSETS = [STUDY_DSET, MANTISSA_DSET]
         group.check_datasets_consistent(TO_STORE_DSETS)
 
     def test_check_group_dsets_shape_all_ok(self):
@@ -208,9 +208,9 @@ class TestUnitGroup(object):
         study_dset = np.array(['study1', 'study2'], dtype=h5py.special_dtype(vlen=str))
         mantissa_dset = np.array([0.1, 0.2], dtype=float)
 
-        group.generate_dataset('study', study_dset)
-        group.generate_dataset('mantissa', mantissa_dset)
-        TO_STORE_DSETS = ['study', 'mantissa']
+        group.generate_dataset(STUDY_DSET, study_dset)
+        group.generate_dataset(MANTISSA_DSET, mantissa_dset)
+        TO_STORE_DSETS = [STUDY_DSET,  MANTISSA_DSET]
 
         group.check_datasets_consistent(TO_STORE_DSETS)
 

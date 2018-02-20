@@ -115,9 +115,9 @@ class TestUnitLoader(object):
     def test_is_loaded_only_first_block_is_loaded_raises_error(self):
         study = self.study
 
-        loader_dictionary = {SNP_DSET: [snpsarray[0]], PVAL_DSET: [pvalsarray[0]], CHR_DSET: [chrarray[0]],
-                             OR_DSET: [orarray[0]], BP_DSET: [bparray[0]],
-                            EFFECT_DSET: [effectarray[0]], OTHER_DSET: [otherarray[0]], FREQ_DSET: [frequencyarray[0]]}
+        loader_dictionary = {}
+        for name, dataset in prepare_dictionary().items():
+            loader_dictionary[name] = [dataset[0]]
 
         load = loader.Loader(None, self.h5file, self.study, loader_dictionary)
         load.load()
@@ -130,10 +130,9 @@ class TestUnitLoader(object):
     def test_is_loaded_only_last_block_is_loaded_raises_error(self):
         study = self.study
 
-        loader_dictionary = {SNP_DSET: [snpsarray[-1]], PVAL_DSET: [pvalsarray[-1]], CHR_DSET: [chrarray[-1]],
-                             OR_DSET: [orarray[-1]], BP_DSET: [bparray[-1]],
-                             EFFECT_DSET: [effectarray[-1]], OTHER_DSET: [otherarray[-1]],
-                             FREQ_DSET: [frequencyarray[-1]]}
+        loader_dictionary = {}
+        for name, dataset in prepare_dictionary().items():
+            loader_dictionary[name] = [dataset[-1]]
 
         load = loader.Loader(None, self.h5file, self.study, loader_dictionary)
         load.load()

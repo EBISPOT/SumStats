@@ -39,14 +39,14 @@ def load_studies(request):
     search_arrays.pvalsarray = ["0.00001" for _ in range(25)]
     search_arrays.pvalsarray.extend(["0.1" for _ in range(25, 35)])
     search_arrays.pvalsarray.extend(["0.00001" for _ in range(35, 50)])
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', loader=loader,
+    load = prepare_load_object_with_study(h5file=h5file, study='s1', loader=loader,
                                                     test_arrays=search_arrays)
     load.load()
 
     h5file = output_location + 'file_2.h5'
     search_arrays.chrarray = [2 for _ in range(50)]
     search_arrays.snpsarray = ['rs' + str(i) for i in range(50, 100)]
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', loader=loader,
+    load = prepare_load_object_with_study(h5file=h5file, study='s2', loader=loader,
                                                     test_arrays=search_arrays)
     load.load()
 
@@ -56,14 +56,14 @@ def load_studies(request):
     search_arrays.pvalsarray = ["0.00001" for _ in range(25)]
     search_arrays.pvalsarray.extend(["0.1" for _ in range(25, 35)])
     search_arrays.pvalsarray.extend(["0.00001" for _ in range(35, 50)])
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', loader=loader,
+    load = prepare_load_object_with_study(h5file=h5file, study='s3', loader=loader,
                                                     test_arrays=search_arrays)
     load.load()
 
     h5file = output_location + 'file_2.h5'
     search_arrays.chrarray = [2 for _ in range(50)]
     search_arrays.snpsarray = ['rs' + str(i) for i in range(150, 200)]
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', loader=loader,
+    load = prepare_load_object_with_study(h5file=h5file, study='s4', loader=loader,
                                                     test_arrays=search_arrays)
     load.load()
 

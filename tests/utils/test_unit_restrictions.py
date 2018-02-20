@@ -128,9 +128,9 @@ class TestUnitUtils(object):
         datasets = {SNP_DSET: Dataset(["rs1", "rs1", "rs1", "rs2", "rs3"]), PVAL_DSET: Dataset([1., 2.1, 3, 3.1, 4]),
                            CHR_DSET: Dataset([1, 1, 1, 1, 2])}
 
-        restrictions = [EqualityRestriction("rs1", datasets["snp"]),
-                        IntervalRestriction(1., 2.1, datasets["pval"]),
-                        EqualityRestriction(1, datasets["chr"])]
+        restrictions = [EqualityRestriction("rs1", datasets[SNP_DSET]),
+                        IntervalRestriction(1., 2.1, datasets[PVAL_DSET]),
+                        EqualityRestriction(1, datasets[CHR_DSET])]
 
         filtered_dsets = filter_dsets_with_restrictions(datasets, restrictions)
 
@@ -149,8 +149,8 @@ class TestUnitUtils(object):
         for chromosome in filtered_dsets[CHR_DSET]:
             assert chromosome == 1
 
-        restrictions = [IntervalRestriction(3., 3.1, datasets["pval"]),
-                        EqualityRestriction(1, datasets["chr"])]
+        restrictions = [IntervalRestriction(3., 3.1, datasets[PVAL_DSET]),
+                        EqualityRestriction(1, datasets[CHR_DSET])]
 
         filtered_dsets = filter_dsets_with_restrictions(datasets, restrictions)
         assert len(list(filtered_dsets.keys())) == 3
@@ -168,7 +168,7 @@ class TestUnitUtils(object):
         for chromosome in filtered_dsets[CHR_DSET]:
             assert chromosome == 1
 
-        restrictions = [IntervalRestriction(4., 4., datasets["pval"]), ]
+        restrictions = [IntervalRestriction(4., 4., datasets[PVAL_DSET]), ]
 
         filtered_dsets = filter_dsets_with_restrictions(datasets, restrictions)
         assert len(list(filtered_dsets.keys())) == 3

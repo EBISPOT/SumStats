@@ -3,6 +3,7 @@ import os
 import sumstats.snp.loader as loader
 import sumstats.snp.search.access.repository as query
 from tests.prep_tests import *
+from sumstats.snp.constants import *
 
 
 class TestUnitQueryUtils(object):
@@ -32,9 +33,9 @@ class TestUnitQueryUtils(object):
         snp_group = gu.Group(self.f.get("rs7085086"))
 
         datasets = query.get_dsets_from_group(snp_group, self.start, self.size)
-        assert len(datasets) == 9
+        assert len(datasets) == len(TO_QUERY_DSETS)
         for dset_name, dset in datasets.items():
-            if dset_name is "study":
+            if dset_name is STUDY_DSET:
                 assert len(set(dset)) == 3
             else:
                 assert len(set(dset)) == 1

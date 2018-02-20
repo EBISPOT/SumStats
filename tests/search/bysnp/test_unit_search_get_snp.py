@@ -25,23 +25,23 @@ def load_studies(request):
     h5file = output_location + 'file_1.h5'
 
     search_arrays.pvalsarray = ["0.01" for _ in range(1, 3)]
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', loader=loader, test_arrays=search_arrays)
+    load = prepare_load_object_with_study(h5file=h5file, study='s1', loader=loader, test_arrays=search_arrays)
     load.load()
 
     search_arrays.pvalsarray = ["0.1" for _ in range(1, 3)]
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', loader=loader, test_arrays=search_arrays)
+    load = prepare_load_object_with_study(h5file=h5file, study='s2', loader=loader, test_arrays=search_arrays)
     load.load()
 
     search_arrays.pvalsarray = ["0.01" for _ in range(1, 3)]
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', loader=loader, test_arrays=search_arrays)
+    load = prepare_load_object_with_study(h5file=h5file, study='s3', loader=loader, test_arrays=search_arrays)
     load.load()
 
     search_arrays.pvalsarray = ["0.1" for _ in range(1, 3)]
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', loader=loader, test_arrays=search_arrays)
+    load = prepare_load_object_with_study(h5file=h5file, study='s4', loader=loader, test_arrays=search_arrays)
     load.load()
 
     search_arrays.pvalsarray = ["0.01" for _ in range(1, 3)]
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s5', loader=loader, test_arrays=search_arrays)
+    load = prepare_load_object_with_study(h5file=h5file, study='s5', loader=loader, test_arrays=search_arrays)
     load.load()
 
     request.addfinalizer(remove_dir)

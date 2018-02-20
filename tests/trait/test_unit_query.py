@@ -4,34 +4,38 @@ import pytest
 
 import sumstats.trait.loader as loader
 import sumstats.trait.search.access.repository as query
-import sumstats.utils.group as gu
 from sumstats.trait.constants import *
-from tests.test_constants import *
+from tests.prep_tests import *
+import tests.test_constants as search_arrays
+
+trait1 = "t1"
+trait2 = "t2"
+trait3 = "t3"
+study1 = "s1"
+study2 = "s2"
+study3 = "s3"
 
 
 class TestUnitQueryUtils(object):
     h5file = ".testfile.h5"
     f = None
 
-    def setup_method(self, method):
-        chrarray = [10, 10, 10, 10]
+    def setup_method(self):
 
-        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+        search_arrays.chrarray = [10, 10, 10, 10]
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study=study1, loader=loader, trait=trait1, test_arrays=search_arrays)
 
-        load = loader.Loader(None, self.h5file, "PM001", "Trait1", loader_dictionary)
         load.load()
 
-        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, "PM002", "Trait1", loader_dictionary)
+        search_arrays.chrarray = [10, 10, 10, 10]
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study=study2, loader=loader,
+                                                        trait=trait1, test_arrays=search_arrays)
         load.load()
 
-        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+        search_arrays.chrarray = [10, 10, 10, 10]
+        load = prepare_load_object_with_study_and_trait(h5file=self.h5file, study=study3, loader=loader,
+                                                        trait=trait2, test_arrays=search_arrays)
 
-        load = loader.Loader(None, self.h5file, "PM003", "Trait2", loader_dictionary)
         load.load()
 
         # open h5 file in read/write mode
@@ -40,7 +44,7 @@ class TestUnitQueryUtils(object):
         self.size = 20
         self.file_group = gu.Group(self.f)
 
-    def teardown_method(self, method):
+    def teardown_method(self):
         os.remove(self.h5file)
 
     def test_get_dsets_from_file_group_raises_error_when_file_given(self):
@@ -54,7 +58,7 @@ class TestUnitQueryUtils(object):
             assert len(datasets[dset_name]) == 12
 
     def test_get_dsets_from_trait_group(self):
-        trait_group = self.file_group.get_subgroup("Trait2")
+        trait_group = self.file_group.get_subgroup(trait2)
 
         datasets = query.get_dsets_from_trait_group(trait_group, self.start, self.size)
 
@@ -62,7 +66,7 @@ class TestUnitQueryUtils(object):
         for dset_name in TO_QUERY_DSETS:
             assert len(datasets[dset_name]) == 4
 
-        trait_group = self.file_group.get_subgroup("Trait1")
+        trait_group = self.file_group.get_subgroup(trait1)
         datasets = query.get_dsets_from_trait_group(trait_group, self.start, self.size)
 
         assert len(set(datasets[STUDY_DSET])) == 2
@@ -70,8 +74,8 @@ class TestUnitQueryUtils(object):
             assert len(datasets[dset_name]) == 8
 
     def test_get_dsets_from_group(self):
-        study_group = self.file_group.get_subgroup("Trait2/PM003")
-        datasets = query.get_dsets_from_group_directly("PM003", study_group, self.start, self.size)
+        study_group = self.file_group.get_subgroup(trait2 + "/" + study3)
+        datasets = query.get_dsets_from_group_directly(study3, study_group, self.start, self.size)
 
         assert len(set(datasets[STUDY_DSET])) == 1
         for dset_name in TO_QUERY_DSETS:

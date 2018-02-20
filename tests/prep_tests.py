@@ -4,27 +4,27 @@ import sumstats.utils.group as gu
 
 def prepare_dictionary(test_arrays=None):
     if test_arrays is None:
-        return {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
+        return {SNP_DSET: snpsarray, PVAL_DSET: pvalsarray, CHR_DSET: chrarray, OR_DSET: orarray, BP_DSET: bparray,
+                EFFECT_DSET: effectarray, OTHER_DSET: otherarray, FREQ_DSET: frequencyarray, SE_DSET: searray, BETA_DSET: betaarray,
+                RANGE_DSET: rangearray}
     else:
-        return {"snp": test_arrays.snpsarray, "pval": test_arrays.pvalsarray, "chr": test_arrays.chrarray, "or": test_arrays.orarray, "bp": test_arrays.bparray,
-                "effect": test_arrays.effectarray, "other": test_arrays.otherarray, 'freq': test_arrays.frequencyarray}
+        return {SNP_DSET: test_arrays.snpsarray, PVAL_DSET: test_arrays.pvalsarray, CHR_DSET: test_arrays.chrarray,
+                OR_DSET: test_arrays.orarray, BP_DSET: test_arrays.bparray,
+                EFFECT_DSET: test_arrays.effectarray, OTHER_DSET: test_arrays.otherarray, FREQ_DSET: test_arrays.frequencyarray,
+                SE_DSET: test_arrays.searray, BETA_DSET: test_arrays.betaarray, RANGE_DSET: test_arrays.rangearray}
 
 
-def prepare_load_object_with_study(h5file, study, loader):
-    loader_dictionary = prepare_dictionary()
+def prepare_load_object_with_study(h5file, study, loader, test_arrays=None):
+    loader_dictionary = prepare_dictionary(test_arrays)
     return loader.Loader(None, h5file, study, loader_dictionary)
 
 
-def prepare_load_object_with_study_and_trait(h5file, study, loader, test_arrays=None, trait=None):
+def prepare_load_object_with_study_and_trait(h5file, study, loader, trait, test_arrays=None):
     loader_dictionary = prepare_dictionary(test_arrays)
-    if trait is not None:
-        return loader.Loader(None, h5file, study, trait, loader_dictionary)
-    else:
-        return loader.Loader(None, h5file, study, loader_dictionary)
+    return loader.Loader(None, h5file, study, trait, loader_dictionary)
 
 
 def save_snps_and_study_in_file(opened_file, list_of_snps, study):
     for snp in list_of_snps:
         group = gu.Group(opened_file.create_group(snp))
-        group.generate_dataset('study', [study])
+        group.generate_dataset(STUDY_DSET, [study])

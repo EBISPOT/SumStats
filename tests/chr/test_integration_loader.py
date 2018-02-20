@@ -106,17 +106,10 @@ class TestLoader(object):
         assert "PM003" in studies_dset
 
     def test_study_already_loaded_raises_error(self):
-
-        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM001', loader_dictionary)
+        load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
         with pytest.raises(ValueError):
             load.load()
 
     def test_study_already_loaded_doesnt_raise_error_on_new_study(self):
-        loader_dictionary = {"snp": snpsarray, "pval": pvalsarray, "chr": chrarray, "or": orarray, "bp": bparray,
-                "effect": effectarray, "other": otherarray, 'freq': frequencyarray}
-
-        load = loader.Loader(None, self.h5file, 'PM004', loader_dictionary)
+        load = prepare_load_object_with_study(self.h5file, 'PM004', loader)
         load.load()
