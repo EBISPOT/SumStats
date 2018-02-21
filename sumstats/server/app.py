@@ -59,7 +59,8 @@ def _get_interval(value, interval):
     return None
 
 
-def _create_next_links(method_name, start, size, index_marker, size_retrieved, params={}):
+def _create_next_links(method_name, start, size, index_marker, size_retrieved, params=None):
+    params = params or {}
     prev = max(0, start - size)
     start_new = start + index_marker
 
