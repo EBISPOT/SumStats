@@ -3,8 +3,10 @@ from distutils.core import setup
 setup(
     name='sumstats',
     version='0.1-SNAPSHOT',
-    packages=['sumstats', 'sumstats.utils', 'sumstats.server', 'sumstats.trait', 'sumstats.trait.search', 'sumstats.trait.search.access', 'sumstats.chr', 'sumstats.chr.search', 'sumstats.chr.search.access', 'sumstats.snp', 'sumstats.snp.search', 'sumstats.snp.search.access'],
-    entry_points = {
+    packages=['sumstats', 'sumstats.utils', 'sumstats.server', 'sumstats.trait', 'sumstats.trait.search',
+              'sumstats.trait.search.access', 'sumstats.chr', 'sumstats.chr.search', 'sumstats.chr.search.access',
+              'sumstats.snp', 'sumstats.snp.search', 'sumstats.snp.search.access', 'config'],
+    entry_points={
         "console_scripts": ['gwas-load = sumstats.load:main',
                             'gwas-search = sumstats.search:main',
                             'gwas-explore = sumstats.explorer:main',

@@ -1,5 +1,6 @@
-h5py==2.7.0
-numpy==1.12.1
+simplejson
+h5py
+numpy
 pandas
-flask==0.12.2
-cherrypy==11.0.0
+flask
+cherrypy

@@ -1,7 +1,7 @@
 import argparse
 from os import listdir
 from os.path import isfile, join
-
+import sumstats.utils.utils as utils
 import sumstats.trait.search.access.service as trait_searcher
 
 
@@ -22,6 +22,13 @@ class Explorer:
             searcher.close_file()
 
         return traits
+
+    def get_list_of_studies_for_trait(self, trait):
+        h5file = utils.create_file_path(self.output_path, "bytrait", trait)
+        searcher = trait_searcher.Service(h5file=h5file)
+        studies = searcher.list_studies()
+        searcher.close_file()
+        return [study.split(":")[1].strip(" ") for study in studies]
 
     def get_list_of_studies(self):
         trait_dir_path = self.output_path + "/bytrait"

@@ -1,16 +1,21 @@
+import numpy as np
 import simplejson
-from flask import Flask, url_for, request
+from flask import Flask, url_for, request, abort
 
 import sumstats.explorer as ex
 import sumstats.search as search
-import numpy as np
+from config import properties
+from sumstats.common_constants import *
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 
 
-def generate(array):
-    for row in array:
-        yield ",".join(row) + "\n"
+def make_pvalue(mantissa_dset, exp_dset):
+    pval_array = np.empty(len(mantissa_dset), dtype=vlen_dtype)
+    for index, mantissa in enumerate(mantissa_dset):
+        pval_array[index] = (str(mantissa) + "e" + str(exp_dset[index]))
+    return pval_array.tolist()
 
 
 def get_array_to_display(datasets):
@@ -21,6 +26,10 @@ def get_array_to_display(datasets):
             return {}
         if np.issubdtype(type(dataset[0]), np.dtype):
             datasets[dset] = np.array(dataset).tolist()
+
+    mantissa_dset = datasets.pop(MANTISSA_DSET)
+    exponent_dset = datasets.pop(EXP_DSET)
+    datasets[PVAL_DSET] = make_pvalue(mantissa_dset=mantissa_dset, exp_dset=exponent_dset)
 
     data_dict = {}
     length = len(datasets[list(datasets.keys())[0]])
@@ -40,114 +49,241 @@ def retrieve_argument(args, argument_name, value_if_empty=None):
     return argument
 
 
-def get_previous(start, size):
-    return start - size
+def create_next_links(method_name, start, size, index_marker, size_retrieved, params={}):
+    prev = max(0, start - size)
+    start_new = start + index_marker
+
+    previous_link = str(
+        url_for(method_name, **params, start=prev, size=size,
+                _external=True))
+    response = {
+        "first": {"href": str(
+            url_for(method_name, **params, start=0, size=size,
+                    _external=True))},
+        "prev": {"href": previous_link},
+        "self": {
+            "href": str(
+                url_for(method_name, **params, _external=True))}}
+    if size_retrieved == size:
+        response["next"] = {"href": str(
+            url_for(method_name, **params, start=start_new,
+                    size=size,
+                    _external=True))}
+    return response
 
 
-@app.route("/")
-def hello():
-    explorer = ex.Explorer()
-    studies = explorer.get_list_of_studies()
-    loaded = "<ul>"
-    for elements in studies:
-        print(elements)
-        loaded = loaded + "<li>" + elements
-    loaded = loaded + "</ul>"
-
-    query_trait = str(url_for('get_assocs', trait="trait", _external=True))
-    query_study = str(url_for('get_assocs', trait="trait", study="study", _external=True))
-    query_chromosome = str(url_for('get_assocs', chr="chr", _external=True))
-    query_variant = str(url_for('get_assocs', variant="variant", _external=True))
-
-    query_trait_size = str(url_for('get_assocs', trait="trait", start=0, size=20, _external=True))
-    query_study_size = str(url_for('get_assocs', trait="trait", study="study", start=0, size=20, _external=True))
-    query_chromosome_size = str(url_for('get_assocs', chr="chr", start=0, size=20, _external=True))
-    query_variant_size = str(url_for('get_assocs', variant="variant", start=0, size=20, _external=True))
-
-    return "<!DOCTYPE html> \
-            <html lang=\"en\"> \
-            <head> \
-            <title>Summary Statistics</title> \
-            <meta charset=\"utf-8\"> \
-            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> \
-            <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"> \
-            <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js\"></script> \
-            <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\"></script> \
-            </head> \
-            <body>" \
-           "<div class=\"container\"> <h1 style=\"color:red;\">This is a <i>very</i> first prototype of the API and " \
-           "it will " \
-           "change</h1><h3>Summary Statistics</h3><h4> Below you can see the endpoint to the " \
-           "query API and what is " \
-           "currently loaded.</h4>" \
-           "<p>Query for trait: <a href=" + query_trait_size + " target=_blank>" + query_trait + "</a></p>" + \
-           "<p>Query for study: <a href=" + query_study_size + " target=_blank>" + query_study + "</a></p>" + \
-           "<p>Query for chromosome: <a href=" + query_chromosome_size + " target=_blank>" + query_chromosome + "</a></p>" + \
-           "<p>Query for variant: <a href=" + query_variant_size + " target=_blank>" + query_variant + "</a></p>" + \
-           "<p><b>Currently loaded:</b></p>" + \
-           loaded + \
-           "</div></body></html> "
+@app.route('/')
+def root():
+    response = {
+        "_links": {
+            "associations": {
+                "href": url_for("get_assocs", _external=True)
+            },
+            "traits": {
+                "href": url_for("get_traits", _external=True)
+            },
+            "studies": {
+                "href": url_for("get_studies", _external=True)
+            },
+            "chromosomes": {
+                "href": url_for("get_chromosomes", _external=True)
+            },
+            "variants": {
+                "href": url_for("get_variants", variant="variant_id", _external=True)
+            }
+        }
+    }
+    return simplejson.dumps(response)
 
 
-@app.route("/associations")
+def explore_all_studies_for_trait(trait):
+    explorer = ex.Explorer(properties.output_path)
+    studies = explorer.get_list_of_studies_for_trait(trait)
+    study_list = []
+    for study in studies:
+        sd = {"study": study, "_links": {
+            "self": {"href": url_for('get_trait_studies', trait=trait, study=study, _external=True)},
+            "gwas_catalog": {"href": str(properties.gwas_study_location + study)}
+        }}
+        study_list.append(sd)
+
+    response = {"_embedded": {"studies": study_list}}
+    return simplejson.dumps(response)
+
+
+def explore_all_traits():
+    explorer = ex.Explorer(properties.output_path)
+    trait_list = []
+    traits = explorer.get_list_of_traits()
+    for trait in traits:
+        td = {"trait": trait, "_links": {
+            "self": {"href": url_for('get_traits', trait=trait, _external=True)},
+            "ols": {"href": str(properties.ols_terms_location + trait)}
+        }}
+        trait_list.append(td)
+
+    response = {"_embedded": {"traits": trait_list}}
+    return simplejson.dumps(response)
+
+
+def explore_all_chromosomes():
+    chromosomes_list = []
+    for chromosome in range(1, 24):
+        cd = {"chromosome": chromosome, "_links": {
+            "self": {"href": url_for('get_chromosomes', chromosome=chromosome, _external=True)},
+        }}
+        chromosomes_list.append(cd)
+
+    response = {"_embedded": {"chromosomes": chromosomes_list}}
+    return simplejson.dumps(response)
+
+
+@app.route('/associations')
 def get_assocs():
     args = request.args.to_dict()
-    trait = retrieve_argument(args, "trait")
-    study = retrieve_argument(args, "study")
-    chromosome = retrieve_argument(args, "chr")
-    if chromosome is not None:
-        chromosome = int(chromosome)
-    variant = retrieve_argument(args, "variant")
     start = int(retrieve_argument(args, "start", 0))
     size = int(retrieve_argument(args, "size", 20))
 
-    searcher = search.Search()
+    searcher = search.Search(properties.output_path)
 
     try:
-        if trait is not None:
-            if study is not None:
-                datasets, index_marker = searcher.search_study(trait=trait, study=study, start=start, size=size)
-            else:
-                datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size)
-        elif chromosome is not None:
-            datasets, index_marker = searcher.search_chromosome(chromosome=chromosome, start=start, size=size)
-        elif variant is not None:
-            datasets, index_marker = searcher.search_snp(snp=variant, start=start, size=size)
-        else:
-            datasets, index_marker = searcher.search_all_assocs(start=start, size=size)
+        datasets, index_marker = searcher.search_all_assocs(start=start, size=size)
 
         data_dict = get_array_to_display(datasets)
-        response = {"_embedded": {"trait": trait, "data": data_dict}}
-
-        prev = get_previous(start, size)
-        start_new = start + index_marker
-
-        if prev >= 0:
-            previous_link = str(
-                url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, start=prev, size=size,
-                        _external=True))
-        else:
-            previous_link = str(
-                url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, start=0, size=size,
-                        _external=True))
-
-        response["_links"] = {
-            "first": {"href": str(
-                url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, start=0, size=size,
-                        _external=True))},
-            "next": {"href": str(
-                url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, start=start_new,
-                        size=size,
-                        _external=True))},
-            "prev": {"href": previous_link},
-            "self": {
-                "href": str(
-                    url_for('get_assocs', trait=trait, study=study, chr=chromosome, variant=variant, _external=True))}}
+        response = {"_embedded": {"associations": data_dict}, "_links": create_next_links(
+            method_name='get_assocs', start=start, size=size, index_marker=index_marker, size_retrieved=len(data_dict))}
 
         return simplejson.dumps(response, ignore_nan=True)
 
     except ValueError:
-        return "Trait not in file: " + trait
+        abort(404)
+
+
+@app.route('/traits')
+@app.route('/traits/<string:trait>')
+def get_traits(trait=None):
+    if trait is None:
+        return explore_all_traits()
+    args = request.args.to_dict()
+    start = int(retrieve_argument(args, "start", 0))
+    size = int(retrieve_argument(args, "size", 20))
+
+    searcher = search.Search(properties.output_path)
+
+    try:
+        datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size)
+
+        data_dict = get_array_to_display(datasets)
+        response = {"_embedded": {"trait": trait, "associations": data_dict}, "_links": create_next_links(
+            method_name='get_traits', start=start, size=size, index_marker=index_marker, size_retrieved=len(data_dict),
+            params={
+                'trait': trait
+            }
+        )}
+
+        return simplejson.dumps(response, ignore_nan=True)
+
+    except ValueError:
+        abort(404)
+
+
+@app.route('/studies')
+def get_studies():
+    explorer = ex.Explorer(properties.output_path)
+    trait_studies = explorer.get_list_of_studies()
+    study_list = []
+    for trait_study in trait_studies:
+        trait = trait_study.split(":")[0].strip(" ")
+        study = trait_study.split(":")[1].strip(" ")
+        sd = {"study": study, "_links": {
+            "self": {"href": url_for('get_trait_studies', trait=trait, study=study, _external=True)},
+            "gwas_catalog": {"href": str(properties.gwas_study_location + study)}
+        }}
+        study_list.append(sd)
+
+    response = {"_embedded": {"studies": study_list}}
+    return simplejson.dumps(response)
+
+
+@app.route('/traits/<string:trait>/studies')
+@app.route('/traits/<string:trait>/studies/<string:study>')
+def get_trait_studies(trait, study=None):
+    if study is None:
+        return explore_all_studies_for_trait(trait)
+    args = request.args.to_dict()
+    start = int(retrieve_argument(args, "start", 0))
+    size = int(retrieve_argument(args, "size", 20))
+
+    searcher = search.Search(properties.output_path)
+
+    try:
+        datasets, index_marker = searcher.search_study(trait=trait, study=study, start=start, size=size)
+
+        data_dict = get_array_to_display(datasets)
+        response = {"_embedded": {"trait": trait, "associations": data_dict}, "_links": create_next_links(
+            method_name='get_trait_studies', start=start, size=size, index_marker=index_marker, size_retrieved=len(data_dict),
+            params={
+                'trait': trait, 'study': study
+            }
+        )}
+
+        return simplejson.dumps(response, ignore_nan=True)
+
+    except ValueError:
+        abort(404)
+
+
+@app.route('/chromosomes')
+@app.route('/chromosomes/<string:chromosome>')
+def get_chromosomes(chromosome=None):
+    if chromosome is None:
+        return explore_all_chromosomes()
+    args = request.args.to_dict()
+    start = int(retrieve_argument(args, "start", 0))
+    size = int(retrieve_argument(args, "size", 20))
+
+    searcher = search.Search(properties.output_path)
+
+    try:
+        datasets, index_marker = searcher.search_chromosome(chromosome=chromosome, start=start, size=size)
+
+        data_dict = get_array_to_display(datasets)
+        response = {"_embedded": {"associations": data_dict}, "_links": create_next_links(
+            method_name='get_chromosomes', start=start, size=size, index_marker=index_marker, size_retrieved=len(data_dict),
+            params={
+                'chromosome': chromosome
+            }
+        )}
+
+        return simplejson.dumps(response, ignore_nan=True)
+
+    except ValueError:
+        abort(404)
+
+
+@app.route('/variants/<string:variant>')
+def get_variants(variant):
+    args = request.args.to_dict()
+    start = int(retrieve_argument(args, "start", 0))
+    size = int(retrieve_argument(args, "size", 20))
+
+    searcher = search.Search(properties.output_path)
+
+    try:
+        datasets, index_marker = searcher.search_snp(snp=variant, start=start, size=size)
+
+        data_dict = get_array_to_display(datasets)
+        response = {"_embedded": {"associations": data_dict}, "_links": create_next_links(
+            method_name='get_variants', start=start, size=size, index_marker=index_marker, size_retrieved=len(data_dict),
+            params={
+                'variant': variant
+            }
+        )}
+
+        return simplejson.dumps(response, ignore_nan=True)
+
+    except ValueError:
+        abort(404)
 
 
 def main():
