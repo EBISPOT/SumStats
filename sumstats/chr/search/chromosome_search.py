@@ -25,12 +25,15 @@ class ChromosomeSearch:
         self.searcher = service.Service(self.h5file)
 
     def search_chromosome(self, study=None, pval_interval=None):
-        return self._search(study=study, pval_interval=pval_interval)
+        max_size = self.searcher.get_chromosome_size(chromosome=self.chromosome)
+        return self._search(max_size=max_size, study=study, pval_interval=pval_interval)
 
     def search_chromosome_block(self, bp_interval, study=None, pval_interval=None):
-        return self._search(bp_interval=bp_interval, study=study, pval_interval=pval_interval)
+        max_size = self.searcher.get_block_range_size(chromosome=self.chromosome, bp_interval=bp_interval)
+        print("max block range size", max_size)
+        return self._search(max_size=max_size, bp_interval=bp_interval, study=study, pval_interval=pval_interval)
 
-    def _search(self, study=None, pval_interval=None, bp_interval=None):
+    def _search(self, max_size, study=None, pval_interval=None, bp_interval=None):
         iteration_size = self.size
 
         while True:
@@ -42,9 +45,10 @@ class ChromosomeSearch:
             result_before_filtering = self.searcher.get_result()
 
             if self._traversed(result_before_filtering):
-                break
+                if self.start >= max_size:
+                    break
 
-            self._increase_search_index(result_before_filtering)
+            self._increase_search_index(iteration_size)
 
             # after search index is increased, we can apply restrictions
             self.searcher.apply_restrictions(study=study, pval_interval=pval_interval)
@@ -62,8 +66,8 @@ class ChromosomeSearch:
     def _traversed(self, result):
         return len(result[REFERENCE_DSET]) == 0
 
-    def _increase_search_index(self, result):
-        self.index_marker += len(result[REFERENCE_DSET])
+    def _increase_search_index(self, iteration_size):
+        self.index_marker += iteration_size
 
     def _next_iteration_size(self):
         return self.size - len(self.datasets[REFERENCE_DSET])

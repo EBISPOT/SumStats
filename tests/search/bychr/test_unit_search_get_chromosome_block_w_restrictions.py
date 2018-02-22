@@ -24,7 +24,7 @@ class TestLoader(object):
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 25)
         assert_studies_from_list(datasets, ['s3'])
         # chromosome 1 with bp interval 0:1200000 has only 50 elements anyway
-        assert index_marker == 50
+        assert index_marker == 200
         assert len(set(datasets[SNP_DSET])) == len(datasets[SNP_DSET])
 
     def test_get_chromosome_1_first_range_s3_upper_pval(self):
@@ -35,7 +35,7 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search_chromosome(chromosome=1, bp_interval=bp_interval, start=start,
                                                                  size=size, study='s3', pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 10)
-        assert index_marker == 50
+        assert index_marker == 200
 
     def test_get_chromosome_1_first_range_s3_lower_pval(self):
         start = 0
@@ -46,7 +46,7 @@ class TestLoader(object):
                                                                  size=size, study='s3', pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 25)
         assert_studies_from_list(datasets, ['s3'])
-        assert index_marker == 50
+        assert index_marker == 200
         assert len(set(datasets[SNP_DSET])) == len(datasets[SNP_DSET])
 
     def test_get_chr_1_second_range_loop_5_s3(self):

@@ -43,7 +43,8 @@ class TraitSearch:
             else:
                 self.searcher.query_for_trait(trait=self.trait, start=self.start, size=iteration_size)
 
-            self._increase_search_index(self.searcher.get_result())
+            result_before_filtering = self.searcher.get_result()
+            self._increase_search_index(min(iteration_size, len(result_before_filtering[REFERENCE_DSET])))
 
             # after search index is increased, we can apply restrictions
             self.searcher.apply_restrictions(pval_interval=pval_interval)
@@ -61,8 +62,8 @@ class TraitSearch:
     def _not_traversed(self, max_size):
         return self.start < max_size
 
-    def _increase_search_index(self, result):
-        self.index_marker += len(result[REFERENCE_DSET])
+    def _increase_search_index(self, iteration_size):
+        self.index_marker += iteration_size
 
     def _next_iteration_size(self):
         return self.size - len(self.datasets[REFERENCE_DSET])

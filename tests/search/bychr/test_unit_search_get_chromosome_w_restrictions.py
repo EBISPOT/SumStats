@@ -127,6 +127,7 @@ class TestLoader(object):
             looped_through += 1
 
         assert looped_through == 5
+        # start changes on each loop!
         assert index_marker == 0
         # 80 unique variants
         assert len(set(d[SNP_DSET])) == len(d[SNP_DSET]) == 80

@@ -72,5 +72,15 @@ class Service:
     def get_result(self):
         return self.datasets
 
+    def get_chromosome_size(self, chromosome):
+        chromosome_group = self.file_group.get_subgroup(chromosome)
+        return sum(bp_group.get_max_group_size() for bp_group in chromosome_group.get_all_subgroups())
+
+    def get_block_range_size(self, chromosome, bp_interval):
+        chr_group = self.file_group.get_subgroup(chromosome)
+        block = bk.Block(bp_interval)
+        block_groups = block.get_block_groups_from_parent(chr_group)
+        return sum(bp_group.get_max_group_size() for bp_group in block_groups)
+
     def close_file(self):
         self.file.close()

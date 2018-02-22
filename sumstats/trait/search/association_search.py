@@ -24,28 +24,35 @@ class AssociationSearch:
         self.index_marker = self.search_traversed = 0
 
     def get_all_associations(self, pval_interval=None):
+        iteration_size = self.size
         available_traits = self._get_all_traits()
 
         for trait in available_traits:
-            search_trait = ts.TraitSearch(trait=trait, start=self.start, size=self.size, path=self.path)
+            search_trait = ts.TraitSearch(trait=trait, start=self.start, size=iteration_size, path=self.path)
             result, current_trait_index = search_trait.search_trait(pval_interval)
 
-            self.index_marker += current_trait_index
             self._extend_datasets(trait=trait, result=result)
             self._calculate_total_traversal_of_search(trait=trait, current_trait_index=current_trait_index)
+            self._increase_search_index(current_trait_index)
 
-            if self._completed_search():
+            if self._search_complete():
                 self.datasets['trait'] = self.trait_list
-                return self.datasets, self._get_next_index()
-            else:
-                self.size = self.size - current_trait_index
-                self.start = self._next_start_index(current_search_index=current_trait_index)
+                return self.datasets, self.index_marker
 
-        return self.datasets, self._get_next_index()
+            iteration_size = self._next_iteration_size()
+            self.start = self._next_start_index(current_search_index=current_trait_index)
+
+        return self.datasets, self.index_marker
 
     def _get_all_traits(self):
         explorer = ex.Explorer(self.path)
         return explorer.get_list_of_traits()
+
+    def _next_iteration_size(self):
+        return self.size - len(self.datasets[REFERENCE_DSET])
+
+    def _increase_search_index(self, iteration_size):
+        self.index_marker += iteration_size
 
     def _extend_datasets(self, trait, result):
         self.datasets = utils.extend_dsets_with_subset(self.datasets, result)
@@ -54,11 +61,8 @@ class AssociationSearch:
     def _calculate_total_traversal_of_search(self, trait, current_trait_index):
         self.search_traversed += self._get_traversed_size(retrieved_index=current_trait_index, trait=trait)
 
-    def _completed_search(self):
-        return self.size <= len(self.datasets[REFERENCE_DSET])
-
-    def _get_next_index(self):
-        return self.index_marker
+    def _search_complete(self):
+        return len(self.datasets[REFERENCE_DSET]) >= self.size
 
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:

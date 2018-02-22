@@ -98,7 +98,7 @@ class TestLoader(object):
             looped_through += 1
             start = start + next_index
 
-        assert len(set(d[SNP_DSET])) == len(d[SNP_DSET])
+        assert len(set(d[SNP_DSET])) == len(d[SNP_DSET]) == 100
 
     def test_loop_through_w_pval_restriction_and_always_get_size_45_results(self):
         start = 0
