@@ -145,20 +145,20 @@ def root():
                 "href": unquote(url_for("get_chromosomes", _external=True))
             },
             "variant": {
-                "href": unquote(url_for("get_variants", variant="{variant_id}", **args_variant, _external=True))
+                "href": unquote(url_for("get_variants", variant="{variant_id}", _external=True))
             },
-            "trait": {
-                "href": unquote(url_for("get_traits",
-                                        trait="{trait}", **args, _external=True))
-            },
-            "study": {
-                "href": unquote(url_for("get_trait_studies",
-                                        trait="{trait}", study="{study}", **args, _external=True))
-            },
-            "chromosome": {
-                "href": unquote(url_for("get_chromosomes",
-                                        chromosome="{chromosome}", **args_chromosome, _external=True))
-            }
+            # "trait": {
+            #     "href": unquote(url_for("get_traits",
+            #                             trait="{trait}", **args, _external=True))
+            # },
+            # "study": {
+            #     "href": unquote(url_for("get_trait_studies",
+            #                             trait="{trait}", study="{study}", **args, _external=True))
+            # },
+            # "chromosome": {
+            #     "href": unquote(url_for("get_chromosomes",
+            #                             chromosome="{chromosome}", **args_chromosome, _external=True))
+            # }
         }
     }
     return simplejson.dumps(response)
@@ -313,12 +313,10 @@ def get_variants(variant):
     pval = _retrieve_argument(args, "p-value")
     pval_interval = _get_interval(pval, FloatInterval)
     study = _retrieve_argument(args, "study_accession")
-    
     searcher = search.Search(properties.output_path)
 
     try:
-        datasets, index_marker = searcher.search_snp(snp=variant,
-                                                     start=start, size=size, 
+        datasets, index_marker = searcher.search_snp(snp=variant, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
 
         data_dict = _get_array_to_display(datasets)

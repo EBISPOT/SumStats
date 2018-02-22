@@ -53,9 +53,9 @@ class Service:
 
         # we might need to filter further if they don't fit exactly
         # e.g. we got the snps for range 200-400 now we need to filter 250-350
-        if block.floor != bp_interval.floor():
+        if block.floor_block != bp_interval.floor():
             filter_block_floor = bp_interval.floor()
-        if block.ceil != bp_interval.ceil():
+        if block.ceil_block != bp_interval.ceil():
             filter_block_ceil = bp_interval.ceil()
 
         datasets = query.load_datasets_from_groups(block_groups, start, size)

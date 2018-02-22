@@ -1,6 +1,5 @@
 # Docker volume
 files
-config
 
 .git
 /notebooks/*
