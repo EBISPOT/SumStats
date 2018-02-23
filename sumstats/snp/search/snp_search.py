@@ -3,6 +3,7 @@ import os.path
 import sumstats.snp.search.access.service as service
 import sumstats.utils.utils as utils
 from sumstats.snp.constants import *
+from sumstats.utils import search
 
 
 class SNPSearch:
@@ -34,46 +35,8 @@ class SNPSearch:
 
     def search_snp(self, study=None, pval_interval=None):
         max_size = self.searcher.get_snp_size(self.snp)
-        return self._search(max_size=max_size, study=study, pval_interval=pval_interval)
-
-    def _search(self, max_size, study=None, pval_interval=None):
-        iteration_size = self.size
-        while True:
-            self.searcher.query_for_snp(snp=self.snp, start=self.start, size=iteration_size)
-
-            result_before_filtering = self.searcher.get_result()
-
-            if self._traversed(result_before_filtering, max_size):
-                break
-
-            self._increase_search_index(iteration_size=iteration_size, max_size=max_size,
-                                        result=result_before_filtering)
-
-            # after search index is increased, we can apply restrictions
-            self.searcher.apply_restrictions(study=study, pval_interval=pval_interval)
-
-            self.datasets = utils.extend_dsets_with_subset(self.datasets, self.searcher.get_result())
-            self.start = self.start + iteration_size
-            iteration_size = self._next_iteration_size()
-
-            if self._search_complete():
-                break
-
-        self.searcher.close_file()
-        return self.datasets, self.index_marker
-
-    def _traversed(self, result, max_size):
-        return (len(result[REFERENCE_DSET]) == 0) and (self.start >= max_size)
-
-    def _increase_search_index(self, iteration_size, max_size, result):
-        if (self.start + iteration_size) >= max_size:
-            # will not search again, we have reached the end of the current group
-            self.index_marker += min(iteration_size, len(result[REFERENCE_DSET]))
-        else:
-            self.index_marker += iteration_size
-
-    def _next_iteration_size(self):
-        return self.size - len(self.datasets[REFERENCE_DSET])
-
-    def _search_complete(self):
-        return len(self.datasets[REFERENCE_DSET]) >= self.size
+        method_arguments = {'snp': self.snp}
+        search_constructor = {'object': self.searcher, 'method': 'query_for_snp', 'args': method_arguments}
+        restrictions = {'pval_interval': pval_interval, 'study': study}
+        return search.general_search(search_obj=self, max_size=max_size,
+                                     search_constructor=search_constructor, restriction_dictionary=restrictions)
