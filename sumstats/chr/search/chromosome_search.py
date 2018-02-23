@@ -30,7 +30,6 @@ class ChromosomeSearch:
 
     def search_chromosome_block(self, bp_interval, study=None, pval_interval=None):
         max_size = self.searcher.get_block_range_size(chromosome=self.chromosome, bp_interval=bp_interval)
-        print("max block range size", max_size)
         return self._search(max_size=max_size, bp_interval=bp_interval, study=study, pval_interval=pval_interval)
 
     def _search(self, max_size, study=None, pval_interval=None, bp_interval=None):
@@ -44,11 +43,11 @@ class ChromosomeSearch:
 
             result_before_filtering = self.searcher.get_result()
 
-            if self._traversed(result_before_filtering):
-                if self.start >= max_size:
-                    break
+            if self._traversed(result_before_filtering, max_size):
+                break
 
-            self._increase_search_index(iteration_size)
+            self._increase_search_index(iteration_size=iteration_size, max_size=max_size,
+                                        result=result_before_filtering)
 
             # after search index is increased, we can apply restrictions
             self.searcher.apply_restrictions(study=study, pval_interval=pval_interval)
@@ -63,11 +62,15 @@ class ChromosomeSearch:
         self.searcher.close_file()
         return self.datasets, self.index_marker
 
-    def _traversed(self, result):
-        return len(result[REFERENCE_DSET]) == 0
+    def _traversed(self, result, max_size):
+        return (len(result[REFERENCE_DSET]) == 0) and (self.start >= max_size)
 
-    def _increase_search_index(self, iteration_size):
-        self.index_marker += iteration_size
+    def _increase_search_index(self, iteration_size, max_size, result):
+        if (self.start + iteration_size) >= max_size:
+            # will not search again, we have reached the end of the current group
+            self.index_marker += min(iteration_size, len(result[REFERENCE_DSET]))
+        else:
+            self.index_marker += iteration_size
 
     def _next_iteration_size(self):
         return self.size - len(self.datasets[REFERENCE_DSET])

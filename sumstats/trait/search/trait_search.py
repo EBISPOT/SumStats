@@ -37,14 +37,19 @@ class TraitSearch:
     def _search(self, max_size, study=None, pval_interval=None):
         iteration_size = self.size
 
-        while self._not_traversed(max_size):
+        while True:
             if study is not None:
                 self.searcher.query_for_study(trait=self.trait, study=study, start=self.start, size=iteration_size)
             else:
                 self.searcher.query_for_trait(trait=self.trait, start=self.start, size=iteration_size)
 
             result_before_filtering = self.searcher.get_result()
-            self._increase_search_index(min(iteration_size, len(result_before_filtering[REFERENCE_DSET])))
+
+            if self._traversed(result_before_filtering, max_size):
+                break
+
+            self._increase_search_index(iteration_size=iteration_size, max_size=max_size,
+                                        result=result_before_filtering)
 
             # after search index is increased, we can apply restrictions
             self.searcher.apply_restrictions(pval_interval=pval_interval)
@@ -59,11 +64,15 @@ class TraitSearch:
         self.searcher.close_file()
         return self.datasets, self.index_marker
 
-    def _not_traversed(self, max_size):
-        return self.start < max_size
+    def _traversed(self, result, max_size):
+        return (len(result[REFERENCE_DSET]) == 0) and (self.start >= max_size)
 
-    def _increase_search_index(self, iteration_size):
-        self.index_marker += iteration_size
+    def _increase_search_index(self, iteration_size, max_size, result):
+        if (self.start + iteration_size) >= max_size:
+            # will not search again, we have reached the end of the current group
+            self.index_marker += min(iteration_size, len(result[REFERENCE_DSET]))
+        else:
+            self.index_marker += iteration_size
 
     def _next_iteration_size(self):
         return self.size - len(self.datasets[REFERENCE_DSET])

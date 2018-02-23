@@ -81,7 +81,10 @@ class TestLoader(object):
         pval_interval = FloatInterval().set_tuple(0.0002, 0.06)
         d = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         while True:
+            print("start", start)
             datasets, next_index = self.searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+            print("next index", next_index)
+            print(datasets[STUDY_DSET])
             d = utils.extend_dsets_with_subset(d, datasets)
             if len(datasets[REFERENCE_DSET]) <= 0:
                 break

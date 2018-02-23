@@ -33,20 +33,21 @@ class SNPSearch:
             raise ValueError("Variant does not exist in any chromosome!", snp)
 
     def search_snp(self, study=None, pval_interval=None):
-        return self._search(study=study, pval_interval=pval_interval)
+        max_size = self.searcher.get_snp_size(self.snp)
+        return self._search(max_size=max_size, study=study, pval_interval=pval_interval)
 
-    def _search(self, study=None, pval_interval=None):
+    def _search(self, max_size, study=None, pval_interval=None):
         iteration_size = self.size
-
         while True:
             self.searcher.query_for_snp(snp=self.snp, start=self.start, size=iteration_size)
 
             result_before_filtering = self.searcher.get_result()
 
-            if self._traversed(result_before_filtering):
+            if self._traversed(result_before_filtering, max_size):
                 break
 
-            self._increase_search_index(result_before_filtering)
+            self._increase_search_index(iteration_size=iteration_size, max_size=max_size,
+                                        result=result_before_filtering)
 
             # after search index is increased, we can apply restrictions
             self.searcher.apply_restrictions(study=study, pval_interval=pval_interval)
@@ -61,11 +62,15 @@ class SNPSearch:
         self.searcher.close_file()
         return self.datasets, self.index_marker
 
-    def _traversed(self, result):
-        return len(result[REFERENCE_DSET]) == 0
+    def _traversed(self, result, max_size):
+        return (len(result[REFERENCE_DSET]) == 0) and (self.start >= max_size)
 
-    def _increase_search_index(self, result):
-        self.index_marker += len(result[REFERENCE_DSET])
+    def _increase_search_index(self, iteration_size, max_size, result):
+        if (self.start + iteration_size) >= max_size:
+            # will not search again, we have reached the end of the current group
+            self.index_marker += min(iteration_size, len(result[REFERENCE_DSET]))
+        else:
+            self.index_marker += iteration_size
 
     def _next_iteration_size(self):
         return self.size - len(self.datasets[REFERENCE_DSET])

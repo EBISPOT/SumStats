@@ -23,7 +23,8 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search_chromosome(chromosome=1, bp_interval=bp_interval, start=start, size=size)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 50)
         assert_studies_from_list(datasets, ['s1', 's3'])
-        assert index_marker == 200
+        # max block range size
+        assert index_marker == 50
         assert len(set(datasets[SNP_DSET])) == len(datasets[SNP_DSET])
 
     def test_get_chromosome_1_second_range(self):
@@ -34,7 +35,8 @@ class TestLoader(object):
                                                                  size=size)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 50)
         assert_studies_from_list(datasets, ['s1', 's3'])
-        assert index_marker == 200
+        # max block range size
+        assert index_marker == 50
         assert len(set(datasets[SNP_DSET])) == len(datasets[SNP_DSET])
 
     def test_get_chr_1_second_range_loop_5(self):

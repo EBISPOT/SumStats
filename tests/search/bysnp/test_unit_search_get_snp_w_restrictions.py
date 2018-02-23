@@ -23,6 +23,7 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search_snp(snp='rs2', start=start, size=size, study='s3')
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 1)
         assert_studies_from_list(datasets, ['s3'])
+        # max snp group size
         assert index_marker == 5
 
     def test_get_snp_filter_lower_pval(self):
@@ -33,6 +34,7 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search_snp(snp='rs2', start=start, size=size, pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 3)
         assert_studies_from_list(datasets, ['s1', 's3', 's5'])
+        # max snp group size
         assert index_marker == 5
 
     def test_get_snp_filter_upper_pval(self):
@@ -44,6 +46,7 @@ class TestLoader(object):
                                                           pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 2)
         assert_studies_from_list(datasets, ['s2', 's4'])
+        # max snp group size
         assert index_marker == 5
 
     def test_get_snp_loop_through_filter_lower_pval(self):

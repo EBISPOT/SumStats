@@ -70,6 +70,7 @@ class TestLoader(object):
 
         # retrived 5 in total so start + index_marker = 50 -> where we will query next (if there where more elements
         # for this study)
+        # this is the end of this trait so it comes down to 5 instead of 20
         assert index_marker == 5
 
     def test_loop_through_s1_size_5(self):
@@ -111,6 +112,7 @@ class TestLoader(object):
             assert_number_of_times_study_is_in_datasets(datasets, 's1', 25)
             assert_studies_from_list(datasets, ['s1'])
 
+            # comes to the end of the study so it will not go over
             assert index_marker == 50
 
             looped_through += 1

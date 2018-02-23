@@ -46,5 +46,9 @@ class Service:
     def get_result(self):
         return self.datasets
 
+    def get_snp_size(self, snp):
+        snp_group = self.file_group.get_subgroup(snp)
+        return snp_group.get_max_group_size()
+
     def close_file(self):
         self.file.close()

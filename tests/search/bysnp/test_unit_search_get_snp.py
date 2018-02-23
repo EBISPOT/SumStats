@@ -68,6 +68,7 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search_snp(snp='rs1', start=start, size=size)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, 5)
         assert len(set(datasets[STUDY_DSET])) == len(datasets[STUDY_DSET]) == 5
+        # max snp group size
         assert index_marker == 5
 
     def test_get_snp_loop_through_size_5(self):
