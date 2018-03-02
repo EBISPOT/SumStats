@@ -83,6 +83,20 @@ def _create_associations_response(method_name, start, size, index_marker, data_d
     )}
 
 
+def _create_study_info_for_trait(studies, trait):
+    study_list = []
+    for study in studies:
+        study_info = {'study': study, 'trait': trait,
+                      '_links': {'self': _create_href(method_name='get_trait_study_assocs',
+                                                      params={'trait': trait, 'study': study}),
+                                 'trait': _create_href(method_name='get_trait_assocs', params={'trait': trait})}}
+
+        study_info['_links']['gwas_catalog'] = {'href': str(properties.gwas_study_location + study)}
+        study_info['_links']['ols'] = {'href': str(properties.ols_terms_location + trait)}
+        study_list.append(study_info)
+    return study_list
+
+
 def _get_array_to_display(datasets, variant=None):
     if datasets is None: return {}
     if len(datasets[REFERENCE_DSET]) <= 0: return {}
@@ -137,32 +151,6 @@ def _get_basic_arguments(args):
     return start, size, pval, pval_interval
 
 
-def _explore_all_traits():
-    explorer = ex.Explorer(properties.output_path)
-    trait_list = []
-    traits = explorer.get_list_of_traits()
-    for trait in traits:
-        trait_info = {'trait': trait,
-                      '_links': {'self': _create_href(method_name='get_traits', params={'trait': trait})}}
-        trait_info['_links']['ols'] = {'href': str(properties.ols_terms_location + trait)}
-
-        trait_list.append(trait_info)
-
-    response = {'_embedded': {'traits': trait_list}}
-    return simplejson.dumps(OrderedDict(response))
-
-
-def _explore_all_chromosomes():
-    chromosomes_list = []
-    for chromosome in range(1, 24):
-        chromosome_info = {'chromosome': chromosome,
-                           '_links': {'self': _create_href(method_name='get_chromosomes', params={'chromosome': chromosome})}}
-        chromosomes_list.append(chromosome_info)
-
-    response = {'_embedded': {'chromosomes': chromosomes_list}}
-    return simplejson.dumps(OrderedDict(response))
-
-
 @app.route('/')
 def root():
     # args_chromosome = {'p-value': '{lower:upper}', 'bp': '{lower:upper}', 'study_accession': '{study_accession}'}
@@ -201,10 +189,24 @@ def get_assocs():
 
 
 @app.route('/traits')
+def get_traits():
+    explorer = ex.Explorer(properties.output_path)
+    trait_list = []
+    traits = explorer.get_list_of_traits()
+    for trait in traits:
+        trait_info = {'trait': trait,
+                      '_links': {'self': _create_href(method_name='get_trait_assocs', params={'trait': trait})}}
+        trait_info['_links']['studies'] = _create_href(method_name='get_studies_for_trait', params={'trait': trait})
+        trait_info['_links']['ols'] = {'href': str(properties.ols_terms_location + trait)}
+
+        trait_list.append(trait_info)
+
+    response = {'_embedded': {'traits': trait_list}}
+    return simplejson.dumps(OrderedDict(response))
+
+
 @app.route('/traits/<string:trait>')
-def get_traits(trait=None):
-    if trait is None:
-        return _explore_all_traits()
+def get_trait_assocs(trait):
     args = request.args.to_dict()
     start, size, pval, pval_interval = _get_basic_arguments(args)
 
@@ -215,9 +217,9 @@ def get_traits(trait=None):
 
         data_dict = _get_array_to_display(datasets)
         params = {'trait': trait, 'p-value': pval}
-        response = _create_associations_response(method_name='get_traits', start=start, size=size, index_marker=index_marker,
+        response = _create_associations_response(method_name='get_trait_assocs', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
-        response['_links']['studies'] = _create_href(method_name='get_trait_studies', params={'trait': trait})
+        response['_links']['studies'] = _create_href(method_name='get_studies_for_trait', params={'trait': trait})
 
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
@@ -229,41 +231,39 @@ def get_traits(trait=None):
 @app.route('/studies/<looking_for>')
 def get_studies(looking_for=None):
     explorer = ex.Explorer(properties.output_path)
-    trait_studies = explorer.get_list_of_studies()
     study_list = []
-
+    trait_studies = []
+    if looking_for is not None:
+        try:
+            trait_studies.append(explorer.get_info_on_study(looking_for))
+        except NotFoundError as error:
+            raise RequestedNotFound(str(error))
+    else:
+        trait_studies = explorer.get_list_of_studies()
     for trait_study in trait_studies:
         trait = trait_study.split(":")[0]
         study = trait_study.split(":")[1]
 
-        if (looking_for is not None) and looking_for != study:
-            continue
-        study_info = {'study': study, 'trait': trait,
-                      '_links': {'self': _create_href(method_name='get_trait_studies', params={'trait': trait, 'study': study}),
-                                 'trait': _create_href(method_name='get_traits', params={'trait': trait})}}
-
-        study_info['_links']['gwas_catalog'] = {'href': str(properties.gwas_study_location + study)}
-        study_info['_links']['ols'] = {'href': str(properties.ols_terms_location + trait)}
-
-        study_list.append(study_info)
-        if (looking_for is not None) and looking_for == study:
-            break
-
-    if (len(study_list) == 0) and (looking_for is not None):
-        # study not found
-        raise RequestedNotFound("Study " + looking_for + " does not exist!")
+        study_list.append(_create_study_info_for_trait([study], trait))
 
     response = {'_embedded': {'studies': study_list}}
     return simplejson.dumps(OrderedDict(response))
 
 
 @app.route('/traits/<string:trait>/studies')
-@app.route('/traits/<string:trait>/studies/<string:study>')
-def get_trait_studies(trait, study=None):
-    if study is None:
-        explorer = ex.Explorer(properties.output_path)
+def get_studies_for_trait(trait):
+    explorer = ex.Explorer(properties.output_path)
+    try:
         studies = explorer.get_list_of_studies_for_trait(trait)
-        abort(404)
+        study_list = _create_study_info_for_trait(studies, trait)
+        response = {'_embedded': {'studies': study_list}}
+        return simplejson.dumps(OrderedDict(response))
+    except NotFoundError as error:
+        raise RequestedNotFound(str(error))
+
+
+@app.route('/traits/<string:trait>/studies/<string:study>')
+def get_trait_study_assocs(trait, study):
     args = request.args.to_dict()
     start, size, pval, pval_interval = _get_basic_arguments(args)
 
@@ -275,7 +275,7 @@ def get_trait_studies(trait, study=None):
 
         data_dict = _get_array_to_display(datasets)
         params = {'trait': trait, 'study': study, 'p-value': pval}
-        response = _create_associations_response(method_name='get_trait_studies', start=start, size=size, index_marker=index_marker,
+        response = _create_associations_response(method_name='get_trait_study_assocs', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
 
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
@@ -285,10 +285,20 @@ def get_trait_studies(trait, study=None):
 
 
 @app.route('/chromosomes')
+def get_chromosomes():
+    chromosomes_list = []
+    for chromosome in range(1, 24):
+        chromosome_info = {'chromosome': chromosome,
+                           '_links': {'self': _create_href(method_name='get_chromosome_assocs',
+                                                           params={'chromosome': chromosome})}}
+        chromosomes_list.append(chromosome_info)
+
+    response = {'_embedded': {'chromosomes': chromosomes_list}}
+    return simplejson.dumps(OrderedDict(response))
+
+
 @app.route('/chromosomes/<string:chromosome>')
-def get_chromosomes(chromosome=None):
-    if chromosome is None:
-        return _explore_all_chromosomes()
+def get_chromosome_assocs(chromosome):
     args = request.args.to_dict()
     start, size, pval, pval_interval = _get_basic_arguments(args)
     study = _retrieve_endpoint_arguments(args, 'study_accession')
@@ -304,7 +314,7 @@ def get_chromosomes(chromosome=None):
 
         data_dict = _get_array_to_display(datasets)
         params = {'chromosome': chromosome, 'p-value': pval, 'bp': bp, 'study_accession': study}
-        response = _create_associations_response(method_name='get_chromosomes', start=start, size=size, index_marker=index_marker,
+        response = _create_associations_response(method_name='get_chromosome_assocs', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
 
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
