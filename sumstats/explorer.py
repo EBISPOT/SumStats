@@ -54,21 +54,21 @@ class Explorer:
 
 
 def main():
-    args = argument_parser()
-    path = args.path
-    explorer = Explorer(path)
+    args = argument_parser()  # pragma: no cover
+    path = args.path  # pragma: no cover
+    explorer = Explorer(path)  # pragma: no cover
 
-    if args.traits:
+    if args.traits:  # pragma: no cover
         traits = explorer.get_list_of_traits()
         for trait in traits:
             print(trait)
 
-    if args.studies:
+    if args.studies:  # pragma: no cover
         studies = explorer.get_list_of_studies()
         for study in studies:
             print(study)
 
-    if args.study is not None:
+    if args.study is not None:  # pragma: no cover
         study = explorer.get_info_on_study(args.study)
         if study is None:
             print("The study does not exist: ", args.study)
@@ -77,14 +77,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover
 
 
 def argument_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-traits', action='store_true', help='List all the traits')
-    parser.add_argument('-studies', action='store_true', help='List all the studies')
-    parser.add_argument('-study', help='Will list \'trait: study\' if it exists')
-    parser.add_argument('-path', help='The path to the parent of the \'output\' dir where the h5files are stored')
+    parser = argparse.ArgumentParser()  # pragma: no cover
+    parser.add_argument('-traits', action='store_true', help='List all the traits')  # pragma: no cover
+    parser.add_argument('-studies', action='store_true', help='List all the studies')  # pragma: no cover
+    parser.add_argument('-study', help='Will list \'trait: study\' if it exists')  # pragma: no cover
+    parser.add_argument('-path',
+                        help='The path to the parent of the \'output\' dir where the h5files are stored')  # pragma: no cover
 
-    return parser.parse_args()
+    return parser.parse_args()  # pragma: no cover

@@ -5,7 +5,7 @@ import argparse
 
 
 def main():
-    args = argument_parser()
+    args = argument_parser()  # pragma: no cover
 
     loader_type = args.loader
     tsv = args.tsv
@@ -60,19 +60,23 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover
 
 
 def argument_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-tsv', help='The name of the file to be loaded')
-    parser.add_argument('-study', help='The name of the study the variants of this file are associated with')
-    parser.add_argument('-trait', help='The name of the trait the variants of this file are associated with')
-    parser.add_argument('-loader', help='The type of loader: [trait|chr|snp]')
-    parser.add_argument('-chr', help='The chromosome that will be loaded')
-    parser.add_argument('-input_path', help='The path to the parent of the \'toload\' dir where the files to be '
-                                            'loaded reside')
-    parser.add_argument('-output_path', help='The path to the parent of the \'output\' dir where the h5files will be '
-                                             'stored')
+    parser = argparse.ArgumentParser()  # pragma: no cover
+    parser.add_argument('-tsv', help='The name of the file to be loaded')  # pragma: no cover
+    parser.add_argument('-study',
+                        help='The name of the study the variants of this file are associated with')  # pragma: no cover
+    parser.add_argument('-trait',
+                        help='The name of the trait the variants of this file are associated with')  # pragma: no cover
+    parser.add_argument('-loader', help='The type of loader: [trait|chr|snp]')  # pragma: no cover
+    parser.add_argument('-chr', help='The chromosome that will be loaded')  # pragma: no cover
+    parser.add_argument('-input_path',
+                        help='The path to the parent of the \'toload\' dir where the files to be '  # pragma: no cover
+                             'loaded reside')  # pragma: no cover
+    parser.add_argument('-output_path',
+                        help='The path to the parent of the \'output\' dir where the h5files will be '  # pragma: no cover
+                             'stored')  # pragma: no cover
 
-    return parser.parse_args()
+    return parser.parse_args()  # pragma: no cover
