@@ -233,8 +233,8 @@ def get_studies(looking_for=None):
     study_list = []
 
     for trait_study in trait_studies:
-        trait = trait_study.split(":")[0].strip(" ")
-        study = trait_study.split(":")[1].strip(" ")
+        trait = trait_study.split(":")[0]
+        study = trait_study.split(":")[1]
 
         if (looking_for is not None) and looking_for != study:
             continue

@@ -3,6 +3,7 @@ from os import listdir
 from os.path import isfile, join
 import sumstats.utils.utils as utils
 import sumstats.trait.search.access.service as trait_searcher
+from sumstats.errors.error_classes import *
 
 
 class Explorer:
@@ -14,6 +15,7 @@ class Explorer:
 
     def get_list_of_traits(self):
         trait_dir_path = self.output_path + "/bytrait"
+
         h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         traits = []
         for h5file in h5files:
@@ -25,10 +27,12 @@ class Explorer:
 
     def get_list_of_studies_for_trait(self, trait):
         h5file = utils.create_file_path(self.output_path, "bytrait", trait)
+        if not isfile(h5file):
+            raise NotFoundError("Trait " + trait)
         searcher = trait_searcher.Service(h5file=h5file)
         studies = searcher.list_studies()
         searcher.close_file()
-        return [study.split(":")[1].strip(" ") for study in studies]
+        return [study.split(":")[1] for study in studies]
 
     def get_list_of_studies(self):
         trait_dir_path = self.output_path + "/bytrait"
@@ -46,11 +50,13 @@ class Explorer:
         h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         for h5file in h5files:
             searcher = trait_searcher.Service(trait_dir_path + "/" + h5file)
-            for study in searcher.list_studies():
-                if study_to_find == study.split(":")[1].strip(" "):
+            for trait_study in searcher.list_studies():
+                if study_to_find == trait_study.split(":")[1]:
                     searcher.close_file()
-                    return study
+                    return trait_study
             searcher.close_file()
+        # study not found
+        raise NotFoundError("Study " + study_to_find)
 
 
 def main():
