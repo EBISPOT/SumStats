@@ -1,8 +1,9 @@
-
 import sumstats.search as search
 import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
+from sumstats.errors.error_classes import *
+import pytest
 
 
 class TestLoader(object):
@@ -14,6 +15,10 @@ class TestLoader(object):
     def setup_method(self):
         # initialize searcher with local path
         self.searcher = search.Search(path="./outputtrait")
+
+    def test_search_raises_error(self):
+        with pytest.raises(NotFoundError):
+            self.searcher.search_trait(trait='t5', start=0, size=20)
 
     def test_search_t1_0_20(self):
         start = 0

@@ -20,6 +20,7 @@ import sumstats.utils.fileload as fl
 from sumstats.snp.constants import *
 import sumstats.snp.constants as const
 import sumstats.utils.group as gu
+from sumstats.errors.error_classes import *
 
 
 class Loader:
@@ -36,7 +37,7 @@ class Loader:
     def load(self):
         if self.is_loaded():
             self.close_file()
-            raise ValueError("This study has already been loaded! Study:", self.study)
+            raise AlreadyLoadedError(self.study)
         self._save_info_in_file()
 
     def is_loaded(self):
@@ -83,20 +84,22 @@ class Loader:
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-tsv', help='The file to be loaded', required=True)
-    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated', required=True)
-    parser.add_argument('-study', help='The name of the first group this will belong to', required=True)
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser()  # pragma: no cover
+    parser.add_argument('-tsv', help='The file to be loaded', required=True)  # pragma: no cover
+    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated',
+                        required=True)  # pragma: no cover
+    parser.add_argument('-study', help='The name of the first group this will belong to',
+                        required=True)  # pragma: no cover
+    args = parser.parse_args()  # pragma: no cover
 
-    tsv = args.tsv
-    h5file = args.h5file
-    study = args.study
+    tsv = args.tsv  # pragma: no cover
+    h5file = args.h5file  # pragma: no cover
+    study = args.study  # pragma: no cover
 
-    loader = Loader(tsv, h5file, study)
-    loader.load()
-    loader.close_file()
+    loader = Loader(tsv, h5file, study)  # pragma: no cover
+    loader.load()  # pragma: no cover
+    loader.close_file()  # pragma: no cover
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

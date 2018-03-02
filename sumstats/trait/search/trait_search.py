@@ -4,6 +4,7 @@ import sumstats.trait.search.access.service as service
 import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
 from sumstats.utils import search
+from sumstats.errors.error_classes import *
 
 
 class TraitSearch:
@@ -24,7 +25,7 @@ class TraitSearch:
 
         self.h5file = utils.create_file_path(self.path, dir_name="bytrait", file_name=trait)
         if not os.path.isfile(self.h5file):
-            raise ValueError("Trait does not exist in file!", trait)
+            raise NotFoundError("Trait " + trait)
         self.searcher = service.Service(self.h5file)
         self.max_size_of_trait = self.searcher.get_trait_size(self.trait)
 

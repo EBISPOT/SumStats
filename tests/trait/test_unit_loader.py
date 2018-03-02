@@ -4,6 +4,7 @@ import pytest
 
 from sumstats.trait import loader
 from sumstats.utils.dataset import Dataset
+from sumstats.errors.error_classes import *
 from tests.prep_tests import *
 
 
@@ -66,7 +67,7 @@ class TestUnitLoader(object):
         assert study_group is not None
         assert study_group.get_name() == "/Trait1/Study1"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(AlreadyLoadedError):
             load._create_study_group(trait_group)
 
     def test_create_dataset(self):

@@ -18,6 +18,7 @@ from sumstats.trait.constants import *
 import sumstats.trait.constants as const
 import sumstats.utils.fileload as fl
 import sumstats.utils.group as gu
+from sumstats.errors.error_classes import *
 import argparse
 
 
@@ -55,7 +56,7 @@ class Loader:
     def _create_study_group(self, trait_group):
         if trait_group.subgroup_exists(self.study):
             self.close_file()
-            raise ValueError("This study has already been loaded! Study:", self.study)
+            raise AlreadyLoadedError(self.study)
         trait_group.create_subgroup(self.study)
         return trait_group.get_subgroup(self.study)
 
@@ -63,23 +64,26 @@ class Loader:
         self.file.close()
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-tsv', help = 'The file to be loaded')
-    parser.add_argument('-h5file', help = 'The name of the HDF5 file to be created/updated', required=True)
-    parser.add_argument('-study', help = 'The name of the first group this will belong to', required=True)
-    parser.add_argument('-trait', help = 'The name of the trait the SNPs of this file are related to', required=True)
-    args = parser.parse_args()
+def main():  # pragma: no cover
+    parser = argparse.ArgumentParser()  # pragma: no cover
+    parser.add_argument('-tsv', help='The file to be loaded')  # pragma: no cover
+    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated',
+                        required=True)  # pragma: no cover
+    parser.add_argument('-study', help='The name of the first group this will belong to',
+                        required=True)  # pragma: no cover
+    parser.add_argument('-trait', help='The name of the trait the SNPs of this file are related to',
+                        required=True)  # pragma: no cover
+    args = parser.parse_args()  # pragma: no cover
 
-    tsv = args.tsv
-    h5file = args.h5file
-    study = args.study
-    trait = args.trait
+    tsv = args.tsv  # pragma: no cover
+    h5file = args.h5file  # pragma: no cover
+    study = args.study  # pragma: no cover
+    trait = args.trait  # pragma: no cover
 
-    loader = Loader(tsv, h5file, study, trait)
-    loader.load()
-    loader.close_file()
+    loader = Loader(tsv, h5file, study, trait)  # pragma: no cover
+    loader.load()  # pragma: no cover
+    loader.close_file()  # pragma: no cover
 
 
 if __name__ == '__main__':
-    main()
+    main()  # pragma: no cover

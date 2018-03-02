@@ -11,9 +11,17 @@ import sumstats.search as search
 from config import properties
 from sumstats.common_constants import *
 from sumstats.utils.interval import *
+from sumstats.server.error_classes import *
+from sumstats.errors.error_classes import *
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+
+@app.errorhandler(APIException)
+def handle_custom_api_exception(error):
+    response = simplejson.dumps(error.to_dict())
+    return make_response(response, error.status_code)
 
 
 @app.errorhandler(404)
@@ -202,19 +210,19 @@ def get_traits(trait=None):
 
     searcher = search.Search(properties.output_path)
 
-    # try:
-    datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
+    try:
+        datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
 
-    data_dict = _get_array_to_display(datasets)
-    params = {'trait': trait, 'p-value': pval}
-    response = _create_associations_response(method_name='get_traits', start=start, size=size, index_marker=index_marker,
-                                             data_dict=data_dict, params=params)
-    response['_links']['studies'] = _create_href(method_name='get_trait_studies', params={'trait': trait})
+        data_dict = _get_array_to_display(datasets)
+        params = {'trait': trait, 'p-value': pval}
+        response = _create_associations_response(method_name='get_traits', start=start, size=size, index_marker=index_marker,
+                                                 data_dict=data_dict, params=params)
+        response['_links']['studies'] = _create_href(method_name='get_trait_studies', params={'trait': trait})
 
-    return simplejson.dumps(OrderedDict(response), ignore_nan=True)
+        return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
-    # except ValueError:
-    #     abort(404)
+    except NotFoundError as error:
+        raise RequestedNotFound(str(error))
 
 
 @app.route('/studies')
@@ -241,9 +249,9 @@ def get_studies(looking_for=None):
         if (looking_for is not None) and looking_for == study:
             break
 
-    if len(study_list) == 0:
+    if (len(study_list) == 0) and (looking_for is not None):
         # study not found
-        abort(404)
+        raise RequestedNotFound("Study " + looking_for + " does not exist!")
 
     response = {'_embedded': {'studies': study_list}}
     return simplejson.dumps(OrderedDict(response))
@@ -253,25 +261,27 @@ def get_studies(looking_for=None):
 @app.route('/traits/<string:trait>/studies/<string:study>')
 def get_trait_studies(trait, study=None):
     if study is None:
-        return get_studies()
+        explorer = ex.Explorer(properties.output_path)
+        studies = explorer.get_list_of_studies_for_trait(trait)
+        abort(404)
     args = request.args.to_dict()
     start, size, pval, pval_interval = _get_basic_arguments(args)
 
     searcher = search.Search(properties.output_path)
 
-    # try:
-    datasets, index_marker = searcher.search_study(trait=trait, study=study,
-                                                   start=start, size=size, pval_interval=pval_interval)
+    try:
+        datasets, index_marker = searcher.search_study(trait=trait, study=study,
+                                                       start=start, size=size, pval_interval=pval_interval)
 
-    data_dict = _get_array_to_display(datasets)
-    params = {'trait': trait, 'study': study, 'p-value': pval}
-    response = _create_associations_response(method_name='get_trait_studies', start=start, size=size, index_marker=index_marker,
-                                             data_dict=data_dict, params=params)
+        data_dict = _get_array_to_display(datasets)
+        params = {'trait': trait, 'study': study, 'p-value': pval}
+        response = _create_associations_response(method_name='get_trait_studies', start=start, size=size, index_marker=index_marker,
+                                                 data_dict=data_dict, params=params)
 
-    return simplejson.dumps(OrderedDict(response), ignore_nan=True)
+        return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
-    # except ValueError:
-    #     abort(404)
+    except NotFoundError as error:
+        raise RequestedNotFound(str(error))
 
 
 @app.route('/chromosomes')
@@ -287,31 +297,36 @@ def get_chromosomes(chromosome=None):
 
     searcher = search.Search(properties.output_path)
 
-    # try:
-    datasets, index_marker = searcher.search_chromosome(chromosome=chromosome,
-                                                        start=start, size=size, study=study,
-                                                        pval_interval=pval_interval, bp_interval=bp_interval)
+    try:
+        datasets, index_marker = searcher.search_chromosome(chromosome=chromosome,
+                                                            start=start, size=size, study=study,
+                                                            pval_interval=pval_interval, bp_interval=bp_interval)
 
-    data_dict = _get_array_to_display(datasets)
-    params = {'chromosome': chromosome, 'p-value': pval, 'bp': bp, 'study_accession': study}
-    response = _create_associations_response(method_name='get_chromosomes', start=start, size=size, index_marker=index_marker,
-                                             data_dict=data_dict, params=params)
+        data_dict = _get_array_to_display(datasets)
+        params = {'chromosome': chromosome, 'p-value': pval, 'bp': bp, 'study_accession': study}
+        response = _create_associations_response(method_name='get_chromosomes', start=start, size=size, index_marker=index_marker,
+                                                 data_dict=data_dict, params=params)
 
-    return simplejson.dumps(OrderedDict(response), ignore_nan=True)
+        return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
-    # except ValueError:
-    #     abort(404)
+    except NotFoundError as error:
+        raise RequestedNotFound(str(error))
 
 
+@app.route('/variants')
 @app.route('/variants/<string:variant>')
-def get_variants(variant):
+def get_variants(variant=None):
+    if variant is None:
+        raise InvalidUrl("Missing variant id")
     args = request.args.to_dict()
     start, size, pval, pval_interval = _get_basic_arguments(args)
     study = _retrieve_endpoint_arguments(args, "study_accession")
+    chromosome = _retrieve_endpoint_arguments(args, "chromosome")
     searcher = search.Search(properties.output_path)
-
+    if chromosome is None:
+        raise ArgumentMissing(message="Required string parameter \'chromosome\' is missing")
     # try:
-    datasets, index_marker = searcher.search_snp(snp=variant, start=start, size=size,
+    datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
                                                  pval_interval=pval_interval, study=study)
 
     data_dict = _get_array_to_display(datasets, variant=variant)

@@ -23,6 +23,7 @@ from sumstats.chr.constants import *
 import sumstats.chr.constants as const
 import sumstats.utils.group as gu
 import sumstats.chr.block as bk
+from sumstats.errors.error_classes import *
 
 
 def initialize_block_limits():
@@ -68,7 +69,7 @@ class Loader:
     def load(self):
         if self._is_loaded():
             self.close_file()
-            raise ValueError("This study has already been loaded! Study:", self.study)
+            raise AlreadyLoadedError(self.study)
 
         chromosome_array = self._get_chromosome_array()
 
@@ -140,20 +141,22 @@ class Loader:
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-tsv', help='The file to be loaded', required=True)
-    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated', required=True)
-    parser.add_argument('-study', help='The name of the first group this will belong to', required=True)
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser()  # pragma: no cover
+    parser.add_argument('-tsv', help='The file to be loaded', required=True)  # pragma: no cover
+    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated',
+                        required=True)  # pragma: no cover
+    parser.add_argument('-study', help='The name of the first group this will belong to',
+                        required=True)  # pragma: no cover
+    args = parser.parse_args()  # pragma: no cover
 
-    tsv = args.tsv
-    h5file = args.h5file
-    study = args.study
+    tsv = args.tsv  # pragma: no cover
+    h5file = args.h5file  # pragma: no cover
+    study = args.study  # pragma: no cover
 
-    loader = Loader(tsv, h5file, study)
-    loader.load()
-    loader.close_file()
+    loader = Loader(tsv, h5file, study)  # pragma: no cover
+    loader.load()  # pragma: no cover
+    loader.close_file()  # pragma: no cover
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

@@ -4,6 +4,7 @@ import sumstats.chr.search.access.service as service
 import sumstats.utils.utils as utils
 from sumstats.chr.constants import *
 from sumstats.utils import  search
+from sumstats.errors.error_classes import *
 
 
 class ChromosomeSearch:
@@ -22,7 +23,7 @@ class ChromosomeSearch:
         self.h5file = utils.create_file_path(path=self.path, dir_name="bychr", file_name=chromosome)
 
         if not os.path.isfile(self.h5file):
-            raise ValueError("Chromosome does not exist!", chromosome)
+            raise NotFoundError("Chromosome " + str(chromosome))
         self.searcher = service.Service(self.h5file)
 
     def search_chromosome(self, study=None, pval_interval=None):

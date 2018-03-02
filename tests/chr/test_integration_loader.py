@@ -4,6 +4,7 @@ import numpy as np
 import sumstats.chr.loader as loader
 from tests.prep_tests import *
 from sumstats.chr.constants import *
+from sumstats.errors.error_classes import *
 
 
 class TestLoader(object):
@@ -107,7 +108,7 @@ class TestLoader(object):
 
     def test_study_already_loaded_raises_error(self):
         load = prepare_load_object_with_study(self.h5file, 'PM001', loader)
-        with pytest.raises(ValueError):
+        with pytest.raises(AlreadyLoadedError):
             load.load()
 
     def test_study_already_loaded_doesnt_raise_error_on_new_study(self):

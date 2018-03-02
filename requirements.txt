@@ -3,4 +3,3 @@ h5py
 numpy
 pandas
 flask
-cherrypy

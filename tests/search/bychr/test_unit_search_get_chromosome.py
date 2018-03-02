@@ -8,6 +8,7 @@ from tests.prep_tests import *
 from sumstats.chr.constants import *
 from tests.search.test_utils import *
 import sumstats.utils.utils as utils
+from sumstats.errors.error_classes import *
 import pytest
 
 
@@ -83,6 +84,10 @@ class TestLoader(object):
     def setup_method(self):
         # initialize searcher with local path
         self.searcher = search.Search(path="./outputchr")
+
+    def test_get_chromosome_raises_error(self):
+        with pytest.raises(NotFoundError):
+            self.searcher.search_chromosome(chromosome=24, start=0, size=20)
 
     def test_get_chromosome_1_0_20(self):
         start = 0
