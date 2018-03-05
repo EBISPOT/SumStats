@@ -11,7 +11,10 @@ fi
 
 # backup files
 cp $output_loc/bychr/* $output_loc/bk_bychr/ & pids+=($!)
-cp $output_loc/bysnp/* $output_loc/bk_bysnp/ & pids+=($!)
+for chr in {1..23}
+do
+    cp $output_loc/bysnp/file_"$chr".h5 $output_loc/bk_bysnp/ & pids+=($!)
+done
 cp $output_loc/bytrait/* $output_loc/bk_bytrait/ & pids+=($!)
 
 wait "${pids[@]}"
