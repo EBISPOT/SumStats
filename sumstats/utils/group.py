@@ -5,6 +5,7 @@ Utilities for hdf5 groups
 from sumstats.utils.dataset import Dataset
 import numpy as np
 from sumstats.common_constants import *
+from sumstats.errors.error_classes import *
 
 
 class Group:
@@ -40,7 +41,7 @@ class Group:
     def get_subgroup(self, child_group):
         group = self.group.get(str(child_group))
         if group is None:
-            raise ValueError("Group: %s does not exist in: %s" % (child_group, group))
+            self._raise_non_existent_subgroup_error(child_group)
         if not isinstance(group, h5py.Group):
             raise TypeError("\"%s\" is not an hdf5 group!" % child_group)
         return Group(group)
@@ -95,7 +96,7 @@ class Group:
         if dset_name in self.group:
             return self.group[dset_name].shape
         else:
-            raise ValueError("Dataset does not exist in group! dataset:", dset_name, " group:", self.group)
+            self._raise_non_existent_subgroup_error(dset_name)
 
     def check_datasets_consistent(self, TO_STORE_DSETS):
         dsets = [self.group.get(dset_name) for dset_name in TO_STORE_DSETS]
@@ -118,6 +119,14 @@ class Group:
         reference_dset = self.get_dset(REFERENCE_DSET, start, size)
         create_size = min(len(reference_dset), size)
         return _create_dset_placeholder(missing_value, create_size)
+
+    def _raise_non_existent_subgroup_error(self, child_group):
+        if self.group.name == "/":
+            parent_name = "root group"
+        else:
+            parent_name = self.group.name.split("/")[-1]
+        raise SubgroupError(parent="parent group: " + parent_name,
+                            subgroup="sub group: " + str(child_group))
 
 
 def _assert_all_dsets_are_none(datasets):

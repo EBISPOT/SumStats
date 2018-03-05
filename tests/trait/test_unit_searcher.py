@@ -7,6 +7,7 @@ from sumstats.trait.constants import TO_STORE_DSETS
 from sumstats.trait.search.access.service import Service
 from tests.prep_tests import *
 import tests.test_constants as search_arrays
+from sumstats.errors.error_classes import *
 
 trait1 = "t1"
 trait2 = "t2"
@@ -91,10 +92,10 @@ class TestUnitSearcher(object):
             assert len(datasets[dset_name]) == 4
 
     def test_non_existing_trait(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(SubgroupError):
             self.query.query_for_trait(trait3, self.start, self.size)
 
     def test_non_existing_trait_study_combination(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(SubgroupError):
             self.query.query_for_study(trait3, study2, self.start, self.size)
 

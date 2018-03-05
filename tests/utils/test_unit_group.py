@@ -6,6 +6,7 @@ import sumstats.utils.group as gu
 import sumstats.utils.utils as utils
 from sumstats.utils.dataset import Dataset
 from sumstats.common_constants import *
+from sumstats.errors.error_classes import *
 
 
 start = 0
@@ -28,15 +29,16 @@ class TestUnitGroup(object):
         self.file_group.create_subgroup("1")
         self.group_1 = self.file_group.get_subgroup("1")
         self.file_group.create_subgroup("1/sub1")
-        s1 = self.group_1.get_subgroup("sub1")
-        s1.generate_dataset(STUDY_DSET, ["study1"])
+        self.subgroup1 = self.group_1.get_subgroup("sub1")
+        self.subgroup1.generate_dataset(STUDY_DSET, ["study1"])
         self.file_group.create_subgroup("1/sub2")
+        self.subgroup1_studies = ["study1"]
 
     def teardown_method(self, method):
         os.remove(self.h5file)
 
     def test_initializing_group_with_dataset_raises_error(self):
-        dataset = self.file_group.generate_dataset(STUDY_DSET, ["study"])
+        dataset = self.file_group.generate_dataset(STUDY_DSET, self.subgroup1_studies)
         with pytest.raises(TypeError):
             gu.Group(dataset)
 
@@ -51,7 +53,7 @@ class TestUnitGroup(object):
 
     def test_get_subgroup_raises_error_if_subgroup_doesnt_exist(self):
         group = self.file_group.get_subgroup(1).get_subgroup("sub1")
-        with pytest.raises(ValueError):
+        with pytest.raises(SubgroupError):
             group.get_subgroup("sub12")
 
     def test_get_all_subgroups(self):
@@ -248,3 +250,11 @@ class TestUnitGroup(object):
         new_dset = self.group_1.create_dataset_from_value(dataset_with_same_values[0], start, size)
 
         assert np.array_equal(new_dset, dataset_with_same_values)
+
+    def test_get_dset_shape_raises_error(self):
+        with pytest.raises(SubgroupError):
+            self.group_1.get_dset_shape(CHR_DSET)
+
+    def test_get_dset_shape(self):
+        shape = self.subgroup1.get_dset_shape(STUDY_DSET)
+        assert shape[0] == len(self.subgroup1_studies)

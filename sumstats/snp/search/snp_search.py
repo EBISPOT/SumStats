@@ -4,6 +4,7 @@ import sumstats.snp.search.access.service as service
 import sumstats.utils.utils as utils
 from sumstats.snp.constants import *
 from sumstats.utils import search
+from sumstats.errors.error_classes import *
 
 
 class SNPSearch:
@@ -44,11 +45,11 @@ class SNPSearch:
             self.searcher = None
 
         if self.searcher is None:
-            raise ValueError("Variant does not exist in any chromosome!", self.snp)
+            raise NotFoundError("Variant " + self.snp)
         return self.searcher
 
     def _get_searcher(self):
         h5file = utils.create_file_path(path=self.path, dir_name="bysnp", file_name=self.chromosome)
         if not os.path.isfile(h5file):
-            raise ValueError("Variant does not exist in chromosome!", self.snp)
+            raise NotFoundError("Chromosome " + str(self.chromosome))
         return service.Service(h5file)

@@ -8,6 +8,7 @@ from tests.prep_tests import *
 from sumstats.snp.constants import *
 from tests.search.test_utils import *
 import sumstats.utils.utils as utils
+from sumstats.errors.error_classes import *
 import pytest
 
 
@@ -70,6 +71,14 @@ class TestLoader(object):
         assert len(set(datasets[STUDY_DSET])) == len(datasets[STUDY_DSET]) == 5
         # max snp group size
         assert index_marker == 5
+
+    def test_get_snp_for_wrong_chromosome_raises_error(self):
+        with pytest.raises(NotFoundError):
+            self.searcher.search_snp(snp='rs1', chromosome=2, start=0, size=20)
+
+    def test_get_unexisting_snp_raises_error(self):
+        with pytest.raises(NotFoundError):
+            self.searcher.search_snp(snp='rs12345', start=0, size=20)
 
     def test_get_snp_loop_through_size_5(self):
         start = 0
