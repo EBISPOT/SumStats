@@ -38,7 +38,8 @@ class Dataset(list):
         self._check_type_compatibility(upper_limit)
         self._check_type_compatibility(lower_limit)
         if lower_limit is not None and upper_limit is not None:
-            assert lower_limit <= upper_limit, "Lower limit must be numerically lower than upper limit!"
+            if lower_limit > upper_limit:
+                raise ValueError("Lower limit must be numerically lower than upper limit!")
         mask_u = self.get_upper_limit_mask(upper_limit)
         mask_l = self.get_lower_limit_mask(lower_limit)
         list_of_masks = [mask_l, mask_u]

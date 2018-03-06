@@ -34,7 +34,7 @@ class TestUnitUtils(object):
     def test_interval_restriction_pval_with_lower_bigger_than_upper_limit_raises_error(self):
         mantissa_array, exp_array = get_mantissa_and_exp_arrays_from_pvals(pvals_same_exp_diff_mantissa)
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             IntervalRestrictionPval(1.2e-2, 1.3e-10, Dataset(mantissa_array), Dataset(exp_array))
 
     def test_pvals_with_same_exp_diff_mantissa_out_of_limits(self):
@@ -269,8 +269,9 @@ class TestUnitUtils(object):
 
     def test_apply_study_and_pval_restriction(self):
         datasets = self.loader_dictionary
-        print(datasets)
+        # snpsarray = ["rs185339560", "rs11250701", "rs12345", "rs7085086"]
         # pvalsarray = ["0.4865", "0.4314", "0.5986", "0.07057"]
+        # studyarray = ["PM001", "PM001", "PM002", "PM002"]
         filtered_dsets = apply_restrictions(datasets, pval_interval=FloatInterval().set_string_tuple("9e-3:0.44"),
                                             study="PM002")
         print(filtered_dsets)

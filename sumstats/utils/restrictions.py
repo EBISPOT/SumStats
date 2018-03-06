@@ -13,7 +13,9 @@ from sumstats.common_constants import *
 
 class IntervalRestriction:
     def __init__(self, lower, upper, dataset):
-        assert lower <= upper, "Lower limit must be numerically lower than upper limit!"
+        if lower is not None and upper is not None:
+            if lower > upper:
+                raise ValueError("Lower limit must be numerically lower than upper limit!")
         self.lower = lower
         self.upper = upper
         self.dataset = dataset
@@ -33,9 +35,14 @@ class EqualityRestriction:
 
 class IntervalRestrictionPval:
     def __init__(self, lower, upper, mantissa_dset, exponent_dset):
-        assert lower <= upper, "Lower limit must be numerically lower than upper limit!"
-        self.mantissa_lower, self.exp_lower = pu.convert_to_mantissa_and_exponent(str(lower))
-        self.mantissa_upper, self.exp_upper = pu.convert_to_mantissa_and_exponent(str(upper))
+        self.mantissa_lower = self.mantissa_upper = self.exp_lower = self.exp_upper = None
+        if lower is not None and upper is not None:
+            if lower > upper:
+                raise ValueError("Lower limit must be numerically lower than upper limit!")
+        if lower is not None:
+            self.mantissa_lower, self.exp_lower = pu.convert_to_mantissa_and_exponent(str(lower))
+        if upper is not None:
+            self.mantissa_upper, self.exp_upper = pu.convert_to_mantissa_and_exponent(str(upper))
 
         self.mantissa = mantissa_dset
         self.exponent = exponent_dset
@@ -56,7 +63,6 @@ class IntervalRestrictionPval:
             [lower_exponent, mantissa_lower_limit])
         upper_limit = logical_and_on_list_of_masks(
             [upper_exponent, mantissa_upper_limit])
-
         return self._combine_limit_masks(lower_limit, upper_limit)
 
     def _combine_limit_masks(self, lower_limit_mask, upper_limit_mask):
@@ -70,10 +76,15 @@ class IntervalRestrictionPval:
 
     def _mask_for_values_between_exponent_limits(self):
         mask_between_exp_limits = None
-
-        new_exp_lower = self.exp_lower + 1
-        new_exp_upper = self.exp_upper - 1
-        if new_exp_lower <= new_exp_upper:
+        new_exp_lower = new_exp_upper = None
+        if self.exp_lower is not None:
+            new_exp_lower = self.exp_lower + 1
+        if self.exp_upper is not None:
+            new_exp_upper = self.exp_upper - 1
+        if (new_exp_lower is not None) and (new_exp_upper is not None):
+            if new_exp_lower <= new_exp_upper:
+                mask_between_exp_limits = self.exponent.interval_mask(new_exp_lower, new_exp_upper)
+        else:
             mask_between_exp_limits = self.exponent.interval_mask(new_exp_lower, new_exp_upper)
 
         return mask_between_exp_limits

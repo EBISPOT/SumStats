@@ -121,7 +121,7 @@ class TestUnitDataset(object):
             bp_chr_array = Dataset(["a", "b", "c", "d", "d", "d", "d", "d"])
             bp_chr_array.interval_mask(block_floor, block_ceil)
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             bp_chr_array = Dataset([1, 2, 3, 4])
             bp_chr_array.interval_mask(2, 1)
 
