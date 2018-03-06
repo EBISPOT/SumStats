@@ -202,24 +202,19 @@ def _check_bp_group_empty(data_dict, chromosome, bp):
         raise SubgroupError(parent="parent group: " + str(chromosome), subgroup="child group: " + str(bp))
 
 
-@app.route('/variants')
-@app.route('/variants/<string:variant>')
-def get_variants(variant=None):
-    if variant is None:
-        raise BadUserRequest("Missing variant id")
+@app.route('/chromosomes/<string:chromosome>/variants/<string:variant>')
+def get_variants(chromosome, variant):
     args = request.args.to_dict()
     start, size, pval, pval_interval = apiu._get_basic_arguments(args)
     study = apiu._retrieve_endpoint_arguments(args, "study_accession")
-    chromosome = apiu._retrieve_endpoint_arguments(args, "chromosome")
     searcher = search.Search(properties.output_path)
-    if chromosome is None:
-        raise BadUserRequest(message="Required string parameter \'chromosome\' is missing")
+
     try:
         datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
 
         data_dict = apiu._get_array_to_display(datasets, variant=variant)
-        params = {'variant': variant, 'p-value': pval, 'study_accession': study}
+        params = {'variant': variant, 'chromosome': chromosome, 'p-value': pval, 'study_accession': study}
         response = apiu._create_associations_response(method_name='get_variants', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
 
@@ -228,7 +223,7 @@ def get_variants(variant=None):
     except NotFoundError as error:
         raise RequestedNotFound(str(error))
     except SubgroupError:
-        raise RequestedNotFound("Wrong variant id or chromosome.")
+        raise RequestedNotFound("Wrong variant id or chromosome. Chromosome: %s, variant %s" %(chromosome, variant))
 
 
 def main():
