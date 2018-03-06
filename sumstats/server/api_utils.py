@@ -6,6 +6,7 @@ from sumstats.common_constants import *
 from flask import url_for
 from config import properties
 from sumstats.utils.interval import *
+import sumstats.explorer as ex
 
 
 def _set_properties():
@@ -24,7 +25,7 @@ def _set_properties():
 def _create_study_info_for_trait(studies, trait):
     study_list = []
     for study in studies:
-        study_info = {'study': study, 'trait': trait,
+        study_info = {'study_accession': study, 'trait': trait,
                       '_links': {'self': _create_href(method_name='get_trait_study_assocs',
                                                       params={'trait': trait, 'study': study}),
                                  'trait': _create_href(method_name='get_trait_assocs', params={'trait': trait})}}
@@ -43,8 +44,10 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
     exponent_dset = datasets.pop(EXP_DSET)
     datasets[PVAL_DSET] = _reconstruct_pvalue(mantissa_dset=mantissa_dset, exp_dset=exponent_dset)
 
+    trait_to_study_cache = {}
     data_dict = {}
     length = len(datasets[PVAL_DSET])
+
     for index in range(length):
         # elements are numpy types, they need to be python types to be json serializable
         element_info = {dset: np.asscalar(np.array(dataset[index])) for dset, dataset in datasets.items()}
@@ -52,16 +55,40 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
         specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index)
         specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index)
 
+        study = datasets[STUDY_DSET][index]
+
+        trait, trait_to_study_cache = _get_trait_for_study(study, trait_to_study_cache)
+
+        element_info['trait'] = trait
+
         element_info['_links'] = {'self': _create_href(method_name='get_variants',
                                                    params={'variant': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
                                                            'chromosome': specific_chromosome})}
         element_info['_links']['variant'] = _create_href(method_name='get_variants',
                                                          params={'variant': specific_variant, 'chromosome': specific_chromosome})
-        element_info['_links']['study'] = _create_href(method_name='get_studies',
-                                                       params={'looking_for': datasets[STUDY_DSET][index]})
+        element_info['_links']['study'] = _create_href(method_name='get_trait_study_assocs',
+                                                       params={'study': study})
+        element_info['_links']['trait'] = _create_href(method_name='get_trait_assocs', params={'trait': trait})
 
         data_dict[index] = element_info
     return data_dict
+
+
+def _get_trait_for_study(study, trait_to_study_cache):
+    if study in trait_to_study_cache:
+        trait = trait_to_study_cache[study], trait_to_study_cache
+    else:
+        trait = _find_study_info(study)
+        trait_to_study_cache[study] = trait
+    return trait, trait_to_study_cache
+
+
+def _find_study_info(study, trait=None):
+    if trait is None:
+        explorer = ex.Explorer(properties.output_path)
+        trait_study = explorer.get_info_on_study(study)
+        trait = trait_study.split(":")[0]
+    return trait
 
 
 def _reconstruct_pvalue(mantissa_dset, exp_dset):
@@ -95,7 +122,7 @@ def _create_next_links(method_name, start, size, index_marker, size_retrieved, p
     params['size'] = size
     response['first'] = _create_href(method_name=method_name, params=params)
     params['start'] = prev
-    response['prev'] = _create_href(method_name=method_name, params=params)
+    # response['prev'] = _create_href(method_name=method_name, params=params)
 
     if size_retrieved == size:
         params['start'] = start_new

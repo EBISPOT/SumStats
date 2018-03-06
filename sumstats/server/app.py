@@ -99,6 +99,7 @@ def get_trait_assocs(trait):
         response = apiu._create_associations_response(method_name='get_trait_assocs', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
         response['_links']['studies'] = apiu._create_href(method_name='get_studies_for_trait', params={'trait': trait})
+        response['_links']['ols'] = {'href': str(properties.ols_terms_location + trait)}
 
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
@@ -107,22 +108,13 @@ def get_trait_assocs(trait):
 
 
 @app.route('/studies')
-@app.route('/studies/<looking_for>')
-def get_studies(looking_for=None):
+def get_studies():
     explorer = ex.Explorer(properties.output_path)
     study_list = []
-    trait_studies = []
-    if looking_for is not None:
-        try:
-            trait_studies.append(explorer.get_info_on_study(looking_for))
-        except NotFoundError as error:
-            raise RequestedNotFound(str(error))
-    else:
-        trait_studies = explorer.get_list_of_studies()
+    trait_studies = explorer.get_list_of_studies()
     for trait_study in trait_studies:
         trait = trait_study.split(":")[0]
         study = trait_study.split(":")[1]
-
         study_list.append(apiu._create_study_info_for_trait([study], trait))
 
     response = {'_embedded': {'studies': study_list}}
@@ -141,17 +133,19 @@ def get_studies_for_trait(trait):
         raise RequestedNotFound(str(error))
 
 
+@app.route('/studies/<study>')
 @app.route('/traits/<string:trait>/studies/<string:study>')
-def get_trait_study_assocs(trait, study):
+def get_trait_study_assocs(study, trait=None):
     args = request.args.to_dict()
     try:
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
     except ValueError as error:
         raise BadUserRequest(str(error))
 
-    searcher = search.Search(properties.output_path)
-
     try:
+        trait = apiu._find_study_info(study=study, trait=trait)
+        searcher = search.Search(properties.output_path)
+
         datasets, index_marker = searcher.search_study(trait=trait, study=study,
                                                        start=start, size=size, pval_interval=pval_interval)
 
@@ -159,6 +153,8 @@ def get_trait_study_assocs(trait, study):
         params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_associations_response(method_name='get_trait_study_assocs', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
+        response['_links']['gwas_catalog'] = {'href': str(properties.gwas_study_location + study)}
+        response['_links']['trait'] = apiu._create_href(method_name='get_trait_assocs', params={'trait': trait})
 
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
