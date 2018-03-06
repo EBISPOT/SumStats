@@ -25,7 +25,7 @@ def not_found(error):
 
 
 @app.errorhandler(500)
-def not_found(error):
+def internal_server_error(error):
     return make_response(simplejson.dumps({'message': 'Internal Server Error.'}), 500)
 
 
