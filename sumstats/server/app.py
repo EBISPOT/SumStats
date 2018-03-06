@@ -47,14 +47,17 @@ def root():
 @app.route('/associations')
 def get_assocs():
     args = request.args.to_dict()
-    start, size, pval, pval_interval = apiu._get_basic_arguments(args)
+    try:
+        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        raise BadUserRequest(str(error))
 
     searcher = search.Search(properties.output_path)
 
     datasets, index_marker = searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
 
     data_dict = apiu._get_array_to_display(datasets)
-    params = {'p-value': pval}
+    params = dict(p_lower=p_lower, p_upper=p_upper)
     response = apiu._create_associations_response(method_name='get_assocs', start=start, size=size, index_marker=index_marker,
                                              data_dict=data_dict, params=params)
 
@@ -81,7 +84,10 @@ def get_traits():
 @app.route('/traits/<string:trait>')
 def get_trait_assocs(trait):
     args = request.args.to_dict()
-    start, size, pval, pval_interval = apiu._get_basic_arguments(args)
+    try:
+        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        raise BadUserRequest(str(error))
 
     searcher = search.Search(properties.output_path)
 
@@ -89,7 +95,7 @@ def get_trait_assocs(trait):
         datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
 
         data_dict = apiu._get_array_to_display(datasets)
-        params = {'trait': trait, 'p-value': pval}
+        params = dict(trait=trait, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_associations_response(method_name='get_trait_assocs', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
         response['_links']['studies'] = apiu._create_href(method_name='get_studies_for_trait', params={'trait': trait})
@@ -138,7 +144,10 @@ def get_studies_for_trait(trait):
 @app.route('/traits/<string:trait>/studies/<string:study>')
 def get_trait_study_assocs(trait, study):
     args = request.args.to_dict()
-    start, size, pval, pval_interval = apiu._get_basic_arguments(args)
+    try:
+        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        raise BadUserRequest(str(error))
 
     searcher = search.Search(properties.output_path)
 
@@ -147,7 +156,7 @@ def get_trait_study_assocs(trait, study):
                                                        start=start, size=size, pval_interval=pval_interval)
 
         data_dict = apiu._get_array_to_display(datasets)
-        params = {'trait': trait, 'study': study, 'p-value': pval}
+        params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_associations_response(method_name='get_trait_study_assocs', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
 
@@ -173,10 +182,14 @@ def get_chromosomes():
 @app.route('/chromosomes/<string:chromosome>')
 def get_chromosome_assocs(chromosome):
     args = request.args.to_dict()
-    start, size, pval, pval_interval = apiu._get_basic_arguments(args)
-    study = apiu._retrieve_endpoint_arguments(args, 'study_accession')
-    bp = apiu._retrieve_endpoint_arguments(args, 'bp')
-    bp_interval = apiu._get_interval(bp, IntInterval)
+    try:
+        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        study = apiu._retrieve_endpoint_arguments(args, 'study_accession')
+        bp_lower = apiu._retrieve_endpoint_arguments(args, 'bp_lower')
+        bp_upper = apiu._retrieve_endpoint_arguments(args, 'bp_upper')
+        bp_interval = apiu._get_interval(lower=bp_lower, upper=bp_upper, interval=IntInterval)
+    except ValueError as error:
+        raise BadUserRequest(str(error))
 
     searcher = search.Search(properties.output_path)
 
@@ -185,9 +198,10 @@ def get_chromosome_assocs(chromosome):
                                                             start=start, size=size, study=study,
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
         data_dict = apiu._get_array_to_display(datasets, chromosome=chromosome)
-        _check_bp_group_empty(data_dict=data_dict, chromosome=chromosome, bp=bp)
+        _check_bp_group_empty(data_dict=data_dict, chromosome=chromosome, bp_lower=bp_lower, bp_upper=bp_upper)
 
-        params = {'chromosome': chromosome, 'p-value': pval, 'bp': bp, 'study_accession': study}
+        params = dict(chromosome=chromosome, p_lower=p_lower, p_upper=p_upper, bp_lower=bp_lower, bp_upper=bp_upper,
+                      study_accession=study)
         response = apiu._create_associations_response(method_name='get_chromosome_assocs', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
 
@@ -197,16 +211,21 @@ def get_chromosome_assocs(chromosome):
         raise RequestedNotFound(str(error))
 
 
-def _check_bp_group_empty(data_dict, chromosome, bp):
-    if (not data_dict) and (bp is not None):
-        raise SubgroupError(parent="parent group: " + str(chromosome), subgroup="child group: " + str(bp))
+def _check_bp_group_empty(data_dict, chromosome, bp_lower, bp_upper):
+    if (not data_dict) and ((bp_lower is not None) or (bp_upper is not None)):
+        #TODO probably just return empty collection
+        raise SubgroupError(parent="parent group: " + str(chromosome), subgroup="child group: " + str(bp_lower) + ":" + str(bp_upper))
 
 
 @app.route('/chromosomes/<string:chromosome>/variants/<string:variant>')
 def get_variants(chromosome, variant):
     args = request.args.to_dict()
-    start, size, pval, pval_interval = apiu._get_basic_arguments(args)
-    study = apiu._retrieve_endpoint_arguments(args, "study_accession")
+    try:
+        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        study = apiu._retrieve_endpoint_arguments(args, "study_accession")
+    except ValueError as error:
+        raise BadUserRequest(str(error))
+
     searcher = search.Search(properties.output_path)
 
     try:
@@ -214,7 +233,7 @@ def get_variants(chromosome, variant):
                                                      pval_interval=pval_interval, study=study)
 
         data_dict = apiu._get_array_to_display(datasets, variant=variant)
-        params = {'variant': variant, 'chromosome': chromosome, 'p-value': pval, 'study_accession': study}
+        params = {'variant': variant, 'chromosome': chromosome, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         response = apiu._create_associations_response(method_name='get_variants', start=start, size=size, index_marker=index_marker,
                                                  data_dict=data_dict, params=params)
 

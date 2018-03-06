@@ -114,9 +114,10 @@ def _create_href(method_name, params=None):
 def _get_basic_arguments(args):
     start = int(_retrieve_endpoint_arguments(args, "start", 0))
     size = int(_retrieve_endpoint_arguments(args, "size", 20))
-    pval = _retrieve_endpoint_arguments(args, "p-value")
-    pval_interval = _get_interval(pval, FloatInterval)
-    return start, size, pval, pval_interval
+    p_lower = _retrieve_endpoint_arguments(args, "p_lower")
+    p_upper = _retrieve_endpoint_arguments(args, "p_upper")
+    pval_interval = _get_interval(lower=p_lower, upper=p_upper, interval=FloatInterval)
+    return start, size, p_lower, p_upper, pval_interval
 
 
 def _retrieve_endpoint_arguments(args, argument_name, value_if_empty=None):
@@ -127,9 +128,10 @@ def _retrieve_endpoint_arguments(args, argument_name, value_if_empty=None):
     return argument
 
 
-def _get_interval(value, interval):
-    if value is not None:
-        if ":" not in value:
-            value = value + ":" + value
-        return interval().set_string_tuple(value)
-    return None
+def _get_interval(lower, upper, interval):
+    if (lower is None) and upper is None:
+        return None
+    if lower is not None and upper is not None:
+        if lower > upper:
+            raise ValueError("Lower limit (%s) is bigger than upper limit (%s)." %(lower, upper))
+    return interval().set_tuple(lower_limit=lower, upper_limit=upper)
