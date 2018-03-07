@@ -2,15 +2,15 @@ from sumstats.utils import utils
 from sumstats.common_constants import *
 
 
-def general_search(search_obj, max_size, search_constructor, restriction_dictionary=None):
+def general_search(search_obj, max_size, arguments, restriction_dictionary=None):
     iteration_size = search_obj.size
-    arguments = search_constructor['args']
 
     while True:
         arguments['size'] = iteration_size
         arguments['start'] = search_obj.start
 
-        getattr(search_constructor['object'], search_constructor['method'])(**arguments)
+        # call the query function
+        search_obj.searcher.query(**arguments)
 
         result_before_filtering = search_obj.searcher.get_result()
 

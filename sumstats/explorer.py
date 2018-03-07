@@ -1,8 +1,8 @@
 import argparse
-from os import listdir
-from os.path import isfile, join
+from os.path import isfile
 import sumstats.utils.utils as utils
-import sumstats.trait.search.access.service as trait_searcher
+import sumstats.trait.search.access.trait_service as trait_searcher
+import sumstats.trait.search.access.study_service as study_searcher
 from sumstats.errors.error_classes import *
 
 
@@ -14,12 +14,10 @@ class Explorer:
         self.output_path = path
 
     def get_list_of_traits(self):
-        trait_dir_path = self.output_path + "/bytrait"
-
-        h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         traits = []
+        h5files = utils._get_h5files_in_dir(self.output_path, "bytrait")
         for h5file in h5files:
-            searcher = trait_searcher.Service(trait_dir_path + "/" + h5file)
+            searcher = trait_searcher.TraitService(h5file=h5file)
             traits.extend(searcher.list_traits())
             searcher.close_file()
 
@@ -29,27 +27,25 @@ class Explorer:
         h5file = utils.create_file_path(self.output_path, "bytrait", trait)
         if not isfile(h5file):
             raise NotFoundError("Trait " + trait)
-        searcher = trait_searcher.Service(h5file=h5file)
+        searcher = study_searcher.StudyService(h5file=h5file)
         studies = searcher.list_studies()
         searcher.close_file()
         return [study.split(":")[1] for study in studies]
 
     def get_list_of_studies(self):
-        trait_dir_path = self.output_path + "/bytrait"
-        h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
         studies = []
+        h5files = utils._get_h5files_in_dir(self.output_path, "bytrait")
         for h5file in h5files:
-            searcher = trait_searcher.Service(trait_dir_path + "/" + h5file)
+            searcher = study_searcher.StudyService(h5file=h5file)
             studies.extend(searcher.list_studies())
             searcher.close_file()
 
         return studies
 
     def get_info_on_study(self, study_to_find):
-        trait_dir_path = self.output_path + "/bytrait"
-        h5files = [f for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
+        h5files = utils._get_h5files_in_dir(self.output_path, "bytrait")
         for h5file in h5files:
-            searcher = trait_searcher.Service(trait_dir_path + "/" + h5file)
+            searcher = study_searcher.StudyService(h5file=h5file)
             for trait_study in searcher.list_studies():
                 if study_to_find == trait_study.split(":")[1]:
                     searcher.close_file()

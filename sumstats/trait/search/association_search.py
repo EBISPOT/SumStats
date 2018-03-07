@@ -1,6 +1,6 @@
 
 import sumstats.explorer as ex
-import sumstats.trait.search.access.service as service
+import sumstats.trait.search.access.trait_service as service
 import sumstats.trait.search.trait_search as ts
 import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
@@ -67,7 +67,7 @@ class AssociationSearch:
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:
             h5file = utils.create_file_path(self.path, dir_name="bytrait", file_name=trait)
-            searcher = service.Service(h5file)
+            searcher = service.TraitService(h5file)
             trait_size = searcher.get_trait_size(trait)
             searcher.close_file()
             return trait_size

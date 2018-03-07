@@ -4,7 +4,7 @@ import pytest
 
 import sumstats.trait.loader as loader
 from sumstats.trait.constants import TO_STORE_DSETS
-from sumstats.trait.search.access.service import Service
+from sumstats.trait.search.access.trait_service import TraitService
 from tests.prep_tests import *
 import tests.test_constants as search_arrays
 from sumstats.errors.error_classes import *
@@ -39,7 +39,7 @@ class TestUnitSearcher(object):
         self.start = 0
         self.size = 20
 
-        self.query = Service(self.h5file)
+        self.query = TraitService(self.h5file)
 
     def teardown_method(self):
         os.remove(self.h5file)
@@ -49,10 +49,10 @@ class TestUnitSearcher(object):
         datasets = self.query.get_result()
         study_set = set(datasets[STUDY_DSET])
 
-        assert study_set.__len__() == 3
+        assert len(study_set) == 3
 
     def test_query_for_trait(self):
-        self.query.query_for_trait(trait1, self.start, self.size)
+        self.query.query(trait1, self.start, self.size)
         datasets = self.query.get_result()
 
         for dset_name in TO_STORE_DSETS:
@@ -60,9 +60,9 @@ class TestUnitSearcher(object):
 
         study_set = set(datasets[STUDY_DSET])
 
-        assert study_set.__len__() == 2
+        assert len(study_set) == 2
 
-        self.query.query_for_trait(trait2, self.start, self.size)
+        self.query.query(trait2, self.start, self.size)
         datasets = self.query.get_result()
 
         for dset_name in TO_STORE_DSETS:
@@ -70,32 +70,9 @@ class TestUnitSearcher(object):
 
         study_set = set(datasets[STUDY_DSET])
 
-        assert study_set.__len__() == 1
-
-    def test_query_for_study(self):
-        self.query.query_for_study(trait1, study1, self.start, self.size)
-
-        datasets = self.query.get_result()
-
-        for dset_name in TO_STORE_DSETS:
-            assert len(datasets[dset_name]) == 4
-
-        study_set = set(datasets[STUDY_DSET])
-
-        assert study_set.__len__() == 1
-        assert study1 in study_set.pop()
-
-        self.query.query_for_study(trait1, study1, self.start, self.size)
-        datasets = self.query.get_result()
-
-        for dset_name in TO_STORE_DSETS:
-            assert len(datasets[dset_name]) == 4
+        assert len(study_set) == 1
 
     def test_non_existing_trait(self):
-        with pytest.raises(SubgroupError):
-            self.query.query_for_trait(trait3, self.start, self.size)
-
-    def test_non_existing_trait_study_combination(self):
-        with pytest.raises(SubgroupError):
-            self.query.query_for_study(trait3, study2, self.start, self.size)
+        with pytest.raises(NotFoundError):
+            self.query.query(trait3, self.start, self.size)
 

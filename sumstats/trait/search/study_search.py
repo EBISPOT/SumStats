@@ -1,13 +1,13 @@
 import os.path
 
-import sumstats.trait.search.access.trait_service as service
+import sumstats.trait.search.access.study_service as service
 import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
 from sumstats.utils import search
 from sumstats.errors.error_classes import *
 
 
-class TraitSearch:
+class StudySearch:
     def __init__(self, trait, start, size, path=None):
         self.trait = trait
         self.start = start
@@ -26,12 +26,11 @@ class TraitSearch:
         self.h5file = utils.create_file_path(self.path, dir_name="bytrait", file_name=trait)
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Trait " + trait)
-        self.searcher = service.TraitService(self.h5file)
-        self.max_size_of_trait = self.searcher.get_trait_size(self.trait)
+        self.searcher = service.StudyService(self.h5file)
 
-    def search_trait(self, pval_interval=None):
-        method_arguments = {'trait': self.trait}
+    def search_study(self, study, pval_interval):
+        method_arguments = {'trait': self.trait, 'study': study}
+        total_study_size = self.searcher.get_study_size(self.trait, study)
         restrictions = {'pval_interval': pval_interval}
-        return search.general_search(search_obj=self, max_size=self.max_size_of_trait, arguments=method_arguments,
+        return search.general_search(search_obj=self, max_size=total_study_size, arguments=method_arguments,
                                      restriction_dictionary=restrictions)
-

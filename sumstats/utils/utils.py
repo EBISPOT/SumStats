@@ -4,6 +4,8 @@ General methods used across the modules
 
 from sumstats.utils.dataset import *
 import sumstats.utils.pval as pu
+from os import listdir
+from os.path import isfile, join
 
 
 def filter_dictionary_by_mask(dictionary, mask):
@@ -50,3 +52,12 @@ def extend_dsets_with_subset(datasets, subset):
 
 def create_file_path(path, dir_name, file_name):
     return path + "/" + dir_name + "/file_" + str(file_name) + ".h5"
+
+
+def _get_h5files_in_dir(path, dir_name):
+    trait_dir_path = path + "/" + dir_name
+    traits_in_path = [str(f.split("_")[1]).split(".")[0] for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
+    h5files = []
+    for trait in traits_in_path:
+        h5files.append(create_file_path(path, dir_name, trait))
+    return h5files

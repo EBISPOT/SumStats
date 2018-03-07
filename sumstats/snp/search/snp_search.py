@@ -29,10 +29,9 @@ class SNPSearch:
     def search_snp(self, study=None, pval_interval=None):
         max_size = self.searcher.get_snp_size(self.snp)
         method_arguments = {'snp': self.snp}
-        search_constructor = {'object': self.searcher, 'method': 'query_for_snp', 'args': method_arguments}
         restrictions = {'pval_interval': pval_interval, 'study': study}
         return search.general_search(search_obj=self, max_size=max_size,
-                                     search_constructor=search_constructor, restriction_dictionary=restrictions)
+                                     arguments=method_arguments, restriction_dictionary=restrictions)
 
     def _calculate_searcher(self):
         for chromosome in range(1, 24):

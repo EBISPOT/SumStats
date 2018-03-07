@@ -122,7 +122,7 @@ class Group:
 
     def _raise_non_existent_subgroup_error(self, child_group):
         if self.group.name == "/":
-            parent_name = "root group"
+            raise NotFoundError(item_not_found=child_group)
         else:
             parent_name = self.group.name.split("/")[-1]
         raise SubgroupError(parent="parent group: " + parent_name,

@@ -24,7 +24,7 @@ import sumstats.utils.restrictions as rst
 from sumstats.common_constants import *
 
 
-class Service:
+class TraitService:
     def __init__(self, h5file):
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')
@@ -34,15 +34,9 @@ class Service:
     def query_for_all_associations(self, start, size):
         self.datasets = repo.get_dsets_from_file_group(self.file_group, start, size)
 
-    def query_for_trait(self, trait, start, size):
+    def query(self, trait, start, size):
         trait_group = self.file_group.get_subgroup(trait)
         self.datasets = repo.get_dsets_from_trait_group(trait_group, start, size)
-
-    def query_for_study(self, trait, study, start, size):
-        trait_group = self.file_group.get_subgroup(trait)
-        study_group = trait_group.get_subgroup(study)
-
-        self.datasets = repo.get_dsets_from_group_directly(study, study_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
         self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)
@@ -54,21 +48,9 @@ class Service:
         trait_group = self.file_group.get_subgroup(trait)
         return sum(study_group.get_dset_shape(REFERENCE_DSET)[0] for study_group in trait_group.get_all_subgroups())
 
-    def get_study_size(self, trait, study):
-        trait_group = self.file_group.get_subgroup(trait)
-        return trait_group.get_subgroup(study).get_dset_shape(REFERENCE_DSET)[0]
-
     def list_traits(self):
         trait_groups = self.file_group.get_all_subgroups()
         return [trait_group.get_name().strip("/") for trait_group in trait_groups]
-
-    def list_studies(self):
-        trait_groups = self.file_group.get_all_subgroups()
-        study_groups = []
-
-        for trait_group in trait_groups:
-            study_groups.extend(trait_group.get_all_subgroups())
-        return [study_group.get_name().strip("/").replace("/",":") for study_group in study_groups]
 
     def close_file(self):
         self.file.close()

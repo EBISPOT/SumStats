@@ -27,20 +27,14 @@ import sumstats.utils.utils as utils
 from sumstats.common_constants import *
 
 
-class Service:
+class BlockService:
     def __init__(self, h5file):
         # Open the file with read permissions
         self.file = h5py.File(h5file, 'r')
         self.datasets = {}
         self.file_group = gu.Group(self.file)
 
-    def query_for_chromosome(self, chromosome, start, size):
-        chr_group = self.file_group.get_subgroup(chromosome)
-
-        all_chr_sub_groups = chr_group.get_all_subgroups()
-        self.datasets = query.load_datasets_from_groups(all_chr_sub_groups, start, size)
-
-    def query_chr_for_block_range(self, chromosome, bp_interval, start, size):
+    def query(self, chromosome, bp_interval, start, size):
         chr_group = self.file_group.get_subgroup(chromosome)
         block = bk.Block(bp_interval)
 
@@ -71,10 +65,6 @@ class Service:
 
     def get_result(self):
         return self.datasets
-
-    def get_chromosome_size(self, chromosome):
-        chromosome_group = self.file_group.get_subgroup(chromosome)
-        return sum(bp_group.get_max_group_size() for bp_group in chromosome_group.get_all_subgroups())
 
     def get_block_range_size(self, chromosome, bp_interval):
         chr_group = self.file_group.get_subgroup(chromosome)

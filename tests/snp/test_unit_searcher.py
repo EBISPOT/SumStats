@@ -32,7 +32,7 @@ class TestUnitSearcher(object):
         os.remove(self.h5file)
 
     def test_query_for_snp(self):
-        self.query.query_for_snp(snp=self.existing_snp, start=self.start, size=self.size)
+        self.query.query(snp=self.existing_snp, start=self.start, size=self.size)
         datasets = self.query.get_result()
 
         assert isinstance(datasets, dict)
@@ -44,11 +44,11 @@ class TestUnitSearcher(object):
         assert set(datasets[CHR_DSET]).pop() == 2
 
     def test_query_for_non_existing_snp_raises_error(self):
-        with pytest.raises(SubgroupError):
-            self.query.query_for_snp(snp=self.non_existing_snp, start=self.start, size=self.size)
+        with pytest.raises(NotFoundError):
+            self.query.query(snp=self.non_existing_snp, start=self.start, size=self.size)
 
     def test_get_snp_size_raises_error_for_not_existing_snp(self):
-        with pytest.raises(SubgroupError):
+        with pytest.raises(NotFoundError):
             self.query.get_snp_size(self.non_existing_snp)
 
     def test_get_snp_size(self):

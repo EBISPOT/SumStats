@@ -3,7 +3,7 @@ import os
 import pytest
 
 import sumstats.chr.loader as loader
-from sumstats.chr.search.access.service import *
+from sumstats.chr.search.access.block_service import *
 from sumstats.utils.interval import *
 from tests.prep_tests import *
 
@@ -35,17 +35,10 @@ class TestUnitSearcher(object):
 
         self.start = 0
         self.size = 20
-        self.query = Service(self.h5file)
+        self.query = BlockService(self.h5file)
 
     def teardown_method(self):
         os.remove(self.h5file)
-
-    def test_query_for_chromosome(self):
-        self.query.query_for_chromosome("2", self.start, self.size)
-        datasets = self.query.get_result()
-
-        assert len(datasets[BP_DSET]) == 6
-        assert len(datasets[SNP_DSET]) == 6
 
     def test_query_with_two_blocks_in_range(self):
 
@@ -53,7 +46,7 @@ class TestUnitSearcher(object):
         block_upper_limit = 49129966
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
 
-        self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
+        self.query.query("2", bp_interval, self.start, self.size)
         datasets = self.query.get_result()
 
         assert isinstance(datasets, dict)
@@ -67,14 +60,14 @@ class TestUnitSearcher(object):
         block_upper_limit = 48480252
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
         with pytest.raises(ValueError):
-            self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
+            self.query.query("2", bp_interval, self.start, self.size)
 
     def test_query_upper_limit_on_edge(self):
 
         block_lower_limit = 49129966
         block_upper_limit = 49200000
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
-        self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
+        self.query.query("2", bp_interval, self.start, self.size)
         datasets = self.query.get_result()
 
         assert isinstance(datasets, dict)
@@ -87,7 +80,7 @@ class TestUnitSearcher(object):
         block_lower_limit = 49129966
         block_upper_limit = None
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
-        self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
+        self.query.query("2", bp_interval, self.start, self.size)
         datasets = self.query.get_result()
 
         assert isinstance(datasets, dict)
@@ -100,7 +93,7 @@ class TestUnitSearcher(object):
         block_upper_limit = 1120431
 
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
-        self.query.query_chr_for_block_range("1", bp_interval, self.start, self.size)
+        self.query.query("1", bp_interval, self.start, self.size)
         datasets = self.query.get_result()
         assert isinstance(datasets, dict)
 
@@ -115,7 +108,7 @@ class TestUnitSearcher(object):
 
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
 
-        self.query.query_chr_for_block_range("1", bp_interval, self.start, self.size)
+        self.query.query("1", bp_interval, self.start, self.size)
         datasets = self.query.get_result()
 
         assert isinstance(datasets, dict)
@@ -129,7 +122,7 @@ class TestUnitSearcher(object):
         block_lower_limit = None
         block_upper_limit = 49129966
         bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
-        self.query.query_chr_for_block_range("2", bp_interval, self.start, self.size)
+        self.query.query("2", bp_interval, self.start, self.size)
         datasets = self.query.get_result()
 
         assert isinstance(datasets, dict)
