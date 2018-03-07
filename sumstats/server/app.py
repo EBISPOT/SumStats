@@ -194,23 +194,31 @@ def get_chromosome_assocs(chromosome):
                                                             start=start, size=size, study=study,
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
         data_dict = apiu._get_array_to_display(datasets, chromosome=chromosome)
-        _check_bp_group_empty(data_dict=data_dict, chromosome=chromosome, bp_lower=bp_lower, bp_upper=bp_upper)
 
-        params = dict(chromosome=chromosome, p_lower=p_lower, p_upper=p_upper, bp_lower=bp_lower, bp_upper=bp_upper,
-                      study_accession=study)
-        response = apiu._create_associations_response(method_name='get_chromosome_assocs', start=start, size=size, index_marker=index_marker,
-                                                 data_dict=data_dict, params=params)
+        return _return_chromosome_info(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
+                                            index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
+                                            p_lower=p_lower, p_upper=p_upper, study=study))
 
-        return simplejson.dumps(OrderedDict(response), ignore_nan=True)
-
-    except (NotFoundError, SubgroupError) as error:
+    except NotFoundError as error:
         raise RequestedNotFound(str(error))
+    except SubgroupError:
+        # we have not found bp in chromosome, return empty collection
+        data_dict = {}
+        index_marker = 0
+        return _return_chromosome_info(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
+                                            index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
+                                            p_lower=p_lower, p_upper=p_upper, study=study))
 
 
-def _check_bp_group_empty(data_dict, chromosome, bp_lower, bp_upper):
-    if (not data_dict) and ((bp_lower is not None) or (bp_upper is not None)):
-        #TODO probably just return empty collection
-        raise SubgroupError(parent="parent group: " + str(chromosome), subgroup="child group: " + str(bp_lower) + ":" + str(bp_upper))
+def _return_chromosome_info(search_info):
+    params = dict(chromosome=search_info['chromosome'], p_lower=search_info['p_lower'], p_upper=search_info['p_upper'],
+                  bp_lower=search_info['bp_lower'], bp_upper=search_info['bp_upper'],
+                  study_accession=search_info['study'])
+    response = apiu._create_associations_response(method_name='get_chromosome_assocs', start=search_info['start'], size=search_info['size'],
+                                                  index_marker=search_info['index_marker'],
+                                                  data_dict=search_info['data_dict'], params=params)
+
+    return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
 
 @app.route('/chromosomes/<string:chromosome>/variants/<string:variant>')
