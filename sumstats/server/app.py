@@ -3,11 +3,15 @@ from flask import Flask, request, make_response
 from collections import OrderedDict
 from sumstats.utils.interval import *
 import sumstats.explorer as ex
-import sumstats.search as search
+import sumstats.controller as search
 from sumstats.server.error_classes import *
 from sumstats.errors.error_classes import *
 import sumstats.server.api_utils as apiu
 from sumstats.server.api_utils import properties
+from cherrypy import log
+import logging
+
+logger = logging.getLogger()
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -263,10 +267,15 @@ def get_variants(chromosome, variant):
         raise RequestedNotFound("Wrong variant id or chromosome. Chromosome: %s, variant %s" %(chromosome, variant))
 
 
-def main():
-    apiu._set_properties()
-    app.run(host='0.0.0.0', port=8080)
-
+# def main():
+#     apiu._set_properties()
+#     app.run(host='0.0.0.0', port=8080)
+#
+#
+# if __name__ == '__main__':
+#     main()
 
 if __name__ == '__main__':
-    main()
+    print("NAME", __name__)
+    apiu._set_properties()
+    app.run()

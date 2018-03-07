@@ -1,7 +1,7 @@
 import os
 import shutil
 
-import sumstats.search as search
+import sumstats.controller as search
 import tests.search.search_test_constants as search_arrays
 import sumstats.trait.loader as loader
 import sumstats.utils.utils as utils

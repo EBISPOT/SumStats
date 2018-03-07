@@ -1,4 +1,4 @@
-import sumstats.search as search
+import sumstats.controller as search
 import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
 from tests.search.test_utils import *

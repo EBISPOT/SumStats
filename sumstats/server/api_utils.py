@@ -20,6 +20,7 @@ def _set_properties():
             properties.gwas_study_location = props["gwas_study_location"]
             properties.input_path = props["input_path"]
             properties.ols_terms_location = props["ols_terms_location"]
+            properties.logging_location = props["logging_path"]
 
 
 def _get_study_list(trait_studies, start, size):

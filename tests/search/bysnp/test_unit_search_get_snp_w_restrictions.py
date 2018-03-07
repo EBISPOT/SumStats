@@ -1,5 +1,5 @@
 
-import sumstats.search as search
+import sumstats.controller as search
 from sumstats.snp.constants import *
 from sumstats.utils.interval import *
 from tests.search.test_utils import *
