@@ -22,6 +22,16 @@ def _set_properties():
             properties.ols_terms_location = props["ols_terms_location"]
 
 
+def _get_study_list(trait_studies, start, size):
+    study_list = []
+    end = min(start + size, len(trait_studies))
+    for trait_study in trait_studies[start:end]:
+        trait = trait_study.split(":")[0]
+        study = trait_study.split(":")[1]
+        study_list.append(_create_study_info_for_trait([study], trait))
+    return study_list
+
+
 def _create_study_info_for_trait(studies, trait):
     study_list = []
     for study in studies:
@@ -30,10 +40,35 @@ def _create_study_info_for_trait(studies, trait):
                                                       params={'trait': trait, 'study': study}),
                                  'trait': _create_href(method_name='get_trait_assocs', params={'trait': trait})}}
 
-        study_info['_links']['gwas_catalog'] = {'href': str(properties.gwas_study_location + study)}
-        study_info['_links']['ols'] = {'href': str(properties.ols_terms_location + trait)}
+        study_info['_links']['gwas_catalog'] = _create_gwas_catalog_href(study)
+        study_info['_links']['ols'] = _create_ontology_href(trait)
         study_list.append(study_info)
     return study_list
+
+
+def _get_trait_list(traits, start, size):
+    trait_list = []
+    end = min(start + size, len(traits))
+    for trait in traits[start:end]:
+        trait_info = _create_info_for_trait(trait)
+        trait_list.append(trait_info)
+    return trait_list
+
+
+def _create_info_for_trait(trait):
+    trait_info = {'trait': trait,
+                  '_links': {'self': _create_href(method_name='get_trait_assocs', params={'trait': trait})}}
+    trait_info['_links']['studies'] = _create_href(method_name='get_studies_for_trait', params={'trait': trait})
+    trait_info['_links']['ols'] = _create_ontology_href(trait)
+    return trait_info
+
+
+def _create_ontology_href(trait):
+    return {'href': str(properties.ols_terms_location + trait)}
+
+
+def _create_gwas_catalog_href(study):
+    return {'href': str(properties.gwas_study_location + study)}
 
 
 def _get_array_to_display(datasets, variant=None, chromosome=None):
@@ -104,8 +139,11 @@ def _evaluate_variable(variable, datasets, dset_name, traversal_index):
     return datasets[dset_name][traversal_index]
 
 
-def _create_associations_response(method_name, start, size, index_marker, data_dict, params):
-    return {'_embedded': {'associations': data_dict}, '_links': _create_next_links(
+def _create_response(method_name, start, size, index_marker, data_dict, params=None, collection_name=None):
+    if collection_name is None:
+        collection_name = 'associations'
+    params = params or {}
+    return {'_embedded': {collection_name: data_dict}, '_links': _create_next_links(
         method_name=method_name, start=start, size=size, index_marker=index_marker,
         size_retrieved=len(data_dict),
         params=params

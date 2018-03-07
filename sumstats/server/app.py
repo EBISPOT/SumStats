@@ -58,26 +58,26 @@ def get_assocs():
 
     data_dict = apiu._get_array_to_display(datasets)
     params = dict(p_lower=p_lower, p_upper=p_upper)
-    response = apiu._create_associations_response(method_name='get_assocs', start=start, size=size, index_marker=index_marker,
-                                             data_dict=data_dict, params=params)
+    response = apiu._create_response(method_name='get_assocs', start=start, size=size, index_marker=index_marker,
+                                     data_dict=data_dict, params=params)
 
     return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
 
 @app.route('/traits')
 def get_traits():
+    args = request.args.to_dict()
+    try:
+        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        raise BadUserRequest(str(error))
     explorer = ex.Explorer(properties.output_path)
-    trait_list = []
     traits = explorer.get_list_of_traits()
-    for trait in traits:
-        trait_info = {'trait': trait,
-                      '_links': {'self': apiu._create_href(method_name='get_trait_assocs', params={'trait': trait})}}
-        trait_info['_links']['studies'] = apiu._create_href(method_name='get_studies_for_trait', params={'trait': trait})
-        trait_info['_links']['ols'] = {'href': str(properties.ols_terms_location + trait)}
+    trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
 
-        trait_list.append(trait_info)
+    response = apiu._create_response(collection_name='traits', method_name='get_traits',
+                                     start=start, size=size, index_marker=(start + size), data_dict=trait_list)
 
-    response = {'_embedded': {'traits': trait_list}}
     return simplejson.dumps(OrderedDict(response))
 
 
@@ -96,10 +96,10 @@ def get_trait_assocs(trait):
 
         data_dict = apiu._get_array_to_display(datasets)
         params = dict(trait=trait, p_lower=p_lower, p_upper=p_upper)
-        response = apiu._create_associations_response(method_name='get_trait_assocs', start=start, size=size, index_marker=index_marker,
-                                                 data_dict=data_dict, params=params)
+        response = apiu._create_response(method_name='get_trait_assocs', start=start, size=size, index_marker=index_marker,
+                                         data_dict=data_dict, params=params)
         response['_links']['studies'] = apiu._create_href(method_name='get_studies_for_trait', params={'trait': trait})
-        response['_links']['ols'] = {'href': str(properties.ols_terms_location + trait)}
+        response['_links']['ols'] = apiu._create_ontology_href(trait)
 
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
@@ -109,25 +109,39 @@ def get_trait_assocs(trait):
 
 @app.route('/studies')
 def get_studies():
-    explorer = ex.Explorer(properties.output_path)
-    study_list = []
-    trait_studies = explorer.get_list_of_studies()
-    for trait_study in trait_studies:
-        trait = trait_study.split(":")[0]
-        study = trait_study.split(":")[1]
-        study_list.append(apiu._create_study_info_for_trait([study], trait))
+    args = request.args.to_dict()
+    try:
+        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        raise BadUserRequest(str(error))
 
-    response = {'_embedded': {'studies': study_list}}
+    explorer = ex.Explorer(properties.output_path)
+    trait_studies = explorer.get_list_of_studies()
+    study_list = apiu._get_study_list(trait_studies=trait_studies, start=start, size=size)
+
+    response = apiu._create_response(collection_name='studies', method_name='get_studies',
+                                     start=start, size=size, index_marker=(start + size), data_dict=study_list)
+
     return simplejson.dumps(OrderedDict(response))
 
 
 @app.route('/traits/<string:trait>/studies')
 def get_studies_for_trait(trait):
-    explorer = ex.Explorer(properties.output_path)
+    args = request.args.to_dict()
     try:
+        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        raise BadUserRequest(str(error))
+
+    try:
+        explorer = ex.Explorer(properties.output_path)
         studies = explorer.get_list_of_studies_for_trait(trait)
         study_list = apiu._create_study_info_for_trait(studies, trait)
-        response = {'_embedded': {'studies': study_list}}
+        end = min(start + size, len(study_list))
+        response = apiu._create_response(collection_name='studies', method_name='get_studies_for_trait',
+                                         start=start, size=size, index_marker=(start + size),
+                                         data_dict=study_list[start:end], params=dict(trait=trait))
+
         return simplejson.dumps(OrderedDict(response))
     except NotFoundError as error:
         raise RequestedNotFound(str(error))
@@ -151,9 +165,9 @@ def get_trait_study_assocs(study, trait=None):
 
         data_dict = apiu._get_array_to_display(datasets)
         params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
-        response = apiu._create_associations_response(method_name='get_trait_study_assocs', start=start, size=size, index_marker=index_marker,
-                                                 data_dict=data_dict, params=params)
-        response['_links']['gwas_catalog'] = {'href': str(properties.gwas_study_location + study)}
+        response = apiu._create_response(method_name='get_trait_study_assocs', start=start, size=size, index_marker=index_marker,
+                                         data_dict=data_dict, params=params)
+        response['_links']['gwas_catalog'] = apiu._create_gwas_catalog_href(study)
         response['_links']['trait'] = apiu._create_href(method_name='get_trait_assocs', params={'trait': trait})
 
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
@@ -214,9 +228,9 @@ def _return_chromosome_info(search_info):
     params = dict(chromosome=search_info['chromosome'], p_lower=search_info['p_lower'], p_upper=search_info['p_upper'],
                   bp_lower=search_info['bp_lower'], bp_upper=search_info['bp_upper'],
                   study_accession=search_info['study'])
-    response = apiu._create_associations_response(method_name='get_chromosome_assocs', start=search_info['start'], size=search_info['size'],
-                                                  index_marker=search_info['index_marker'],
-                                                  data_dict=search_info['data_dict'], params=params)
+    response = apiu._create_response(method_name='get_chromosome_assocs', start=search_info['start'], size=search_info['size'],
+                                     index_marker=search_info['index_marker'],
+                                     data_dict=search_info['data_dict'], params=params)
 
     return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
@@ -238,8 +252,8 @@ def get_variants(chromosome, variant):
 
         data_dict = apiu._get_array_to_display(datasets, variant=variant)
         params = {'variant': variant, 'chromosome': chromosome, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
-        response = apiu._create_associations_response(method_name='get_variants', start=start, size=size, index_marker=index_marker,
-                                                 data_dict=data_dict, params=params)
+        response = apiu._create_response(method_name='get_variants', start=start, size=size, index_marker=index_marker,
+                                         data_dict=data_dict, params=params)
 
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
