@@ -5,6 +5,11 @@ import sumstats.utils.utils as utils
 from sumstats.chr.constants import *
 from sumstats.utils import  search
 from sumstats.errors.error_classes import *
+import logging
+from sumstats.utils import register_logger
+
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 class BlockSearch:
@@ -27,6 +32,8 @@ class BlockSearch:
         self.searcher = service.BlockService(self.h5file)
 
     def search_chromosome_block(self, bp_interval, study=None, pval_interval=None):
+        logger.info("Searching for chromosome %s / block floor %s, block ceil %s", str(self.chromosome),
+                    str(bp_interval.floor()), str(bp_interval.ceil()))
         max_size = self.searcher.get_block_range_size(chromosome=self.chromosome, bp_interval=bp_interval)
         method_arguments = {'chromosome': self.chromosome, 'bp_interval': bp_interval}
         restrictions = {'pval_interval': pval_interval, 'study': study}

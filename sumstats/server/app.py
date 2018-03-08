@@ -8,7 +8,7 @@ from sumstats.server.error_classes import *
 from sumstats.errors.error_classes import *
 import sumstats.server.api_utils as apiu
 from sumstats.server.api_utils import properties
-from cherrypy import log
+from cherrypy import log as cherrylog
 import logging
 
 logger = logging.getLogger()
@@ -54,6 +54,7 @@ def get_assocs():
     try:
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
     except ValueError as error:
+        cherrylog.error("/associations. " + (str(error)))
         raise BadUserRequest(str(error))
 
     searcher = search.Search(properties.output_path)
@@ -74,6 +75,7 @@ def get_traits():
     try:
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
     except ValueError as error:
+        cherrylog.error("/traits. " + (str(error)))
         raise BadUserRequest(str(error))
     explorer = ex.Explorer(properties.output_path)
     traits = explorer.get_list_of_traits()
@@ -91,6 +93,7 @@ def get_trait_assocs(trait):
     try:
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
     except ValueError as error:
+        cherrylog.error("/traits/" + trait + ". " + (str(error)))
         raise BadUserRequest(str(error))
 
     searcher = search.Search(properties.output_path)
@@ -108,6 +111,7 @@ def get_trait_assocs(trait):
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
     except NotFoundError as error:
+        cherrylog.error("/traits/" + trait + ". " + (str(error)))
         raise RequestedNotFound(str(error))
 
 
@@ -117,6 +121,7 @@ def get_studies():
     try:
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
     except ValueError as error:
+        cherrylog.error("/studies. ", (str(error)))
         raise BadUserRequest(str(error))
 
     explorer = ex.Explorer(properties.output_path)
@@ -135,6 +140,7 @@ def get_studies_for_trait(trait):
     try:
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
     except ValueError as error:
+        cherrylog.error("/traits/" + trait + "/studies. " + (str(error)))
         raise BadUserRequest(str(error))
 
     try:
@@ -148,6 +154,7 @@ def get_studies_for_trait(trait):
 
         return simplejson.dumps(OrderedDict(response))
     except NotFoundError as error:
+        cherrylog.error("/traits/" + trait + "/studies. " + (str(error)))
         raise RequestedNotFound(str(error))
 
 
@@ -158,6 +165,7 @@ def get_trait_study_assocs(study, trait=None):
     try:
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
     except ValueError as error:
+        cherrylog.error("/studies/" + study + ". " + (str(error)))
         raise BadUserRequest(str(error))
 
     try:
@@ -177,6 +185,7 @@ def get_trait_study_assocs(study, trait=None):
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
     except (NotFoundError, SubgroupError) as error:
+        cherrylog.error("/studies/" + study + ". " + (str(error)))
         raise RequestedNotFound(str(error))
 
 
@@ -203,6 +212,7 @@ def get_chromosome_assocs(chromosome):
         bp_upper = apiu._retrieve_endpoint_arguments(args, 'bp_upper')
         bp_interval = apiu._get_interval(lower=bp_lower, upper=bp_upper, interval=IntInterval)
     except ValueError as error:
+        cherrylog.error("/chromosomes/" + chromosome + ". " + (str(error)))
         raise BadUserRequest(str(error))
 
     searcher = search.Search(properties.output_path)
@@ -218,6 +228,7 @@ def get_chromosome_assocs(chromosome):
                                             p_lower=p_lower, p_upper=p_upper, study=study))
 
     except NotFoundError as error:
+        cherrylog.error("/chromosomes/" + chromosome + ". " + (str(error)))
         raise RequestedNotFound(str(error))
     except SubgroupError:
         # we have not found bp in chromosome, return empty collection
@@ -246,6 +257,7 @@ def get_variants(chromosome, variant):
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
     except ValueError as error:
+        cherrylog.error("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
         raise BadUserRequest(str(error))
 
     searcher = search.Search(properties.output_path)
@@ -262,18 +274,12 @@ def get_variants(chromosome, variant):
         return simplejson.dumps(OrderedDict(response), ignore_nan=True)
 
     except NotFoundError as error:
+        cherrylog.error("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
         raise RequestedNotFound(str(error))
-    except SubgroupError:
+    except SubgroupError as error:
+        cherrylog.error("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
         raise RequestedNotFound("Wrong variant id or chromosome. Chromosome: %s, variant %s" %(chromosome, variant))
 
-
-# def main():
-#     apiu._set_properties()
-#     app.run(host='0.0.0.0', port=8080)
-#
-#
-# if __name__ == '__main__':
-#     main()
 
 if __name__ == '__main__':
     print("NAME", __name__)

@@ -5,6 +5,11 @@ import sumstats.utils.utils as utils
 from sumstats.chr.constants import *
 from sumstats.utils import  search
 from sumstats.errors.error_classes import *
+import logging
+from sumstats.utils import register_logger
+
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 class ChromosomeSearch:
@@ -27,6 +32,7 @@ class ChromosomeSearch:
         self.searcher = service.ChromosomeService(self.h5file)
 
     def search_chromosome(self, study=None, pval_interval=None):
+        logger.info("Searching for chromosome %s", str(self.chromosome))
         max_size = self.searcher.get_chromosome_size(chromosome=self.chromosome)
         method_arguments = {'chromosome': self.chromosome}
         restrictions = {'pval_interval': pval_interval, 'study': study}

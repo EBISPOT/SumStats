@@ -5,6 +5,11 @@ import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
 from sumstats.utils import search
 from sumstats.errors.error_classes import *
+import logging
+from sumstats.utils import register_logger
+
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 class TraitSearch:
@@ -30,6 +35,7 @@ class TraitSearch:
         self.max_size_of_trait = self.searcher.get_trait_size(self.trait)
 
     def search_trait(self, pval_interval=None):
+        logger.info("Searching for trait %s", self.trait)
         method_arguments = {'trait': self.trait}
         restrictions = {'pval_interval': pval_interval}
         return search.general_search(search_obj=self, max_size=self.max_size_of_trait, arguments=method_arguments,

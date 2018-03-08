@@ -4,6 +4,11 @@ import sumstats.trait.search.access.trait_service as service
 import sumstats.trait.search.trait_search as ts
 import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
+import logging
+from sumstats.utils import register_logger
+
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 class AssociationSearch:
@@ -17,31 +22,36 @@ class AssociationSearch:
 
         self.path = path
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
-        self.trait_list = []
         # index marker will be returned along with the datasets
         # it is the number that when added to the 'start' value that we started the query with
         # will pinpoint where the next search needs to continue from
         self.index_marker = self.search_traversed = 0
 
     def get_all_associations(self, pval_interval=None):
+        logger.info("Searching all associations for start %s and size %s", str(self.start), str(self.size))
         iteration_size = self.size
         available_traits = self._get_all_traits()
-
         for trait in available_traits:
+            logger.debug(
+                "Searching all associations for trait %s, start %s, and iteration size %s", trait, str(self.start),
+                str(iteration_size))
             search_trait = ts.TraitSearch(trait=trait, start=self.start, size=iteration_size, path=self.path)
             result, current_trait_index = search_trait.search_trait(pval_interval)
 
-            self._extend_datasets(trait=trait, result=result)
+            self._extend_datasets(result)
             self._calculate_total_traversal_of_search(trait=trait, current_trait_index=current_trait_index)
             self._increase_search_index(current_trait_index)
 
             if self._search_complete():
-                self.datasets['trait'] = self.trait_list
+                logger.debug("Search completed for trait %s", trait)
+                logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
                 return self.datasets, self.index_marker
 
             iteration_size = self._next_iteration_size()
+            logger.debug("Calculating next iteration start and size")
             self.start = self._next_start_index(current_search_index=current_trait_index)
 
+            logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
         return self.datasets, self.index_marker
 
     def _get_all_traits(self):
@@ -54,9 +64,8 @@ class AssociationSearch:
     def _increase_search_index(self, iteration_size):
         self.index_marker += iteration_size
 
-    def _extend_datasets(self, trait, result):
+    def _extend_datasets(self, result):
         self.datasets = utils.extend_dsets_with_subset(self.datasets, result)
-        self.trait_list.extend([trait for _ in range(len(result[REFERENCE_DSET]))])
 
     def _calculate_total_traversal_of_search(self, trait, current_trait_index):
         self.search_traversed += self._get_traversed_size(retrieved_index=current_trait_index, trait=trait)

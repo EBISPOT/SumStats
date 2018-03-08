@@ -5,6 +5,11 @@ import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
 from sumstats.utils import search
 from sumstats.errors.error_classes import *
+import logging
+from sumstats.utils import register_logger
+
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 class StudySearch:
@@ -29,6 +34,7 @@ class StudySearch:
         self.searcher = service.StudyService(self.h5file)
 
     def search_study(self, study, pval_interval):
+        logger.info("Searching for study %s", study)
         method_arguments = {'trait': self.trait, 'study': study}
         total_study_size = self.searcher.get_study_size(self.trait, study)
         restrictions = {'pval_interval': pval_interval}

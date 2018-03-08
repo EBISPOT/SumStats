@@ -13,6 +13,7 @@ def _set_properties():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-config', help='The configuration file to use instead of default')
     args = argparser.parse_args()
+
     if args.config is not None:
         with open(args.config) as config:
             props = json.load(config)
@@ -20,7 +21,8 @@ def _set_properties():
             properties.gwas_study_location = props["gwas_study_location"]
             properties.input_path = props["input_path"]
             properties.ols_terms_location = props["ols_terms_location"]
-            properties.logging_location = props["logging_path"]
+            properties.logging_path = props["logging_path"]
+            properties.LOG_LEVEL = props["LOG_LEVEL"]
 
 
 def _get_study_list(trait_studies, start, size):

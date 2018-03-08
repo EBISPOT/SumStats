@@ -131,7 +131,8 @@ class Loader:
         chr_mask = self.datasets[CHR_DSET].equality_mask(chromosome)
         return utils.filter_dictionary_by_mask(self.datasets, chr_mask)
 
-    def _save_block(self, block_group, block_mask, datasets):
+    @staticmethod
+    def _save_block(block_group, block_mask, datasets):
         if np.any(block_mask):
             dsets_block_slices = utils.filter_dictionary_by_mask(datasets, block_mask)
             save_info_in_block_group(block_group, dsets_block_slices)
