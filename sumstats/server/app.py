@@ -73,7 +73,7 @@ def get_assocs():
 def get_traits():
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        start, size = apiu._get_start_size(args)
     except ValueError as error:
         cherrylog.error("/traits. " + (str(error)))
         raise BadUserRequest(str(error))
@@ -119,7 +119,7 @@ def get_trait_assocs(trait):
 def get_studies():
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        start, size = apiu._get_start_size(args)
     except ValueError as error:
         cherrylog.error("/studies. ", (str(error)))
         raise BadUserRequest(str(error))
@@ -138,7 +138,7 @@ def get_studies():
 def get_studies_for_trait(trait):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        start, size = apiu._get_start_size(args)
     except ValueError as error:
         cherrylog.error("/traits/" + trait + "/studies. " + (str(error)))
         raise BadUserRequest(str(error))
@@ -177,7 +177,8 @@ def get_trait_study_assocs(study, trait=None):
 
         data_dict = apiu._get_array_to_display(datasets)
         params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
-        response = apiu._create_response(method_name='get_trait_study_assocs', start=start, size=size, index_marker=index_marker,
+        response = apiu._create_response(method_name='get_trait_study_assocs', start=start, size=size,
+                                         index_marker=index_marker,
                                          data_dict=data_dict, params=params)
         response['_links']['gwas_catalog'] = apiu._create_gwas_catalog_href(study)
         response['_links']['trait'] = apiu._create_href(method_name='get_trait_assocs', params={'trait': trait})

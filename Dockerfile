@@ -6,7 +6,7 @@ COPY sumstats /application/sumstats
 COPY setup.py /application/
 COPY config /application/config
 
-RUN pip install /application/ 
+RUN pip install /application/ --ignore-installed six
 
 # Expose ports
 EXPOSE 8080

@@ -7,6 +7,7 @@ from flask import url_for
 from config import properties
 from sumstats.utils.interval import *
 import sumstats.explorer as ex
+from collections import OrderedDict
 
 
 def _set_properties():
@@ -108,13 +109,13 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
                                                        params={'study': study})
         element_info['_links']['trait'] = _create_href(method_name='get_trait_assocs', params={'trait': trait})
 
-        data_dict[index] = element_info
+        data_dict[index] = OrderedDict(element_info)
     return data_dict
 
 
 def _get_trait_for_study(study, trait_to_study_cache):
     if study in trait_to_study_cache:
-        trait = trait_to_study_cache[study], trait_to_study_cache
+        return trait_to_study_cache[study], trait_to_study_cache
     else:
         trait = _find_study_info(study)
         trait_to_study_cache[study] = trait
@@ -180,12 +181,17 @@ def _create_href(method_name, params=None):
 
 
 def _get_basic_arguments(args):
-    start = int(_retrieve_endpoint_arguments(args, "start", 0))
-    size = int(_retrieve_endpoint_arguments(args, "size", 20))
+    start, size = _get_start_size(args)
     p_lower = _retrieve_endpoint_arguments(args, "p_lower")
     p_upper = _retrieve_endpoint_arguments(args, "p_upper")
     pval_interval = _get_interval(lower=p_lower, upper=p_upper, interval=FloatInterval)
     return start, size, p_lower, p_upper, pval_interval
+
+
+def _get_start_size(args):
+    start = int(_retrieve_endpoint_arguments(args, "start", 0))
+    size = int(_retrieve_endpoint_arguments(args, "size", 20))
+    return start, size
 
 
 def _retrieve_endpoint_arguments(args, argument_name, value_if_empty=None):

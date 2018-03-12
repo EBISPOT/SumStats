@@ -25,15 +25,6 @@ def main():
     # Mount the WSGI callable object (app) on the root directory
     cherrypy.tree.graft(app_logged, "/")
 
-    # Set the configuration of the web server
-    cherrypy.config.update({
-        'engine.autoreload_on': True,
-        'log.screen': True,
-        'server.socket_port': 8080,
-        'server.socket_host': '0.0.0.0',
-        'server.socket_pool': 30,
-    })
-
     # Set logging configuration
     logging.config.dictConfig(LOG_CONF)
 
@@ -42,6 +33,11 @@ def main():
 
     # Instantiate a new server object
     server = cherrypy._cpserver.Server()
+
+    # Set the configuration of the web server
+    server.socket_host = "0.0.0.0"
+    server.socket_port = 8080
+    server.socket_pool = 30
 
     # Subscribe this server
     server.subscribe()
