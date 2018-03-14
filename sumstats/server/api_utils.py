@@ -89,7 +89,9 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
 
     for index in range(length):
         # elements are numpy types, they need to be python types to be json serializable
-        element_info = {dset: np.asscalar(np.array(dataset[index])) for dset, dataset in datasets.items()}
+        element_info = OrderedDict()
+        for dset, dataset in datasets.items():
+            element_info[dset] = np.asscalar(np.array(dataset[index]))
 
         specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index)
         specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index)
@@ -109,7 +111,7 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
                                                        params={'study': study})
         element_info['_links']['trait'] = _create_href(method_name='get_trait_assocs', params={'trait': trait})
 
-        data_dict[index] = OrderedDict(element_info)
+        data_dict[index] = element_info
     return data_dict
 
 
@@ -147,11 +149,11 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
     if collection_name is None:
         collection_name = 'associations'
     params = params or {}
-    return {'_embedded': {collection_name: data_dict}, '_links': _create_next_links(
+    return OrderedDict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
         method_name=method_name, start=start, size=size, index_marker=index_marker,
         size_retrieved=len(data_dict),
         params=params
-    )}
+    ))])
 
 
 def _create_next_links(method_name, start, size, index_marker, size_retrieved, params=None):
@@ -159,7 +161,7 @@ def _create_next_links(method_name, start, size, index_marker, size_retrieved, p
     prev = max(0, start - size)
     start_new = start + index_marker
 
-    response = {'self': _create_href(method_name=method_name, params=params)}
+    response = OrderedDict([('self', _create_href(method_name=method_name, params=params))])
     params['start'] = 0
     params['size'] = size
     response['first'] = _create_href(method_name=method_name, params=params)

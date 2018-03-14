@@ -36,16 +36,16 @@ def internal_server_error(error):
 @app.route('/')
 def root():
     response = {
-        '_links': {
-            'associations': apiu._create_href(method_name='get_assocs'),
-            'traits': apiu._create_href(method_name='get_traits'),
-            'studies': apiu._create_href(method_name='get_studies'),
-            'chromosomes': apiu._create_href(method_name='get_chromosomes'),
-            'variant': apiu._create_href(method_name='get_variants', params={'variant': '{variant_id}',
-                                                                        'chromosome': '{chromosome}'})
-        }
+        '_links': OrderedDict([
+            ('associations', apiu._create_href(method_name='get_assocs')),
+            ('traits', apiu._create_href(method_name='get_traits')),
+            ('studies', apiu._create_href(method_name='get_studies')),
+            ('chromosomes', apiu._create_href(method_name='get_chromosomes')),
+            ('variant', apiu._create_href(method_name='get_variants',
+                                          params={'variant': '{variant_id}', 'chromosome': '{chromosome}'}))
+        ])
     }
-    return simplejson.dumps(OrderedDict(response))
+    return simplejson.dumps(response)
 
 
 @app.route('/associations')
@@ -66,7 +66,7 @@ def get_assocs():
     response = apiu._create_response(method_name='get_assocs', start=start, size=size, index_marker=index_marker,
                                      data_dict=data_dict, params=params)
 
-    return simplejson.dumps(OrderedDict(response), ignore_nan=True)
+    return simplejson.dumps(response, ignore_nan=True)
 
 
 @app.route('/traits')
@@ -84,7 +84,7 @@ def get_traits():
     response = apiu._create_response(collection_name='traits', method_name='get_traits',
                                      start=start, size=size, index_marker=(start + size), data_dict=trait_list)
 
-    return simplejson.dumps(OrderedDict(response))
+    return simplejson.dumps(response)
 
 
 @app.route('/traits/<string:trait>')
@@ -108,7 +108,7 @@ def get_trait_assocs(trait):
         response['_links']['studies'] = apiu._create_href(method_name='get_studies_for_trait', params={'trait': trait})
         response['_links']['ols'] = apiu._create_ontology_href(trait)
 
-        return simplejson.dumps(OrderedDict(response), ignore_nan=True)
+        return simplejson.dumps(response, ignore_nan=True)
 
     except NotFoundError as error:
         cherrylog.error("/traits/" + trait + ". " + (str(error)))
@@ -131,7 +131,7 @@ def get_studies():
     response = apiu._create_response(collection_name='studies', method_name='get_studies',
                                      start=start, size=size, index_marker=(start + size), data_dict=study_list)
 
-    return simplejson.dumps(OrderedDict(response))
+    return simplejson.dumps(response)
 
 
 @app.route('/traits/<string:trait>/studies')
@@ -152,7 +152,7 @@ def get_studies_for_trait(trait):
                                          start=start, size=size, index_marker=(start + size),
                                          data_dict=study_list[start:end], params=dict(trait=trait))
 
-        return simplejson.dumps(OrderedDict(response))
+        return simplejson.dumps(response)
     except NotFoundError as error:
         cherrylog.error("/traits/" + trait + "/studies. " + (str(error)))
         raise RequestedNotFound(str(error))
@@ -183,7 +183,7 @@ def get_trait_study_assocs(study, trait=None):
         response['_links']['gwas_catalog'] = apiu._create_gwas_catalog_href(study)
         response['_links']['trait'] = apiu._create_href(method_name='get_trait_assocs', params={'trait': trait})
 
-        return simplejson.dumps(OrderedDict(response), ignore_nan=True)
+        return simplejson.dumps(response, ignore_nan=True)
 
     except (NotFoundError, SubgroupError) as error:
         cherrylog.error("/studies/" + study + ". " + (str(error)))
@@ -199,8 +199,8 @@ def get_chromosomes():
                                                            params={'chromosome': chromosome})}}
         chromosomes_list.append(chromosome_info)
 
-    response = {'_embedded': {'chromosomes': chromosomes_list}}
-    return simplejson.dumps(OrderedDict(response))
+    response = OrderedDict({'_embedded': {'chromosomes': chromosomes_list}})
+    return simplejson.dumps(response)
 
 
 @app.route('/chromosomes/<string:chromosome>')
@@ -248,7 +248,7 @@ def _return_chromosome_info(search_info):
                                      index_marker=search_info['index_marker'],
                                      data_dict=search_info['data_dict'], params=params)
 
-    return simplejson.dumps(OrderedDict(response), ignore_nan=True)
+    return simplejson.dumps(response, ignore_nan=True)
 
 
 @app.route('/chromosomes/<string:chromosome>/variants/<string:variant>')
@@ -272,7 +272,7 @@ def get_variants(chromosome, variant):
         response = apiu._create_response(method_name='get_variants', start=start, size=size, index_marker=index_marker,
                                          data_dict=data_dict, params=params)
 
-        return simplejson.dumps(OrderedDict(response), ignore_nan=True)
+        return simplejson.dumps(response, ignore_nan=True)
 
     except NotFoundError as error:
         cherrylog.error("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
