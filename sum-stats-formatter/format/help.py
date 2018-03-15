@@ -7,6 +7,8 @@ def main():
     print()
     print("\t- \'peek -f <filename>\' : will give you a peek into the file you specify")
     print()
+    print("\t- \'valid-headers\' : will print out the known valid column headers for inspiration")
+    print()
     print("\t- \'format -f <filename>\' : will try to automatically format the file")
     print()
     print("\t- \'rename -f <filename>\' -old <old name> -new <new name>: will rename the header given in the ")

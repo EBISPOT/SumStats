@@ -26,6 +26,8 @@ The actions you can perform (on a summary statistics file, i.e. csv, tsv, or oth
 
 - `$ peek -f <filename>` 
    - will give you a peak into the file of interest displaying it's header and the first row of data
+- `$ valid-headers` 
+   -  will print a list of all known valid headers for inspiration
 - `$ format -f <filename>` 
    - will try to automatically format the file
    - the new formatted file will by named `formatted_<filename>.tsv` and it will be created under the working directory

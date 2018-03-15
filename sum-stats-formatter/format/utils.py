@@ -125,6 +125,9 @@ CHR = 'CHROMOSOME'
 BP = 'BASE_PAIR_LOCATION'
 VARIANT = 'VARIANT_ID'
 
+VALID_INPUT_HEADERS = set(default_cnames.values())
+
+
 def get_compression(fh):
     '''
     Read filename suffixes and figure out whether it is gzipped,bzip2'ed or not compressed
