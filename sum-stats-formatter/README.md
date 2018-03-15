@@ -43,9 +43,11 @@ The actions you can perform (on a summary statistics file, i.e. csv, tsv, or oth
 - `$ swap -f <filename>' -left <left header> -right <right header>` 
    - will swap the data of left header and right header
    
+You can type `$ <command> -h` to get the argument explanation for each command. E.g.: `$ merge -h`
+
 With this suite of commands you can semi-automate the formatting and then go in and perform any other 
 renaming/merging/swapping/cleaning/splitting on the data columns.
 
 NOTE: You will usually want to use the original file and first format the raw data, and then for any other commands that you will use,
-you will provide as input (filename) the generated formatted file named: `formatted_<filename>.tsv`.
+you will provide as input (-f <filename>) the generated formatted file, named: `formatted_<filename>.tsv`.
    
