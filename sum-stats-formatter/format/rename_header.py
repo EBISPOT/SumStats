@@ -24,7 +24,7 @@ def main():
 
     open_close_perform(file=file, header_function=rename_header, args=dict(header_old=header_old, header_new=header_new))
 
-    print()
+    print("\n")
     print("------> Renamed data saved in:", file, "<------")
 
 

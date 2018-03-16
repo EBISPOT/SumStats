@@ -18,7 +18,7 @@ def main():
 
     file = args.f
 
-    print()
+    print("\n")
     print("------> Peeking into file:", file, "<------")
 
     peek(file)

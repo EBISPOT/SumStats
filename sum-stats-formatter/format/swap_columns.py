@@ -26,7 +26,7 @@ def main():
 
     open_close_perform(file=file, header_function=swap_headers, args=dict(left_header=left_header, right_header=right_header))
 
-    print()
+    print("\n")
     print("------> Swapped data saved in:", file, "<------")
 
 

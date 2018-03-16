@@ -54,7 +54,7 @@ def main():
 
     open_close_perform(file=file, h=h, fixture=fixture)
 
-    print()
+    print("\n")
     print("------> Cleaned data saved in:", file, "<------")
 
 

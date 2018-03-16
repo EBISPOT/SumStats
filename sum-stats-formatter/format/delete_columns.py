@@ -45,7 +45,7 @@ def main():
 
     open_close_perform(file=file, headers=headers)
 
-    print()
+    print("\n")
     print("------> Processed data saved in:", file, "<------")
 
 

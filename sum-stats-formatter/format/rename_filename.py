@@ -22,7 +22,7 @@ def main():
     new_name = author + "_" + pmid + "_" + study + "_" + efo + "_" + build + ".tsv"
     os.rename(file, new_name)
 
-    print()
+    print("\n")
     print("------> File renamed as:", new_name, "<------")
 
 

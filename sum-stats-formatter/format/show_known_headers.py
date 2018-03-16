@@ -2,17 +2,17 @@ from format.utils import *
 
 
 def main():
-    print()
+    print("\n")
     print("Showing known valid column headers...")
-    print()
+    print("\n")
     for header in VALID_INPUT_HEADERS:
         print(header)
-    print()
+    print("\n")
     print("Showing desired headers...")
-    print()
+    print("\n")
     for header in DESIRED_HEADERS:
         print(header)
-    print()
+    print("\n")
 
 
 if __name__ == "__main__":

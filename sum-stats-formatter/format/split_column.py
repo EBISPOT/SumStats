@@ -66,7 +66,7 @@ def main():
 
     open_close_perform(file=file, old_header=header, left_header=left_header, right_header=right_header, delimiter=delimiter)
 
-    print()
+    print("\n")
     print("------> Split data saved in:", file, "<------")
 
 

@@ -60,7 +60,7 @@ def main():
 
     open_close_perform(file=file, delimiter=delimiter, left_header=left_header, right_header=right_header, new_header=new_header)
 
-    print()
+    print("\n")
     print("------> Merged data saved in:", file, "<------")
 
 

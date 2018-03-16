@@ -97,18 +97,18 @@ def main():
         writer.writerows([new_header])
         writer.writerows(lines)
 
-    print()
+    print("\n")
     print("------> Output saved in file:", new_filename, "<------")
-    print()
+    print("\n")
     print("Please use this file for any further formatting.")
-    print()
+    print("\n")
     print("Showing how the headers where mapped below...")
-    print()
+    print("\n")
     for key, value in what_changed.items():
         print(key, " -> ", value)
-    print()
+    print("\n")
     print("Peeking into the new file...")
-    print()
+    print("\n")
     peek.peek(new_filename)
 
 
