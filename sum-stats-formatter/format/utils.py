@@ -2,7 +2,7 @@ import gzip
 import bz2
 import csv
 
-default_cnames = {
+known_header_transformations = {
 
     # VARIANT ID
     'SNP': 'VARIANT_ID',
@@ -125,50 +125,26 @@ CHR = 'CHROMOSOME'
 BP = 'BASE_PAIR_LOCATION'
 VARIANT = 'VARIANT_ID'
 
-VALID_INPUT_HEADERS = set(default_cnames.values())
+DESIRED_HEADERS = {'EFFECT_ALLELE_FREQUENCY', 'OTHER_ALLELE', 'EFFECT_ALLELE', 'STANDARD_ERROR', 'BETA', '95%CI',
+                   'ODDS_RATIO', 'BASE_PAIR_LOCATION', 'CHROMOSOME', 'P_VALUE', 'VARIANT_ID'}
+VALID_INPUT_HEADERS = set(known_header_transformations.values())
 
 
-def get_compression(fh):
-    '''
-    Read filename suffixes and figure out whether it is gzipped,bzip2'ed or not compressed
-    '''
-    if fh.endswith('gz'):
-        compression = 'gzip'
-        openfunc = gzip.open
-    elif fh.endswith('bz2'):
-        compression = 'bz2'
-        openfunc = bz2.BZ2File
-    else:
-        openfunc = open
-        compression = None
-
-    return openfunc, compression
-
-
-def read_header(fh):
-    '''Reads the first line of a file and returns a list with the column names.'''
-    (openfunc, compression) = get_compression(fh)
-    return set([clean_header(x.rstrip('\n')) for x in openfunc(fh).readline().split()])
+def read_header(file):
+    return set([clean_header(x.rstrip('\n')) for x in open(file).readline().split()])
 
 
 def clean_header(header):
-    '''
-    For cleaning file headers.
-    - convert to uppercase
-    - replace dashes '-' with underscores '_'
-    - replace dots '.' (as in R) with underscores '_'
-    - remove newlines ('\n')
-    '''
     return header.upper().replace('-', '_').replace('.', '_').replace('\n', '')
 
 
 def refactor_header(header):
     header = [clean_header(h) for h in header]
-    return [default_cnames[h] if h in default_cnames else h for h in header]
+    return [known_header_transformations[h] if h in known_header_transformations else h for h in header]
 
 
 def mapped_headers(header):
-    return {h: default_cnames[clean_header(h)] for h in header if clean_header(h) in default_cnames}
+    return {h: known_header_transformations[clean_header(h)] for h in header if clean_header(h) in known_header_transformations}
 
 
 def get_csv_reader(csv_file):

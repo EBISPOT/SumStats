@@ -3,12 +3,11 @@ from format.utils import *
 
 
 def open_close_perform(file, header_function, row_function=None, args=None):
-    openfunc, compression = get_compression(file)
     filename = file.split("/")[-1].split(".")[0]
     args = args or {}
     is_header = True
     lines = []
-    with openfunc(file) as csv_file:
+    with open(file) as csv_file:
         csv_reader = get_csv_reader(csv_file)
         for row in csv_reader:
             if is_header:

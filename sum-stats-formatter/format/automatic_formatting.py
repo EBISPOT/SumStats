@@ -74,10 +74,9 @@ def main():
     what_changed = None
     new_header = None
     is_header = True
-    openfunc, compression = get_compression(file)
 
     lines = []
-    with openfunc(file) as csv_file:
+    with open(file) as csv_file:
         csv_reader = get_csv_reader(csv_file)
         for row in csv_reader:
             if is_header:

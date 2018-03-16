@@ -1,17 +1,14 @@
 import argparse
-from format.utils import *
 
 
 def peek(file):
-    openfunc, compression = get_compression(file)
 
-    open_file = openfunc(file)
-    header = open_file.readline().split()
-    row = open_file.readline().split()
-    open_file.close()
+    with open(file) as open_file:
+        header = open_file.readline().split()
+        row = open_file.readline().split()
 
-    for index, h in enumerate(header):
-        print(h + " : " + row[index])
+        for index, h in enumerate(header):
+            print(h + " : " + row[index])
 
 
 def main():

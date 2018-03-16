@@ -44,6 +44,8 @@ The actions you can perform (on a summary statistics file, i.e. csv, tsv, or oth
    and '-right' for the value on the right (after the split)
 - `$ swap -f <filename>' -left <left header> -right <right header>` 
    - will swap the data of left header and right header
+- `$ compress -f <filename>'` 
+   - will compress the file into a .tar.gz archive 
    
 You can type `$ <command> -h` to get the argument explanation for each command. E.g.: `$ merge -h`
 

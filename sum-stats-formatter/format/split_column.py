@@ -10,13 +10,12 @@ def header_index(header, h):
 
 
 def open_close_perform(file, delimiter, old_header, left_header, right_header):
-    openfunc, compression = get_compression(file)
     filename = file.split("/")[-1].split(".")[0]
     header = None
     index_h = None
     is_header = True
     lines = []
-    with openfunc(file) as csv_file:
+    with open(file) as csv_file:
         csv_reader = get_csv_reader(csv_file)
         for row in csv_reader:
             if is_header:

@@ -13,7 +13,8 @@ setup(
                             'split = format.split_column:main',
                             'swap = format.swap_columns:main',
                             'help-ss = format.help:main',
-                            'valid-headers = format.show_known_headers:main']
+                            'valid-headers = format.show_known_headers:main',
+                            'compress = format.compress_file:main']
     },
     url='https://github.com/EBISPOT/SumStats',
     license='',

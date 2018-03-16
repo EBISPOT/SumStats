@@ -29,6 +29,9 @@ def main():
     print("\t- \'swap -f <filename>\' -left <left header> -right <right header>")
     print("\t\twill swap the data of left header and right header")
     print()
+    print("\t- \'compress -f <filename>\'")
+    print("\t\twill compress the file into a .tar.gz archive")
+    print()
     print("------------------------------------------")
 
 
