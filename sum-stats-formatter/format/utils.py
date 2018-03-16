@@ -1,132 +1,135 @@
-import gzip
-import bz2
 import csv
 
 known_header_transformations = {
 
-    # VARIANT ID
-    'SNP': 'VARIANT_ID',
-    'MARKERNAME': 'VARIANT_ID',
-    'SNPID': 'VARIANT_ID',
-    'RS': 'VARIANT_ID',
-    'RSID': 'VARIANT_ID',
-    'RS_NUMBER': 'VARIANT_ID',
-    'RS_NUMBERS': 'VARIANT_ID',
-    'ASSAY_NAME': 'VARIANT_ID',
-    'ID': 'VARIANT_ID',
-    # P-VALUE
-    'P': 'P_VALUE',
-    'PVALUE': 'P_VALUE',
-    'P_VALUE':  'P_VALUE',
-    'PVAL': 'P_VALUE',
-    'P_VAL': 'P_VALUE',
-    'GC_PVALUE': 'P_VALUE',
-    'GWAS_P': 'P_VALUE',
-    'FREQUENTIST_ADD_PVALUE': 'P_VALUE',
-    'SCAN_P': 'P_VALUE',
-    'SCANP': 'P_VALUE',
-    # CHROMOSOME
-    'CHR': 'CHROMOSOME',
-    'CHROMOSOME': 'CHROMOSOME',
-    'CHROM': 'CHROMOSOME',
-    'SCAFFOLD': 'CHROMOSOME',
-    # BASE PAIR LOCATION
-    'BP': 'BASE_PAIR_LOCATION',
-    'POS': 'BASE_PAIR_LOCATION',
-    'POSITION': 'BASE_PAIR_LOCATION',
-    'PHYS_POS': 'BASE_PAIR_LOCATION',
-    # CHROMOSOME COMBINED WITH BASE PAIR LOCATION
-    'CHR_POS' : 'CHR_BP',
-    'CHRPOS' : 'CHR_BP',
-    'CHRPOS_B37' : 'CHR_BP',
-    'CHR_POS_B37' : 'CHR_BP',
-    'CHRPOS_B36' : 'CHR_BP',
-    'CHR_POS_B36' : 'CHR_BP',
-    'CHRPOS_B38' : 'CHR_BP',
-    'CHR_POS_B38' : 'CHR_BP',
-    # ODDS RATIO
-    'OR': 'ODDS_RATIO',
-    'ODDS_RATIO': 'ODDS_RATIO',
-    'ODDSRATIO': 'ODDS_RATIO',
-    # OR RANGE
-    '95%CI': '95%CI',
-    'RANGE': '95%CI',
-    # BETA
-    'B': 'BETA',
-    'BETA': 'BETA',
-    'EFFECTS': 'BETA',
-    'EFFECT': 'BETA',
-    'GWAS_BETA': 'BETA',
-    # STANDARD ERROR
-    'SE': 'STANDARD_ERROR',
-    'STANDARD_ERROR': 'STANDARD_ERROR',
-    'STDERR': 'STANDARD_ERROR',
-    # EFFECT ALLELE
-    'A1': 'EFFECT_ALLELE',
-    'ALLELE1': 'EFFECT_ALLELE',
-    'ALLELE_1': 'EFFECT_ALLELE',
-    'EFFECT_ALLELE': 'EFFECT_ALLELE',
-    'REFERENCE_ALLELE': 'EFFECT_ALLELE',
-    'REF': 'EFFECT_ALLELE',
-    'INC_ALLELE': 'EFFECT_ALLELE',
-    'EA': 'EFFECT_ALLELE',
-    'ALLELEB': 'EFFECT_ALLELE',
-    'ALLELE_B': 'EFFECT_ALLELE',
-    # OTHER ALLELE
-    'A2': 'OTHER_ALLELE',
-    'ALLELE2': 'OTHER_ALLELE',
-    'ALLELE_2': 'OTHER_ALLELE',
-    'OTHER_ALLELE': 'OTHER_ALLELE',
-    'ALT': 'OTHER_ALLELE',
-    'NON_EFFECT_ALLELE': 'OTHER_ALLELE',
-    'DEC_ALLELE': 'OTHER_ALLELE',
-    'NEA': 'OTHER_ALLELE',
-    'ALLELEA': 'OTHER_ALLELE',
-    'ALLELE_A': 'OTHER_ALLELE',
-    # EFFECT ALLELE FREQUENCY
-    'EAF': 'EFFECT_ALLELE_FREQUENCY',
-    'FRQ': 'EFFECT_ALLELE_FREQUENCY',
-    'MAF': 'EFFECT_ALLELE_FREQUENCY',
-    'FRQ_U': 'EFFECT_ALLELE_FREQUENCY',
-    'F_U': 'EFFECT_ALLELE_FREQUENCY',
-    'EFFECT_ALLELE_FREQ': 'EFFECT_ALLELE_FREQUENCY',
+    # variant id
+    'snp': 'snp',
+    'markername': 'snp',
+    'marker': 'snp',
+    'snpid': 'snp',
+    'rs': 'snp',
+    'rsid': 'snp',
+    'rs_number': 'snp',
+    'rs_numbers': 'snp',
+    'assay_name': 'snp',
+    'id': 'snp',
+    # p-value
+    'p': 'pval',
+    'pvalue': 'pval',
+    'p_value':  'pval',
+    'pval': 'pval',
+    'p_val': 'pval',
+    'gc_pvalue': 'pval',
+    'gwas_p': 'pval',
+    'frequentist_add_pvalue': 'pval',
+    'scan_p': 'pval',
+    'scanp': 'pval',
+    # chromosome
+    'chr': 'chr',
+    'chromosome': 'chr',
+    'chrom': 'chr',
+    'scaffold': 'chr',
+    # base pair location
+    'bp': 'bp',
+    'pos': 'bp',
+    'position': 'bp',
+    'phys_pos': 'bp',
+    'base_pair': 'bp',
+    'basepair': 'bp',
+    'base_pair_location': 'bp',
+    # chromosome combined with base pair location
+    'chr_pos' : 'chr_bp',
+    'chrpos' : 'chr_bp',
+    'chrpos_b37' : 'chr_bp',
+    'chr_pos_b37' : 'chr_bp',
+    'chrpos_b36' : 'chr_bp',
+    'chr_pos_b36' : 'chr_bp',
+    'chrpos_b38' : 'chr_bp',
+    'chr_pos_b38' : 'chr_bp',
+    # odds ratio
+    'or': 'or',
+    'odds_ratio': 'or',
+    'oddsratio': 'or',
+    # or range
+    '95%ci': 'range',
+    'range': 'range',
+    # beta
+    'b': 'beta',
+    'beta': 'beta',
+    'effects': 'beta',
+    'effect': 'beta',
+    'gwas_beta': 'beta',
+    # standard error
+    'se': 'se',
+    'standard_error': 'se',
+    'stderr': 'se',
+    # effect allele
+    'a1': 'effect_allele',
+    'allele1': 'effect_allele',
+    'allele_1': 'effect_allele',
+    'effect_allele': 'effect_allele',
+    'reference_allele': 'effect_allele',
+    'ref': 'effect_allele',
+    'inc_allele': 'effect_allele',
+    'ea': 'effect_allele',
+    'alleleb': 'effect_allele',
+    'allele_b': 'effect_allele',
+    # other allele
+    'a2': 'other_allele',
+    'allele2': 'other_allele',
+    'allele_2': 'other_allele',
+    'other_allele': 'other_allele',
+    'alt': 'other_allele',
+    'non_effect_allele': 'other_allele',
+    'dec_allele': 'other_allele',
+    'nea': 'other_allele',
+    'allelea': 'other_allele',
+    'allele_a': 'other_allele',
+    # effect allele frequency
+    'eaf': 'eaf',
+    'frq': 'eaf',
+    'maf': 'eaf',
+    'frq_u': 'eaf',
+    'f_u': 'eaf',
+    'effect_allele_freq': 'eaf',
+    'effect_allele_frequency': 'eaf',
 
-    # NUMBER OF STUDIES
-    'NSTUDY': 'NSTUDY',
-    'N_STUDY': 'NSTUDY',
-    'NSTUDIES': 'NSTUDY',
-    'N_STUDIES': 'NSTUDY',
-    # N
-    'N': 'N',
-    'NCASE': 'N_CAS',
-    'CASES_N': 'N_CAS',
-    'N_CASES': 'N_CAS',
-    'N_CONTROLS': 'N_CON',
-    'N_CAS': 'N_CAS',
-    'N_CON': 'N_CON',
-    'N_CASE': 'N_CAS',
-    'NCONTROL': 'N_CON',
-    'CONTROLS_N': 'N_CON',
-    'N_CONTROL': 'N_CON',
-    'WEIGHT': 'N',  # metal does this. possibly risky.
-    # SIGNED STATISTICS
-    'ZSCORE': 'Z',
-    'Z-SCORE': 'Z',
-    'GC_ZSCORE': 'Z',
-    'Z': 'Z',
-    'LOG_ODDS': 'LOG_ODDS',
-    'SIGNED_SUMSTAT': 'SIGNED_SUMSTAT',
-    # INFO
-    'INFO': 'INFO',
+    # number of studies
+    'nstudy': 'nstudy',
+    'n_study': 'nstudy',
+    'nstudies': 'nstudy',
+    'n_studies': 'nstudy',
+    # n
+    'n': 'n',
+    'ncase': 'n_cas',
+    'cases_n': 'n_cas',
+    'n_cases': 'n_cas',
+    'n_controls': 'n_con',
+    'n_cas': 'n_cas',
+    'n_con': 'n_con',
+    'n_case': 'n_cas',
+    'ncontrol': 'n_con',
+    'controls_n': 'n_con',
+    'n_control': 'n_con',
+    'weight': 'n',
+    # signed statistics
+    'zscore': 'z',
+    'z-score': 'z',
+    'gc_zscore': 'z',
+    'z': 'z',
+    'log_odds': 'log_odds',
+    'signed_sumstat': 'signed_sumstat',
+    # info
+    'info': 'info',
 }
 
-CHR_BP = 'CHR_BP'
-CHR = 'CHROMOSOME'
-BP = 'BASE_PAIR_LOCATION'
-VARIANT = 'VARIANT_ID'
+CHR_BP = 'chr_bp'
+CHR = 'chr'
+BP = 'bp'
+VARIANT = 'snp'
 
-DESIRED_HEADERS = {'EFFECT_ALLELE_FREQUENCY', 'OTHER_ALLELE', 'EFFECT_ALLELE', 'STANDARD_ERROR', 'BETA', '95%CI',
-                   'ODDS_RATIO', 'BASE_PAIR_LOCATION', 'CHROMOSOME', 'P_VALUE', 'VARIANT_ID'}
+DESIRED_HEADERS = {'eaf', 'other_allele', 'effect_allele', 'se', 'beta', 'range',
+                   'or', 'bp', 'chr', 'pval', 'snp'}
 VALID_INPUT_HEADERS = set(known_header_transformations.values())
 
 
@@ -135,7 +138,7 @@ def read_header(file):
 
 
 def clean_header(header):
-    return header.upper().replace('-', '_').replace('.', '_').replace('\n', '')
+    return header.lower().replace('-', '_').replace('.', '_').replace('\n', '')
 
 
 def refactor_header(header):
@@ -151,3 +154,7 @@ def get_csv_reader(csv_file):
     dialect = csv.Sniffer().sniff(csv_file.readline())
     csv_file.seek(0)
     return csv.reader(csv_file, dialect)
+
+
+def get_filename(file):
+    return file.split("/")[-1].split(".")[0]

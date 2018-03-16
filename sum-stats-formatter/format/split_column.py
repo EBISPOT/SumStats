@@ -10,7 +10,7 @@ def header_index(header, h):
 
 
 def open_close_perform(file, delimiter, old_header, left_header, right_header):
-    filename = file.split("/")[-1].split(".")[0]
+    filename = get_filename(file)
     header = None
     index_h = None
     is_header = True

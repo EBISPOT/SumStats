@@ -3,7 +3,7 @@ from format.utils import *
 
 
 def open_close_perform(file, header_function, row_function=None, args=None):
-    filename = file.split("/")[-1].split(".")[0]
+    filename = get_filename(file)
     args = args or {}
     is_header = True
     lines = []

@@ -44,6 +44,10 @@ The actions you can perform (on a summary statistics file, i.e. csv, tsv, or oth
    and '-right' for the value on the right (after the split)
 - `$ swap -f <filename>' -left <left header> -right <right header>` 
    - will swap the data of left header and right header
+- `$ delete -f <filename>' -headers <list of comma separated headers>`
+   - will remove the columns of the specified headers from the file
+- `$ rename-file -f <filename>\' -efo <efo trait> -study <study accession> -b <genome build> -pmid <pmid> -author <author>`
+   - will rename file as: author_pmid_studyaccession_efotrait_genomebuild.tsv
 - `$ compress -f <filename>'` 
    - will compress the file into a .tar.gz archive 
    

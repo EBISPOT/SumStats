@@ -1,6 +1,7 @@
 import tarfile
 import argparse
 import os
+from format.utils import *
 
 
 def main():
@@ -9,7 +10,7 @@ def main():
     args = argparser.parse_args()
 
     file = args.f
-    filename = file.split("/")[-1].split(".")[0]
+    filename = get_filename(file)
     archive_name = filename + '.tar.gz'
     print()
     print("------> Compressing file:", file, "<------")

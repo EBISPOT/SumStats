@@ -29,6 +29,13 @@ def main():
     print("\t- \'swap -f <filename>\' -left <left header> -right <right header>")
     print("\t\twill swap the data of left header and right header")
     print()
+    print("\t- \'delete -f <filename>\' -headers <comma separated list of headers>")
+    print("\t\twill remove all the columns of the specified headers from the file")
+    print()
+    print("\t- \'rename-file -f <filename>\' -efo <efo trait> -study <study accession> -b <genome build> -pmid <pmid> "
+          "-author <author>")
+    print("\t\trename the file as: author_pmid_studyaccession_efotrait_genomebuild.tsv")
+    print()
     print("\t- \'compress -f <filename>\'")
     print("\t\twill compress the file into a .tar.gz archive")
     print()

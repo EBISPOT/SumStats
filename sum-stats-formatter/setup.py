@@ -14,7 +14,9 @@ setup(
                             'swap = format.swap_columns:main',
                             'help-ss = format.help:main',
                             'valid-headers = format.show_known_headers:main',
-                            'compress = format.compress_file:main']
+                            'rename-file = format.rename_filename:main',
+                            'compress = format.compress_file:main',
+                            'delete = format.delete_columns:main']
     },
     url='https://github.com/EBISPOT/SumStats',
     license='',

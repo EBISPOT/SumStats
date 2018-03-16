@@ -4,7 +4,7 @@ from format.utils import *
 
 
 def open_close_perform(file, left_header, right_header, delimiter, new_header):
-    filename = file.split("/")[-1].split(".")[0]
+    filename = get_filename(file)
     header = None
     is_header = True
     lines = []
@@ -41,6 +41,7 @@ def merge_columns(left_header, right_header, header, row, delimiter):
     row = remove_from_row(row=row, header=header, right_header=right_header, left_header=left_header)
     row.append(column_1 + delimiter + column_2)
     return row
+
 
 def main():
     argparser = argparse.ArgumentParser()

@@ -70,7 +70,7 @@ def main():
     args = argparser.parse_args()
 
     file = args.f
-    filename = file.split("/")[-1].split(".")[0]
+    filename = get_filename(file)
     what_changed = None
     new_header = None
     is_header = True
@@ -87,7 +87,7 @@ def main():
                 row = process_row(row, new_header)
                 lines.append(row)
 
-    new_filename = 'loadable_' + filename + '.tsv'
+    new_filename = 'formatted_' + filename + '.tsv'
     with open(new_filename, 'w') as result_file:
         writer = csv.writer(result_file, delimiter='\t')
         # if we have added chromosome and base pair location to the end of the file
