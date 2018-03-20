@@ -75,8 +75,8 @@ class TestLoader(object):
             assert study in list_of_studies
 
     def test_get_info_from_study_s1(self):
-        trait_study = self.explorer.get_trait_of_study('s1')
-        assert trait_study == 't1:s1'
+        trait = self.explorer.get_trait_of_study('s1')
+        assert trait == 't1'
 
     def test_get_info_from_non_exising_study_raises_error(self):
         with pytest.raises(NotFoundError):

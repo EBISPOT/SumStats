@@ -19,7 +19,7 @@ def main():
     study = args.study
     chromosome = args.chr
 
-    to_load = utils.create_file_path(path=input_path, file=tsv)
+    to_load = utils.get_file_path(path=input_path, file=tsv)
 
     if loader_type == "trait":
         if trait is None: raise ValueError("You have chosen the trait loader but haven't specified a trait")

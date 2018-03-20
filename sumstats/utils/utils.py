@@ -50,7 +50,7 @@ def extend_dsets_with_subset(datasets, subset):
     return extended_datasets
 
 
-def create_file_path(path, file):
+def get_file_path(path, file):
     file_path = join(path, file)
     if not isfile(file_path):
         raise RuntimeError("Something went wrong when trying to get path for file", file)
@@ -58,9 +58,7 @@ def create_file_path(path, file):
 
 
 def create_h5file_path(path, dir_name, file_name):
-    file_path = join(path, dir_name, file_name + ".5")
-    if not isfile(file_path):
-        raise RuntimeError("Something went wrong when trying to get path for h5file", file_name)
+    file_path = join(path, dir_name, "file_" + str(file_name) + ".h5")
     return file_path
 
 
