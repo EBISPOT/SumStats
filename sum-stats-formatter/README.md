@@ -75,8 +75,8 @@ NOTE: You will usually want to use the original file and first format the raw da
 you will provide as input (-f <filename>) the generated formatted file, named: `formatted_<filename>.tsv`.
    
 # Example
-#### original file: filename: Study1.csv
-#### original file header and first row of data
+### original file: filename: Study1.csv
+### original file header and first row of data
 ```--
 assay.name : rs12736689
 scaffold : chr1
@@ -90,7 +90,7 @@ freq.b : NA
 avg.rsqr : 0.971
 dose.b : 0.974
 ```
-#### formatting the original file
+### formatting the original file
 Run:
 
 `$ format -f Study1.csv`
@@ -123,7 +123,7 @@ freq_b : NA
 avg_rsqr : 0.971
 dose_b : 0.974
 ```
-#### splitting up the alleles to effect_allele and other_allele
+### splitting up the alleles to effect_allele and other_allele
 NOTE: I am using as an input the file that was just created, not the original file
 
 `$ split -f formatted_Study1.tsv -header alleles -left effect_allele -right minor_allele -d /`
@@ -131,7 +131,7 @@ NOTE: I am using as an input the file that was just created, not the original fi
 `------> Split data saved in: formatted_Study1.tsv <------`
 
 Changes applied on the same formatted file.
-#### checking to see if we are satisfied with the result
+### checking to see if we are satisfied with the result
 `$ peek -f formatted_Study1.tsv`
 
 ```--
@@ -150,11 +150,11 @@ dose_b : 0.974
 effect_allele : C
 minor_allele : T
 ```
-#### renaming freq_b to eaf
+### renaming freq_b to eaf
 `$ rename -f formatted_Study1.tsv -old freq_b -new eaf`
 
 `------> Renamed data saved in: formatted_Study1.tsv <------`
-#### checking to see if we are satisfied with the result
+### checking to see if we are satisfied with the result
 `$ peek -f formatted_Study1.tsv`
 
 ```--
@@ -172,11 +172,11 @@ dose_b : 0.974
 effect_allele : C
 minor_allele : T
 ```
-#### renaming the filename
+### renaming the filename
 `$ rename-file -f formatted_Study1.tsv -efo EFO_00001 -study GCST0000001 -b 38 -pmid 123456 -author AuthorName`
 
 `------> File renamed as: AuthorName_123456_GCST0000001_EFO_00001_38.tsv <------`
-#### compressing the file, it's ready!
+### compressing the file, it's ready!
 `$ compress -f AuthorName_123456_GCST0000001_EFO_00001_38.tsv`
 
 `------> Compressing file: AuthorName_123456_GCST0000001_EFO_00001_38.tsv <------`
