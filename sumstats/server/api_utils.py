@@ -1,6 +1,4 @@
-import json
 import numpy as np
-import argparse
 from urllib.parse import unquote
 from sumstats.common_constants import *
 from flask import url_for
@@ -8,6 +6,8 @@ from config import properties
 from sumstats.utils.interval import *
 import sumstats.explorer as ex
 from collections import OrderedDict
+from sumstats.utils import set_properties
+import argparse
 
 
 def _set_properties():
@@ -16,14 +16,7 @@ def _set_properties():
     args = argparser.parse_args()
 
     if args.config is not None:
-        with open(args.config) as config:
-            props = json.load(config)
-            properties.output_path = props["output_path"]
-            properties.gwas_study_location = props["gwas_study_location"]
-            properties.input_path = props["input_path"]
-            properties.ols_terms_location = props["ols_terms_location"]
-            properties.logging_path = props["logging_path"]
-            properties.LOG_LEVEL = props["LOG_LEVEL"]
+        set_properties.set_properties(config=args.config)
 
 
 def _get_study_list(trait_studies, start, size):
@@ -127,8 +120,7 @@ def _get_trait_for_study(study, trait_to_study_cache):
 def _find_study_info(study, trait=None):
     if trait is None:
         explorer = ex.Explorer(properties.output_path)
-        trait_study = explorer.get_info_on_study(study)
-        trait = trait_study.split(":")[0]
+        trait = explorer.get_trait_of_study(study)
     return trait
 
 

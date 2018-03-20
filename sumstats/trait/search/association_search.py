@@ -75,7 +75,7 @@ class AssociationSearch:
 
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:
-            h5file = utils.create_file_path(self.path, dir_name="bytrait", file_name=trait)
+            h5file = utils.create_h5file_path(self.path, dir_name="bytrait", file_name=trait)
             searcher = service.TraitService(h5file)
             trait_size = searcher.get_trait_size(trait)
             searcher.close_file()

@@ -19,7 +19,6 @@ import sumstats.trait.constants as const
 import sumstats.utils.fileload as fl
 import sumstats.utils.group as gu
 from sumstats.errors.error_classes import *
-import argparse
 
 
 class Loader:
@@ -62,28 +61,3 @@ class Loader:
 
     def close_file(self):
         self.file.close()
-
-
-def main():  # pragma: no cover
-    parser = argparse.ArgumentParser()  # pragma: no cover
-    parser.add_argument('-tsv', help='The file to be loaded')  # pragma: no cover
-    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated',
-                        required=True)  # pragma: no cover
-    parser.add_argument('-study', help='The name of the first group this will belong to',
-                        required=True)  # pragma: no cover
-    parser.add_argument('-trait', help='The name of the trait the SNPs of this file are related to',
-                        required=True)  # pragma: no cover
-    args = parser.parse_args()  # pragma: no cover
-
-    tsv = args.tsv  # pragma: no cover
-    h5file = args.h5file  # pragma: no cover
-    study = args.study  # pragma: no cover
-    trait = args.trait  # pragma: no cover
-
-    loader = Loader(tsv, h5file, study, trait)  # pragma: no cover
-    loader.load()  # pragma: no cover
-    loader.close_file()  # pragma: no cover
-
-
-if __name__ == '__main__':
-    main()  # pragma: no cover

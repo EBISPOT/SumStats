@@ -47,7 +47,7 @@ class StudyService:
         trait_group = self.file_group.get_subgroup(trait)
         return trait_group.get_subgroup(study).get_dset_shape(REFERENCE_DSET)[0]
 
-    def list_studies(self):
+    def list_trait_study_pairs(self):
         trait_groups = self.file_group.get_all_subgroups()
         study_groups = []
 

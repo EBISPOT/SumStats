@@ -50,14 +50,27 @@ def extend_dsets_with_subset(datasets, subset):
     return extended_datasets
 
 
-def create_file_path(path, dir_name, file_name):
-    return path + "/" + dir_name + "/file_" + str(file_name) + ".h5"
+def create_file_path(path, file):
+    file_path = join(path, file)
+    if not isfile(file_path):
+        raise RuntimeError("Something went wrong when trying to get path for file", file)
+    return file_path
+
+
+def create_h5file_path(path, dir_name, file_name):
+    file_path = join(path, dir_name, file_name + ".5")
+    if not isfile(file_path):
+        raise RuntimeError("Something went wrong when trying to get path for h5file", file_name)
+    return file_path
 
 
 def _get_h5files_in_dir(path, dir_name):
-    trait_dir_path = path + "/" + dir_name
-    traits_in_path = [str(f.split("file_")[1]).split(".")[0] for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
-    h5files = []
-    for trait in traits_in_path:
-        h5files.append(create_file_path(path, dir_name, trait))
-    return h5files
+    try:
+        trait_dir_path = path + "/" + dir_name
+        traits_in_path = [str(f.split("file_")[1]).split(".")[0] for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
+        h5files = []
+        for trait in traits_in_path:
+            h5files.append(create_h5file_path(path, dir_name, trait))
+        return h5files
+    except Exception:
+        raise RuntimeError("Something went wrong when trying to get h5files for directory", dir_name)

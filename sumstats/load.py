@@ -2,57 +2,49 @@ import sumstats.trait.loader as trait_loader
 import sumstats.chr.loader as chr_loader
 import sumstats.snp.loader as snp_loader
 import argparse
+from config import properties
+from sumstats.utils import set_properties
+from sumstats.utils import utils
 
 
 def main():
     args = argument_parser()  # pragma: no cover
-
+    if args.config is not None: # pragma: no cover
+        set_properties.set_properties(args.config)
+    output_path = properties.output_path # pragma: no cov
+    input_path = properties.input_path  # pragma: no cov
     loader_type = args.loader
     tsv = args.tsv
     trait = args.trait
     study = args.study
-    output_path = args.output_path
-    input_path = args.input_path
     chromosome = args.chr
 
-    assert tsv is not None, "You need to specify the filename to be loaded"
-    assert loader_type is not None, "You need to specify a loader: [trait|chromosome|snp]"
-
-    if output_path is None:
-        print("Setting default location for output files")
-        output_path = "/output"
-
-    if input_path is None:
-        print("Setting default location for input files")
-        input_path = "/toload"
-
-    to_load = input_path + "/" + tsv
+    to_load = utils.create_file_path(path=input_path, file=tsv)
 
     if loader_type == "trait":
-        assert trait is not None, "You have chosen the trait loader but haven't specified a trait"
-        assert study is not None, "You have chosen the trait loader but haven't specified a study association"
-        to_store = output_path + "/bytrait/file_" + trait + ".h5"
+        if trait is None: raise ValueError("You have chosen the trait loader but haven't specified a trait")
+
+        to_store = utils.create_h5file_path(path=output_path, file_name=trait, dir_name="bytrait")
         loader = trait_loader.Loader(to_load, to_store, study, trait)
         loader.load()
         loader.close_file()
         print("Load complete!")
 
     if loader_type == "chr":
-        assert chromosome is not None, "You have chosen the chr loader but haven't specified a chromosome"
-        assert study is not None, "You have chosen the chr loader but haven't specified a study association"
+        if chromosome is None: raise ValueError(
+            "You have chosen the chromosome loader but haven't specified a chromosome")
 
-        to_store = output_path + "/bychr/file_" + str(chromosome) + ".h5"
+        to_store = utils.create_h5file_path(path=output_path, dir_name="bychr", file_name=str(chromosome))
         loader = chr_loader.Loader(to_load, to_store, study)
         loader.load()
         loader.close_file()
         print("Load complete!")
 
     if loader_type == "snp":
-        assert chromosome is not None, "You have chosen the snp loader, you need to specify the chromosome that the " \
-                                       "SNP belongs to!"
-        assert study is not None, "You have chosen the snp loader but haven't specified a study association"
+        if chromosome is None: raise ValueError(
+            "You have chosen the variant loader, you need to specify the chromosome that the variant belongs to")
 
-        to_store = output_path + "/bysnp/file_" + str(chromosome) + ".h5"
+        to_store = utils.create_h5file_path(path=output_path, dir_name="bysnp", file_name=str(chromosome))
         loader = snp_loader.Loader(to_load, to_store, study)
         loader.load()
         loader.close_file()
@@ -65,18 +57,13 @@ if __name__ == "__main__":
 
 def argument_parser():
     parser = argparse.ArgumentParser()  # pragma: no cover
-    parser.add_argument('-tsv', help='The name of the file to be loaded')  # pragma: no cover
+    parser.add_argument('-tsv', help='The name of the file to be loaded', required=True)  # pragma: no cover
     parser.add_argument('-study',
-                        help='The name of the study the variants of this file are associated with')  # pragma: no cover
+                        help='The name of the study the variants of this file are associated with', required=True)  # pragma: no cover
     parser.add_argument('-trait',
                         help='The name of the trait the variants of this file are associated with')  # pragma: no cover
-    parser.add_argument('-loader', help='The type of loader: [trait|chr|snp]')  # pragma: no cover
+    parser.add_argument('-loader', help='The type of loader: [trait|chr|snp]', required=True)  # pragma: no cover
     parser.add_argument('-chr', help='The chromosome that will be loaded')  # pragma: no cover
-    parser.add_argument('-input_path',
-                        help='The path to the parent of the \'toload\' dir where the files to be '  # pragma: no cover
-                             'loaded reside')  # pragma: no cover
-    parser.add_argument('-output_path',
-                        help='The path to the parent of the \'output\' dir where the h5files will be '  # pragma: no cover
-                             'stored')  # pragma: no cover
+    parser.add_argument('-config', help='The configuration file to use instead of default') # pragme: no cover
 
     return parser.parse_args()  # pragma: no cover

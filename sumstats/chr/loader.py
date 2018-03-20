@@ -14,7 +14,6 @@
     study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
 """
 
-import argparse
 import numpy as np
 
 from sumstats.utils import fileload as fl
@@ -139,25 +138,3 @@ class Loader:
 
     def close_file(self):
         self.file.close()
-
-
-def main():
-    parser = argparse.ArgumentParser()  # pragma: no cover
-    parser.add_argument('-tsv', help='The file to be loaded', required=True)  # pragma: no cover
-    parser.add_argument('-h5file', help='The name of the HDF5 file to be created/updated',
-                        required=True)  # pragma: no cover
-    parser.add_argument('-study', help='The name of the first group this will belong to',
-                        required=True)  # pragma: no cover
-    args = parser.parse_args()  # pragma: no cover
-
-    tsv = args.tsv  # pragma: no cover
-    h5file = args.h5file  # pragma: no cover
-    study = args.study  # pragma: no cover
-
-    loader = Loader(tsv, h5file, study)  # pragma: no cover
-    loader.load()  # pragma: no cover
-    loader.close_file()  # pragma: no cover
-
-
-if __name__ == "__main__":
-    main()  # pragma: no cover

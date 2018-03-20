@@ -54,5 +54,7 @@ class Block:
             raise ValueError("lower limit is bigger than upper limit")
 
         blocks = (parent_group.get_subgroup(block) for block in
-                  range(self.floor_block, (self.ceil_block + BLOCK_SIZE), BLOCK_SIZE))
+                  range(self.floor_block, (self.ceil_block + BLOCK_SIZE), BLOCK_SIZE) if
+                  parent_group.subgroup_exists(block))
+
         return blocks

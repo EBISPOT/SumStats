@@ -25,7 +25,7 @@ class BlockSearch:
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.index_marker = 0
 
-        self.h5file = utils.create_file_path(path=self.path, dir_name="bychr", file_name=chromosome)
+        self.h5file = utils.create_h5file_path(path=self.path, dir_name="bychr", file_name=chromosome)
 
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Chromosome " + str(chromosome))

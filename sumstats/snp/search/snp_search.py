@@ -42,7 +42,7 @@ class SNPSearch:
     def _calculate_searcher(self):
         logger.debug("Calculating chromosome for variant %s...", self.snp)
         for chromosome in range(1, 24):
-            h5file = utils.create_file_path(path=self.path, dir_name="bysnp", file_name=chromosome)
+            h5file = utils.create_h5file_path(path=self.path, dir_name="bysnp", file_name=chromosome)
             if not os.path.isfile(h5file):
                 continue
             self.searcher = service.Service(h5file)
@@ -57,7 +57,7 @@ class SNPSearch:
         return self.searcher
 
     def _get_searcher(self):
-        h5file = utils.create_file_path(path=self.path, dir_name="bysnp", file_name=self.chromosome)
+        h5file = utils.create_h5file_path(path=self.path, dir_name="bysnp", file_name=self.chromosome)
         if not os.path.isfile(h5file):
             logger.debug(
                 "Chromosome %s given for variant %s doesn't exist!", str(self.chromosome), self.snp)

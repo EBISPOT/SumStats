@@ -8,7 +8,7 @@ setup(
               'sumstats.snp', 'sumstats.snp.search', 'sumstats.snp.search.access', 'config', 'sumstats.errors'],
     entry_points={
         "console_scripts": ['gwas-load = sumstats.load:main',
-                            'gwas-search = sumstats.search:main',
+                            'gwas-search = sumstats.controller:main',
                             'gwas-explore = sumstats.explorer:main',
                             'gwas-server = sumstats.server.server:main']
     },

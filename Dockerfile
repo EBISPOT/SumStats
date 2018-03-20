@@ -7,7 +7,7 @@ COPY setup.py /application/
 COPY config /application/config
 
 RUN pip install /application/ --ignore-installed six
-
+RUN mkdir /application/logs
 # Expose ports
 EXPOSE 8080
 

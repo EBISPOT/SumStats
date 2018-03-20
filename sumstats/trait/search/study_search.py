@@ -28,7 +28,7 @@ class StudySearch:
         # will pinpoint where the next search needs to continue from
         self.index_marker = 0
 
-        self.h5file = utils.create_file_path(self.path, dir_name="bytrait", file_name=trait)
+        self.h5file = utils.create_h5file_path(self.path, dir_name="bytrait", file_name=trait)
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Trait " + trait)
         self.searcher = service.StudyService(self.h5file)
