@@ -20,6 +20,8 @@ Docker documentation: https://docs.docker.com
   - `docker run -i -p 8080:8080 -v $(pwd)/files/toload:/application/files/toload -v $(pwd)/files/output:/application/files/output -v $(pwd)/bin:/scripts -v $(pwd)/config:/application/config -t sumstats`
 - Run the script to load a file on docker
   - load_on_docker.sh <to_load_filename>
+
+You can run all the commands described in the secion below on the docker container that you have just launched.
  
 Files produced by the sumstats package (.h5 files) should be generated in the files/output volume
 
@@ -91,8 +93,6 @@ Assumtion:
 The script will assume that the tsv file is stored under `./files/toload` and that the output direcories will be found under the `./files/output` directory (when mounted to docker as shown above, the volumes are placed in those positions) 
 
 If you need to specify the location where it resides, modify the properties.json file and use the `-config <path to properties.json>` flag to specify it.
-
-
    
 Note that the loading command for chr and snp loaders need to be run for all the available chromosomes in the study.
 
@@ -121,3 +121,12 @@ There are two more flags that you can use:
 2. `-pval floor:ceil` e.g. `-pval 2e-10:5e-5` or `-pval 0.000003:4e-3` that specifies the p-value range of the results. 
 
 Note that, if the `output` directory is set by default to `./files/output` in the properties file. If you need to specify the location where it resides, modify the properties.json file and use the `-config <path to properties.json>` flag to specify it.
+
+# Exposing the API
+To expose the API you need to run: `gwas-server`
+
+You can use the flag `-config <path to properties.json file` to change the default properties, such as the directory where all the data is stored (output directory) as explained in all the above sections.
+
+This will spin up the service and make it available on port 8080 (if running via docker, we exposed the port when we spinned up the container).
+
+You should be able to see the API on http://localhost:8080/
