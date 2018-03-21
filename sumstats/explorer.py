@@ -17,7 +17,7 @@ class Explorer:
 
     def get_list_of_traits(self):
         traits = []
-        h5files = utils._get_h5files_in_dir(self.output_path, "bytrait")
+        h5files = utils.get_h5files_in_dir(self.output_path, "bytrait")
         for h5file in h5files:
             searcher = trait_searcher.TraitService(h5file=h5file)
             traits.extend(searcher.list_traits())
@@ -36,7 +36,7 @@ class Explorer:
 
     def get_list_of_studies(self):
         studies = []
-        h5files = utils._get_h5files_in_dir(self.output_path, "bytrait")
+        h5files = utils.get_h5files_in_dir(self.output_path, "bytrait")
         for h5file in h5files:
             searcher = study_searcher.StudyService(h5file=h5file)
             studies.extend(searcher.list_trait_study_pairs())
@@ -45,7 +45,7 @@ class Explorer:
         return studies
 
     def get_trait_of_study(self, study_to_find):
-        h5files = utils._get_h5files_in_dir(self.output_path, "bytrait")
+        h5files = utils.get_h5files_in_dir(self.output_path, "bytrait")
         for h5file in h5files:
             searcher = study_searcher.StudyService(h5file=h5file)
             for trait_study in searcher.list_trait_study_pairs():

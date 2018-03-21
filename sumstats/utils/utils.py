@@ -62,13 +62,9 @@ def create_h5file_path(path, dir_name, file_name):
     return file_path
 
 
-def _get_h5files_in_dir(path, dir_name):
+def get_h5files_in_dir(path, dir_name):
     try:
         trait_dir_path = path + "/" + dir_name
-        traits_in_path = [str(f.split("file_")[1]).split(".")[0] for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
-        h5files = []
-        for trait in traits_in_path:
-            h5files.append(create_h5file_path(path, dir_name, trait))
-        return h5files
+        return [join(trait_dir_path, f) for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
     except Exception:
         raise RuntimeError("Something went wrong when trying to get h5files for directory", dir_name)
