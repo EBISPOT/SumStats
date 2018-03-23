@@ -18,8 +18,23 @@ This will install the formatter on your python path and you should be able to us
 
 Assuming you have python and pip installed.
 
+# Quick summary of proposed steps
+Tip: for each command you can use the `-h` option for it to tell you the arguments it needs.
+
+1. Create a directory and open a terminal under that directory
+2. Unzip/untar/decompress the original file that you want
+3. `peek` in to see what it looks like
+4. Run `format -f <full path to orginal file>`. This will guess the format and save the file in your directory, named `formatted_<filename>`.
+5. Read the output of the above command on your terminal. It will tell you what guesses it made to the headers, and also give you a peek into the formatted file.
+6. Make any extra modifications that you need to the headers. Don't forget to use the formatted file now as an input (if it guessed decently)
+7. Use `valid-headers` to see the default header names that we want
+8. When done run `rename-file` and `compress` to rename the file and compress it (use the renamed file for compression)
+9. You can delete any files that you don't need now. 
+
 # Guideline
 The file given as an input should be a tab, comma, space separated file with headers for each column.
+
+We propose that you create a directory somewhere and open the terminal to run the script there. The original file can be anywhere, but if you run the script under your newly created directory, the formatted file will be saved there.
 
 We propose that you first run the `format` command (see below), as it will try and guess what each header is (where possible) and rename it to a common format. It will also try to separate any chr_position combinations, and remove the prefix `chr` or `chr_` from the chromosome data where applicable.
 
