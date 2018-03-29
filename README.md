@@ -4,6 +4,8 @@
 
 Summary statistics with HDF5
 
+Python version >= 3.5 required
+
 
 # Installation - using Docker
 
