@@ -19,7 +19,7 @@ Docker documentation: https://docs.docker.com
 - Create the container from the <sumstats> image
   - `docker run -i -p 8080:8080 -v $(pwd)/files/toload:/application/files/toload -v $(pwd)/files/output:/application/files/output -v $(pwd)/bin:/scripts -v $(pwd)/config:/application/config -t sumstats`
 - Run the script to load a file on docker
-  - python /scripts/preparation/load.py -f <file to be loaded> -config <path to json config> -study <study accession> -trait <efo trait>
+  - `python /scripts/preparation/load.py -f <file to be loaded> -config <path to json config> -study <study accession> -trait <efo trait>`
 
 You can run all the commands described in the secion below on the docker container that you have just launched.
  
@@ -34,7 +34,7 @@ Files produced by the sumstats package (.h5 files) should be generated in the fi
 - Install the sumstats package -  this will install h5py, numpy, flask, cherrypy - and sumstats
   - `pip install .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
-  - python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>
+  - `python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>`
 
 # Setting properties
 Under the `config` directory you will find the files that are responsible for setting the runtime properties.
@@ -84,9 +84,9 @@ Do not try and store more than one study at a time. This package does not suppor
 - loading by snp will save the data under the snp<rsid> hdf5 group
     - a file named `file_<bp_step>.h5` will be created, under the `bysnp` directory, one for each chromosome, where the variant groups that belong to this chromosome will be stored (and the corresponding info/associations)
 
-In the configuration file we have set the max bp location and the bp step that we want. Each study is split into chromosomes. Each chromosome sub-set is further split up into <bp_step> pieces based on the range, so bp 0 to max_bp with step bp_range, where bp_range = max_bp / bp_step.
+In the configuration file we have set the max bp location and the bp step that we want. Each study is split into chromosomes. Each chromosome sub-set is further split up into `<bp_step>` pieces based on the range, so bp 0 to max_bp with step bp_range, where `bp_range = max_bp / bp_step`.
 
-So we loop through the chromosome for (default) 16 ranges of base pair locations, and create separate files for each chromosome. They are then loaded in the corresponding bysnp/<chr>/file_<bp_step>.h5 file.
+So we loop through the chromosome for (default) 16 ranges of base pair locations, and create separate files for each chromosome. They are then loaded in the corresponding `bysnp/<chr>/file_<bp_step>.h5` file.
 
 # Loading
 Once the package is installed you can load studies and search for studies using the command line toolkit
