@@ -1,9 +1,9 @@
-
 import sumstats.controller as search
 from sumstats.utils.interval import *
 from sumstats.chr.constants import *
 from tests.search.test_utils import *
 import sumstats.utils.utils as utils
+from config import properties
 
 
 class TestLoader(object):
@@ -13,7 +13,8 @@ class TestLoader(object):
 
     def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./outputchr")
+        properties.h5files_path = "./outputchr"
+        self.searcher = search.Search(properties)
 
     def test_get_chromosome_1_0_50_s3(self):
         start = 0

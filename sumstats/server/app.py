@@ -7,7 +7,6 @@ import sumstats.controller as search
 from sumstats.server.error_classes import *
 from sumstats.errors.error_classes import *
 import sumstats.server.api_utils as apiu
-from sumstats.server.api_utils import properties
 from cherrypy import log as cherrylog
 import logging
 
@@ -57,7 +56,7 @@ def get_assocs():
         cherrylog.error("/associations. " + (str(error)))
         raise BadUserRequest(str(error))
 
-    searcher = search.Search(properties.output_path)
+    searcher = search.Search(apiu.properties)
 
     datasets, index_marker = searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
 
@@ -77,7 +76,7 @@ def get_traits():
     except ValueError as error:
         cherrylog.error("/traits. " + (str(error)))
         raise BadUserRequest(str(error))
-    explorer = ex.Explorer(properties.output_path)
+    explorer = ex.Explorer(apiu.properties)
     traits = explorer.get_list_of_traits()
     trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
 
@@ -96,7 +95,7 @@ def get_trait_assocs(trait):
         cherrylog.error("/traits/" + trait + ". " + (str(error)))
         raise BadUserRequest(str(error))
 
-    searcher = search.Search(properties.output_path)
+    searcher = search.Search(apiu.properties)
 
     try:
         datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
@@ -124,7 +123,7 @@ def get_studies():
         cherrylog.error("/studies. ", (str(error)))
         raise BadUserRequest(str(error))
 
-    explorer = ex.Explorer(properties.output_path)
+    explorer = ex.Explorer(apiu.properties)
     trait_studies = explorer.get_list_of_studies()
     study_list = apiu._get_study_list(trait_studies=trait_studies, start=start, size=size)
 
@@ -144,7 +143,7 @@ def get_studies_for_trait(trait):
         raise BadUserRequest(str(error))
 
     try:
-        explorer = ex.Explorer(properties.output_path)
+        explorer = ex.Explorer(apiu.properties)
         studies = explorer.get_list_of_studies_for_trait(trait)
         study_list = apiu._create_study_info_for_trait(studies, trait)
         end = min(start + size, len(study_list))
@@ -170,7 +169,7 @@ def get_trait_study_assocs(study, trait=None):
 
     try:
         trait = apiu._find_study_info(study=study, trait=trait)
-        searcher = search.Search(properties.output_path)
+        searcher = search.Search(apiu.properties)
 
         datasets, index_marker = searcher.search_study(trait=trait, study=study,
                                                        start=start, size=size, pval_interval=pval_interval)
@@ -216,7 +215,7 @@ def get_chromosome_assocs(chromosome):
         cherrylog.error("/chromosomes/" + chromosome + ". " + (str(error)))
         raise BadUserRequest(str(error))
 
-    searcher = search.Search(properties.output_path)
+    searcher = search.Search(apiu.properties)
 
     try:
         datasets, index_marker = searcher.search_chromosome(chromosome=chromosome,
@@ -261,7 +260,7 @@ def get_variants(chromosome, variant):
         cherrylog.error("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
         raise BadUserRequest(str(error))
 
-    searcher = search.Search(properties.output_path)
+    searcher = search.Search(apiu.properties)
 
     try:
         datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
@@ -284,5 +283,5 @@ def get_variants(chromosome, variant):
 
 if __name__ == '__main__':
     print("NAME", __name__)
-    apiu._set_properties()
+    apiu.set_properties()
     app.run()

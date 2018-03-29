@@ -5,6 +5,7 @@ import sumstats.explorer as ex
 import sumstats.trait.loader as loader
 from tests.prep_tests import *
 import pytest
+from config import properties
 
 
 @pytest.yield_fixture(scope="class", autouse=True)
@@ -40,7 +41,8 @@ def remove_dir():
 class TestLoader(object):
     def setup_method(self):
         # initialize explorer with local path
-        self.explorer = ex.Explorer("./outputexplorer")
+        properties.h5files_path = "./outputexplorer"
+        self.explorer = ex.Explorer(properties)
         self.loaded_traits = ['t1', 't2', 't3']
         self.loaded_studies = ['t1:s1', 't1:s2', 't2:s3', 't2:s4', 't3:s5']
         self.loaded_studies_t1 = ['s1', 's2']

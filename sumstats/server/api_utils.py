@@ -2,21 +2,15 @@ import numpy as np
 from urllib.parse import unquote
 from sumstats.common_constants import *
 from flask import url_for
-from config import properties
+from sumstats.utils.properties_handler import properties
+from sumstats.utils import properties_handler as set_p
 from sumstats.utils.interval import *
 import sumstats.explorer as ex
 from collections import OrderedDict
-from sumstats.utils import set_properties
-import argparse
 
 
-def _set_properties():
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument('-config', help='The configuration file to use instead of default')
-    args = argparser.parse_args()
-
-    if args.config is not None:
-        set_properties.set_properties(config=args.config)
+def set_properties():
+    set_p.set_properties()
 
 
 def _get_study_list(trait_studies, start, size):
@@ -119,7 +113,7 @@ def _get_trait_for_study(study, trait_to_study_cache):
 
 def _find_study_info(study, trait=None):
     if trait is None:
-        explorer = ex.Explorer(properties.output_path)
+        explorer = ex.Explorer(config_properties=properties)
         trait = explorer.get_trait_of_study(study)
     return trait
 

@@ -4,36 +4,32 @@ import sumstats.chr.retriever as cr
 import sumstats.snp.retriever as snpr
 import sumstats.trait.retriever as tr
 import sumstats.utils.argument_utils as au
-from config import properties
-from sumstats.utils import set_properties
+from sumstats.utils import properties_handler
+from sumstats.utils.properties_handler import properties
 import sumstats.explorer as ex
 
 
 class Search:
-    def __init__(self, path=None):
-        if path is None:
-            print("Search: setting default location for output files")
-            path = "/output"
-
-        self.path = path
+    def __init__(self, config_properties=None):
+        self.config_properties = config_properties
 
     def search_all_assocs(self, start, size, pval_interval=None):
-        return tr.search_all_assocs(start=start, size=size, pval_interval=pval_interval, path=self.path)
+        return tr.search_all_assocs(start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
 
     def search_trait(self, trait, start, size, pval_interval=None):
-        return tr.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval, path=self.path)
+        return tr.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
 
     def search_study(self, trait, study, start, size, pval_interval=None):
         return tr.search_study(trait=trait, study=study, start=start, size=size, pval_interval=pval_interval,
-                               path=self.path)
+                               properties=self.config_properties)
 
     def search_chromosome(self, chromosome, start, size, bp_interval=None, study=None, pval_interval=None):
-        return cr.search_chromosome(chromosome=chromosome, start=start, size=size, path=self.path,
+        return cr.search_chromosome(chromosome=chromosome, start=start, size=size, properties=self.config_properties,
                                     bp_interval=bp_interval, study=study, pval_interval=pval_interval)
 
     def search_snp(self, snp, start, size, chromosome=None, study=None, pval_interval=None):
         return snpr.search_snp(snp=snp, chromosome=chromosome, start=start, size=size, study=study,
-                               pval_interval=pval_interval, path=self.path)
+                               pval_interval=pval_interval, properties=self.config_properties)
 
 
 def main():  # pragma: no cover
@@ -41,9 +37,6 @@ def main():  # pragma: no cover
     args = argument_parser()  # pragma: no cover
 
     trait, study, chromosome, bp_interval, snp, pval_interval = au.convert_search_args(args)  # pragma: no cover
-    if args.config is not None: # pragma: no cover
-        set_properties.set_properties(args.config)
-    path = properties.output_path # pragma: no cov
 
     find_all = args.all  # pragma: no cover
     start = args.start  # pragma: no cover
@@ -57,7 +50,7 @@ def main():  # pragma: no cover
     else:
         size = int(size)
 
-    search = Search(path)  # pragma: no cover
+    search = Search(properties)  # pragma: no cover
 
     if find_all:  # pragma: no cover
         result, index_marker = search.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
@@ -68,7 +61,7 @@ def main():  # pragma: no cover
         else:
             result, index_marker = search.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
     elif study is not None:
-        explorer = ex.Explorer(path)
+        explorer = ex.Explorer(properties)
         trait = explorer.get_trait_of_study(study)
 
         result, index_marker = search.search_study(trait=trait, study=study, start=start, size=size,
@@ -110,6 +103,7 @@ def argument_parser():
     parser.add_argument('-chr', help='The chromosome I am looking for')  # pragma: no cover
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')  # pragma: no cover
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')  # pragma: no cover
-    parser.add_argument('-config', help='The configuration file to use instead of default')  # pragme: no cover
+
+    properties_handler.set_properties(parser)  # pragma: no cover
 
     return parser.parse_args()  # pragma: no cover

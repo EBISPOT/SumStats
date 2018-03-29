@@ -1,4 +1,3 @@
-
 import sumstats.explorer as ex
 import sumstats.trait.search.access.trait_service as service
 import sumstats.trait.search.trait_search as ts
@@ -6,21 +5,22 @@ import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
 import logging
 from sumstats.utils import register_logger
+from sumstats.utils import properties_handler
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
 
 
 class AssociationSearch:
-    def __init__(self, start, size, path=None):
+    def __init__(self, start, size, config_properties=None):
         self.starting_point = start
         self.start = start
         self.size = size
-        if path is None:
-            print("Retriever: setting default location for output files")
-            path = "/output"
 
-        self.path = path
+        self.properties = properties_handler.get_properties(config_properties)
+        self.search_path = properties_handler.get_search_path(self.properties)
+        self.trait_dir = self.properties.trait_dir
+
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
         # it is the number that when added to the 'start' value that we started the query with
@@ -35,7 +35,7 @@ class AssociationSearch:
             logger.debug(
                 "Searching all associations for trait %s, start %s, and iteration size %s", trait, str(self.start),
                 str(iteration_size))
-            search_trait = ts.TraitSearch(trait=trait, start=self.start, size=iteration_size, path=self.path)
+            search_trait = ts.TraitSearch(trait=trait, start=self.start, size=iteration_size, config_properties=self.properties)
             result, current_trait_index = search_trait.search_trait(pval_interval)
 
             self._extend_datasets(result)
@@ -55,7 +55,7 @@ class AssociationSearch:
         return self.datasets, self.index_marker
 
     def _get_all_traits(self):
-        explorer = ex.Explorer(self.path)
+        explorer = ex.Explorer(self.properties)
         return explorer.get_list_of_traits()
 
     def _next_iteration_size(self):
@@ -75,7 +75,7 @@ class AssociationSearch:
 
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:
-            h5file = utils.create_h5file_path(self.path, dir_name="bytrait", file_name=trait)
+            h5file = utils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
             searcher = service.TraitService(h5file)
             trait_size = searcher.get_trait_size(trait)
             searcher.close_file()

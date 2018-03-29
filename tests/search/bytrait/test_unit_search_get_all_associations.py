@@ -9,6 +9,7 @@ from tests.prep_tests import *
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
 import pytest
+from config import properties
 
 
 @pytest.yield_fixture(scope="session", autouse=True)
@@ -79,7 +80,8 @@ class TestLoader(object):
 
     def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./outputtrait")
+        properties.h5files_path = "./outputtrait"
+        self.searcher = search.Search(properties)
 
     def test_size_start_0_size_50_returns_only_first_and_study(self):
         datasets, index_marker = self.searcher.search_all_assocs(start=0, size=50)
