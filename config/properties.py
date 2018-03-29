@@ -1,8 +1,14 @@
-output_path="./files/output"
-input_path="./files/toload"
+h5files_path="./files/output"
+tsvfiles_path="./files/toload"
+bp_step=16
+max_bp=300000000
+snp_dir="bysnp"
+chr_dir="bychr"
+trait_dir="bytrait"
 ols_terms_location= "https://www.ebi.ac.uk/ols/api/terms?id="
 gwas_study_location="http://wwwdev.ebi.ac.uk/gwas/beta/rest/api/studies/"
 logging_path="./logs"
+port=8080
 LOG_LEVEL="INFO"
 LOG_CONF = {
     'version': 1,

@@ -47,8 +47,8 @@ Under the `config` directory you will find the files that are responsible for se
 
 The properties that are being set are:
 
-- output_path: path to the output directory where the data will be stored (see below)
-- input_path: path to the directory where the sum stats files to be loaded reside (see below)
+- h5files_path: path to the output directory where the data will be stored (see below)
+- tsvfiles_path: path to the directory where the sum stats files to be loaded reside (see below)
 - ols_terms_location: url for querying terms in the Ontology Lookup Service API
 - gwas_study_location: url for querying the study meta-data in the GWAS Catalog API
 - logging_path: path to the directory where the logs will be stored

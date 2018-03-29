@@ -7,21 +7,24 @@ from sumstats.utils import search
 from sumstats.errors.error_classes import *
 import logging
 from sumstats.utils import register_logger
+from sumstats.utils import properties_handler
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
 
 
 class SNPSearch:
-    def __init__(self, snp, start, size, path=None, chromosome=None):
+    def __init__(self, snp, start, size, config_properties=None, chromosome=None):
         self.snp = snp
         self.chromosome = chromosome
         self.start = start
         self.size = size
-        if path is None:
-            print("Retriever: setting default location for output files")
-            path = "/output"
-        self.path = path
+
+        self.properties = properties_handler.get_properties(config_properties)
+        self.search_path = properties_handler.get_search_path(self.properties)
+
+        self.chr_dir = self.properties.chr_dir
+        self.snp_dir = self.properties.snp_dir
 
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.index_marker = 0
@@ -42,7 +45,7 @@ class SNPSearch:
     def _calculate_searcher(self):
         logger.debug("Calculating chromosome for variant %s...", self.snp)
         for chromosome in range(1, 24):
-            h5file = utils.create_h5file_path(path=self.path, dir_name="bysnp", file_name=chromosome)
+            h5file = utils.create_h5file_path(path=self.search_path, dir_name=self.snp_dir, file_name=chromosome)
             if not os.path.isfile(h5file):
                 continue
             self.searcher = service.Service(h5file)
@@ -57,7 +60,7 @@ class SNPSearch:
         return self.searcher
 
     def _get_searcher(self):
-        h5file = utils.create_h5file_path(path=self.path, dir_name="bysnp", file_name=self.chromosome)
+        h5file = utils.create_h5file_path(path=self.search_path, dir_name=self.snp_dir, file_name=self.chromosome)
         if not os.path.isfile(h5file):
             logger.debug(
                 "Chromosome %s given for variant %s doesn't exist!", str(self.chromosome), self.snp)

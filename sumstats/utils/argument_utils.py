@@ -42,7 +42,7 @@ def load_argument_parser():
     parser.add_argument('-trait', help='The name of the trait the SNPs of this file are related to')
     parser.add_argument('-loader', help='The type of loader: [trait|chr|snp]')
     parser.add_argument('-chr', help='The chromosome that will be loaded')
-    parser.add_argument('-input_path', help='The path of the input files')
-    parser.add_argument('-output_path', help='The path of the output files')
+    parser.add_argument('-tsvfiles_path', help='The path of the input files')
+    parser.add_argument('-h5files_path', help='The path of the output files')
 
     return parser.parse_args()

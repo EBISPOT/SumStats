@@ -1,9 +1,9 @@
-
 import sumstats.controller as search
 import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
 from sumstats.utils.interval import FloatInterval
+from config import properties
 
 
 class TestLoader(object):
@@ -14,7 +14,8 @@ class TestLoader(object):
 
     def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./outputtrait")
+        properties.h5files_path = "./outputtrait"
+        self.searcher = search.Search(properties)
 
     def test_get_all_loop_through_size_20_restrict_pval_to_s1(self):
         start = 0

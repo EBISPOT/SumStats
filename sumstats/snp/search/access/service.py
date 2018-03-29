@@ -23,6 +23,7 @@ import h5py
 import sumstats.snp.search.access.repository as repo
 import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
+from sumstats.errors.error_classes import *
 
 
 class Service:
@@ -32,12 +33,18 @@ class Service:
         self.file = h5py.File(h5file, 'r')
         self.datasets = {}
         self.file_group = gu.Group(self.file)
+        self.snp_group = None
 
     def snp_in_file(self, snp):
-        return self.file_group.subgroup_exists(snp)
+        # return None if snp not found or set the snp_group
+        try:
+            self._get_snp_group(snp)
+            return True
+        except (SubgroupError, NotFoundError):
+            return False
 
     def query(self, snp, start, size):
-        snp_group = self.file_group.get_subgroup(snp)
+        snp_group = self._get_snp_group(snp)
         self.datasets = repo.get_dsets_from_group(snp_group, start, size)
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
@@ -47,8 +54,14 @@ class Service:
         return self.datasets
 
     def get_snp_size(self, snp):
-        snp_group = self.file_group.get_subgroup(snp)
+        snp_group = self._get_snp_group(snp)
         return snp_group.get_max_group_size()
+
+    def _get_snp_group(self, snp):
+        # caches the latest searched variant
+        if self.snp_group is None or snp not in self.snp_group.get_name():
+            self.snp_group = self.file_group.get_subgroup(snp)
+        return self.snp_group
 
     def close_file(self):
         self.file.close()
