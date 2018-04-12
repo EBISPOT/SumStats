@@ -25,6 +25,7 @@ def set_config_properties(config):
         properties.snp_dir = props["snp_dir"]
         properties.logging_path = props["logging_path"]
         properties.port = props["port"]
+        properties.bp_step = props["bp_step"]
         properties.LOG_LEVEL = props["LOG_LEVEL"]
 
 

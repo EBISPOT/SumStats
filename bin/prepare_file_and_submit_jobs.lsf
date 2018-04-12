@@ -3,31 +3,39 @@
 base=$(cd ${0%/*}/..; pwd)
 
 file=$1
+config=$2
+to_load_location=$3
 
 if [ -z $file ]; then
-        echo "Need to provide the file"                                     
+        echo "Need to provide the file (full path)"
         exit
-fi   
+fi
+
+if [ -z $config ]; then
+        echo "Need to provide the configuration file (full path)"
+        exit
+fi
+
+if [ -z $to_load_location ]; then
+        echo "Need to provide the path where the files to be loaded live (without trailing slash)"
+        exit
+fi
 
 filename=$(basename $file)
-
-
-# takes the file given as input and creates a clean one with "_clean" appended to it
+name=$(echo $filename | cut -f 1 -d '.')
 echo "FILE: $file"
-bsub -K -o $base/output.txt -e $base/error.txt $base/bin/utils/clean_input.sh $base/$filename
-# move it to the correct location
-mv $base/"$filename"_clean $base/files/toload/"$filename"
+bp_step=16
 
-# split up the script into one per chromosome
-# do this in the toload location
+# pre-process the file
 filename="$filename"
 
-bsub -K -o $base/output.txt -e $base/error.txt $base/bin/utils/split_by_chr.sh "$filename"
-bsub -K -o $base/output.txt -e $base/error.txt $base/bin/utils/append_header.sh "$filename"
+bsub -K -o $base/output.txt -e $base/error.txt python $base/bin/preparation/setup_configuration.py -f $file -config $config -create
 
-for i in {1..23} 
+for i in {1..22}
 do
-	$base/bin/load/submit_chr.sh $filename $i
-	$base/bin/load/submit_snp.sh $filename $i
+	$base/bin/load/submit_chr.sh $name $i $config $to_load_location
+	for bp in `seq 1 $bp_step`; do	
+		$base/bin/load/submit_snp.sh $name $i $bp $config $to_load_location
+	done
 done
-$base/bin/load/submit_trait.sh $filename
+$base/bin/load/submit_trait.sh $name $config

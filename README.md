@@ -15,11 +15,13 @@ Docker documentation: https://docs.docker.com
 - Build the docker image
   - `docker build -t sumstats .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
-  - bin/setup_configuration.sh <to_load_filename>
+  - python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>
 - Create the container from the <sumstats> image
   - `docker run -i -p 8080:8080 -v $(pwd)/files/toload:/application/files/toload -v $(pwd)/files/output:/application/files/output -v $(pwd)/bin:/scripts -v $(pwd)/config:/application/config -t sumstats`
 - Run the script to load a file on docker
-  - load_on_docker.sh <to_load_filename>
+  - python /scripts/preparation/load.py -f <file to be loaded> -config <path to json config> -study <study accession> -trait <efo trait>
+
+You can run all the commands described in the secion below on the docker container that you have just launched.
  
 Files produced by the sumstats package (.h5 files) should be generated in the files/output volume
 
@@ -32,7 +34,7 @@ Files produced by the sumstats package (.h5 files) should be generated in the fi
 - Install the sumstats package -  this will install h5py, numpy, flask, cherrypy - and sumstats
   - `pip install .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
-  - bin/setup_configuration.sh <to_load_filename>
+  - python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>
 
 # Setting properties
 Under the `config` directory you will find the files that are responsible for setting the runtime properties.
@@ -47,14 +49,33 @@ Under the `config` directory you will find the files that are responsible for se
 
 The properties that are being set are:
 
-- h5files_path: path to the output directory where the data will be stored (see below)
-- tsvfiles_path: path to the directory where the sum stats files to be loaded reside (see below)
+- h5files_path: path to the output directory where the data will be stored. Used by gwas-loader, gwas-explorer, gwas-search, gwas-server etc.
+- tsvfiles_path: path to the directory where the sum stats files to be loaded reside. Used by gwas-loader, gwas-explorer, gwas-search, gwas-server etc.
+- local_h5files_path: used by the setup_configuration.py file when creating the output directory layout on your local machine
+- local_tsvfiles_path: used by the setup_configuration.py file when pre-processing the loading file, and stores the files that are ready to be loaded (see below)
+- bp_step: how many files we want each chromosome to be split into, based on base pair location (default: 16)
+- max_bp: max bp location to be found in any chromosome (default: 300,000,000)
+- snp_dir: name of the directory under 'h5files_path', that the snp loader will use as to save the created h5files (default: bysnp)
+- chr_dir: name of the directory under 'h5files_path', that the chromosome loader will use as to save the created h5files (default: bychr)
+- trait_dir: name of the directory under 'h5files_path', that the trait loader will use as to save the created h5files (default: bytrait)
 - ols_terms_location: url for querying terms in the Ontology Lookup Service API
 - gwas_study_location: url for querying the study meta-data in the GWAS Catalog API
 - logging_path: path to the directory where the logs will be stored
 - LOG_LEVEL: log level (default is INFO)
 
-# Directory layout
+*NOTE*: `local_h5files_path - h5files_path` and `local_tsvfiles_path - tsvfiles_path` can point the same directories with the same paths (respectively).
+But you can use the `local_` variables to refer to the actual locations where these directories will reside,
+and the variables missing the `local_` prefix when referring to the locations that will be used by gwas-loarer, gwas-search, gwas-server, etc,
+that might be running from a docker container and possibly have different paths and/or directory names on the container.
+
+For example, you might want to store the files locally on your maching under ./files/toload but then mount that same directory on docker under /toload
+
+In this case you will set `local_tsvfiles_path=./files/toload` and this will be used by the setup_configuration.py script to process and
+split up your summary statistics file, but you will set `tsvfiles_path=/toload` and this will be used when you are loadin, searching etc
+data when the loading/searching/etc commands are run from docker.
+
+
+# Default directory layout
 The directories that are created are ./files/toload and ./files/output. These do not need to be named as such, and they can be located anywhere you like. You will just need to either provide the toload and output directories as arguments while running via command line, 
 
 You can provide the preferred location by:
@@ -66,6 +87,7 @@ In the files/output directory 3 subdirectories will be created:
 - bytrait
 - bychr
 - bysnp
+   - dirctories named 1...22, one directory for each chromosome
 
 Each one will hold the hdf5 files created with the data loaded by the 3 different loaders. The loaders can be run in parallel.
 Do not try and store more than one study at a time. This package does not support parallel study loading.
@@ -74,7 +96,11 @@ Do not try and store more than one study at a time. This package does not suppor
 - loading by chromosome will save the data under the chr<chr> hdf5 group
     - a file named `file_<chromosome>.h5` will be created, under the `bychr` directory, one for each chromosome, where bp block groups that blong to this chromosome will be stored (and the corresponding info/associations)
 - loading by snp will save the data under the snp<rsid> hdf5 group
-    - a file named `file_<chromosome>.h5` will be created, under the `bysnp` directory, one for each chromosome, where the variant groups that belong to this chromosome will be stored (and the corresponding info/associations)
+    - a file named `file_<bp_step>.h5` will be created, under the `bysnp` directory, one for each chromosome, where the variant groups that belong to this chromosome will be stored (and the corresponding info/associations)
+
+In the configuration file we have set the max bp location and the bp step that we want. Each study is split into chromosomes. Each chromosome sub-set is further split up into <bp_step> pieces based on the range, so bp 0 to max_bp with step bp_range, where bp_range = max_bp / bp_step.
+
+So we loop through the chromosome for (default) 16 ranges of base pair locations, and create separate files for each chromosome. They are then loaded in the corresponding bysnp/<chr>/file_<bp_step>.h5 file.
 
 # Loading
 Once the package is installed you can load studies and search for studies using the command line toolkit
@@ -91,8 +117,6 @@ Assumtion:
 The script will assume that the tsv file is stored under `./files/toload` and that the output direcories will be found under the `./files/output` directory (when mounted to docker as shown above, the volumes are placed in those positions) 
 
 If you need to specify the location where it resides, modify the properties.json file and use the `-config <path to properties.json>` flag to specify it.
-
-
    
 Note that the loading command for chr and snp loaders need to be run for all the available chromosomes in the study.
 
@@ -121,3 +145,12 @@ There are two more flags that you can use:
 2. `-pval floor:ceil` e.g. `-pval 2e-10:5e-5` or `-pval 0.000003:4e-3` that specifies the p-value range of the results. 
 
 Note that, if the `output` directory is set by default to `./files/output` in the properties file. If you need to specify the location where it resides, modify the properties.json file and use the `-config <path to properties.json>` flag to specify it.
+
+# Exposing the API
+To expose the API you need to run: `gwas-server`
+
+You can use the flag `-config <path to properties.json file` to change the default properties, such as the directory where all the data is stored (output directory) as explained in all the above sections.
+
+This will spin up the service and make it available on port 8080 (if running via docker, we exposed the port when we spinned up the container).
+
+You should be able to see the API on http://localhost:8080/

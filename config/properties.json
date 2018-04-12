@@ -1,6 +1,8 @@
 {
     "h5files_path":"./files/output",
     "tsvfiles_path":"./files/toload",
+    "local_h5files_path":"./files/output",
+    "local_tsvfiles_path":"./files/toload",
     "snp_dir":"bysnp",
     "chr_dir":"bychr",
     "trait_dir":"bytrait",
