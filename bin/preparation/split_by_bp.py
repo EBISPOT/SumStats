@@ -20,10 +20,12 @@ def main():
 
     filename = file.split("/")[-1].split(".")[0]
     bp_index = None
-    header = None
     is_header = True
 
-    lines = []
+    new_filename = os.path.join(path, 'bp_' + accession + "_" + filename + '.tsv')
+    result_file = open(new_filename, 'w')
+    writer = csv.writer(result_file, delimiter='\t')
+
     with open(file) as csv_file:
         dialect = csv.Sniffer().sniff(csv_file.readline())
         csv_file.seek(0)
@@ -33,16 +35,12 @@ def main():
                 header = row
                 bp_index = header.index('base_pair_location')
                 is_header = False
+                writer.writerows([header])
             else:
                 if start <= int(row[bp_index]) < end:
-                    lines.append(row)
+                    writer.writerows([row])
 
-    if len(lines) > 0:
-        new_filename = os.path.join(path, 'bp_' + accession + "_" + filename + '.tsv')
-        with open(new_filename, 'w') as result_file:
-            writer = csv.writer(result_file, delimiter='\t')
-            writer.writerows([header])
-            writer.writerows(lines)
+    result_file.close()
 
 
 if __name__ == "__main__":

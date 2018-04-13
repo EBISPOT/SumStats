@@ -84,6 +84,7 @@ def main():
     # mv $base/"$filename"_clean $to_load_location/"$filename"
     copyfile(file, local_tsvfiles_path + "/" + filename)
 
+    print("Pre-processing the file")
     # split up the script into one per chromosome
     for chromosome in range(1, 22):
         command = where_am_i + '/split_by_chromosome.py -f ' + file + ' -chr ' + str(
@@ -94,7 +95,7 @@ def main():
             previous = 0
             step = 1
             for bp in range(0, max_bp, bp_range):
-                command = where_am_i + '/split_bp.py -f ' + chromosome_file + ' -start ' + str(
+                command = where_am_i + '/split_by_bp.py -f ' + chromosome_file + ' -start ' + str(
                     previous) + ' -end ' + str(bp) + ' -accession ' + str(step) + ' -path ' + local_tsvfiles_path
                 os.system('python ' + command)
                 previous = bp

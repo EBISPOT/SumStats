@@ -16,10 +16,11 @@ def main():
     filename = file.split("/")[-1].split(".")[0]
 
     chromosome_index = None
-    header = None
     is_header = True
 
-    lines = []
+    new_filename = os.path.join(path, 'chr_' + str(chromosome) + "_" + filename + '.tsv')
+    result_file = open(new_filename, 'w')
+    writer = csv.writer(result_file, delimiter='\t')
     with open(file) as csv_file:
         dialect = csv.Sniffer().sniff(csv_file.readline())
         csv_file.seek(0)
@@ -28,17 +29,13 @@ def main():
             if is_header:
                 header = row
                 chromosome_index = header.index('chromosome')
+                writer.writerows([header])
                 is_header = False
             else:
                 if int(row[chromosome_index]) == chromosome:
-                    lines.append(row)
+                    writer.writerows([row])
 
-    if len(lines) > 0:
-        new_filename = os.path.join(path, 'chr_' + str(chromosome) + "_" + filename + '.tsv')
-        with open(new_filename, 'w') as result_file:
-            writer = csv.writer(result_file, delimiter='\t')
-            writer.writerows([header])
-            writer.writerows(lines)
+    result_file.close()
 
 
 if __name__ == "__main__":
