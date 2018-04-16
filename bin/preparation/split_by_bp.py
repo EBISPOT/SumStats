@@ -21,6 +21,7 @@ def main():
     filename = file.split("/")[-1].split(".")[0]
     bp_index = None
     is_header = True
+    total_of_lines = 0
 
     new_filename = os.path.join(path, 'bp_' + accession + "_" + filename + '.tsv')
     result_file = open(new_filename, 'w')
@@ -39,8 +40,13 @@ def main():
             else:
                 if start <= int(row[bp_index]) < end:
                     writer.writerows([row])
+                    total_of_lines += 1
 
     result_file.close()
+
+    if total_of_lines == 0:
+        # nothing was written, delete the file
+        os.remove(new_filename)
 
 
 if __name__ == "__main__":

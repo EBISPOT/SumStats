@@ -17,6 +17,7 @@ def main():
 
     chromosome_index = None
     is_header = True
+    total_of_lines = 0
 
     new_filename = os.path.join(path, 'chr_' + str(chromosome) + "_" + filename + '.tsv')
     result_file = open(new_filename, 'w')
@@ -34,8 +35,13 @@ def main():
             else:
                 if int(row[chromosome_index]) == chromosome:
                     writer.writerows([row])
+                    total_of_lines += 1
 
     result_file.close()
+
+    if total_of_lines == 0:
+        # nothing was written, delete the file
+        os.remove(new_filename)
 
 
 if __name__ == "__main__":
