@@ -9,6 +9,6 @@ notifications:
   email:
   - olgavrou@ebi.ac.uk
 install:
-  - python setup.py -q install
+  - pip install .
 script:
   - pytest
