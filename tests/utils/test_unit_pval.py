@@ -266,3 +266,9 @@ class TestUnitPval(object):
         mantissa, exp = pu.convert_to_mantissa_and_exponent(str_number)
         assert mantissa == 1.01
         assert exp == 980
+
+    def test_pval_without_zero_before_point(self):
+            str_number = ".1"
+            whole, dec = pu._split_decimal(str_number)
+            assert whole == 0
+            assert dec == "1"
