@@ -11,7 +11,7 @@ def _split_decimal(str_numer):
     if integer_part == "":
         integer_part = 0
     if fractional_part == "":
-        fractional_part = 0 
+        fractional_part = 0
     return integer_part, fractional_part
 
 
