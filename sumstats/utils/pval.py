@@ -7,10 +7,12 @@ without loosing information
 
 def _split_decimal(str_numer):
     assert _is_decimal_form(str_numer), "To split a decimal, it need to be a decimal!"
-    dot_split = str_numer.split(".")
-    if dot_split[1] == "":
-        return dot_split[0], 0
-    return dot_split[0], dot_split[1]
+    integer_part, fractional_part = str_numer.split(".")
+    if integer_part == "":
+        integer_part = 0
+    if fractional_part == "":
+        fractional_part = 0
+    return integer_part, fractional_part
 
 
 def _is_exponent_form(str_number):
