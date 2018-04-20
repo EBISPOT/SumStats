@@ -13,3 +13,5 @@ install:
   - python setup.py -q install
 script:
   - pytest
+notifications:
+  slack: ebigwas:zqQ2w5YqIBivAipkzntr5Pg5
