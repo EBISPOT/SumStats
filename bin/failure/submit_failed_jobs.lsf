@@ -5,12 +5,15 @@ base=$(cd ${0%/*}/../..; pwd)
 file=$1
 report_file=$2
 report_failed_file=$3
-
 output_loc=$4
+config=$5
+trait_dir=$6
+chr_dir=$7
+snp_dir=$8
 
 filename=$(basename $file)
-
-trait=$(echo "$filename" | cut -d"-" -f3)
+name=$(echo $filename | cut -f 1 -d '.')
+trait=$(echo "$name" | cut -d"-" -f3)
 
 if [ -z $file ]; then
 	echo "Need to provide the file"
@@ -40,20 +43,21 @@ while read line; do
     chromosome=$(echo $line | cut -d":" -f2)
 
     if [ $jobtype == "snp" ]; then
+        bp=$(echo $line | cut -d":" -f3)
         # replace with backup
-        $base/bin/utils/rollback.sh $output_loc bysnp file_"$chromosome".h5
+        $base/bin/utils/rollback.sh $output_loc $snp_dir/$chromosome file_"$bp".h5
         # resubmit job
-        $base/bin/load/submit_snp.sh $file $chromosome
+        $base/bin/load/submit_snp.sh $file $chromosome $bp $config $base/files/toload
     elif [ $jobtype == "chr" ]; then
         # replace with backup
-        $base/bin/utils/rollback.sh $output_loc bychr file_"$chromosome".h5
+        $base/bin/utils/rollback.sh $output_loc $chr_dir file_"$chromosome".h5
         # resubmit job
-        $base/bin/load/submit_chr.sh $file $chromosome
+        $base/bin/load/submit_chr.sh $file $chromosome $config $base/files/toload
     elif [ $jobtype == "trait" ]; then
         # replace with backup
-        $base/bin/utils/rollback.sh $output_loc bytrait file_"$trait".h5
+        $base/bin/utils/rollback.sh $output_loc $trait_dir file_"$trait".h5
         # resubmit job
-        $base/bin/load/submit_trait.sh $file
+        $base/bin/load/submit_trait.sh $file $config $base/files/toload
     fi
 done < $report_failed_file
 

@@ -7,23 +7,26 @@ load_type=$2
 report_file=$3
 failed_file=$4
 output_loc=$5
+type_dir=$6
 
 filename=$(basename $file)
-trait=$(echo "$filename" | cut -d"-" -f3)
+name=$(echo $filename | cut -f 1 -d '.')
+trait=$(echo "$name" | cut -d"-" -f3)
 
-
+bp_step=16
 
 function act_on_error(){
-    if grep -i -q "This study has already been loaded" $job_error ;
+    if grep -i -q "AlreadyLoadedError" $job_error ;
     then
-         echo -e "$load_type:$instance study has already been loaded!" >> $report_file
+         echo -e "$load_type:$instance:$bp study has already been loaded!" >> $report_file
     elif grep -i -q "Study is half loaded" $job_error ;
     then
         # The study loading was incomplete! Need to roll back this file and re-submit it
         $base/utils/rollback.sh $output_loc $load_type_dir $h5file
-        echo -e "$load_type:$instance" >> $failed_file
+        # if bp is empty it will just be ignored
+        echo -e "$load_type:$instance:$bp" >> $failed_file
     else
-            echo "$load_type:$instance" >> $failed_file
+            echo -e "$load_type:$instance:$bp" >> $failed_file
     fi
 }
 
@@ -34,7 +37,7 @@ function log_load_complete(){
     max_swap=$(grep "Max Swap" $job_output | cut -d":" -f2 | tr -d '[:space:]')
     disk_space=$(du -h "$output_loc"/"$load_type_dir"/"$h5file" | cut -f1)
 
-    echo -e "$load_type:$instance\t$run_time\t$disk_space\t$num_lines\t$max_mem\t$max_swap" >> $report_file
+    echo -e "$load_type:$instance:$bp\t$run_time\t$disk_space\t$num_lines\t$max_mem\t$max_swap" >> $report_file
 }
 
 function log_loading_status () {
@@ -47,7 +50,7 @@ function log_loading_status () {
         then
             log_load_complete
         else
-           echo "$load_type:$instance" >> $failed_file
+           echo "$load_type:$instance:$bp" >> $failed_file
         fi
     fi
 }
@@ -56,33 +59,36 @@ function log_loading_status () {
 if [ $load_type == "trait" ];
 then
 	instance=$trait
-	input_file=$filename
+	input_file="$name".tsv
 	job_output=$base/trait_output.txt
 	job_error=$base/trait_error.txt
-	load_type_dir=bytrait
+	load_type_dir=$type_dir
 	h5file=file_"$trait".h5
 	log_loading_status
 elif [ $load_type == "chr" ];
 then
-    for instance in {1..23};
+    for instance in {1..22};
     do
-        input_file=chr"$instance"_"$filename"
+        input_file=chr_"$instance"_"$name".tsv
         job_output=$base/chr_output"$instance".txt
         job_error=$base/chr_error"$instance".txt
-        load_type_dir=bychr
+        load_type_dir=$type_dir
         h5file=file_"$instance".h5
         log_loading_status
     done	
 elif [ $load_type == "snp" ];
 then
-    for instance in {1..23};
+    for instance in {1..22};
     do
-        input_file=chr"$instance"_"$filename"
-        job_output=$base/snp_output"$instance".txt
-        job_error=$base/snp_error"$instance".txt
-        load_type_dir=bysnp
-        h5file=file_"$instance".h5
-        log_loading_status
+        for bp in `seq 1 $bp_step`;
+        do
+            input_file=bp_"$bp"_chr_"$instance"_"$name".tsv
+            job_output=$base/snp_output"$instance"_"$bp".txt
+            job_error=$base/snp_error"$instance"_"$bp".txt
+            load_type_dir=$type_dir/$instance
+            h5file=file_"$bp".h5
+            log_loading_status
+        done
     done
 fi
 

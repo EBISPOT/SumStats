@@ -2,11 +2,36 @@
 
 base=$(cd ${0%/*}/../..; pwd)
 
+output_loc=$1
+trait_dir=$2
+chr_dir=$3
+snp_dir=$4
+failed_file=$5
+
 # clean output and error files
 > $base/corruption_o.txt
 > $base/corruption_e.txt
 
 # submit job
 # 'bin' mounted as 'scripts' on docker container
-bsub -K -g "/sumstatscorruptioncheck" -o $base/corruption_o.txt -e $base/corruption_e.txt -a 'docker('$base'/sumstatscdf.yml)' "/scripts/failure/run_h5debug_on_files.sh"
+bsub -K -g "/sumstatscorruptioncheck" -o $base/corruption_o.txt -e $base/corruption_e.txt -a 'docker('$base'/sumstatscdf.yml)' "/scripts/failure/run_h5debug_on_files.sh $output_loc $trait_dir $chr_dir $snp_dir"
 
+if grep -i -q "Rolled back" $base/corruption_o.txt ; then
+	grep "Rolled back"  $base/corruption_o.txt | while read -r line; do
+		dir=$(echo "$line" | cut -d ":" -f2 | cut -d" " -f2 | cut -d "/" -f1)
+		if [ "$dir" == $trait_dir ]; then
+			trait=$(echo "$line" | cut -d ":" -f2 | cut -d" " -f3 | cut -d"e" -f2 | cut -d "." -f1 | cut -c 2-)
+			echo -e "trait:$trait" >> $failed_file
+		elif [ "$dir" == $chr_dir ]; then
+			chromosome=$(echo "$line" | cut -d ":" -f2 | cut -d" " -f3 | cut -d"e" -f2 | cut -d "." -f1 | cut -c 2-)
+			echo -e "chr:$chromosome" >> $failed_file
+		elif [ "$dir" == $snp_dir ]; then
+			chromosome=$(echo "$line" | cut -d ":" -f2 | cut -d" " -f2 | cut -d "/" -f2)
+			bp=$(echo "$line" | cut -d ":" -f2 | cut -d" " -f3 | cut -d"e" -f2 | cut -d "." -f1 | cut -c 2-)
+			echo -e "snp:$chromosome:$bp" >> $failed_file
+		else 
+			echo "Error occured!"
+			echo "$dir, $trait_dir, $chr_dir, $snp_dir"
+		fi
+	done
+fi
