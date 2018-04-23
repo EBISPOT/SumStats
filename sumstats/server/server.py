@@ -5,6 +5,7 @@ import logging.config
 import cherrypy
 from paste.translogger import TransLogger
 import sumstats.server.api_utils as apiu
+from sumstats.utils import register_logger
 
 logger = logging.getLogger()
 
@@ -64,7 +65,4 @@ def _set_log_level(LOG_CONF, LOG_LEVEL):
 
 
 def _set_log_path(properties):
-    properties.LOG_CONF['handlers']['cherrypy_access']['filename'] = properties.logging_path + "/" + properties.ACCESS_LOG
-    properties.LOG_CONF['handlers']['cherrypy_error']['filename'] = properties.logging_path + "/" + properties.ERROR_LOG
-    properties.LOG_CONF['handlers']['logger']['filename'] = properties.logging_path + "/" + properties.LOGGER_LOG
-    return properties.LOG_CONF
+    return register_logger.set_log_path(properties)

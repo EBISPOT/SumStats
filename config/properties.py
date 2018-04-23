@@ -14,6 +14,9 @@ LOG_LEVEL="INFO"
 ACCESS_LOG="access.log"
 ERROR_LOG="error.log"
 LOGGER_LOG="logger.log"
+ACCESS_HANDLER="cherrypy_access"
+ERROR_HANDLER="cherrypy_error"
+LOGGER_HANDLER="logger"
 LOG_CONF = {
     'version': 1,
     'formatters': {
