@@ -7,25 +7,26 @@ from sumstats.utils import  search
 from sumstats.errors.error_classes import *
 import logging
 from sumstats.utils import register_logger
+from sumstats.utils import properties_handler
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
 
 
 class BlockSearch:
-    def __init__(self, chromosome, start, size, path=None):
+    def __init__(self, chromosome, start, size, config_properties=None):
         self.chromosome = chromosome
         self.start = start
         self.size = size
-        if path is None:
-            print("Retriever: setting default location for output files")
-            path = "/output"
-        self.path = path
+
+        self.properties = properties_handler.get_properties(config_properties)
+        self.search_path = properties_handler.get_search_path(self.properties)
+        self.chr_dir = self.properties.chr_dir
 
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.index_marker = 0
 
-        self.h5file = utils.create_h5file_path(path=self.path, dir_name="bychr", file_name=chromosome)
+        self.h5file = utils.create_h5file_path(path=self.search_path, dir_name=self.chr_dir, file_name=chromosome)
 
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Chromosome " + str(chromosome))

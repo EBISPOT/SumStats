@@ -10,11 +10,12 @@ from tests.search.test_utils import *
 import sumstats.utils.utils as utils
 from sumstats.errors.error_classes import *
 import pytest
+from config import properties
 
 
 @pytest.yield_fixture(scope="session", autouse=True)
 def load_studies(request):
-    os.makedirs('./outputsnp/bysnp')
+    os.makedirs('./outputsnp/bysnp/1')
     output_location = './outputsnp/bysnp/'
 
     # loaded 2 variants for 5 studies
@@ -23,7 +24,7 @@ def load_studies(request):
 
     search_arrays.chrarray = [1 for _ in range(1, 3)]
     search_arrays.snpsarray = ['rs' + str(i) for i in range(1, 3)]
-    h5file = output_location + 'file_1.h5'
+    h5file = output_location + '/1/file_1.h5'
 
     search_arrays.pvalsarray = ["0.01" for _ in range(1, 3)]
     load = prepare_load_object_with_study(h5file=h5file, study='s1', loader=loader, test_arrays=search_arrays)
@@ -60,7 +61,8 @@ class TestLoader(object):
 
     def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./outputsnp")
+        properties.h5files_path = "./outputsnp"
+        self.searcher = search.Search(properties)
 
     def test_get_snp(self):
         start = 0

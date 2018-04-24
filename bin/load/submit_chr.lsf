@@ -4,6 +4,8 @@ base=$(cd ${0%/*}/../..; pwd)
 
 file=$1
 chromosome=$2
+config=$3
+to_load_location=$4
 
 if [ -z $file ]; then                                                       
         echo "Need to provide the file"                                     
@@ -16,11 +18,14 @@ if [ -z $chromosome ]; then
 fi
 
 filename=$(basename $file)
-study=$(echo "$filename" | cut -d"-" -f2)
-trait=$(echo "$filename" | cut -d"-" -f3)
+name=$(echo $filename | cut -f 1 -d '.')
+study=$(echo "$name" | cut -d"-" -f2)
+trait=$(echo "$name" | cut -d"-" -f3)
 
+echo "Attempting chromosome load for chromosome: $chromosome"
     # check to see if it exists
-    if [ -s $base/files/toload/chr"$chromosome"_"$filename" ];
+    if [ -s $to_load_location/chr_"$chromosome"_"$name".tsv ];
     then
-        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv chr"$chromosome"_"$filename" -study $study -loader chr -chr $chromosome "
+	echo "Submitting chromosome load for chromosome: $chromosome"
+        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome -config $config"
     fi

@@ -4,6 +4,7 @@ from sumstats.trait.constants import *
 from tests.search.test_utils import *
 from sumstats.errors.error_classes import *
 import pytest
+from config import properties
 
 
 class TestLoader(object):
@@ -14,7 +15,8 @@ class TestLoader(object):
 
     def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./outputtrait")
+        properties.h5files_path = "./outputtrait"
+        self.searcher = search.Search(properties)
 
     def test_search_raises_error(self):
         with pytest.raises(NotFoundError):

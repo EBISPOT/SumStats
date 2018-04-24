@@ -10,6 +10,7 @@ from tests.search.test_utils import *
 import sumstats.utils.utils as utils
 from sumstats.errors.error_classes import *
 import pytest
+from config import properties
 
 
 @pytest.yield_fixture(scope="session", autouse=True)
@@ -83,7 +84,8 @@ class TestLoader(object):
 
     def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./outputchr")
+        properties.h5files_path = "./outputchr"
+        self.searcher = search.Search(properties)
 
     def test_get_chromosome_raises_error(self):
         with pytest.raises(NotFoundError):
