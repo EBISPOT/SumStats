@@ -20,6 +20,7 @@ Docker documentation: https://docs.docker.com
   - `docker build -t sumstats .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
   - python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>
+  - you can use the `-create` flag when running setup_configuration.py and it will create the directory layout as described below
 - Create the container from the <sumstats> image
   - `docker run -i -p 8080:8080 -v $(pwd)/files/toload:/application/files/toload -v $(pwd)/files/output:/application/files/output -v $(pwd)/bin:/scripts -v $(pwd)/config:/application/config -t sumstats`
 - Run the script to load a file on docker
@@ -112,8 +113,8 @@ Once the package is installed you can load studies and search for studies using 
 To load a study it is suggested that you first run the bin/setup_configuration.sh <to_load_filename> script on the file. This script will copy the file into the files/toload directory, and will split the study up into chromosomes, creating as many files as the chromosomes represented in the study. They will be named chr<x>_filename.
 
 You can then run the below commands to fully load the study in all the formats:
-1. `gwas-load -tsv chr<x>_<filename> -study <study> -chr <x> -loader chr`
-2. `gwas-load -tsv chr<x>_<filename> -study <study> -chr <x> -loader snp`
+1. `gwas-load -tsv chr_<x>_<filename> -study <study> -chr <x> -loader chr`
+2. `gwas-load -tsv chr_<x>_<filename> -study <study> -chr <x> -loader snp`
 3. `gwas-load -tsv <filename> -study <study> -trait <trait> -loader trait`
 
 Assumtion: 
