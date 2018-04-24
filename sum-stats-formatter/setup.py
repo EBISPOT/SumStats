@@ -12,6 +12,7 @@ setup(
                             'clean = format.clean_column:main',
                             'split = format.split_column:main',
                             'swap = format.swap_columns:main',
+                            'allele-swap = format.allele_swap:main',
                             'help-ss = format.help:main',
                             'valid-headers = format.show_known_headers:main',
                             'rename-file = format.rename_filename:main',
