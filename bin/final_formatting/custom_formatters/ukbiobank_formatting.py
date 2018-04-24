@@ -2,7 +2,8 @@ import csv
 import argparse
 import sys
 
-sys.path.insert(0, '../../final_formatting/')
+sys_paths = ['bin/final_formatting/','../bin/final_formatting/','../../bin/final_formatting/','../../../bin/final_formatting/']
+sys.path.extend(sys_paths)
 from sumstats_formatting import *
 
 
