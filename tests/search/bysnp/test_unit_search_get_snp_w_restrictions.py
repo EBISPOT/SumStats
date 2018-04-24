@@ -1,9 +1,9 @@
-
 import sumstats.controller as search
 from sumstats.snp.constants import *
 from sumstats.utils.interval import *
 from tests.search.test_utils import *
 import sumstats.utils.utils as utils
+from config import properties
 
 
 class TestLoader(object):
@@ -14,7 +14,8 @@ class TestLoader(object):
 
     def setup_method(self):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./outputsnp")
+        properties.h5files_path = "./outputsnp"
+        self.searcher = search.Search(properties)
 
     def test_get_snp_filter_study(self):
         start = 0

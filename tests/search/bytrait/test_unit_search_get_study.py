@@ -1,7 +1,7 @@
-
 import sumstats.controller as search
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
+from config import properties
 
 
 class TestLoader(object):
@@ -12,7 +12,8 @@ class TestLoader(object):
 
     def setup_method(self, method):
         # initialize searcher with local path
-        self.searcher = search.Search(path="./outputtrait")
+        properties.h5files_path = "./outputtrait"
+        self.searcher = search.Search(properties)
 
     def test_search_s1_0_20(self):
         start = 0

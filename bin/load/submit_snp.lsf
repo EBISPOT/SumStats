@@ -4,6 +4,10 @@ base=$(cd ${0%/*}/../..; pwd)
 
 file=$1
 chromosome=$2
+bp=$3
+config=$4
+to_load_location=$5
+
 
 if [ -z $file ]; then
         echo "Need to provide the file"                                     
@@ -15,12 +19,22 @@ if [ -z $chromosome ]; then
         exit
 fi
 
+if [ -z $bp ]; then
+        echo "Need to give bp number"
+        exit
+fi
+
 filename=$(basename $file)
-study=$(echo "$filename" | cut -d"-" -f2)
-trait=$(echo "$filename" | cut -d"-" -f3)
+name=$(echo $filename | cut -f 1 -d '.')
+study=$(echo "$name" | cut -d"-" -f2)
+trait=$(echo "$name" | cut -d"-" -f3)
+
+echo "Attemtping to submit SNP load for chromosome: $chromosome and bp: $bp"
 
     # check to see if it exists
-    if [ -s $base/files/toload/chr"$chromosome"_"$filename" ];
-    then
-        bsub -g "/sumstatsloader" -o $base/snp_output"$chromosome".txt -e $base/snp_error"$chromosome".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv chr"$chromosome"_"$filename" -study $study -loader snp -chr $chromosome"
+    bp_file=bp_"$bp"_chr_"$chromosome"_"$name".tsv
+    if [ -s "$to_load_location"/"$bp_file" ]; then
+	echo "Submitting SNP load for chromosome: $chromosome and bp: $bp"
+
+	bsub -g "/sumstatsloader" -o $base/snp_output"$chromosome"_"$bp".txt -e $base/snp_error"$chromosome"_"$bp".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv $bp_file -study $study -chr $chromosome -loader snp -bp $bp -config $config"
     fi

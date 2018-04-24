@@ -14,10 +14,13 @@ def main():
     app_logged = TransLogger(app, setup_console_handler=False)
 
     # Set properties
-    apiu._set_properties()
+    apiu.set_properties()
     LOG_CONF = apiu.properties.LOG_CONF
 
     LOG_LEVEL = apiu.properties.LOG_LEVEL
+
+    port = apiu.properties.port
+
     print("Setting to logging level:", LOG_LEVEL)
     LOG_CONF = _set_log_level(LOG_CONF=LOG_CONF, LOG_LEVEL=LOG_LEVEL)
     LOG_CONF = _set_log_path(LOG_CONF=LOG_CONF, loggin_path=apiu.properties.logging_path)
@@ -36,7 +39,7 @@ def main():
 
     # Set the configuration of the web server
     server.socket_host = "0.0.0.0"
-    server.socket_port = 8080
+    server.socket_port = port
     server.socket_pool = 30
 
     # Subscribe this server
