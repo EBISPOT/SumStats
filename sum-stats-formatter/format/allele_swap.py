@@ -1,4 +1,3 @@
-import csv
 import argparse
 import os
 from format.utils import *
@@ -20,8 +19,8 @@ def str_to_bool(string):
 
 def swap_alleles(row, header, h):
     keep_alleles = str_to_bool(get_value_from_field(row, header, h)[0])
-    effect_allele, effect_allele_index = get_value_from_field(row, header, 'effect_allele')
-    other_allele, other_allele_index = get_value_from_field(row, header, 'other_allele')
+    effect_allele, effect_allele_index = get_value_from_field(row, header, EFFECT_ALLELE)
+    other_allele, other_allele_index = get_value_from_field(row, header, OTHER_ALLELE)
     if keep_alleles is False:
         row[effect_allele_index], row[other_allele_index] = other_allele, effect_allele
     return row

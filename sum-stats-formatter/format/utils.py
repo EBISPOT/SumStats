@@ -127,6 +127,8 @@ CHR_BP = 'chr_bp'
 CHR = 'chr'
 BP = 'bp'
 VARIANT = 'snp'
+EFFECT_ALLELE = 'effect_allele'
+OTHER_ALLELE = 'other_allele'
 
 DESIRED_HEADERS = {'eaf', 'other_allele', 'effect_allele', 'se', 'beta', 'range',
                    'or', 'bp', 'chr', 'pval', 'snp'}
