@@ -74,7 +74,7 @@ def main():
         bk_snpdir = os.path.join(local_h5files_path, "bk_" + snp_dir)
         if not os.path.exists(bk_snpdir):
             os.makedirs(bk_snpdir)
-        for step in range(1, 23):
+        for step in range(1, 25):
             snp_chrdir = os.path.join(local_h5files_path, snp_dir, str(step))
             if not os.path.exists(snp_chrdir):
                 os.makedirs(snp_chrdir)
@@ -86,7 +86,7 @@ def main():
 
     print("Pre-processing the file")
     # split up the script into one per chromosome
-    for chromosome in range(1, 22):
+    for chromosome in range(1, 25):
         command = where_am_i + '/split_by_chromosome.py -f ' + file + ' -chr ' + str(
             chromosome) + ' -path ' + local_tsvfiles_path
         os.system('python ' + command)
