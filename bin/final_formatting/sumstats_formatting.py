@@ -58,7 +58,18 @@ def add_blank_col_to_row(row, headers_to_add):
     for _ in headers_to_add:
         row.append('NA')
     return row
-    
+
+
+def map_x_y_to_23_24(row, header):
+    index_chr = header.index(CHR_DSET)
+    chromosome = row[index_chr]
+    if 'x' in str(chromosome).lower():
+        chromosome = 23
+    if 'y' in str(chromosome).lower():
+        chromosome = 24
+    row[index_chr] = chromosome
+    return row
+
 
 def main():
     argparser = argparse.ArgumentParser()
@@ -85,6 +96,7 @@ def main():
                 is_header = False
             else:
                 row = add_blank_col_to_row(row, headers_to_add)
+                row = map_x_y_to_23_24(row, new_header)
                 lines.append(row)
         
 

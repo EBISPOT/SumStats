@@ -45,7 +45,7 @@ class SNPSearch:
     def _calculate_searcher(self):
         logger.debug("Calculating chromosome for variant %s...", self.snp)
 
-        for chromosome in range(1, 23):
+        for chromosome in range(1, 25):
             self.searcher = self._calculate_searcher_for_chromosome(chromosome)
             if self.searcher is not None:
                 return self.searcher
