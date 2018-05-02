@@ -1,7 +1,7 @@
 import csv
 import sys
 import argparse
-sys_paths = ['sumstats/','../sumstats/','../../sumstats/']
+sys_paths = ['sumstats/','../sumstats/','../../sumstats/','../../../sumstats/']
 sys.path.extend(sys_paths)
 from common_constants import *
 
