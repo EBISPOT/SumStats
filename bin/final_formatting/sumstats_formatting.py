@@ -60,14 +60,11 @@ def add_blank_col_to_row(row, headers_to_add):
     return row
 
 
-def map_x_y_to_23_24(row, header):
+def map_chr_to_num(row, header, chromosome_name, number):
     index_chr = header.index(CHR_DSET)
-    chromosome = row[index_chr]
-    if 'x' in str(chromosome).lower():
-        chromosome = 23
-    if 'y' in str(chromosome).lower():
-        chromosome = 24
-    row[index_chr] = chromosome
+    row_chromosome = row[index_chr]
+    if chromosome_name in str(row_chromosome).lower():
+        row[index_chr] = int(number)
     return row
 
 
@@ -96,7 +93,8 @@ def main():
                 is_header = False
             else:
                 row = add_blank_col_to_row(row, headers_to_add)
-                row = map_x_y_to_23_24(row, new_header)
+                row = map_chr_to_num(row, new_header, 'x', 23)
+                row = map_chr_to_num(row, new_header, 'y', 24)
                 lines.append(row)
         
 
