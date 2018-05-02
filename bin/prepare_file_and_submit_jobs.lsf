@@ -31,7 +31,7 @@ filename="$filename"
 
 bsub -K -o $base/output.txt -e $base/error.txt python $base/bin/preparation/setup_configuration.py -f $file -config $config -create
 
-for i in {1..22}
+for i in {1..24}
 do
 	$base/bin/load/submit_chr.sh $name $i $config $to_load_location
 	for bp in `seq 1 $bp_step`; do	

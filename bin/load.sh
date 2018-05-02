@@ -18,7 +18,7 @@ name=$(echo $filename | cut -f 1 -d '.')
 
 gwas-load -tsv $filename -study $study -trait $trait -loader trait -config $config & pids+=($!)
 
-for i in {1..22};
+for i in {1..24};
 do
     chromosome_file=chr_"$i"_"$name".tsv
     if [ -s $to_load_location/$chromosome_file ];

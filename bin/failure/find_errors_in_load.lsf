@@ -67,7 +67,7 @@ then
 	log_loading_status
 elif [ $load_type == "chr" ];
 then
-    for instance in {1..22};
+    for instance in {1..24};
     do
         input_file=chr_"$instance"_"$name".tsv
         job_output=$base/chr_output"$instance".txt
@@ -78,7 +78,7 @@ then
     done	
 elif [ $load_type == "snp" ];
 then
-    for instance in {1..22};
+    for instance in {1..24};
     do
         for bp in `seq 1 $bp_step`;
         do
