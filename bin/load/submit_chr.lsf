@@ -27,5 +27,7 @@ echo "Attempting chromosome load for chromosome: $chromosome"
     if [ -s $to_load_location/chr_"$chromosome"_"$name".tsv ];
     then
 	echo "Submitting chromosome load for chromosome: $chromosome"
-        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome -config $config"
+
+        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome -config $config"
+#        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome -config $config"
     fi

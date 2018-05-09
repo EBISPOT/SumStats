@@ -3,13 +3,13 @@
 base=$(cd ${0%/*}/..; pwd)
 
 file=$1
-output_loc=$2
-config=$3
-trait_dir=$4
-chr_dir=$5
-snp_dir=$6
+output_loc=$SS_OUT
+config="$SS_CONFIG"/properties.json
+trait_dir=bytrait
+chr_dir=bychr
+snp_dir=bysnp
 
-docker_output_loc="/output"
+docker_output_loc="$output_loc"
 
 filename=$(basename $file)
 name=$(echo $filename | cut -f 1 -d '.')
@@ -110,6 +110,13 @@ rm -f $base/trait_output*
 rm -f $base/trait_error*
 
 # files loaded, take fresh backup
-bsub -K -g "/sumstatsbackup" -o $base/backup.txt -e $base/backup.txt -a 'docker('$base'/sumstatscdf.yml)' "/scripts/utils/backup.sh $docker_output_loc $trait_dir $chr_dir $snp_dir"
+cat $base/backup.txt >> $base/bk_backup.txt
+> $base/backup.txt
+
+bsub -K -g "/sumstatsbackup" -o $base/backup.txt -e $base/backup.txt "singularity exec docker://ebispot/sumstats:latest $base/bin/utils/backup.sh $docker_output_loc $trait_dir $chr_dir $snp_dir"
+#bsub -K -g "/sumstatsbackup" -o $base/backup.txt -e $base/backup.txt -a 'docker('$base'/sumstatscdf.yml)' "/scripts/utils/backup.sh $docker_output_loc $trait_dir $chr_dir $snp_dir"
 
 cat $report_file $base/backup.txt | mail -s "File $file loaded" olgavrou@ebi.ac.uk
+
+# set correct permissions for the rest of the users
+chmod -R g+rw $SS_OUT

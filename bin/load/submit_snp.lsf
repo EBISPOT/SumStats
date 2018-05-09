@@ -36,5 +36,7 @@ echo "Attemtping to submit SNP load for chromosome: $chromosome and bp: $bp"
     if [ -s "$to_load_location"/"$bp_file" ]; then
 	echo "Submitting SNP load for chromosome: $chromosome and bp: $bp"
 
-	bsub -g "/sumstatsloader" -o $base/snp_output"$chromosome"_"$bp".txt -e $base/snp_error"$chromosome"_"$bp".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv $bp_file -study $study -chr $chromosome -loader snp -bp $bp -config $config"
+	bsub -g "/sumstatsloader" -o $base/snp_output"$chromosome"_"$bp".txt -e $base/snp_error"$chromosome"_"$bp".txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv $bp_file -study $study -chr $chromosome -loader snp -bp $bp -config $config"
+	#bsub -g "/sumstatsloader" -o $base/snp_output"$chromosome"_"$bp".txt -e $base/snp_error"$chromosome"_"$bp".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv $bp_file -study $study -chr $chromosome -loader snp -bp $bp -config $config"
+
     fi

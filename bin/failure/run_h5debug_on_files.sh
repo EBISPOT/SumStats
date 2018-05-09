@@ -15,7 +15,7 @@ fi
 function run_h5debug_on_dir() {
 	ls $output_loc/$1 | while read line; do
 		if h5debug $output_loc/$1/$line 2>&1 | grep -i -q "Error detected in HDF5" ; then
-			/scripts/utils/rollback.sh $output_loc $1 $line
+			$base/bin/utils/rollback.sh $output_loc $1 $line
 			echo "Rolled back: $1 $line"
 		fi
 	done
