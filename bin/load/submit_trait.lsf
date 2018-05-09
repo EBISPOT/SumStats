@@ -17,4 +17,5 @@ trait=$(echo "$name" | cut -d"-" -f3)
 
 echo "Submitting trait load for trait: $trait and study: $study"
 
-bsub -g "/sumstatsloader" -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv "$name".tsv -study $study -trait $trait -loader trait -config $config"
+bsub -g "/sumstatsloader" -o $base/trait_output.txt -e $base/trait_error.txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv "$name".tsv -study $study -trait $trait -loader trait -config $config"
+#bsub -g "/sumstatsloader" -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv "$name".tsv -study $study -trait $trait -loader trait -config $config"

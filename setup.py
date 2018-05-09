@@ -17,5 +17,5 @@ setup(
     author='Olga Vrousgou',
     author_email='olgavrou@gmail.com',
     description='Package for saving and querying large summary statistics',
-    install_requires=['pandas', 'flask', 'simplejson', 'cherrypy', 'paste', 'h5py']
+    install_requires=['pandas==0.19.2', 'flask', 'simplejson', 'cherrypy', 'paste', 'h5py']
 )

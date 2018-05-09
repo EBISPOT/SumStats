@@ -5,16 +5,18 @@ import logging.config
 import cherrypy
 from paste.translogger import TransLogger
 import sumstats.server.api_utils as apiu
+from sumstats.utils import register_logger
 
 logger = logging.getLogger()
 
 
 def main():
+    # Set properties
+    apiu.set_properties()
+
     # Enable WSGI access logging via Paste
     app_logged = TransLogger(app, setup_console_handler=False)
 
-    # Set properties
-    apiu.set_properties()
     LOG_CONF = apiu.properties.LOG_CONF
 
     LOG_LEVEL = apiu.properties.LOG_LEVEL
@@ -22,11 +24,11 @@ def main():
     port = apiu.properties.port
 
     print("Setting to logging level:", LOG_LEVEL)
-    LOG_CONF = _set_log_level(LOG_CONF=LOG_CONF, LOG_LEVEL=LOG_LEVEL)
-    LOG_CONF = _set_log_path(LOG_CONF=LOG_CONF, loggin_path=apiu.properties.logging_path)
+    apiu.properties.LOG_CONF = _set_log_level(LOG_CONF=LOG_CONF, LOG_LEVEL=LOG_LEVEL)
+    LOG_CONF = _set_log_path(apiu.properties)
 
     # Mount the WSGI callable object (app) on the root directory
-    cherrypy.tree.graft(app_logged, "/")
+    cherrypy.tree.graft(app_logged, apiu.properties.APPLICATION_ROOT)
 
     # Set logging configuration
     logging.config.dictConfig(LOG_CONF)
@@ -62,11 +64,5 @@ def _set_log_level(LOG_CONF, LOG_LEVEL):
     return LOG_CONF
 
 
-def _set_log_path(LOG_CONF, loggin_path):
-    access_log = LOG_CONF['handlers']['cherrypy_access']['filename']
-    LOG_CONF['handlers']['cherrypy_access']['filename'] = loggin_path + "/" + access_log
-    error_log = LOG_CONF['handlers']['cherrypy_error']['filename']
-    LOG_CONF['handlers']['cherrypy_error']['filename'] = loggin_path + "/" + error_log
-    logger_log = LOG_CONF['handlers']['logger']['filename']
-    LOG_CONF['handlers']['logger']['filename'] = loggin_path + "/" + logger_log
-    return LOG_CONF
+def _set_log_path(properties):
+    return register_logger.set_log_path(properties)

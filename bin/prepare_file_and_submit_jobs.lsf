@@ -3,8 +3,8 @@
 base=$(cd ${0%/*}/..; pwd)
 
 file=$1
-config=$2
-to_load_location=$3
+config="$SS_CONFIG"/properties.json
+to_load_location=$SS_LOAD
 
 if [ -z $file ]; then
         echo "Need to provide the file (full path)"

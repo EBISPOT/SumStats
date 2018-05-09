@@ -163,8 +163,9 @@ def _create_next_links(method_name, start, size, index_marker, size_retrieved, p
 
 def _create_href(method_name, params=None):
     params = params or {}
+    params['_external'] = True
     return {'href': unquote(
-        url_for(method_name, **params, _external=True)
+        url_for(method_name, **params)
     )}
 
 
