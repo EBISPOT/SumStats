@@ -3,11 +3,18 @@ from config import properties
 import argparse
 
 
-def set_properties(argparser=None):
-    if argparser is None:
-        argparser = argparse.ArgumentParser()
+def set_properties():
+    argparser = argparse.ArgumentParser()
     argparser.add_argument('-config', help='The configuration file to use instead of default')
-    args = argparser.parse_args()
+    args, unknown = argparser.parse_known_args()
+
+    if args.config is not None:
+        set_config_properties(config=args.config)
+
+
+def add_properties(argparser, args):
+    argparser.add_argument('-config', help='The configuration file to use instead of default')
+    args = argparser.parse_args(args)
 
     if args.config is not None:
         set_config_properties(config=args.config)

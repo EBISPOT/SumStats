@@ -1,14 +1,15 @@
+import argparse
+import sys
 import sumstats.trait.loader as trait_loader
 import sumstats.chr.loader as chr_loader
 import sumstats.snp.loader as snp_loader
-import argparse
 from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler
 from sumstats.utils import utils
 
 
 def main():
-    args = argument_parser()  # pragma: no cover
+    args = argument_parser(sys.argv[1:])  # pragma: no cover
 
     h5files_path = properties.h5files_path # pragma: no cover
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     main()  # pragma: no cover
 
 
-def argument_parser():
+def argument_parser(args):
     parser = argparse.ArgumentParser()  # pragma: no cover
     parser.add_argument('-tsv', help='The name of the file to be loaded', required=True)  # pragma: no cover
     parser.add_argument('-study',
@@ -71,6 +72,6 @@ def argument_parser():
     parser.add_argument('-chr', help='The chromosome that will be loaded')  # pragma: no cover
     parser.add_argument('-bp', help='Upper limit of base pair location that is loaded (for snp loader)')  # pragma: no cover
 
-    properties_handler.set_properties(parser)  # pragma: no cover
+    properties_handler.add_properties(argparser=parser, args=args)  # pragma: no cover
 
-    return parser.parse_args()  # pragma: no cover
+    return parser.parse_args(args)  # pragma: no cover
