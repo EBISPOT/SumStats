@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 import sumstats.chr.retriever as cr
 import sumstats.snp.retriever as snpr
@@ -34,7 +35,7 @@ class Search:
 
 def main():  # pragma: no cover
 
-    args = argument_parser()  # pragma: no cover
+    args = argument_parser(sys.argv[1:])  # pragma: no cover
 
     trait, study, chromosome, bp_interval, snp, pval_interval = au.convert_search_args(args)  # pragma: no cover
 
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     main()  # pragma: no cover
 
 
-def argument_parser():
+def argument_parser(args):
     parser = argparse.ArgumentParser()  # pragma: no cover
     parser.add_argument('-path', help='Full path to the dir where the h5files will be stored')  # pragma: no cover
     parser.add_argument('-all', action='store_true',
@@ -104,6 +105,6 @@ def argument_parser():
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')  # pragma: no cover
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')  # pragma: no cover
 
-    properties_handler.set_properties(parser)  # pragma: no cover
+    properties_handler.add_properties(argparser=parser, args=args)  # pragma: no cover
 
-    return parser.parse_args()  # pragma: no cover
+    return parser.parse_args(args)  # pragma: no cover

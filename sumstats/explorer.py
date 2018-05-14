@@ -1,4 +1,5 @@
 import argparse
+import sys
 from os.path import isfile
 import sumstats.utils.utils as utils
 import sumstats.trait.search.access.trait_service as trait_searcher
@@ -57,7 +58,7 @@ class Explorer:
 
 
 def main():
-    args = argument_parser()  # pragma: no cover
+    args = argument_parser(sys.argv[1:])  # pragma: no cover
     explorer = Explorer(properties)  # pragma: no cover
 
     if args.traits:  # pragma: no cover
@@ -82,11 +83,11 @@ if __name__ == "__main__":
     main()  # pragma: no cover
 
 
-def argument_parser():
+def argument_parser(args):
     parser = argparse.ArgumentParser()  # pragma: no cover
     parser.add_argument('-traits', action='store_true', help='List all the traits')  # pragma: no cover
     parser.add_argument('-studies', action='store_true', help='List all the studies')  # pragma: no cover
     parser.add_argument('-study', help='Will list \'trait: study\' if it exists')  # pragma: no cover
-    properties_handler.set_properties(parser)
+    properties_handler.add_properties(argparser=parser, args=args)
 
-    return parser.parse_args()  # pragma: no cover
+    return parser.parse_args(args)  # pragma: no cover
