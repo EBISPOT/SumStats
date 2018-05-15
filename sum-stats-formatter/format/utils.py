@@ -13,6 +13,8 @@ known_header_transformations = {
     'rs_numbers': 'snp',
     'assay_name': 'snp',
     'id': 'snp',
+    'id_dbsnp49': 'snp',
+    'snp_rsid': 'snp',
     # p-value
     'p': 'pval',
     'pvalue': 'pval',
@@ -46,6 +48,9 @@ known_header_transformations = {
     'chr_pos_b36' : 'chr_bp',
     'chrpos_b38' : 'chr_bp',
     'chr_pos_b38' : 'chr_bp',
+    'chr_pos_(b36)' : 'chr_bp',
+    'chr_pos_(b37)' : 'chr_bp',
+    'chr_pos_(b38)' : 'chr_bp',
     # odds ratio
     'or': 'or',
     'odds_ratio': 'or',
@@ -68,8 +73,7 @@ known_header_transformations = {
     'allele1': 'effect_allele',
     'allele_1': 'effect_allele',
     'effect_allele': 'effect_allele',
-    'reference_allele': 'effect_allele',
-    'ref': 'effect_allele',
+    'alt' : 'effect_allele',
     'inc_allele': 'effect_allele',
     'ea': 'effect_allele',
     'alleleb': 'effect_allele',
@@ -79,21 +83,22 @@ known_header_transformations = {
     'allele2': 'other_allele',
     'allele_2': 'other_allele',
     'other_allele': 'other_allele',
-    'alt': 'other_allele',
+    'ref': 'other_allele',
     'non_effect_allele': 'other_allele',
     'dec_allele': 'other_allele',
     'nea': 'other_allele',
     'allelea': 'other_allele',
     'allele_a': 'other_allele',
+    'reference_allele': 'other_allele',
     # effect allele frequency
     'eaf': 'eaf',
     'frq': 'eaf',
     'maf': 'eaf',
+    'ref_allele_frequency' : 'eaf',
     'frq_u': 'eaf',
     'f_u': 'eaf',
     'effect_allele_freq': 'eaf',
     'effect_allele_frequency': 'eaf',
-
     # number of studies
     'nstudy': 'nstudy',
     'n_study': 'nstudy',
@@ -112,6 +117,7 @@ known_header_transformations = {
     'controls_n': 'n_con',
     'n_control': 'n_con',
     'weight': 'n',
+    'ncompletesamples': 'n',
     # signed statistics
     'zscore': 'z',
     'z-score': 'z',
@@ -127,8 +133,6 @@ CHR_BP = 'chr_bp'
 CHR = 'chr'
 BP = 'bp'
 VARIANT = 'snp'
-EFFECT_ALLELE = 'effect_allele'
-OTHER_ALLELE = 'other_allele'
 
 DESIRED_HEADERS = {'eaf', 'other_allele', 'effect_allele', 'se', 'beta', 'range',
                    'or', 'bp', 'chr', 'pval', 'snp'}
