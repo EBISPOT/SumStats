@@ -94,7 +94,7 @@ class EnsemblRestClient(object):
             )
         try:
             bp_mapped = map_build["mappings"][0]["mapped"]["start"]
-        except IndexError:
+        except (IndexError, TypeError):
             bp_mapped = 'NA'
         return bp_mapped
 
@@ -106,7 +106,7 @@ class EnsemblRestClient(object):
             )
         try:
             return rsid_request[0]["id"]
-        except IndexError: 
+        except (IndexError, TypeError): 
             return 'id:NA'
 
 
@@ -117,8 +117,8 @@ def get_index(header, col):
 # Map using pyLiftover and if that fails map using Ensembl REST API
 def map_bp_to_build(chromosome, bp, build_map, build_orig, build_mapped):
     try:
-        data = build_map.convert_coordinate('chr' + chromosome, bp)[0][1]
-    except IndexError:
+        data = build_map.convert_coordinate('chr' + str(chromosome), bp)[0][1]
+    except (IndexError, TypeError):
         client = EnsemblRestClient()
         data = client.map_bp_to_build_with_rest(
             chromosome, bp, suffixed_release.get(build_orig), suffixed_release.get(build_mapped)
@@ -139,7 +139,7 @@ def create_conn(db_file):
 # get the rsid from the sqlite database and if that fails get from Ensembl REST API
 def select_rsid_on_chr_bp(conn, chromosome, bp):
     cur = conn.cursor()
-    cur.execute("SELECT name FROM snp150Common WHERE chromend=? and chrom=?", (bp, 'chr' + chromosome))
+    cur.execute("SELECT name FROM snp150Common WHERE chromend=? and chrom=?", (bp, 'chr' + str(chromosome)))
     row = cur.fetchone() # do i need to fetchall and check the number of rows?
     if row: 
         return row[0]
