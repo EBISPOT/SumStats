@@ -2,7 +2,6 @@ import requests
 import sys
 import csv
 import argparse
-import json
 import time
 import sqlite3
 from pyliftover import LiftOver
@@ -12,28 +11,28 @@ sys.path.extend(sys_paths)
 from sumstats_formatting import *
 
 
-ucsc_release = {    '28': 'hg10',
-                    '29': 'hg11',
-                    '30': 'hg13',
-                    '31': 'hg14',
-                    '33': 'hg15',
-                    '34': 'hg16',
-                    '35': 'hg17',
-                    '36': 'hg18',
-                    '37': 'hg19',
-                    '38': 'hg38'}
+ucsc_release = {'28': 'hg10',
+                '29': 'hg11',
+                '30': 'hg13',
+                '31': 'hg14',
+                '33': 'hg15',
+                '34': 'hg16',
+                '35': 'hg17',
+                '36': 'hg18',
+                '37': 'hg19',
+                '38': 'hg38'}
 
 
-suffixed_release = {   '28': 'NCBI28',
-                       '29': 'NCBI29',
-                       '30': 'NCBI30',
-                       '31': 'NCBI31',
-                       '33': 'NCBI33',
-                       '34': 'NCBI34',
-                       '35': 'NCBI35',
-                       '36': 'NCBI36',
-                       '37': 'GRCh37',
-                       '38': 'GRCh38'}
+suffixed_release = {'28': 'NCBI28',
+                    '29': 'NCBI29',
+                    '30': 'NCBI30',
+                    '31': 'NCBI31',
+                    '33': 'NCBI33',
+                    '34': 'NCBI34',
+                    '35': 'NCBI35',
+                    '36': 'NCBI36',
+                    '37': 'GRCh37',
+                    '38': 'GRCh38'}
 
 
 class EnsemblRestClient(object):
@@ -86,7 +85,6 @@ class EnsemblRestClient(object):
 
         return data
 
-
     def map_bp_to_build_with_rest(self, chromosome, bp, build_orig, build_mapped):
         map_build = self.perform_rest_action(
             '/map/human/{orig}/{chromosome}:{bp}:{bp}/{mapped}?'.format(
@@ -97,7 +95,6 @@ class EnsemblRestClient(object):
         except (IndexError, TypeError):
             bp_mapped = 'NA'
         return bp_mapped
-
 
     def get_rsid(self, chromosome, bp):
         rsid_request = self.perform_rest_action(
@@ -131,7 +128,7 @@ def create_conn(db_file):
     try:
         conn = sqlite3.connect(db_file)
         return conn
-    except Error as e:
+    except NameError as e:
         print(e)
     return None
 
@@ -165,7 +162,6 @@ def main():
     build_map = LiftOver(ucsc_release.get(build_orig), ucsc_release.get(build_mapped))
     database = 'snp.sqlite'
     conn = create_conn(database)
-    client = EnsemblRestClient()
 
     with open(file) as csv_file:
         csv_reader = get_csv_reader(csv_file)
