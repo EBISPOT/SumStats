@@ -3,7 +3,6 @@ import sys
 import csv
 import argparse
 import time
-import sqlite3
 from pyliftover import LiftOver
 
 sys_paths = ['sumstats/', '../sumstats/', '../../sumstats/']
@@ -123,28 +122,6 @@ def map_bp_to_build(chromosome, bp, build_map, build_orig, build_mapped):
     return data
 
 
-# sqlite database connection
-def create_conn(db_file):
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except NameError as e:
-        print(e)
-    return None
-
-
-# get the rsid from the sqlite database and if that fails get from Ensembl REST API
-def select_rsid_on_chr_bp(conn, chromosome, bp):
-    cur = conn.cursor()
-    cur.execute("SELECT name FROM snp150Common WHERE chromend=? and chrom=?", (bp, 'chr' + str(chromosome)))
-    row = cur.fetchone() # do i need to fetchall and check the number of rows?
-    if row: 
-        return row[0]
-    else:
-        client = EnsemblRestClient()
-        return client.get_rsid(chromosome, bp)
-
-
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-f', help='The name of the file to be processed', required=True)
@@ -160,8 +137,7 @@ def main():
     is_header = True
     lines = []
     build_map = LiftOver(ucsc_release.get(build_orig), ucsc_release.get(build_mapped))
-    database = 'snp.sqlite'
-    conn = create_conn(database)
+    client = EnsemblRestClient()
 
     with open(file) as csv_file:
         csv_reader = get_csv_reader(csv_file)
@@ -183,10 +159,7 @@ def main():
                 # lookup missing rsids
                 bp = row[bp_index]
                 if 'rs' not in row[snp_index]:
-                    try:
-                        row[snp_index] = (select_rsid_on_chr_bp(conn, chromosome, int(bp)))
-                    except ValueError:
-                        row[snp_index] = 'id:NA'
+                    row[snp_index] = client.get_rsid(chromosome, bp)
 
                 lines.append(row)
 
