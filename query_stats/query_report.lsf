@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# count and log how many studies we have
+
+bsub -K -o o.out -e o.err "singularity exec docker://ebispot/sumstats:latest gwas-explore -studies -config properties.json > studies"
+
+studies=$(wc -l studies | cut -d" " -f1)
+studies=$(( studies - 3 ))
+
+echo $studies >> log_studies
+
+# run the query reports for each category of query
+
+./query_report_chrbp.sh &
+./query_report_chrpvallower.sh &
+./query_report_chrpvalrange.sh &
+./query_report_chr.sh &
+./query_report_non_existing.sh &
+./query_report_var1.sh &
+./query_report_var2.sh &
+./query_report_var3.sh &
