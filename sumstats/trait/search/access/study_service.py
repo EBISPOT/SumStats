@@ -52,8 +52,9 @@ class StudyService:
         study_groups = []
 
         for trait_group in trait_groups:
-            study_groups.extend(trait_group.get_all_subgroups())
-        return [study_group.get_name().strip("/").replace("/",":") for study_group in study_groups]
+            trait_group_name = trait_group.get_name().replace("/","")
+            study_groups.extend([trait_group_name + ":" + study_name for study_name in trait_group.get_all_subgroups_keys()])
+        return study_groups
 
     def close_file(self):
         self.file.close()

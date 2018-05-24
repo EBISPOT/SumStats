@@ -49,8 +49,8 @@ class TraitService:
         return sum(study_group.get_dset_shape(REFERENCE_DSET)[0] for study_group in trait_group.get_all_subgroups())
 
     def list_traits(self):
-        trait_groups = self.file_group.get_all_subgroups()
-        return [trait_group.get_name().strip("/") for trait_group in trait_groups]
+        traits = self.file_group.get_all_subgroups_keys()
+        return traits
 
     def close_file(self):
         self.file.close()
