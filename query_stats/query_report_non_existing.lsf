@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# non existing variant search
+
+> var.out
+> var.err
+
+bsub -K -o var.out -e var.err "singularity exec docker://ebispot/sumstats:latest gwas-search -config properties.json -snp rs123abcde -size 1000"
+
+sleep 10
+
+./query_metrics.sh var.out log_var

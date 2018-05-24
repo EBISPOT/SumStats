@@ -1,0 +1,20 @@
+#!/bin/bash
+
+
+# chromosome 1 variant rs780682046
+ > var1.out
+ > var1.err
+
+bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -snp rs568927457 -size 1000" 
+
+# chromosome 1 variant and study acc
+
+bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -snp rs568927457 -size 1000 -study GCST004601"
+
+# just first variant 
+ 
+bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -config properties.json -snp rs568927457 -size 1000"
+
+sleep 10
+
+./query_metrics.sh var1.out log_var1

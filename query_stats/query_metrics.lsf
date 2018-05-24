@@ -1,0 +1,39 @@
+#!/bin/bash
+
+
+# takes the job output and the log prefix name as inputs
+# parses the job output file to gather stats about the time each job took to run, the memory it used,
+# and if query returned any data or not (checks if mantissa is populated with data or empty array)
+
+file=$1
+log=$2
+
+if [ -z $file ]; then
+        echo "Need to provide the file"
+        exit
+fi
+
+if [ -z $log ]; then
+        echo "Need to provide the log file"
+        exit
+fi
+
+
+run_time=$(grep "Run time" $file | cut -d":" -f2 | tr -d '[:space:]')
+max_mem=$(grep "Max Memory" $file | cut -d":" -f2 | tr -d '[:space:]')
+
+echo "$run_time" | sed 's/\./ /g' >> "$log"_time
+echo "$max_mem" | sed 's/B/B /g' >> "$log"_space
+
+
+mantissa=$(grep "mantissa" $file | tr -d '[:space:]')
+arrM=(${mantissa//mantissa/ })
+for i in ${arrM[@]}; do
+	if echo "$i" | grep -q "\[\]"; then
+		printf "0 " >> "$log"_size
+	else
+		printf "20 " >> "$log"_size
+	fi
+done
+printf "\n" >> "$log"_size
+
