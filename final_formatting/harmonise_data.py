@@ -3,6 +3,7 @@ import sys
 import csv
 import argparse
 import time
+import sqlite3
 from pyliftover import LiftOver
 
 sys_paths = ['sumstats/', '../sumstats/', '../../sumstats/']
@@ -120,6 +121,22 @@ class EnsemblRestClient(object):
             return rsid_request[0]["id"]
         return 'id:NA'
 
+    def check_orientation_with_rest(self, rsid):
+        variation_request = self.perform_rest_action(
+            '/variation/human/{rsid}?'.format(
+            rsid=rsid)
+            )
+        return self.retrieve_strand(variation_request)
+
+    @staticmethod
+    def retrieve_strand(variation_request):
+        if "mappings" in variation_request:
+            mappings = variation_request["mappings"]
+            if len(mappings) > 0:
+                if "strand" in mappings[0]:
+                    return mappings[0]["strand"]
+        return False
+
 
 def isNumber(value):
     try:
@@ -152,6 +169,63 @@ def check_if_mapping_is_needed(from_build, to_build):
     return True
 
 
+# sqlite database connection
+def create_conn(db_file):
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except NameError as e:
+        print(e)
+    return None
+
+
+def check_orientation_with_sqlite(conn, rsid):
+    cur = conn.cursor()
+    cur.execute("SELECT strand FROM snp150Common WHERE name=?", (rsid,))
+    data = cur.fetchone()
+    if data is not None:
+        return data[0]
+    return False
+
+
+def check_orientation(conn, rsid):
+#    strand_translate = {'pos': ['+', '1'],
+#                        'neg': ['-', '-1']}
+    strand = check_orientation_with_sqlite(conn, rsid)
+    if strand is False:
+        client = EnsemblRestClient()
+        strand = client.check_orientation_with_rest(rsid)
+#    for name, values in strand_translate.items():
+#        if strand in values:
+#            strand = name
+    return strand
+
+
+def rev_comp_if_needed(conn, rsid, effect, other):
+    neg = ['-', '-1']
+    orientation = check_orientation(conn, rsid)
+    #if orientation == 'neg':
+    if orientation in neg:
+        effect = reverse_complement(effect)
+        other = reverse_complement(other)
+    return effect, other
+
+
+def reverse_complement(seq):
+    base_complement = {'A': 'T',
+                       'T': 'A',
+                       'C': 'G',
+                       'G': 'C'}
+    rev_seq = seq[::-1].upper()
+    rev_comp = []
+    for base in rev_seq:
+        if base in base_complement.keys():
+            rev_comp.append(base_complement.get(base))
+        else:
+            rev_comp.append(base)
+    return ''.join(rev_comp)
+
+
 def open_file_and_process(file, from_build, to_build):
     filename = get_filename(file)
     new_filename = 'harmonised_' + filename + '.tsv'
@@ -165,6 +239,9 @@ def open_file_and_process(file, from_build, to_build):
         writer = csv.DictWriter(result_file, fieldnames=fieldnames, delimiter='\t')
 
         writer.writeheader()
+
+        database = 'snp.sqlite'
+        conn = create_conn(database)
 
         for row in csv_reader:
             chromosome = row[CHR_DSET].replace('23', 'X').replace('24', 'Y')
@@ -182,7 +259,12 @@ def open_file_and_process(file, from_build, to_build):
             if 'rs' not in row[SNP_DSET]:
                 client = EnsemblRestClient()
                 row[SNP_DSET] = client.resolve_rsid(chromosome, bp)
-            writer.writerow(row)
+
+            print(check_orientation_with_sqlite(conn, row[SNP_DSET]))
+            # delete if rsid is false
+            # revcomp if needed
+
+            #writer.writerow(row)
 
 
 def main():
@@ -195,8 +277,10 @@ def main():
     from_build = args.original
     to_build = args.mapped
 
-    open_file_and_process(file, from_build, to_build)
-
+    #open_file_and_process(file, from_build, to_build)
+    database = 'snp.sqlite'
+    conn = create_conn(database)
+    print(rev_comp_if_needed(conn, 'rs10796459', 'ACGTN/-', 'CTAGG'))
 
 if __name__ == "__main__":
     main()
