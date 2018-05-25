@@ -23,17 +23,6 @@ def empty_array(array):
     return len(array) == 0
 
 
-def get_mantissa_and_exp_lists(string_list):
-    mantissa_dset = []
-    exp_dset = []
-    for str_number in string_list:
-        mantissa, exp = pu.convert_to_mantissa_and_exponent(str_number)
-        mantissa_dset.append(mantissa)
-        exp_dset.append(exp)
-
-    return mantissa_dset, exp_dset
-
-
 def create_datasets_from_lists(datasets):
     return {dset_name : Dataset(dset_vector) for dset_name, dset_vector in datasets.items()}
 

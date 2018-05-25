@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 from sumstats.utils import utils
+from sumstats.utils.pval import get_mantissa_and_exp_lists
 
 
 def read_datasets_from_input(tsv, dict_of_data, const):
@@ -22,7 +23,7 @@ def read_datasets_from_input(tsv, dict_of_data, const):
 def format_datasets(datasets_as_lists, study, const):
     pval_list = datasets_as_lists[const.PVAL_DSET]
 
-    mantissa_dset, exp_dset = utils.get_mantissa_and_exp_lists(pval_list)
+    mantissa_dset, exp_dset = get_mantissa_and_exp_lists(pval_list)
     del datasets_as_lists[const.PVAL_DSET]
 
     datasets_as_lists[const.MANTISSA_DSET] = mantissa_dset
