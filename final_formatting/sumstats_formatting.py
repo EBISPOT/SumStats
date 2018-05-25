@@ -3,7 +3,7 @@ import sys
 import argparse
 sys_paths = ['sumstats/','../sumstats/','../../sumstats/','../../../sumstats/']
 sys.path.extend(sys_paths)
-from common_constants import *
+from utils import *
 
 sumstat_header_transformations = {
 
@@ -42,16 +42,6 @@ def mapped_headers(header):
 
 def missing_headers(header):
     return [h for h in sumstat_header_transformations.values() if h not in header]
-
-
-def get_csv_reader(csv_file):
-    dialect = csv.Sniffer().sniff(csv_file.readline())
-    csv_file.seek(0)
-    return csv.reader(csv_file, dialect)
-
-
-def get_filename(file):
-    return file.split("/")[-1].split(".")[0]
 
 
 def add_blank_col_to_row(row, headers_to_add):

@@ -14,7 +14,7 @@ The files must first be formatted to the 'common' format using the [sum-stats-fo
 
 2) `harmonise_data.py` performs the following:
 - maps the base-pair location from the originally specified genome to a desired genome build using [PyLiftover](https://pypi.org/project/pyliftover/).
-- resolves any missing RSID's by querying [Ensembl's REST API](https://rest.ensembl.org/).
+- resolves any missing RSID's based on latest genome build by querying [Ensembl's REST API](https://rest.ensembl.org/).
 - unresolvable base-pair locations and RSID's are assigned 'NA' and 'id:NA' respectively.
 
 - `$ python harmonise_data.py -f <filename> -original <from genome build> -mapped <to genome build>`

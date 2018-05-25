@@ -7,7 +7,7 @@ from pyliftover import LiftOver
 
 sys_paths = ['sumstats/', '../sumstats/', '../../sumstats/']
 sys.path.extend(sys_paths)
-from sumstats_formatting import *
+from utils import *
 
 
 ucsc_release = {'28': 'hg10',
@@ -66,13 +66,15 @@ class EnsemblRestClient(object):
 
         return data
 
-    def slow_down_if_needed(self, headers):
+    @staticmethod
+    def slow_down_if_needed(headers):
         if 'Retry-After' in headers:
             retry = headers['Retry-After']
             time.sleep(float(retry))
             return True
 
-    def set_json_format(self, headers):
+    @staticmethod
+    def set_json_format(headers):
         if headers is None:
             headers = {}
         if 'Content-Type' not in headers:
@@ -96,7 +98,8 @@ class EnsemblRestClient(object):
             )
         return self.retrieve_mapped_item(map_build)
 
-    def retrieve_mapped_item(self, map_build):
+    @staticmethod
+    def retrieve_mapped_item(map_build):
         if "mappings" in map_build:
             mappings = map_build["mappings"]
             if len(mappings) > 0:
@@ -111,7 +114,8 @@ class EnsemblRestClient(object):
             )
         return self.retrieve_rsid(rsid_request)
 
-    def retrieve_rsid(self, rsid_request):
+    @staticmethod
+    def retrieve_rsid(rsid_request):
         if len(rsid_request) > 0 and "id" in rsid_request[0]:
             return rsid_request[0]["id"]
         return 'id:NA'
@@ -142,10 +146,17 @@ def map_bp_to_build_via_ensembl(chromosome, bp, from_build, to_build):
     return data
 
 
+def check_if_mapping_is_needed(from_build, to_build):
+    if from_build == to_build:
+        return False
+    return True
+
+
 def open_file_and_process(file, from_build, to_build):
     filename = get_filename(file)
     new_filename = 'harmonised_' + filename + '.tsv'
-    build_map = LiftOver(ucsc_release.get(from_build), ucsc_release.get(to_build))
+    if check_if_mapping_is_needed(from_build, to_build):
+        build_map = LiftOver(ucsc_release.get(from_build), ucsc_release.get(to_build))
 
     with open(file) as csv_file:
         result_file = open(new_filename, "w")
@@ -158,11 +169,14 @@ def open_file_and_process(file, from_build, to_build):
         for row in csv_reader:
             chromosome = row[CHR_DSET].replace('23', 'X').replace('24', 'Y')
             bp = row[BP_DSET]
-            # do the bp location mapping
-            mapped_bp = map_bp_to_build_via_liftover(chromosome=chromosome, bp=bp, build_map=build_map)
-            if mapped_bp is None:
-                mapped_bp = map_bp_to_build_via_ensembl(chromosome=chromosome, bp=bp, from_build=from_build, to_build=to_build)
-            row[BP_DSET] = mapped_bp
+
+            # do the bp location mapping if needed
+            if check_if_mapping_is_needed(from_build, to_build):
+                mapped_bp = map_bp_to_build_via_liftover(chromosome=chromosome, bp=bp, build_map=build_map)
+                if mapped_bp is None:
+                    mapped_bp = map_bp_to_build_via_ensembl(chromosome=chromosome, bp=bp, from_build=from_build, to_build=to_build)
+                row[BP_DSET] = mapped_bp
+
             # lookup missing rsids
             bp = row[BP_DSET]
             if 'rs' not in row[SNP_DSET]:
