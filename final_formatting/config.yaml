@@ -1,0 +1,5 @@
+#studies: ['27863252-GCST004630-EFO_0004527']
+chromosomes: ['11']
+steps: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
+ss_file_pattern: ss_files/{ss_file}.tsv
+remote_vcf_location: 'https://storage.googleapis.com/gnomad-public/release/2.0.2/vcf/genomes'
