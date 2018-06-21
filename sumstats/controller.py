@@ -105,6 +105,6 @@ def argument_parser(args):
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')  # pragma: no cover
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')  # pragma: no cover
 
-    properties_handler.add_properties(argparser=parser, args=args)  # pragma: no cover
+    properties_handler.set_properties()  # pragma: no cover
 
     return parser.parse_args(args)  # pragma: no cover
