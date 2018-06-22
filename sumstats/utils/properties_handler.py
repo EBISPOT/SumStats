@@ -1,23 +1,13 @@
 import json
+import os
 from config import properties
-import argparse
 
 
 def set_properties():
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument('-config', help='The configuration file to use instead of default')
-    args, unknown = argparser.parse_known_args()
-
-    if args.config is not None:
-        set_config_properties(config=args.config)
-
-
-def add_properties(argparser, args):
-    argparser.add_argument('-config', help='The configuration file to use instead of default')
-    args = argparser.parse_args(args)
-
-    if args.config is not None:
-        set_config_properties(config=args.config)
+    if 'SS_CONFIG' in os.environ:
+        config = os.environ['SS_CONFIG']
+        if config is not None:
+            set_config_properties(config)
 
 
 def set_config_properties(config):
@@ -31,9 +21,9 @@ def set_config_properties(config):
         properties.chr_dir = props["chr_dir"]
         properties.snp_dir = props["snp_dir"]
         properties.logging_path = props["logging_path"]
-        properties.port = props["port"]
         properties.bp_step = props["bp_step"]
         properties.LOG_LEVEL = props["LOG_LEVEL"]
+        properties.APPLICATION_ROOT = props["APPLICATION_ROOT"]
 
 
 def get_properties(config_properties=None):

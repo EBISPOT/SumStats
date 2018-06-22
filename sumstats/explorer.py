@@ -88,6 +88,6 @@ def argument_parser(args):
     parser.add_argument('-traits', action='store_true', help='List all the traits')  # pragma: no cover
     parser.add_argument('-studies', action='store_true', help='List all the studies')  # pragma: no cover
     parser.add_argument('-study', help='Will list \'trait: study\' if it exists')  # pragma: no cover
-    properties_handler.add_properties(argparser=parser, args=args)
+    properties_handler.set_properties()  # pragma: no cover
 
     return parser.parse_args(args)  # pragma: no cover

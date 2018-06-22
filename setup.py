@@ -9,13 +9,12 @@ setup(
     entry_points={
         "console_scripts": ['gwas-load = sumstats.load:main',
                             'gwas-search = sumstats.controller:main',
-                            'gwas-explore = sumstats.explorer:main',
-                            'gwas-server = sumstats.server.server:main']
+                            'gwas-explore = sumstats.explorer:main']
     },
     url='https://github.com/EBISPOT/SumStats',
     license='',
     author='Olga Vrousgou',
     author_email='olgavrou@gmail.com',
     description='Package for saving and querying large summary statistics',
-    install_requires=['pandas==0.19.2', 'flask', 'simplejson', 'cherrypy', 'paste', 'h5py']
+    install_requires=['pandas==0.19.2', 'flask', 'simplejson', 'gunicorn', 'paste', 'h5py', 'numpy', 'eventlet']
 )

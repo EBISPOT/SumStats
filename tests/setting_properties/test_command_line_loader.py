@@ -28,7 +28,3 @@ class TestCommandLineLoader(object):
     def test_loader_missing_required(self):
         with pytest.raises(SystemExit):
             load.argument_parser(['-tsv', 'a/path/to/a/file'])
-
-    def test_loader_config(self):
-        parser = load.argument_parser(['-config', 'config/properties.json', '-tsv', 'tsv', '-study', 'study', '-loader', 'loader'])
-        assert parser.config == "config/properties.json"
