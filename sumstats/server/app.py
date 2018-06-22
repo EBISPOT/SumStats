@@ -1,7 +1,6 @@
 import simplejson
 import sys
 import logging
-from logging import config
 from flask import Flask, request, make_response
 from collections import OrderedDict
 from sumstats.utils.interval import *
@@ -125,7 +124,7 @@ def get_studies():
     try:
         start, size = apiu._get_start_size(args)
     except ValueError as error:
-        logging.error("/studies. ", (str(error)))
+        logging.error("/studies. " + (str(error)))
         raise BadUserRequest(str(error))
 
     explorer = ex.Explorer(apiu.properties)
