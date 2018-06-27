@@ -4,8 +4,7 @@ base=$(cd ${0%/*}/../..; pwd)
 
 file=$1
 chromosome=$2
-config=$3
-to_load_location=$4
+to_load_location=$3
 
 if [ -z $file ]; then                                                       
         echo "Need to provide the file"                                     
@@ -28,6 +27,5 @@ echo "Attempting chromosome load for chromosome: $chromosome"
     then
 	echo "Submitting chromosome load for chromosome: $chromosome"
 
-        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome -config $config"
-#        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome -config $config"
+        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome"
     fi
