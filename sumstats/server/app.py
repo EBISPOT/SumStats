@@ -1,6 +1,7 @@
 import simplejson
 import sys
 import logging
+from logging import config
 from flask import Flask, request, make_response
 from collections import OrderedDict
 from sumstats.utils.interval import *
@@ -295,12 +296,6 @@ def _set_log_level(LOG_CONF, LOG_LEVEL):
 
 def _set_log_path(properties):
     return register_logger.set_log_path(properties)
-
-
-if __name__ == '__main__':
-    print("NAME", __name__)
-    apiu.set_properties()
-    app.run()
 
 
 if __name__ != '__main__':

@@ -4,7 +4,7 @@ base=$(cd ${0%/*}/..; pwd)
 
 file=$1
 output_loc=$SS_OUT
-config="$SS_CONFIG"/properties.json
+config="$SS_CONFIG"
 trait_dir=bytrait
 chr_dir=bychr
 snp_dir=bysnp

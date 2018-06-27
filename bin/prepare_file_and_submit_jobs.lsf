@@ -3,7 +3,7 @@
 base=$(cd ${0%/*}/..; pwd)
 
 file=$1
-config="$SS_CONFIG"/properties.json
+config="$SS_CONFIG"
 to_load_location=$SS_LOAD
 
 if [ -z $file ]; then
@@ -33,9 +33,9 @@ bsub -K -o $base/output.txt -e $base/error.txt python $base/bin/preparation/setu
 
 for i in {1..24}
 do
-	$base/bin/load/submit_chr.sh $name $i $config $to_load_location
+	$base/bin/load/submit_chr.sh $name $i $to_load_location
 	for bp in `seq 1 $bp_step`; do	
-		$base/bin/load/submit_snp.sh $name $i $bp $config $to_load_location
+		$base/bin/load/submit_snp.sh $name $i $bp $to_load_location
 	done
 done
-$base/bin/load/submit_trait.sh $name $config
+$base/bin/load/submit_trait.sh name $to_load_location
