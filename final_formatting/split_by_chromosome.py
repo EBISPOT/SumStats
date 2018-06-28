@@ -18,7 +18,8 @@ def main():
     is_header = True
     total_of_lines = 0
 
-    new_filename = os.path.join(path, 'chr_' + str(chromosome) + "." + filename + '.tsv')
+    new_filename = os.path.join(path, 'chr_' + str(chromosome) + "_" + filename + '.tsv')
+
     result_file = open(new_filename, 'w')
     writer = csv.writer(result_file, delimiter='\t')
     with open(file) as csv_file:

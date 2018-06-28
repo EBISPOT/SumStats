@@ -7,8 +7,9 @@ STUDIES, = glob_wildcards(config["ss_file_pattern"])
 
 rule all:
     input: 
-        expand("output/bp_{step}_chr_{chromosome}.{ss_file}.output.tsv",
-               ss_file=STUDIES, step=config["steps"], chromosome=config["chromosomes"])
+        #expand("output/bpsplit_{step}_chr_{chromosome}_{ss_file}.output.tsv",
+        #       ss_file=STUDIES, step=config["steps"], chromosome=config["chromosomes"])
+        expand("output/chr_{chromosome}_{ss_file}.output.tsv", ss_file=STUDIES, chromosome=config["chromosomes"])
 
 
 rule get_vcf_files:
@@ -16,7 +17,7 @@ rule get_vcf_files:
     output:
         "gnomad.genomes.r2.0.2.sites.chr{chromosome}.vcf.bgz"
     params:
-        location=config["remote_vcf_location"],
+        location=config["remote_vcf_location"]
     shell:
         "wget {params.location}/gnomad.genomes.r2.0.2.sites.chr{wildcards.chromosome}.vcf.bgz"
 
@@ -26,45 +27,57 @@ rule get_tbi_files:
     output:
         "gnomad.genomes.r2.0.2.sites.chr{chromosome}.vcf.bgz.tbi"
     params:
-        location=config["remote_vcf_location"],
+        location=config["remote_vcf_location"]
     shell:
         "wget {params.location}/gnomad.genomes.r2.0.2.sites.chr{wildcards.chromosome}.vcf.bgz.tbi"
 
 
 rule split_by_chrom:
-    # split the sumstat files by chromosome
+    # split the sumstat file by chromosome
     input:
-        expand("ss_files/{ss_file}.tsv", ss_file=STUDIES)
+        "ss_files/{ss_file}.tsv"
     output:
-        expand("chr_{chromosome}.{{ss_file}}.tsv", chromosome=config["chromosomes"])
-    params:
-        chromosome=config["chromosomes"]
+        "chr_{chromosome, \d+}_{ss_file}.tsv"
     shell:
-        "python split_by_chromosome.py "
-        "-f {input} "
-        "-chr {params.chromosome}"
+        "python split_by_chromosome.py -f {input} -chr {wildcards.chromosome}"
+
 
 rule split_by_bp:
     # split chromosome files into 16ths
     input:
-        "chr_{chromosome}.{ss_file}.tsv"
+        "chr_{chromosome, \d+}_{ss_file}.tsv"
     output:
-        expand("bp_{step}.chr_{{chromosome}}.{{ss_file}}.tsv", step=config["steps"]),
-        expand("run_bp_{step}.chr_{{chromosome}}.{{ss_file}}.sh", step=config["steps"])
+        expand("bpsplit_{step}_chr_{{chromosome}}_{{ss_file}}.tsv", step=config["steps"])
     shell:
-        "python split_by_bp.py "
-        "-f {input} "
-        "-chr {wildcards.chromosome}"
+        "source split_file.sh {input}"
+        #"python split_by_bp.py "
+        #"-f {input} "
+        #"-chr {wildcards.chromosome}"
+
 
 rule run_harmonisation_per_split:
     # run sumstat_harmoniser.py for each split
     input:
         "gnomad.genomes.r2.0.2.sites.chr{chromosome}.vcf.bgz",
         "gnomad.genomes.r2.0.2.sites.chr{chromosome}.vcf.bgz.tbi",
-        "bp_{step}.chr_{chromosome}.{ss_file}.tsv",
-        command="run_bp_{step}.chr_{chromosome}.{ss_file}.sh"  
+        #in_ss="bpsplit_{step, \d+}_chr_{chromosome, \d+}_{ss_file}.tsv"
+        in_ss="chr_{chromosome, \d+}_{ss_file}.tsv"
     output:
-        "output/bp_{step}.chr_{chromosome}.{ss_file}.output.tsv"
+        "output/chr_{chromosome, \d+}_{ss_file}.output.tsv"
     shell:
-        "source {input.command}"
-
+        "python sumstat_harmoniser.py --sumstats {input.in_ss} "
+        "--vcf gnomad.genomes.r2.0.2.sites.chr{wildcards.chromosome}.vcf.bgz "
+        "--out output/chr_{wildcards.chromosome}_{wildcards.ss_file}.output.tsv "
+        "--log output/chr_{wildcards.chromosome}_{wildcards.ss_file}.log.tsv.gz "
+        "--rsid_col variant_id "
+        "--chrom_col chromosome "
+        "--pos_col base_pair_location "
+        "--effAl_col effect_allele "
+        "--otherAl_col other_allele "
+        "--eaf_col ma_freq "
+        "--beta_col beta "
+        "--maf_palin_threshold 0.42 "
+        "--af_vcf_field AF "
+        "--af_vcf_min 0.001 "
+        "--infer_strand True "
+        "--infer_palin True"
