@@ -94,7 +94,7 @@ def main():
         if os.path.isfile(chromosome_file):
             previous = 0
             step = 1
-            for bp in range(0, max_bp, bp_range):
+            for bp in range(bp_range, max_bp, bp_range):
                 command = where_am_i + '/split_by_bp.py -f ' + chromosome_file + ' -start ' + str(
                     previous) + ' -end ' + str(bp) + ' -accession ' + str(step) + ' -path ' + local_tsvfiles_path
                 os.system('python ' + command)
