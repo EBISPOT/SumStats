@@ -64,6 +64,12 @@ function file_health_check(){
 	echo "Checking to see if the files are corrupted, please wait a moment..."
 	echo ""
 	$base/bin/failure/check_files_corrupted.sh $docker_output_loc $trait_dir $chr_dir $snp_dir $report_failed_file
+
+	# if files are corrupted the script will exit with 1 so if we find files corrupted we exit the loading process
+	# and this is reported by the script that sends the exit code
+	if [[ $? != 0 ]]; then
+	    exit 1
+	fi
 }
 
 times_looped=0
@@ -73,6 +79,7 @@ while true; do
 	if [ $times_looped -gt 3 ]; then
 		echo "Jobs have been submitted 3 times without being able to load!"
 		cat $report_file $report_failed_file | mail -s "File $file failed to load" olgavrou@ebi.ac.uk
+		cat $report_file $report_failed_file | mail -s "File $file failed to load" jhayhurst@ebi.ac.uk
 		exit 1
 	fi
 
@@ -109,14 +116,9 @@ rm -f $base/chr_error*
 rm -f $base/trait_output*
 rm -f $base/trait_error*
 
-# files loaded, take fresh backup
-cat $base/backup.txt >> $base/bk_backup.txt
-> $base/backup.txt
 
-bsub -K -g "/sumstatsbackup" -o $base/backup.txt -e $base/backup.txt "singularity exec docker://ebispot/sumstats:latest $base/bin/utils/backup.sh $docker_output_loc $trait_dir $chr_dir $snp_dir"
-#bsub -K -g "/sumstatsbackup" -o $base/backup.txt -e $base/backup.txt -a 'docker('$base'/sumstatscdf.yml)' "/scripts/utils/backup.sh $docker_output_loc $trait_dir $chr_dir $snp_dir"
-
-cat $report_file $base/backup.txt | mail -s "File $file loaded" olgavrou@ebi.ac.uk
+cat $report_file | mail -s "File $file loaded" olgavrou@ebi.ac.uk
+cat $report_file | mail -s "File $file loaded" jhayhurst@ebi.ac.uk
 
 # set correct permissions for the rest of the users
 chmod -R g+rw $SS_OUT

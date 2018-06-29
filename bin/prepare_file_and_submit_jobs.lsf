@@ -21,6 +21,13 @@ if [ -z $to_load_location ]; then
         exit
 fi
 
+count=$(bjobs -g /sumstatsloader | wc -l)
+while [ "$count" -gt "0" ]; do
+        echo "Some jobs are running, wait till they finish to submit another study!"
+        echo "Exiting..."
+        exit
+done
+
 filename=$(basename $file)
 name=$(echo $filename | cut -f 1 -d '.')
 echo "FILE: $file"
@@ -38,4 +45,4 @@ do
 		$base/bin/load/submit_snp.sh $name $i $bp $to_load_location
 	done
 done
-$base/bin/load/submit_trait.sh name $to_load_location
+$base/bin/load/submit_trait.sh $filename $to_load_location
