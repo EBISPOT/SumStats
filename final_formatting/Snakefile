@@ -7,9 +7,8 @@ STUDIES, = glob_wildcards(config["ss_file_pattern"])
 
 rule all:
     input: 
-        #expand("output/bpsplit_{step}_chr_{chromosome}_{ss_file}.output.tsv",
-        #       ss_file=STUDIES, step=config["steps"], chromosome=config["chromosomes"])
-        expand("output/chr_{chromosome}_{ss_file}.output.tsv", ss_file=STUDIES, chromosome=config["chromosomes"])
+        expand("output/bpsplit_{step}_chr_{chromosome}_{ss_file}.output.tsv",
+               ss_file=STUDIES, step=config["steps"], chromosome=config["chromosomes"])
 
 
 rule get_vcf_files:
@@ -60,15 +59,14 @@ rule run_harmonisation_per_split:
     input:
         "gnomad.genomes.r2.0.2.sites.chr{chromosome}.vcf.bgz",
         "gnomad.genomes.r2.0.2.sites.chr{chromosome}.vcf.bgz.tbi",
-        #in_ss="bpsplit_{step, \d+}_chr_{chromosome, \d+}_{ss_file}.tsv"
-        in_ss="chr_{chromosome, \d+}_{ss_file}.tsv"
+        in_ss="bpsplit_{step, \d+}_chr_{chromosome, \d+}_{ss_file}.tsv"
     output:
-        "output/chr_{chromosome, \d+}_{ss_file}.output.tsv"
+        "output/bpsplit_{step, \d+}_chr_{chromosome, \d+}_{ss_file}.output.tsv"
     shell:
         "python sumstat_harmoniser.py --sumstats {input.in_ss} "
         "--vcf gnomad.genomes.r2.0.2.sites.chr{wildcards.chromosome}.vcf.bgz "
-        "--out output/chr_{wildcards.chromosome}_{wildcards.ss_file}.output.tsv "
-        "--log output/chr_{wildcards.chromosome}_{wildcards.ss_file}.log.tsv.gz "
+        "--out output/bpsplit_{wildcards.step}_chr_{wildcards.chromosome}_{wildcards.ss_file}.output.tsv "
+        "--log output/bpsplit_{wildcards.step}_chr_{wildcards.chromosome}_{wildcards.ss_file}.log.tsv.gz "
         "--rsid_col variant_id "
         "--chrom_col chromosome "
         "--pos_col base_pair_location "
