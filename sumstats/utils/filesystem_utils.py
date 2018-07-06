@@ -24,6 +24,6 @@ def get_h5files_in_dir(path, dir_name):
     # that is why we need to sort them before we return them so the return order is deterministic
     try:
         trait_dir_path = join(path, dir_name)
-        return [join(trait_dir_path, f) for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))]
+        return sorted([join(trait_dir_path, f) for f in listdir(trait_dir_path) if isfile(join(trait_dir_path, f))])
     except Exception:
         raise RuntimeError("Something went wrong when trying to get h5files for directory", basename(dir_name))

@@ -23,7 +23,7 @@ class Explorer:
             traits.extend(searcher.list_traits())
             searcher.close_file()
 
-        return traits
+        return sorted(traits)
 
     def get_list_of_studies_for_trait(self, trait):
         h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait)
@@ -32,7 +32,7 @@ class Explorer:
         searcher = study_searcher.StudyService(h5file=h5file)
         studies = searcher.list_studies()
         searcher.close_file()
-        return studies
+        return sorted(studies)
 
     def get_list_of_studies(self):
         studies = []
@@ -42,7 +42,7 @@ class Explorer:
             studies.extend(searcher.list_studies())
             searcher.close_file()
 
-        return studies
+        return sorted(studies)
 
     def get_trait_of_study(self, study_to_find):
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)

@@ -5,9 +5,6 @@ branches:
   only:
   - master
   - test-travis
-notifications:
-  email:
-  - olgavrou@ebi.ac.uk
 before_install:
     - mkdir logs
 install:
