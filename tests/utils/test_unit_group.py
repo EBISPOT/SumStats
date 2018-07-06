@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pytest
 import sumstats.utils.group as gu
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
 from sumstats.utils.dataset import Dataset
 from sumstats.common_constants import *
 from sumstats.errors.error_classes import *

@@ -1,9 +1,8 @@
 import os
 import numpy as np
 import pytest
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
 from sumstats.utils.dataset import Dataset
-from sumstats.utils.interval import *
 from tests.test_constants import *
 
 
@@ -82,4 +81,5 @@ class TestUnitUtils(object):
 
         assert isinstance(datasets['dset2'], Dataset)
         assert len(datasets['dset2']) == 0
+
 

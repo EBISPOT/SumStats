@@ -1,7 +1,8 @@
 import sumstats.explorer as ex
 import sumstats.trait.search.access.trait_service as service
 import sumstats.trait.search.trait_search as ts
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
+import sumstats.utils.filesystem_utils as fsutils
 from sumstats.trait.constants import *
 import logging
 from sumstats.utils import register_logger
@@ -75,7 +76,7 @@ class AssociationSearch:
 
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:
-            h5file = utils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
+            h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
             searcher = service.TraitService(h5file)
             trait_size = searcher.get_trait_size(trait)
             searcher.close_file()

@@ -31,9 +31,6 @@ class TraitService:
         self.datasets = {}
         self.file_group = gu.Group(self.file)
 
-    def query_for_all_associations(self, start, size):
-        self.datasets = repo.get_dsets_from_file_group(self.file_group, start, size)
-
     def query(self, trait, start, size):
         trait_group = self.file_group.get_subgroup(trait)
         self.datasets = repo.get_dsets_from_trait_group(trait_group, start, size)

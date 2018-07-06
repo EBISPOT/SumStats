@@ -50,7 +50,7 @@ class TestLoader(object):
         properties.h5files_path = "./outputexplorer"
         self.explorer = ex.Explorer(properties)
         self.loaded_traits = ['t1', 't2', 't3']
-        self.loaded_studies = ['t1:s1', 't1:s2', 't1:s11', 't1:s12', 't2:s3', 't2:s4', 't3:s5']
+        self.loaded_studies = ['s1', 's2', 's11', 's12', 's3', 's4', 's5']
         self.loaded_studies_t1 = ['s1', 's2', 's11', 's12']
         self.loaded_studies_t3 = ['s5']
 

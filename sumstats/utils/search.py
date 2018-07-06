@@ -1,4 +1,4 @@
-from sumstats.utils import utils
+from sumstats.utils import dataset_utils
 from sumstats.common_constants import *
 import logging
 from sumstats.utils import register_logger
@@ -33,7 +33,7 @@ def general_search(search_obj, max_size, arguments, restriction_dictionary=None)
         # after search index is increased, we can apply restrictions
         search_obj.searcher.apply_restrictions(**restriction_dictionary)
 
-        search_obj.datasets = utils.extend_dsets_with_subset(search_obj.datasets, search_obj.searcher.get_result())
+        search_obj.datasets = dataset_utils.extend_dsets_with_subset(search_obj.datasets, search_obj.searcher.get_result())
         search_obj.start = search_obj.start + iteration_size
         iteration_size = _next_iteration_size(size=search_obj.size, datasets=search_obj.datasets)
 

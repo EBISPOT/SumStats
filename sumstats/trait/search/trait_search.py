@@ -1,7 +1,8 @@
 import os.path
 
 import sumstats.trait.search.access.trait_service as service
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
+import sumstats.utils.filesystem_utils as fsutils
 from sumstats.trait.constants import *
 from sumstats.utils import search
 from sumstats.errors.error_classes import *
@@ -28,7 +29,7 @@ class TraitSearch:
         # it is the number that when added to the 'start' value that we started the query with
         # will pinpoint where the next search needs to continue from
         self.index_marker = 0
-        self.h5file = utils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
+        self.h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Trait " + trait)
         self.searcher = service.TraitService(self.h5file)
