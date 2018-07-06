@@ -10,25 +10,24 @@ study=$2
 trait=$3
 bp_step=$4
 to_load_location=$5
-config=$6
 
 base=$(cd ${0%/*}/..; pwd)
 filename=$(basename $file)
 name=$(echo $filename | cut -f 1 -d '.')
 
-gwas-load -tsv $filename -study $study -trait $trait -loader trait -config $config & pids+=($!)
+gwas-load -tsv $filename -study $study -trait $trait -loader trait & pids+=($!)
 
 for i in {1..24};
 do
     chromosome_file=chr_"$i"_"$name".tsv
     if [ -s $to_load_location/$chromosome_file ];
     then
-        gwas-load -tsv $chromosome_file -study $study -chr $i -loader chr -config $config & pids+=($!)
+        gwas-load -tsv $chromosome_file -study $study -chr $i -loader chr & pids+=($!)
         for bp in `seq 1 $bp_step`;
         do
         bp_file=bp_"$bp"_chr_"$i"_"$name".tsv
         if [ -s $to_load_location/$bp_file ]; then
-            gwas-load -tsv $bp_file -study $study -chr $i -loader snp -bp $bp -config $config & pids+=($!)
+            gwas-load -tsv $bp_file -study $study -chr $i -loader snp -bp $bp & pids+=($!)
         fi
         done
     fi

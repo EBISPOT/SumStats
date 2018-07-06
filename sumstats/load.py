@@ -72,6 +72,6 @@ def argument_parser(args):
     parser.add_argument('-chr', help='The chromosome that will be loaded')  # pragma: no cover
     parser.add_argument('-bp', help='Upper limit of base pair location that is loaded (for snp loader)')  # pragma: no cover
 
-    properties_handler.add_properties(argparser=parser, args=args)  # pragma: no cover
+    properties_handler.set_properties()  # pragma: no cover
 
     return parser.parse_args(args)  # pragma: no cover

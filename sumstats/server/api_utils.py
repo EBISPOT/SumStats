@@ -27,9 +27,9 @@ def _create_study_info_for_trait(studies, trait):
     study_list = []
     for study in studies:
         study_info = {'study_accession': study, 'trait': trait,
-                      '_links': {'self': _create_href(method_name='get_trait_study_assocs',
+                      '_links': {'self': _create_href(method_name='api.get_trait_study_assocs',
                                                       params={'trait': trait, 'study': study}),
-                                 'trait': _create_href(method_name='get_trait_assocs', params={'trait': trait})}}
+                                 'trait': _create_href(method_name='api.get_trait_assocs', params={'trait': trait})}}
 
         study_info['_links']['gwas_catalog'] = _create_gwas_catalog_href(study)
         study_info['_links']['ols'] = _create_ontology_href(trait)
@@ -48,8 +48,8 @@ def _get_trait_list(traits, start, size):
 
 def _create_info_for_trait(trait):
     trait_info = {'trait': trait,
-                  '_links': {'self': _create_href(method_name='get_trait_assocs', params={'trait': trait})}}
-    trait_info['_links']['studies'] = _create_href(method_name='get_studies_for_trait', params={'trait': trait})
+                  '_links': {'self': _create_href(method_name='api.get_trait_assocs', params={'trait': trait})}}
+    trait_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
     trait_info['_links']['ols'] = _create_ontology_href(trait)
     return trait_info
 
@@ -89,14 +89,14 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
 
         element_info['trait'] = trait
 
-        element_info['_links'] = {'self': _create_href(method_name='get_variants',
+        element_info['_links'] = {'self': _create_href(method_name='api.get_variants',
                                                    params={'variant': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
                                                            'chromosome': specific_chromosome})}
-        element_info['_links']['variant'] = _create_href(method_name='get_variants',
+        element_info['_links']['variant'] = _create_href(method_name='api.get_variants',
                                                          params={'variant': specific_variant, 'chromosome': specific_chromosome})
-        element_info['_links']['study'] = _create_href(method_name='get_trait_study_assocs',
+        element_info['_links']['study'] = _create_href(method_name='api.get_trait_study_assocs',
                                                        params={'study': study})
-        element_info['_links']['trait'] = _create_href(method_name='get_trait_assocs', params={'trait': trait})
+        element_info['_links']['trait'] = _create_href(method_name='api.get_trait_assocs', params={'trait': trait})
 
         data_dict[index] = element_info
     return data_dict

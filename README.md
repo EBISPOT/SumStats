@@ -24,7 +24,8 @@ Docker documentation: https://docs.docker.com
 - Create the container from the <sumstats> image
   - `docker run -i -p 8080:8080 -v $(pwd)/files/toload:/application/files/toload -v $(pwd)/files/output:/application/files/output -v $(pwd)/bin:/scripts -v $(pwd)/config:/application/config -t sumstats`
 - Run the script to load a file on docker
-  - `python /scripts/preparation/load.py -f <file to be loaded> -config <path to json config> -study <study accession> -trait <efo trait>`
+  - [OPTIONAL] set the environmental variable as: `export SS_CONFIG=<path to json config>` if you want to pass in a different configuration than the default one
+  - `python /scripts/preparation/load.py -f <file to be loaded> -study <study accession> -trait <efo trait>`
 
 You can run all the commands described in the secion below on the docker container that you have just launched.
  
@@ -36,7 +37,7 @@ Files produced by the sumstats package (.h5 files) should be generated in the fi
 - Clone the repository
   - `git clone https://github.com/EBISPOT/SumStats.git`
   - `cd SumStats`
-- Install the sumstats package -  this will install h5py, numpy, flask, cherrypy - and sumstats
+- Install the sumstats package -  this will install h5py, numpy, flask, gunicorn - and sumstats
   - `pip install .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
   - `python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>`
@@ -46,16 +47,16 @@ Under the `config` directory you will find the files that are responsible for se
 
 `properties.py` is the default one. It can be altered but you will need to re-install the package in oreder for the changes to take effect.
 
-`properties.json` can be edited and passed as a `-config <location to properties.json` when running: 
-- `gwas-server` to run the API
+`properties.json` can be edited and passed as a an environmental variable as: `export SS_CONFIG=<path to json config>` when running:
+- `gunicorn -b <host:port> --chdir sumstats/server --access-logfile <path to access log file> --error-logfile <path to error log file> app:app [--log-level <log level>]` to run the API
 - `gwas-search` to search the database via command line
 - `gwas-explore` to explore what is saved in the database via command line
 - `gwas-load` to load data to the database via command line
 
 The properties that are being set are:
 
-- h5files_path: path to the output directory where the data will be stored. Used by gwas-loader, gwas-explorer, gwas-search, gwas-server etc.
-- tsvfiles_path: path to the directory where the sum stats files to be loaded reside. Used by gwas-loader, gwas-explorer, gwas-search, gwas-server etc.
+- h5files_path: path to the output directory where the data will be stored. Used by gwas-loader, gwas-explorer, gwas-search, etc.
+- tsvfiles_path: path to the directory where the sum stats files to be loaded reside. Used by gwas-loader, gwas-explorer, gwas-search, etc.
 - local_h5files_path: used by the setup_configuration.py file when creating the output directory layout on your local machine
 - local_tsvfiles_path: used by the setup_configuration.py file when pre-processing the loading file, and stores the files that are ready to be loaded (see below)
 - bp_step: how many files we want each chromosome to be split into, based on base pair location (default: 16)
@@ -66,11 +67,11 @@ The properties that are being set are:
 - ols_terms_location: url for querying terms in the Ontology Lookup Service API
 - gwas_study_location: url for querying the study meta-data in the GWAS Catalog API
 - logging_path: path to the directory where the logs will be stored
-- LOG_LEVEL: log level (default is INFO)
+- LOG_LEVEL: log level (default is INFO and will be overrided by the gunicorn log level if set)
 
 *NOTE*: `local_h5files_path - h5files_path` and `local_tsvfiles_path - tsvfiles_path` can point the same directories with the same paths (respectively).
 But you can use the `local_` variables to refer to the actual locations where these directories will reside,
-and the variables missing the `local_` prefix when referring to the locations that will be used by gwas-loarer, gwas-search, gwas-server, etc,
+and the variables missing the `local_` prefix when referring to the locations that will be used by gwas-loarer, gwas-search, etc.
 that might be running from a docker container and possibly have different paths and/or directory names on the container.
 
 For example, you might want to store the files locally on your maching under ./files/toload but then mount that same directory on docker under /toload
@@ -92,7 +93,7 @@ In the files/output directory 3 subdirectories will be created:
 - bytrait
 - bychr
 - bysnp
-   - dirctories named 1...22, one directory for each chromosome
+   - dirctories named 1...24, one directory for each chromosome (X, Y -> 23, 24)
 
 Each one will hold the hdf5 files created with the data loaded by the 3 different loaders. The loaders can be run in parallel.
 Do not try and store more than one study at a time. This package does not support parallel study loading.
@@ -121,7 +122,7 @@ Assumtion:
 
 The script will assume that the tsv file is stored under `./files/toload` and that the output direcories will be found under the `./files/output` directory (when mounted to docker as shown above, the volumes are placed in those positions) 
 
-If you need to specify the location where it resides, modify the properties.json file and use the `-config <path to properties.json>` flag to specify it.
+If you need to specify the location where it resides, modify the properties.json file and set the environmental variable as: `export SS_CONFIG=<path to json config>`
    
 Note that the loading command for chr and snp loaders need to be run for all the available chromosomes in the study.
 
@@ -152,9 +153,9 @@ There are two more flags that you can use:
 Note that, if the `output` directory is set by default to `./files/output` in the properties file. If you need to specify the location where it resides, modify the properties.json file and use the `-config <path to properties.json>` flag to specify it.
 
 # Exposing the API
-To expose the API you need to run: `gwas-server`
+To expose the API you need to run: `gunicorn -b <host:port> --chdir sumstats/server --access-logfile <path to access log file> --error-logfile <path to error log file> app:app [--log-level <log level>]`
 
-You can use the flag `-config <path to properties.json file` to change the default properties, such as the directory where all the data is stored (output directory) as explained in all the above sections.
+You can set the environmental variable as: `export SS_CONFIG=<path to json config>` to change the default properties, such as the directory where all the data is stored (output directory) as explained in all the above sections.
 
 This will spin up the service and make it available on port 8080 (if running via docker, we exposed the port when we spinned up the container).
 

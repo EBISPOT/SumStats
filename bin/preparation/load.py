@@ -40,7 +40,7 @@ def main():
     tsvfiles_path = properties["tsvfiles_path"]
 
     subprocess.call([where_am_i + "/load.sh", filename, study, trait,
-                          bp_step, tsvfiles_path, config])
+                          bp_step, tsvfiles_path])
 
 
 if __name__ == "__main__":

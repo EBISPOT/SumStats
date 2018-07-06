@@ -3,7 +3,7 @@
 base=$(cd ${0%/*}/../..; pwd)
 
 file=$1
-config=$2
+to_load_location=$2
 
 if [ -z $file ]; then
         echo "Need to provide the file"                                     
@@ -17,5 +17,6 @@ trait=$(echo "$name" | cut -d"-" -f3)
 
 echo "Submitting trait load for trait: $trait and study: $study"
 
-bsub -g "/sumstatsloader" -o $base/trait_output.txt -e $base/trait_error.txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv "$name".tsv -study $study -trait $trait -loader trait -config $config"
-#bsub -g "/sumstatsloader" -o $base/trait_output.txt -e $base/trait_error.txt -a 'docker('$base'/sumstatscdf.yml)' "gwas-load -tsv "$name".tsv -study $study -trait $trait -loader trait -config $config"
+if [ -s "$to_load_location"/"$filename" ]; then
+    bsub -g "/sumstatsloader" -M 16384 -R "rusage[mem=16384]" -o $base/trait_output.txt -e $base/trait_error.txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv "$name".tsv -study $study -trait $trait -loader trait"
+fi

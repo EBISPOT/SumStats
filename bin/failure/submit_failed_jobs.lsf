@@ -47,17 +47,17 @@ while read line; do
         # replace with backup
         $base/bin/utils/rollback.sh $output_loc $snp_dir/$chromosome file_"$bp".h5
         # resubmit job
-        $base/bin/load/submit_snp.sh $file $chromosome $bp $config $base/files/toload
+        $base/bin/load/submit_snp.sh $file $chromosome $bp $base/files/toload
     elif [ $jobtype == "chr" ]; then
         # replace with backup
         $base/bin/utils/rollback.sh $output_loc $chr_dir file_"$chromosome".h5
         # resubmit job
-        $base/bin/load/submit_chr.sh $file $chromosome $config $base/files/toload
+        $base/bin/load/submit_chr.sh $file $chromosome $base/files/toload
     elif [ $jobtype == "trait" ]; then
         # replace with backup
         $base/bin/utils/rollback.sh $output_loc $trait_dir file_"$trait".h5
         # resubmit job
-        $base/bin/load/submit_trait.sh $file $config $base/files/toload
+        $base/bin/load/submit_trait.sh $file $base/files/toload
     fi
 done < $report_failed_file
 
