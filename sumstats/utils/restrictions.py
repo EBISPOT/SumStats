@@ -1,5 +1,5 @@
 """
-Classes that have a get_mask method
+Classes that have a get_mask method/ and complementary methods to apply restrictions to datasets
 They impose restrictions to the datasets based on some criteria
 """
 

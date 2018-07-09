@@ -12,10 +12,9 @@
     the positions in the vectors correspond to each other
     snp[0], mantissa[0], exp[0], and chr[0] hold the information for SNP 0
 
-    Query 1: Retrieve all information for trait: input = query number (1) and trait name
-    Query 2: Retrieve all the information for a study: input = query number (2) and study name and trait name
+    Query: Retrieve all information for trait: input = trait name
 
-    Can filter based on p-value thresholds, bp position thresholds, SNP, CHR
+    You can query based on trait and apply restrictions.
 """
 
 import sumstats.trait.search.access.repository as repo

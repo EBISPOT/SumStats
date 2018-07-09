@@ -1,3 +1,8 @@
+"""
+Used by all the loader scripts in the trait/chr/snp modules to load the
+tsv file and make it into a dictionary of Datasets
+"""
+
 import time
 import pandas as pd
 from sumstats.utils import utils

@@ -1,4 +1,21 @@
-import sumstats.snp.search.access.service as service
+"""
+    Stored as /SNP/DATA
+    Where DATA:
+    under each directory we store 3 (or more) vectors
+    'study' list will hold the study ids
+    'mantissa' list will hold each snp's p-value mantissa for this study
+    'exp' list will hold each snp's p-value exponent for this study
+    'bp' list will hold the baise pair location that each snp belongs to
+    e.t.c.
+    You can see the lists that will be loaded in the constants.py module
+
+    the positions in the vectors correspond to each other
+    for a SNP group:
+    study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
+
+"""
+
+import sumstats.snp.search.access.service as snp_service
 import sumstats.utils.utils as utils
 from sumstats.snp.constants import *
 from sumstats.utils import search
@@ -13,6 +30,15 @@ register_logger.register(__name__)
 
 
 class SNPSearch:
+    """
+    When a SNPSearch object is initiated it can have a chromosome passed via it's constructor or not.
+    SNPSearch needs to initiate the Service object and that in turn needs the hdf5 file that the snp we are searching
+    for belongs to. In order to do this it needs the chromosome information.
+    If the chromosome information is given, we just need to check the the directory for that chromosome exists and that
+    find the exact file that that snp lives in (under the chromosome directory).
+    If the chromosome is not given, we need to search for the snp and it's exact file (the same as we would do if we
+    knew the chromosome) but we need to do this in all the chromosomes until we find it or run out of chromosomes.
+    """
     def __init__(self, snp, start, size, config_properties=None, chromosome=None):
         self.snp = snp
         self.chromosome = chromosome
@@ -30,42 +56,57 @@ class SNPSearch:
         self.index_marker = 0
 
         if chromosome is None:
-            self.searcher = self._calculate_searcher()
+            self.service = self._calculate_snp_service()
         else:
-            self.searcher = self._get_searcher()
+            self.service = self._get_snp_service()
 
     def search_snp(self, study=None, pval_interval=None):
         logger.info("Searching for variant %s", self.snp)
-        max_size = self.searcher.get_snp_size(self.snp)
+        max_size = self.service.get_snp_size(self.snp)
         method_arguments = {'snp': self.snp}
         restrictions = {'pval_interval': pval_interval, 'study': study}
         return search.general_search(search_obj=self, max_size=max_size,
                                      arguments=method_arguments, restriction_dictionary=restrictions)
 
-    def _calculate_searcher(self):
+    def _calculate_snp_service(self):
+        """
+        Traverses all the chromosomes and tries to find the SNP in one of them.
+        :return: Returns the Service object for the SNP or raises an error if not found
+        """
         logger.debug("Calculating chromosome for variant %s...", self.snp)
 
         for chromosome in range(1, 25):
-            self.searcher = self._calculate_searcher_for_chromosome(chromosome)
-            if self.searcher is not None:
-                return self.searcher
+            self.service = self._calculate_snp_service_for_chromosome(chromosome)
+            if self.service is not None:
+                return self.service
         # if not returned yet, not found
         logger.debug("Variant %s not found in any chromosome!", self.snp)
         raise NotFoundError("Variant " + self.snp)
 
-    def _calculate_searcher_for_chromosome(self, chromosome):
+    def _calculate_snp_service_for_chromosome(self, chromosome):
+        """
+        For the given chromosome see if the SNP given exists in one of it's files
+        :param chromosome: the chromosome we think the SNP is in
+        :return: the service created for this SNP to be searched
+        """
         try:
             h5file = self._location_for_snp_in_chromosome(chromosome)
         except NotFoundError:
             return None
         logger.debug("Variant %s found in chromosome %s", self.snp, str(chromosome))
-        return service.Service(h5file)
+        return snp_service.Service(h5file)
 
-    def _get_searcher(self):
+    def _get_snp_service(self):
         h5file = self._location_for_snp_in_chromosome(self.chromosome)
-        return service.Service(h5file)
+        return snp_service.Service(h5file)
 
     def _location_for_snp_in_chromosome(self, chromosome):
+        """
+        Looks up all the files under the chromosome directory, in parallel, and tries to find out which one the
+        SNP lives in.
+        :param chromosome: the chromosome we think the SNP lives in
+        :return: the exact file that this SNP is stored in or raises and error if not found
+        """
         dir_name = utils.join(self.snp_dir, str(chromosome))
         if not utils.is_valid_dir_path(path=self.search_path, dir_name=dir_name):
             logger.debug(
@@ -88,7 +129,7 @@ class SNPSearch:
 
 def is_snp_in_file(tup):
     snp, h5file = tup
-    searcher = service.Service(h5file)
-    if searcher.snp_in_file(snp):
+    service = snp_service.Service(h5file)
+    if service.snp_in_file(snp):
         return h5file
     return None

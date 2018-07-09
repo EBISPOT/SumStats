@@ -1,5 +1,5 @@
 import sumstats.explorer as ex
-import sumstats.trait.search.access.trait_service as service
+from sumstats.trait.search.access import trait_service
 import sumstats.trait.search.trait_search as ts
 import sumstats.utils.utils as utils
 from sumstats.trait.constants import *
@@ -28,6 +28,13 @@ class AssociationSearch:
         self.index_marker = self.search_traversed = 0
 
     def get_all_associations(self, pval_interval=None):
+        """
+        Traverses the traits available and retrieves the data stored in their datasets.
+        It traverses the datasets of the first trait before it continues to the next trait's datasets.
+        If a trait will be skipped or not is determined by each trait's search methods.
+        :param pval_interval: filter by p-value interval if not None
+        :return: a dictionary containing the dataset names and slices of the datasets
+        """
         logger.info("Searching all associations for start %s and size %s", str(self.start), str(self.size))
         iteration_size = self.size
         available_traits = self._get_all_traits()
@@ -76,9 +83,9 @@ class AssociationSearch:
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:
             h5file = utils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
-            searcher = service.TraitService(h5file)
-            trait_size = searcher.get_trait_size(trait)
-            searcher.close_file()
+            service = trait_service.TraitService(h5file)
+            trait_size = service.get_trait_size(trait)
+            service.close_file()
             return trait_size
         return retrieved_index
 

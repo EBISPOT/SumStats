@@ -13,10 +13,10 @@
     the positions in the vectors correspond to each other
     snp[0], study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
 
-    Query: query for chromosome if bp thresholds are omitted
-    or chromosome block if bp upper and lower limits are given
+    Query: a chromosome group for a specific block range.
+    Block range may span across mutliple block groups and that needs to be taken into account.
+    Block range may have an upper limit, a lower limit, or both.
 
-    Can filter based on p-value thresholds, bp position thresholds, and specific study
 """
 
 import sumstats.chr.block as bk
