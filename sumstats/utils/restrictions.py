@@ -182,7 +182,7 @@ def get_restriction(restriction, reference_datasets):
     :return: the *Restriction object
     """
     if interval.is_interval(restriction):
-        if isinstance(reference_datasets, list):
+        if type(reference_datasets) is list:
             # interval restriction for p-value examines mantissa and exponent
             if len(reference_datasets) == 2:
                 return IntervalRestrictionPval(restriction.floor(), restriction.ceil(), reference_datasets[0], reference_datasets[1])
