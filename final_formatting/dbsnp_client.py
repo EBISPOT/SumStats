@@ -23,10 +23,11 @@ class dbSNPclient(object):
         return False
 
     def bp_from_rsid(self, rsid):
-#        conn = self.create_conn()
-#        cur = conn.cursor()
-#        cur.execute("SELECT chrom, chromEnd FROM snp150Common WHERE name=?", (rsid,))
-#        data = cur.fetchone()
-#        if data is not None:
-#            return data[0]
-        return False
+        conn = self.create_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT chrom, chromEnd FROM snp150Common WHERE name=?", (rsid,))
+        data = cur.fetchone()
+        if data is not None:
+            return data
+        else:        
+            return False
