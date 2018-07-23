@@ -44,10 +44,8 @@ class Service:
         # return None if snp not found or set the snp_group
         try:
             self._get_snp_group(snp)
-            logger.debug("snp group for variant %s found...", snp)
             return True
         except (SubgroupError, NotFoundError):
-            logger.debug("snp group for variant %s not found, raising error...", snp)
             return False
 
     def query(self, snp, start, size):
