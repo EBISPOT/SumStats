@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/EBISPOT/SumStats.svg?branch=master)](https://travis-ci.org/EBISPOT/SumStats)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/01c24035b9634ad1aaa7f66598be2483)](https://www.codacy.com/app/spot-ebi/SumStats?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=EBISPOT/SumStats&amp;utm_campaign=Badge_Grade) 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/01c24035b9634ad1aaa7f66598be2483)](https://www.codacy.com/app/spot-ebi/SumStats?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=EBISPOT/SumStats&amp;utm_campaign=Badge_Grade) [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/01c24035b9634ad1aaa7f66598be2483)](https://www.codacy.com/app/spot-ebi/SumStats?utm_source=github.com&utm_medium=referral&utm_content=EBISPOT/SumStats&utm_campaign=Badge_Coverage)
 
 Summary statistics with HDF5
 
