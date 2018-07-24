@@ -19,7 +19,7 @@ if [ -z $log ]; then
 fi
 
 
-run_time=$(grep "Run time" $file | cut -d":" -f2 | tr -d '[:space:]')
+run_time=$(grep "CPU time" $file | cut -d":" -f2 | tr -d '[:space:]')
 max_mem=$(grep "Max Memory" $file | cut -d":" -f2 | tr -d '[:space:]')
 
 echo "$run_time" | sed 's/\./ /g' >> "$log"_time
