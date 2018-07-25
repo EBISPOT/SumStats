@@ -4,7 +4,7 @@ import pytest
 
 import sumstats.trait.loader as loader
 from sumstats.trait.constants import TO_STORE_DSETS
-from sumstats.trait.search.access.trait_service import TraitService
+from sumstats.trait.search.access.study_service import StudyService
 from tests.prep_tests import *
 import tests.test_constants as search_arrays
 from sumstats.errors.error_classes import *
@@ -17,7 +17,7 @@ study2 = "s2"
 study3 = "s3"
 
 
-class TestUnitSearcher(object):
+class TestUnitStudyService(object):
     h5file = ".testfile.h5"
     f = None
 
@@ -39,30 +39,14 @@ class TestUnitSearcher(object):
         self.start = 0
         self.size = 20
 
-        self.query = TraitService(self.h5file)
+        self.query = StudyService(self.h5file)
 
     def teardown_method(self):
         os.remove(self.h5file)
 
-    def test_query_for_all_assocs(self):
-        self.query.query_for_all_associations(self.start, self.size)
-        datasets = self.query.get_result()
-        study_set = set(datasets[STUDY_DSET])
+    def test_query_for_study(self):
+        self.query.query(trait1, study1, self.start, self.size)
 
-        assert len(study_set) == 3
-
-    def test_query_for_trait(self):
-        self.query.query(trait1, self.start, self.size)
-        datasets = self.query.get_result()
-
-        for dset_name in TO_STORE_DSETS:
-            assert len(datasets[dset_name]) == 8
-
-        study_set = set(datasets[STUDY_DSET])
-
-        assert len(study_set) == 2
-
-        self.query.query(trait2, self.start, self.size)
         datasets = self.query.get_result()
 
         for dset_name in TO_STORE_DSETS:
@@ -71,8 +55,15 @@ class TestUnitSearcher(object):
         study_set = set(datasets[STUDY_DSET])
 
         assert len(study_set) == 1
+        assert study1 in study_set.pop()
 
-    def test_non_existing_trait(self):
+        self.query.query(trait1, study1, self.start, self.size)
+        datasets = self.query.get_result()
+
+        for dset_name in TO_STORE_DSETS:
+            assert len(datasets[dset_name]) == 4
+
+    def test_non_existing_trait_study_combination(self):
         with pytest.raises(NotFoundError):
-            self.query.query(trait3, self.start, self.size)
+            self.query.query(trait3, study2, self.start, self.size)
 

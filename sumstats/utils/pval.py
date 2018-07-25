@@ -76,3 +76,15 @@ def convert_to_mantissa_and_exponent(str_number):
     return mantissa, exp
 
 
+def get_mantissa_and_exp_lists(string_list):
+    mantissa_dset = []
+    exp_dset = []
+    for str_number in string_list:
+        mantissa, exp = convert_to_mantissa_and_exponent(str_number)
+        mantissa_dset.append(mantissa)
+        exp_dset.append(exp)
+
+    return mantissa_dset, exp_dset
+
+
+

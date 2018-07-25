@@ -76,6 +76,9 @@ class Group:
         """
         return (Group(group) for group in self.group.values() if isinstance(group, h5py.Group))
 
+    def get_all_subgroups_keys(self):
+        return sorted(list(self.group.keys()))
+
     def generate_dataset(self, dset_name, data):
         """
         Datasets with maxshape = ((None,)) so they can be extended

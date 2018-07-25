@@ -2,7 +2,7 @@ import sumstats.controller as search
 from sumstats.utils.interval import *
 from sumstats.chr.constants import *
 from tests.search.test_utils import *
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
 from config import properties
 
 

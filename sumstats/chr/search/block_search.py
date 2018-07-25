@@ -16,7 +16,8 @@
 import os.path
 
 from sumstats.chr.search.access import block_service
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
+import sumstats.utils.filesystem_utils as fsutils
 from sumstats.chr.constants import *
 from sumstats.utils import  search
 from sumstats.errors.error_classes import *
@@ -41,7 +42,7 @@ class BlockSearch:
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.index_marker = 0
 
-        self.h5file = utils.create_h5file_path(path=self.search_path, dir_name=self.chr_dir, file_name=chromosome)
+        self.h5file = fsutils.create_h5file_path(path=self.search_path, dir_name=self.chr_dir, file_name=chromosome)
 
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Chromosome " + str(chromosome))

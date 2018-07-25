@@ -21,6 +21,11 @@ import sumstats.chr.search.access.repository as query
 import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
 from sumstats.common_constants import *
+import logging
+from sumstats.utils import register_logger
+
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 class ChromosomeService:
@@ -31,20 +36,29 @@ class ChromosomeService:
         self.file_group = gu.Group(self.file)
 
     def query(self, chromosome, start, size):
+        logger.debug("Starting query for chromosome %s, start %s, and size %s", str(chromosome), str(start), str(size))
         chr_group = self.file_group.get_subgroup(chromosome)
 
         all_chr_sub_groups = chr_group.get_all_subgroups()
         self.datasets = query.load_datasets_from_groups(all_chr_sub_groups, start, size)
+        logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
+        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s",
+                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
         self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)
+        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s done...",
+                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
 
     def get_result(self):
         return self.datasets
 
     def get_chromosome_size(self, chromosome):
         chromosome_group = self.file_group.get_subgroup(chromosome)
-        return sum(bp_group.get_max_group_size() for bp_group in chromosome_group.get_all_subgroups())
+        size = sum(bp_group.get_max_group_size() for bp_group in chromosome_group.get_all_subgroups())
+        logger.debug("Chromosome %s group size is %s", str(chromosome), str(size))
+        return size
 
     def close_file(self):
+        logger.debug("Closing file %s...", self.file.file)
         self.file.close()

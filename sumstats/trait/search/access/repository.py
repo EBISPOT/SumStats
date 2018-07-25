@@ -1,6 +1,6 @@
 
 from sumstats.trait.constants import *
-from sumstats.utils.utils import *
+from sumstats.utils.dataset_utils import *
 import sumstats.utils.group as gu
 
 

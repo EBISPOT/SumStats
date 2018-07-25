@@ -32,7 +32,7 @@ function act_on_error(){
 
 function log_load_complete(){
     num_lines=$(wc -l $base/files/toload/$input_file |  cut -d" " -f1)
-    run_time=$(grep "Run time" $job_output | cut -d":" -f2 | tr -d '[:space:]')
+    run_time=$(grep "CPU time" $job_output | cut -d":" -f2 | tr -d '[:space:]')
     max_mem=$(grep "Max Memory" $job_output | cut -d":" -f2 | tr -d '[:space:]')
     max_swap=$(grep "Max Swap" $job_output | cut -d":" -f2 | tr -d '[:space:]')
     disk_space=$(du -h "$output_loc"/"$load_type_dir"/"$h5file" | cut -f1)

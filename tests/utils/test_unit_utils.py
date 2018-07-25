@@ -1,10 +1,8 @@
 import os
-import h5py
 import numpy as np
 import pytest
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
 from sumstats.utils.dataset import Dataset
-from sumstats.utils.interval import *
 from tests.test_constants import *
 
 
@@ -67,30 +65,6 @@ class TestUnitUtils(object):
         assert not utils.empty_array([1, 2, 3])
         assert not utils.empty_array(Dataset([1, 2, 3]))
 
-    def test_get_mantissa_and_exp_lists(self):
-        list_of_strings = ['1.2', '0.1', '0.0', '0.002', '0.8e-10', '8E-10']
-        mantissa_list, exp_list = utils.get_mantissa_and_exp_lists(list_of_strings)
-
-        assert mantissa_list is not None
-        assert len(mantissa_list) == len(list_of_strings)
-        assert np.array_equal(mantissa_list, [1.2, 1., 0., 2., 0.8, 8.])
-
-        assert exp_list is not None
-        assert len(exp_list) == len(list_of_strings)
-        assert np.array_equal(exp_list, [0, -1, 0, -3, -10, -10])
-
-        list_of_strings = ['1,2']
-        with pytest.raises(ValueError):
-            utils.get_mantissa_and_exp_lists(list_of_strings)
-
-        list_of_strings = [1.2]
-        with pytest.raises(TypeError):
-            utils.get_mantissa_and_exp_lists(list_of_strings)
-
-        list_of_strings = [1]
-        with pytest.raises(TypeError):
-            utils.get_mantissa_and_exp_lists(list_of_strings)
-
     def test_create_dataset_objects(self):
         datasets = {'dset1' : [1, 2, 3], 'dset2' : ['1,' '2', '3'], 'dset3' : [1., 2., 3.]}
         datasets = utils.create_datasets_from_lists(datasets)
@@ -108,12 +82,4 @@ class TestUnitUtils(object):
         assert isinstance(datasets['dset2'], Dataset)
         assert len(datasets['dset2']) == 0
 
-    def test_is_interval_value(self):
-        interval = FloatInterval().set_string_tuple("2:1")
-        assert is_interval(interval)
-
-        interval = IntInterval().set_string_tuple("2:1")
-        assert is_interval(interval)
-
-        assert not is_interval(2)
 

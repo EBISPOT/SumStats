@@ -10,9 +10,9 @@ study accession value I want and the the study_accession dataset, and then apply
 """
 
 import sumstats.utils.pval as pu
-from sumstats.utils.utils import logical_and_on_list_of_masks
-from sumstats.utils.utils import logical_or_on_list_of_masks
-import sumstats.utils.utils as utils
+from sumstats.utils.dataset_utils import logical_and_on_list_of_masks
+from sumstats.utils.dataset_utils import logical_or_on_list_of_masks
+import sumstats.utils.dataset_utils as utils
 import sumstats.utils.interval as interval
 from sumstats.common_constants import *
 

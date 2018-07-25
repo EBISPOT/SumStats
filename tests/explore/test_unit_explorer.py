@@ -20,6 +20,12 @@ def load_studies(request):
     load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=loader)
     load.load()
 
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s11', trait='t1', loader=loader)
+    load.load()
+
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s12', trait='t1', loader=loader)
+    load.load()
+
     h5file = output_location + 'file_t2.h5'
     load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=loader)
     load.load()
@@ -44,8 +50,8 @@ class TestLoader(object):
         properties.h5files_path = "./outputexplorer"
         self.explorer = ex.Explorer(properties)
         self.loaded_traits = ['t1', 't2', 't3']
-        self.loaded_studies = ['t1:s1', 't1:s2', 't2:s3', 't2:s4', 't3:s5']
-        self.loaded_studies_t1 = ['s1', 's2']
+        self.loaded_studies = ['s1', 's2', 's11', 's12', 's3', 's4', 's5']
+        self.loaded_studies_t1 = ['s1', 's2', 's11', 's12']
         self.loaded_studies_t3 = ['s5']
 
     def test_get_list_of_traits(self):
@@ -83,3 +89,15 @@ class TestLoader(object):
     def test_get_info_from_non_exising_study_raises_error(self):
         with pytest.raises(NotFoundError):
             self.explorer.get_trait_of_study('s6')
+
+    def test_traits_return_in_same_order(self):
+        traits1 = self.explorer.get_list_of_traits()
+        traits2 = self.explorer.get_list_of_traits()
+        for i in range(len(traits1)):
+            assert traits1[i] == traits2[i]
+
+    def test_studies_return_in_same_order(self):
+        studies1 = self.explorer.get_list_of_studies_for_trait('t1')
+        studies2 = self.explorer.get_list_of_studies_for_trait('t1')
+        for i in range(len(studies1)):
+            assert studies1[i] == studies2[i]

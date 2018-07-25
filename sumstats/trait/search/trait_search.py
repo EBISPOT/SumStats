@@ -1,7 +1,8 @@
 import os.path
 
 from sumstats.trait.search.access import trait_service
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
+import sumstats.utils.filesystem_utils as fsutils
 from sumstats.trait.constants import *
 from sumstats.utils import search
 from sumstats.errors.error_classes import *
@@ -28,14 +29,21 @@ class TraitSearch:
         # it is the number that when added to the 'start' value that we started the query with
         # will pinpoint where the next search needs to continue from
         self.index_marker = 0
-        self.h5file = utils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
+        self.h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Trait " + trait)
         self.service = trait_service.TraitService(self.h5file)
         self.max_size_of_trait = self.service.get_trait_size(self.trait)
 
     def search_trait(self, pval_interval=None):
-        logger.info("Searching for trait %s", self.trait)
+        """
+        Search for the data of the TraitSearch object's trait
+        :param pval_interval: optional p-value interval of type FloatInterval
+        :return: a tuple (datasets, index_marker) where 'datasets' is a dictionary with the names of the datasets and
+        the data to be returned (the result of the query after applying restrictions) and index_marker is an integer indicating
+        up to where the query went in the dataset so that the next query can calculate it's next start base on the index_marker.
+        """
+        logger.info("Searching for trait %s with pval_interval %s", self.trait, str(pval_interval))
         method_arguments = {'trait': self.trait}
         restrictions = {'pval_interval': pval_interval}
         return search.general_search(search_obj=self, max_size=self.max_size_of_trait, arguments=method_arguments,

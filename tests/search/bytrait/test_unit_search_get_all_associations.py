@@ -4,7 +4,7 @@ import shutil
 import sumstats.controller as search
 import tests.search.search_test_constants as search_arrays
 import sumstats.trait.loader as loader
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
 from tests.prep_tests import *
 from sumstats.trait.constants import *
 from tests.search.test_utils import *

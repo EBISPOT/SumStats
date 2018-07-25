@@ -10,7 +10,7 @@ from sumstats.utils.properties_handler import properties
 import sumstats.explorer as ex
 
 
-class Search:
+class Search(object):
     def __init__(self, config_properties=None):
         self.config_properties = config_properties
 

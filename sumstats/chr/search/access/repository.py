@@ -1,6 +1,6 @@
 
 from sumstats.chr.constants import *
-from sumstats.utils.utils import *
+from sumstats.utils.dataset_utils import *
 
 
 def load_datasets_from_groups(groups, start, size):
