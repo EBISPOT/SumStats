@@ -44,10 +44,8 @@ class Service:
         # return None if snp not found or set the snp_group
         try:
             self._get_snp_group(snp)
-            logger.debug("snp group for variant %s found...", snp)
             return True
         except (SubgroupError, NotFoundError):
-            logger.debug("snp group for variant %s not found, raising error...", snp)
             return False
 
     def query(self, snp, start, size):
@@ -57,7 +55,11 @@ class Service:
         logger.debug("Query for snp: %s, start: %s, size: %s done...", snp, str(start), str(size))
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
+        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s",
+                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
         self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)
+        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s done...",
+                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
 
     def get_result(self):
         logger.debug("Returning dataset results of size %s", str(len(self.datasets[REFERENCE_DSET])))
