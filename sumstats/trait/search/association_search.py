@@ -27,9 +27,9 @@ class AssociationSearch:
         # will pinpoint where the next search needs to continue from
         self.index_marker = self.search_traversed = 0
 
-    def get_all_associations(self, pval_interval=None):
-        logger.info("Searching all associations for start %s, size %s, p_lower %s and p_upper %s",
-                    str(self.start), str(self.size), str(pval_interval.floor(), pval_interval.ceil()))
+    def search_associations(self, pval_interval=None):
+        logger.info("Searching all associations for start %s, size %s, pval_interval %s",
+                    str(self.start), str(self.size), str(pval_interval))
         iteration_size = self.size
         available_traits = self._get_all_traits()
         for trait in available_traits:

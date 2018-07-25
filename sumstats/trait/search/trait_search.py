@@ -35,8 +35,14 @@ class TraitSearch:
         self.max_size_of_trait = self.searcher.get_trait_size(self.trait)
 
     def search_trait(self, pval_interval=None):
-        logger.info("Searching for trait %s with p_lower %s and p_upper %s",
-                    self.trait, str(pval_interval.floor()), str(pval_interval.ceil()))
+        """
+        Search for the data of the TraitSearch object's trait
+        :param pval_interval: optional p-value interval of type FloatInterval
+        :return: a tuple (datasets, index_marker) where 'datasets' is a dictionary with the names of the datasets and
+        the data to be returned (the result of the query after applying restrictions) and index_marker is an integer indicating
+        up to where the query went in the dataset so that the next query can calculate it's next start base on the index_marker.
+        """
+        logger.info("Searching for trait %s with pval_interval %s", self.trait, str(pval_interval))
         method_arguments = {'trait': self.trait}
         restrictions = {'pval_interval': pval_interval}
         return search.general_search(search_obj=self, max_size=self.max_size_of_trait, arguments=method_arguments,

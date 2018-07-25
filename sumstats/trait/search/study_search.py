@@ -35,8 +35,15 @@ class StudySearch:
         self.searcher = service.StudyService(self.h5file)
 
     def search_study(self, study, pval_interval=None):
-        logger.info("Searching for study %s with p_lower %s and p_upper %s",
-                    study, str(pval_interval.floor()), str(pval_interval.ceil()))
+        """
+        Search for the data of a study that lives under the StudySearch object's trait
+        :param study: name of the study we are searching for (str)
+        :param pval_interval: optional p-value interval of type FloatInterval
+        :return: a tuple (datasets, index_marker) where 'datasets' is a dictionary with the names of the datasets and
+        the data to be returned (the result of the query after applying restrictions) and index_marker is an integer indicating
+        up to where the query went in the dataset so that the next query can calculate it's next start base on the index_marker.
+        """
+        logger.info("Searching for study %s with pval_interval %s", study, str(pval_interval))
         method_arguments = {'trait': self.trait, 'study': study}
         total_study_size = self.searcher.get_study_size(self.trait, study)
         restrictions = {'pval_interval': pval_interval}

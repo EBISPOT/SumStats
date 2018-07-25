@@ -46,15 +46,11 @@ class TraitService:
         logger.debug("Query for trait %s, start %s, size %s done...", trait, str(start), str(size))
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
-        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval low %s pval_interval "
-                     "high %s, bp_interval low %s, bp_interval high %s", str(snp), str(study), str(chromosome),
-                     str(pval_interval.floor()), str(pval_interval.ceil()), str(bp_interval.floor()),
-                     str(bp_interval.ceil()))
+        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s",
+                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
         self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)
-        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval low %s pval_interval "
-                     "high %s, bp_interval low %s, bp_interval high %s done...", str(snp), str(study), str(chromosome),
-                     str(pval_interval.floor()), str(pval_interval.ceil()), str(bp_interval.floor()),
-                     str(bp_interval.ceil()))
+        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s done...",
+                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
 
     def get_result(self):
         return self.datasets
