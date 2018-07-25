@@ -34,8 +34,9 @@ class StudySearch:
             raise NotFoundError("Trait " + trait)
         self.searcher = service.StudyService(self.h5file)
 
-    def search_study(self, study, pval_interval):
-        logger.info("Searching for study %s", study)
+    def search_study(self, study, pval_interval=None):
+        logger.info("Searching for study %s with p_lower %s and p_upper %s",
+                    study, str(pval_interval.floor()), str(pval_interval.ceil()))
         method_arguments = {'trait': self.trait, 'study': study}
         total_study_size = self.searcher.get_study_size(self.trait, study)
         restrictions = {'pval_interval': pval_interval}

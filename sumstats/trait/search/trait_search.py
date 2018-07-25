@@ -35,7 +35,8 @@ class TraitSearch:
         self.max_size_of_trait = self.searcher.get_trait_size(self.trait)
 
     def search_trait(self, pval_interval=None):
-        logger.info("Searching for trait %s", self.trait)
+        logger.info("Searching for trait %s with p_lower %s and p_upper %s",
+                    self.trait, str(pval_interval.floor()), str(pval_interval.ceil()))
         method_arguments = {'trait': self.trait}
         restrictions = {'pval_interval': pval_interval}
         return search.general_search(search_obj=self, max_size=self.max_size_of_trait, arguments=method_arguments,
