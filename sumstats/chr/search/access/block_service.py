@@ -23,7 +23,7 @@ import sumstats.chr.block as bk
 import sumstats.chr.search.access.repository as query
 import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
 from sumstats.common_constants import *
 import logging
 from sumstats.utils import register_logger

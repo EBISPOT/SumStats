@@ -16,5 +16,5 @@ setup(
     author='Olga Vrousgou',
     author_email='olgavrou@gmail.com',
     description='Package for saving and querying large summary statistics',
-    install_requires=['pandas==0.19.2', 'flask', 'simplejson', 'gunicorn', 'paste', 'h5py', 'numpy', 'eventlet']
+    install_requires=['pandas==0.19.2', 'flask', 'simplejson', 'gunicorn', 'paste', 'h5py', 'numpy', 'eventlet', 'pytest-cov']
 )

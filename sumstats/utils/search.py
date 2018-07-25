@@ -1,4 +1,4 @@
-from sumstats.utils import utils
+from sumstats.utils import dataset_utils
 from sumstats.common_constants import *
 import logging
 from sumstats.utils import register_logger
@@ -40,7 +40,7 @@ def general_search(search_obj, max_size, arguments, restriction_dictionary=None)
         logger.debug("Search %s - result size after filtering is %s...", search_id,
                      str(len(result_after_filtering[REFERENCE_DSET])))
 
-        search_obj.datasets = utils.extend_dsets_with_subset(search_obj.datasets, result_after_filtering)
+        search_obj.datasets = dataset_utils.extend_dsets_with_subset(search_obj.datasets, result_after_filtering)
         search_obj.start = search_obj.start + iteration_size
         iteration_size = _next_iteration_size(size=search_obj.size, datasets=search_obj.datasets)
 

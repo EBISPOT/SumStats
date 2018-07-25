@@ -36,9 +36,6 @@ class TraitService:
         self.datasets = {}
         self.file_group = gu.Group(self.file)
 
-    def query_for_all_associations(self, start, size):
-        self.datasets = repo.get_dsets_from_file_group(self.file_group, start, size)
-
     def query(self, trait, start, size):
         logger.debug("Starting query for trait %s, start %s, size %s", trait, str(start), str(size))
         trait_group = self.file_group.get_subgroup(trait)
@@ -62,8 +59,8 @@ class TraitService:
         return trait_size
 
     def list_traits(self):
-        trait_groups = self.file_group.get_all_subgroups()
-        return [trait_group.get_name().strip("/") for trait_group in trait_groups]
+        traits = self.file_group.get_all_subgroups_keys()
+        return traits
 
     def close_file(self):
         logger.debug("Closing file %s...", self.file.file)

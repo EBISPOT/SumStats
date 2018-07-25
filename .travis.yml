@@ -1,13 +1,10 @@
 language: python
 python:
-  - "3.6"
+  - "3.4"
 branches:
   only:
   - master
   - test-travis
-notifications:
-  email:
-  - olgavrou@ebi.ac.uk
 before_install:
     - mkdir logs
 install:

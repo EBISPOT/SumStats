@@ -7,7 +7,7 @@ import sumstats.chr.loader as loader
 from tests.prep_tests import *
 from sumstats.chr.constants import *
 from tests.search.test_utils import *
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
 from sumstats.errors.error_classes import *
 import pytest
 from config import properties

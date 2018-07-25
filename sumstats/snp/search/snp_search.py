@@ -1,5 +1,6 @@
 import sumstats.snp.search.access.service as service
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
+import sumstats.utils.filesystem_utils as fsutils
 from sumstats.snp.constants import *
 from sumstats.utils import search
 from sumstats.errors.error_classes import *
@@ -66,12 +67,12 @@ class SNPSearch:
         return service.Service(h5file)
 
     def _location_for_snp_in_chromosome(self, chromosome):
-        dir_name = utils.join(self.snp_dir, str(chromosome))
-        if not utils.is_valid_dir_path(path=self.search_path, dir_name=dir_name):
+        dir_name = fsutils.join(self.snp_dir, str(chromosome))
+        if not fsutils.is_valid_dir_path(path=self.search_path, dir_name=dir_name):
             logger.debug(
                 "Chromosome %s given for variant %s doesn't exist!", str(self.chromosome), self.snp)
             raise NotFoundError("Chromosome " + str(self.chromosome))
-        h5files = utils.get_h5files_in_dir(path=self.search_path, dir_name=dir_name)
+        h5files = fsutils.get_h5files_in_dir(path=self.search_path, dir_name=dir_name)
 
         snps = [self.snp for _ in h5files]
         pool = Pool(self.bp_step)
