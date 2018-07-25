@@ -84,7 +84,7 @@ class SNPSearch:
                 return h5file
 
         # not found anywhere in chromosome
-        raise NotFoundError("Chromosome-variant" + str(self.chromosome) + " " + self.snp)
+        raise NotFoundError("Chromosome-variant combination")
 
 
 def is_snp_in_file(tup):

@@ -5,7 +5,7 @@ import sumstats.trait.search.study_search as ss
 
 def search_all_assocs(start, size, pval_interval=None, properties=None):
     search_all = assoc_search.AssociationSearch(start=start, size=size, config_properties=properties)
-    return search_all.get_all_associations(pval_interval)
+    return search_all.search_associations(pval_interval)
 
 
 def search_trait(trait, start, size, pval_interval=None, properties=None):

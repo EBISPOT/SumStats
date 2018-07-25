@@ -25,6 +25,11 @@ import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
 import sumstats.utils.dataset_utils as utils
 from sumstats.common_constants import *
+import logging
+from sumstats.utils import register_logger
+
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 class BlockService:
@@ -35,6 +40,8 @@ class BlockService:
         self.file_group = gu.Group(self.file)
 
     def query(self, chromosome, bp_interval, start, size):
+        logger.debug("Starting query for chromosome: %s, bp_interval: %s, start: %s, size: %s", str(chromosome),
+                     str(bp_interval), str(start), str(size))
         chr_group = self.file_group.get_subgroup(chromosome)
         block = bk.Block(bp_interval)
 
@@ -57,20 +64,36 @@ class BlockService:
 
         if bp_mask is not None:
             datasets = utils.filter_dictionary_by_mask(datasets, bp_mask)
-
+        logger.debug("Query for chromosome: %s, bp_interval: %s, start: %s, size: %s done...", str(chromosome),
+                     str(bp_interval), str(start), str(size))
         self.datasets = datasets
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
+        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s",
+                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
         self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)
+        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s done...",
+                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
 
     def get_result(self):
         return self.datasets
 
     def get_block_range_size(self, chromosome, bp_interval):
+        """
+        For a bp interval we create the Block object which in turn returns the (Group object)
+        block groups that belong to this interval. We then sum up the group sizes.
+        :param chromosome: The chromosome number we are intereted in
+        :param bp_interval: the bp_interval we are interested in (needs to be an IntInterval)
+        :return: the total group size of the block range given
+        """
         chr_group = self.file_group.get_subgroup(chromosome)
         block = bk.Block(bp_interval)
         block_groups = block.get_block_groups_from_parent(chr_group)
-        return sum(bp_group.get_max_group_size() for bp_group in block_groups)
+        size = sum(bp_group.get_max_group_size() for bp_group in block_groups)
+        logger.debug("Size of block group in range: %s, %s is %s",
+                     str(bp_interval.floor()), str(bp_interval.ceil()), size)
+        return size
 
     def close_file(self):
+        logger.debug("Closing file %s...", self.file.file)
         self.file.close()
