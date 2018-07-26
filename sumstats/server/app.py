@@ -86,7 +86,7 @@ def get_traits():
     trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
 
     response = apiu._create_response(collection_name='traits', method_name='api.get_traits',
-                                     start=start, size=size, index_marker=(start + size), data_dict=trait_list)
+                                     start=start, size=size, index_marker=size, data_dict=trait_list)
 
     return simplejson.dumps(response)
 
@@ -133,7 +133,7 @@ def get_studies():
     study_list = apiu._get_study_list(trait_studies=trait_studies, start=start, size=size)
 
     response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
-                                     start=start, size=size, index_marker=(start + size), data_dict=study_list)
+                                     start=start, size=size, index_marker=size, data_dict=study_list)
 
     return simplejson.dumps(response)
 
@@ -153,7 +153,7 @@ def get_studies_for_trait(trait):
         study_list = apiu._create_study_info_for_trait(studies, trait)
         end = min(start + size, len(study_list))
         response = apiu._create_response(collection_name='studies', method_name='api.get_studies_for_trait',
-                                         start=start, size=size, index_marker=(start + size),
+                                         start=start, size=size, index_marker=size,
                                          data_dict=study_list[start:end], params=dict(trait=trait))
 
         return simplejson.dumps(response)
