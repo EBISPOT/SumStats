@@ -4,7 +4,6 @@ It is agnostic as to what sort of dataset we are traversing for what query we ar
 """
 
 from sumstats.utils import dataset_utils
-from sumstats.utils import utils
 from sumstats.common_constants import *
 import logging
 from sumstats.utils import register_logger

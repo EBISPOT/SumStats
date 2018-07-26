@@ -110,8 +110,6 @@ class SNPSearch:
         """
         dir_name = fsutils.join(self.snp_dir, str(chromosome))
         if not fsutils.is_valid_dir_path(path=self.search_path, dir_name=dir_name):
-        dir_name = fsutils.join(self.snp_dir, str(chromosome))
-        if not fsutils.is_valid_dir_path(path=self.search_path, dir_name=dir_name):
             logger.debug(
                 "Chromosome %s given for variant %s doesn't exist!", str(self.chromosome), self.snp)
             raise NotFoundError("Chromosome " + str(self.chromosome))
