@@ -1,3 +1,11 @@
+"""
+Classes for Integer and Float interval tuples, and some complementary methods.
+They check for upper and lower limit validity.
+Intervals can be set either via their values or via
+a string with the limits separated by the delimiter.
+Upper or lower limit can be missing.
+"""
+
 
 INTERVAL_DELIMITER = ':'
 

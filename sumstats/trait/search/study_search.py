@@ -1,6 +1,6 @@
 import os.path
 
-import sumstats.trait.search.access.study_service as service
+from sumstats.trait.search.access import study_service
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
 from sumstats.trait.constants import *
@@ -33,7 +33,7 @@ class StudySearch:
         self.h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Trait " + trait)
-        self.searcher = service.StudyService(self.h5file)
+        self.service = study_service.StudyService(self.h5file)
 
     def search_study(self, study, pval_interval=None):
         """
@@ -46,7 +46,7 @@ class StudySearch:
         """
         logger.info("Searching for study %s with pval_interval %s", study, str(pval_interval))
         method_arguments = {'trait': self.trait, 'study': study}
-        total_study_size = self.searcher.get_study_size(self.trait, study)
+        total_study_size = self.service.get_study_size(self.trait, study)
         restrictions = {'pval_interval': pval_interval}
         return search.general_search(search_obj=self, max_size=total_study_size, arguments=method_arguments,
                                      restriction_dictionary=restrictions)

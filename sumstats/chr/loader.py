@@ -1,11 +1,10 @@
 """
-    Stored as /CHR/BLOCK/SNP/DATA
+    Stored as /CHR/BLOCK/DATA
     Where DATA:
-    under each SNP directory we store 3 (or more) vectors
+    under each BLOCK directory we store 3 (or more) vectors
     'study' list will hold the study ids
     'mantissa' list will hold each snp's p-value mantissa for this study
     'exp' list will hold each snp's p-value exponent for this study
-    'bp' list will hold the baise pair location that each snp belongs to
     e.t.c.
     You can see the lists that will be loaded in the constants.py module
 

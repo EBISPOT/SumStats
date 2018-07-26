@@ -1,6 +1,3 @@
-"""
-Utils useful for querying
-"""
 
 from sumstats.chr.constants import *
 from sumstats.utils.dataset_utils import *
@@ -15,6 +12,16 @@ def get_dsets_from_group(group, start, size):
 
 
 def get_dsets_from_parent_group(group, start, size):
+    """
+        Traverses the subgroups of the given group and retrieves the data stored in their datasets.
+        It traverses the datasets of the first subgroup before it continues to the next subgroup's datasets.
+        It uses start and size to see if it needs to skip a subgroup all together (i.e. start is bigger than the size of the
+        subgroups datasets).
+        :param group: the group who's data we want to retrieve
+        :param start: the offset we will start retrieving data from in the dataset (Dataset list)
+        :param size: the number of data points that will be returned (size of the Dataset list)
+        :return: a dictionary containing the dataset names and slices of the datasets
+        """
     datasets = create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
     end = start + size
     max_traversed = 0

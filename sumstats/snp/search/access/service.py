@@ -13,9 +13,7 @@
     for a SNP group:
     study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
 
-    Query: query for specific SNP that belongs
-
-    Can filter based on p-value thresholds and/or specific study
+    Query: query for specific SNP
 """
 
 import sumstats.snp.search.access.repository as repo

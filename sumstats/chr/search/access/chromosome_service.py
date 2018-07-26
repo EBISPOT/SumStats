@@ -13,10 +13,8 @@
     the positions in the vectors correspond to each other
     snp[0], study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
 
-    Query: query for chromosome if bp thresholds are omitted
-    or chromosome block if bp upper and lower limits are given
-
-    Can filter based on p-value thresholds, bp position thresholds, and specific study
+    Query for all  the data in a specific chromosome. The chromosome query will start at the first bp block
+    for start = 0, or skip bp blocks according to the start/size parameters.
 """
 
 import sumstats.chr.search.access.repository as query
