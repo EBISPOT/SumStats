@@ -13,12 +13,11 @@ def set_properties():
     set_p.set_properties()
 
 
-def _get_study_list(trait_studies, start, size):
+def _get_study_list(studies, start, size):
     study_list = []
-    end = min(start + size, len(trait_studies))
-    for trait_study in trait_studies[start:end]:
-        trait = trait_study.split(":")[0]
-        study = trait_study.split(":")[1]
+    end = min(start + size, len(studies))
+    for study in studies[start:end]:
+        trait = _find_study_info(study)
         study_list.append(_create_study_info_for_trait([study], trait))
     return study_list
 

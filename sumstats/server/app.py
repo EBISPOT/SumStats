@@ -129,8 +129,8 @@ def get_studies():
         raise BadUserRequest(str(error))
 
     explorer = ex.Explorer(apiu.properties)
-    trait_studies = explorer.get_list_of_studies()
-    study_list = apiu._get_study_list(trait_studies=trait_studies, start=start, size=size)
+    studies = explorer.get_list_of_studies()
+    study_list = apiu._get_study_list(studies=studies, start=start, size=size)
 
     response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
                                      start=start, size=size, index_marker=size, data_dict=study_list)
