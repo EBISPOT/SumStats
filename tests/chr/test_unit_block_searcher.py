@@ -129,3 +129,15 @@ class TestUnitSearcher(object):
 
         for dset_name in datasets:
             assert len(datasets[dset_name]) == 3
+
+    def test_query_with_upper_equals_lower_equals_block_limits(self):
+        block_lower_limit = 1200000
+        block_upper_limit = 1200000
+        bp_interval = IntInterval().set_tuple(block_lower_limit, block_upper_limit)
+        self.query.query("1", bp_interval, self.start, self.size)
+        datasets = self.query.get_result()
+
+        assert isinstance(datasets, dict)
+
+        for dset_name in datasets:
+            assert len(datasets[dset_name]) == 0
