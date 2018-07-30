@@ -7,6 +7,10 @@ from sumstats.utils import properties_handler as set_p
 from sumstats.utils.interval import *
 import sumstats.explorer as ex
 from collections import OrderedDict
+import logging
+from sumstats.utils import register_logger
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 def set_properties():
@@ -169,6 +173,13 @@ def _create_href(method_name, params=None):
     )}
 
 
+def _get_bp_arguments(args):
+    bp_lower = _retrieve_endpoint_arguments(args, "bp_lower")
+    bp_upper = _retrieve_endpoint_arguments(args, "bp_upper")
+    bp_interval = _get_interval(lower=bp_lower, upper=bp_upper, interval=IntInterval)
+    return bp_lower, bp_upper, bp_interval
+
+
 def _get_basic_arguments(args):
     start, size = _get_start_size(args)
     p_lower = _retrieve_endpoint_arguments(args, "p_lower")
@@ -195,6 +206,7 @@ def _get_interval(lower, upper, interval):
     if (lower is None) and upper is None:
         return None
     if lower is not None and upper is not None:
-        if lower > upper:
+        interval = interval().set_tuple(lower_limit=lower, upper_limit=upper)
+        if interval.floor() > interval.ceil():
             raise ValueError("Lower limit (%s) is bigger than upper limit (%s)." %(lower, upper))
-    return interval().set_tuple(lower_limit=lower, upper_limit=upper)
+    return interval
