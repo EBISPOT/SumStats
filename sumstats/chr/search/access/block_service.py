@@ -44,7 +44,7 @@ class BlockService:
                      str(chromosome), str(bp_interval.floor()), str(bp_interval.ceil()), str(start), str(size))
         chr_group = self.file_group.get_subgroup(chromosome)
         block = bk.Block(bp_interval)
-        logger.debug("Block interval floor and ceiling: %s, %s", str(block.floor), str(block.ceil))
+        logger.debug("Block interval floor and ceiling: %s, %s", str(block.floor_block), str(block.ceil_block))
 
         filter_block_ceil = None
         filter_block_floor = None
@@ -58,6 +58,9 @@ class BlockService:
         if block.floor_block != bp_interval.floor():
             filter_block_floor = bp_interval.floor()
         if block.ceil_block != bp_interval.ceil():
+            filter_block_ceil = bp_interval.ceil()
+        if filter_block_ceil is None and filter_block_floor is None and bp_interval.floor() == bp_interval.ceil():
+            filter_block_floor = bp_interval.floor()
             filter_block_ceil = bp_interval.ceil()
 
         datasets = query.load_datasets_from_groups(block_groups, start, size)
