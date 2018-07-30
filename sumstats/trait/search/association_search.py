@@ -1,7 +1,8 @@
 import sumstats.explorer as ex
-import sumstats.trait.search.access.trait_service as service
+from sumstats.trait.search.access import trait_service
 import sumstats.trait.search.trait_search as ts
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
+import sumstats.utils.filesystem_utils as fsutils
 from sumstats.trait.constants import *
 import logging
 from sumstats.utils import register_logger
@@ -27,8 +28,16 @@ class AssociationSearch:
         # will pinpoint where the next search needs to continue from
         self.index_marker = self.search_traversed = 0
 
-    def get_all_associations(self, pval_interval=None):
-        logger.info("Searching all associations for start %s and size %s", str(self.start), str(self.size))
+    def search_associations(self, pval_interval=None):
+        """
+        Traverses the traits available and retrieves the data stored in their datasets.
+        It traverses the datasets of the first trait before it continues to the next trait's datasets.
+        If a trait will be skipped or not is determined by each trait's search methods.
+        :param pval_interval: filter by p-value interval if not None
+        :return: a dictionary containing the dataset names and slices of the datasets
+        """
+        logger.info("Searching all associations for start %s, size %s, pval_interval %s",
+                    str(self.start), str(self.size), str(pval_interval))
         iteration_size = self.size
         available_traits = self._get_all_traits()
         for trait in available_traits:
@@ -48,7 +57,7 @@ class AssociationSearch:
                 return self.datasets, self.index_marker
 
             iteration_size = self._next_iteration_size()
-            logger.debug("Calculating next iteration start and size")
+            logger.debug("Calculating next iteration start and size...")
             self.start = self._next_start_index(current_search_index=current_trait_index)
 
             logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
@@ -75,10 +84,10 @@ class AssociationSearch:
 
     def _get_traversed_size(self, retrieved_index, trait):
         if retrieved_index == 0:
-            h5file = utils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
-            searcher = service.TraitService(h5file)
-            trait_size = searcher.get_trait_size(trait)
-            searcher.close_file()
+            h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
+            service = trait_service.TraitService(h5file)
+            trait_size = service.get_trait_size(trait)
+            service.close_file()
             return trait_size
         return retrieved_index
 

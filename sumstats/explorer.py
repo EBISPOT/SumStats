@@ -1,7 +1,7 @@
 import argparse
 import sys
 from os.path import isfile
-import sumstats.utils.utils as utils
+import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.search.access.trait_service as trait_searcher
 import sumstats.trait.search.access.study_service as study_searcher
 from sumstats.errors.error_classes import *
@@ -17,35 +17,35 @@ class Explorer:
 
     def get_list_of_traits(self):
         traits = []
-        h5files = utils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
             searcher = trait_searcher.TraitService(h5file=h5file)
             traits.extend(searcher.list_traits())
             searcher.close_file()
 
-        return traits
+        return sorted(traits)
 
     def get_list_of_studies_for_trait(self, trait):
-        h5file = utils.create_h5file_path(self.search_path, self.trait_dir, trait)
+        h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait)
         if not isfile(h5file):
             raise NotFoundError("Trait " + trait)
         searcher = study_searcher.StudyService(h5file=h5file)
-        studies = searcher.list_trait_study_pairs()
+        studies = searcher.list_studies()
         searcher.close_file()
-        return [study.split(":")[1] for study in studies]
+        return sorted(studies)
 
     def get_list_of_studies(self):
         studies = []
-        h5files = utils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
             searcher = study_searcher.StudyService(h5file=h5file)
-            studies.extend(searcher.list_trait_study_pairs())
+            studies.extend(searcher.list_studies())
             searcher.close_file()
 
-        return studies
+        return sorted(studies)
 
     def get_trait_of_study(self, study_to_find):
-        h5files = utils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
             searcher = study_searcher.StudyService(h5file=h5file)
             for trait_study in searcher.list_trait_study_pairs():

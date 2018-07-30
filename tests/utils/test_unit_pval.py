@@ -1,5 +1,6 @@
 import sumstats.utils.pval as pu
 import pytest
+import numpy as np
 
 
 class TestUnitPval(object):
@@ -272,3 +273,27 @@ class TestUnitPval(object):
             whole, dec = pu._split_decimal(str_number)
             assert whole == 0
             assert dec == "1"
+
+    def test_get_mantissa_and_exp_lists(self):
+        list_of_strings = ['1.2', '0.1', '0.0', '0.002', '0.8e-10', '8E-10']
+        mantissa_list, exp_list = pu.get_mantissa_and_exp_lists(list_of_strings)
+
+        assert mantissa_list is not None
+        assert len(mantissa_list) == len(list_of_strings)
+        assert np.array_equal(mantissa_list, [1.2, 1., 0., 2., 0.8, 8.])
+
+        assert exp_list is not None
+        assert len(exp_list) == len(list_of_strings)
+        assert np.array_equal(exp_list, [0, -1, 0, -3, -10, -10])
+
+        list_of_strings = ['1,2']
+        with pytest.raises(ValueError):
+            pu.get_mantissa_and_exp_lists(list_of_strings)
+
+        list_of_strings = [1.2]
+        with pytest.raises(TypeError):
+            pu.get_mantissa_and_exp_lists(list_of_strings)
+
+        list_of_strings = [1]
+        with pytest.raises(TypeError):
+            pu.get_mantissa_and_exp_lists(list_of_strings)

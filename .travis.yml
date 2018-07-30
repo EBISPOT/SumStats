@@ -1,19 +1,19 @@
 language: python
 python:
-  - "3.6"
+  - "3.4"
 branches:
   only:
   - master
   - test-travis
-notifications:
-  email:
-  - olgavrou@ebi.ac.uk
 before_install:
     - mkdir logs
 install:
   - pip install -r requirements.txt
   - python setup.py -q install
+  - pip install codacy-coverage
 script:
   - pytest
+  - coverage xml
+  - python-codacy-coverage -r coverage.xml
 notifications:
   slack: ebigwas:zqQ2w5YqIBivAipkzntr5Pg5

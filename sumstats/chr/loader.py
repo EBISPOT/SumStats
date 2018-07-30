@@ -1,11 +1,10 @@
 """
-    Stored as /CHR/BLOCK/SNP/DATA
+    Stored as /CHR/BLOCK/DATA
     Where DATA:
-    under each SNP directory we store 3 (or more) vectors
+    under each BLOCK directory we store 3 (or more) vectors
     'study' list will hold the study ids
     'mantissa' list will hold each snp's p-value mantissa for this study
     'exp' list will hold each snp's p-value exponent for this study
-    'bp' list will hold the baise pair location that each snp belongs to
     e.t.c.
     You can see the lists that will be loaded in the constants.py module
 
@@ -17,7 +16,7 @@
 import numpy as np
 
 from sumstats.utils import fileload as fl
-from sumstats.utils import utils
+from sumstats.utils import dataset_utils
 from sumstats.chr.constants import *
 import sumstats.chr.constants as const
 import sumstats.utils.group as gu
@@ -128,12 +127,12 @@ class Loader:
     def _slice_datasets_where_chromosome(self, chromosome):
         # get the slices from all the arrays where chromosome position == i
         chr_mask = self.datasets[CHR_DSET].equality_mask(chromosome)
-        return utils.filter_dictionary_by_mask(self.datasets, chr_mask)
+        return dataset_utils.filter_dictionary_by_mask(self.datasets, chr_mask)
 
     @staticmethod
     def _save_block(block_group, block_mask, datasets):
         if np.any(block_mask):
-            dsets_block_slices = utils.filter_dictionary_by_mask(datasets, block_mask)
+            dsets_block_slices = dataset_utils.filter_dictionary_by_mask(datasets, block_mask)
             save_info_in_block_group(block_group, dsets_block_slices)
 
     def close_file(self):

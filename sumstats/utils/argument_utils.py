@@ -17,6 +17,11 @@ def search_argument_parser():
 
 
 def convert_search_args(args):
+    """
+    Converts arguments passed by the user from string to what they need to be (int, float interval, etc)
+    :param args: the raw arguments passed by the user and that where
+    :return: the converted arguments in their correct form
+    """
     trait = args.trait
     study = args.study
     snp = args.snp

@@ -1,7 +1,7 @@
 """
-    Stored as /CHR/BLOCK/SNP/DATA
+    Stored as /SNP/DATA
     Where DATA:
-    under each SNP directory we store 3 (or more) vectors
+    under each directory we store 3 (or more) vectors
     'study' list will hold the study ids
     'mantissa' list will hold each snp's p-value mantissa for this study
     'exp' list will hold each snp's p-value exponent for this study

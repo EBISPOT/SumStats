@@ -16,6 +16,11 @@ class Group:
         self.group = group
 
     def get_values(self):
+        """
+        Get all the values of a group: can be other groups and so they need to be
+        wrapped in a Group object, or they can be Datasets.
+        :return: a generator that you can iterate through to get the values of the group
+        """
         for dataset in self.group.values():
             if isinstance(dataset, h5py.Group):
                 yield Group(dataset)
@@ -23,6 +28,11 @@ class Group:
                 yield dataset
 
     def get_items(self):
+        """
+        Get all items of a group, i.e. (name, object) pairs. The items can be other
+        groups and so they need to be wrapped in a Group object, or they can be Datasets.
+        :return: a generator that you can iterate through to get the items of the group
+        """
         for name, dataset in self.group.items():
             if isinstance(dataset, h5py.Group):
                 yield (name, Group(dataset))
@@ -33,9 +43,17 @@ class Group:
         return self.group.name
 
     def contains_dataset(self, dataset_name):
+        """
+        :param dataset_name: a dataset we are looking for in the group
+        :return: True or False if the dataset is stored in the group
+        """
         return dataset_name in self.group
 
     def subgroup_exists(self, subgroup_name):
+        """
+        :param subgroup_name: a group name we are looking for in the group
+        :return: True of False if it is a subgroup of our group (self)
+        """
         return str(subgroup_name) in self.group
 
     def get_subgroup(self, child_group):
@@ -52,7 +70,14 @@ class Group:
             self.group.create_group(group_name)
 
     def get_all_subgroups(self):
+        """
+        Get's all the subgroups of our group (self)
+        :return: a generator that you can iterate through to get all the subgroups of our group
+        """
         return (Group(group) for group in self.group.values() if isinstance(group, h5py.Group))
+
+    def get_all_subgroups_keys(self):
+        return sorted(list(self.group.keys()))
 
     def generate_dataset(self, dset_name, data):
         """
@@ -67,6 +92,11 @@ class Group:
         self.group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
 
     def expand_dataset(self, dset_name, data):
+        """
+        Expands a groups' dataset with new data (data point or list of data points)
+        :param dset_name: the name of the dataset being expanded
+        :param data: the data added: single data point or list of data
+        """
         dset = self.group.get(dset_name)
         if dset is None:
             self.generate_dataset(dset_name, data)
@@ -80,6 +110,13 @@ class Group:
                 dset[-1] = data
 
     def get_dset(self, dset_name, start, size):
+        """
+        :param dset_name: the name of the dataset we are interested in
+        :param start: the offset we will start retrieving data from in the dataset (Dataset list)
+        :param size: the number of data points that will be returned (size of the Dataset list)
+        :return: Subset of the Dataset list based on start and size,
+        or empty Dataset if it doesn't exist or out of bounds
+        """
         dset = self.group.get(dset_name)
         if dset is not None:
             if start <= dset.shape[0]:
@@ -88,6 +125,9 @@ class Group:
         return Dataset([])
 
     def get_max_group_size(self):
+        """
+        :return: the size of the Datasets that are stored under the group
+        """
         if self.contains_dataset(REFERENCE_DSET):
             return self.get_dset_shape(REFERENCE_DSET)[0]
         return 0
@@ -99,6 +139,11 @@ class Group:
             self._raise_non_existent_subgroup_error(dset_name)
 
     def check_datasets_consistent(self, TO_STORE_DSETS):
+        """
+        Checks to see if the datasets under the group are all of the same shape
+        :param TO_STORE_DSETS: a set of all the names of the stored datasets
+        :return: True or False based on the consistency of the datasets
+        """
         dsets = [self.group.get(dset_name) for dset_name in TO_STORE_DSETS]
         first_dset = dsets.pop()
         if first_dset is None:
@@ -113,9 +158,24 @@ class Group:
         return element in dataset
 
     def load_datasets(self, dset_names, start, size):
+        """
+        Load datasets into memory
+        :param dset_names: the names of the datasets that we are loading into memory (in a dictionary)
+        :param start: the offset we will start retrieving data from in the dataset (Dataset list)
+        :param size: the number of data points that will be returned (size of the Dataset list)
+        :return: the dictionary containing the names of the datasets requested and
+        a subset of the Dataset lists based on start and size
+        """
         return {name : self.get_dset(name, start, size) for name in dset_names}
 
     def create_dataset_from_value(self, missing_value, start, size):
+        """
+        Create a dataset of a specific size where missing_value will populate all the elements of the dataset
+        :param missing_value: the value to populate the dataset with
+        :param start: the offset we will start retrieving data from the reference dataset
+        :param size: the number of data points that will be returned (size of the Dataset list)
+        :return: a dataset where all elements are populated with 'missing_value'
+        """
         reference_dset = self.get_dset(REFERENCE_DSET, start, size)
         create_size = min(len(reference_dset), size)
         return _create_dset_placeholder(missing_value, create_size)

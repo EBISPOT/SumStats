@@ -2,7 +2,7 @@
     Data is stored in the hierarchy of /Trait/Study/DATA
     where DATA:
     under each directory we store 3 (or more) vectors
-    'snp' list will hold the snp ids
+    'snp' list will hold the variant ids
     'mantissa' list will hold each snp's p-value mantissa for this study
     'exp' list will hold each snp's p-value exponent for this study
     'chr' list will hold the chromosome that each snp belongs to

@@ -1,5 +1,5 @@
 import sumstats.controller as search
-import sumstats.utils.utils as utils
+import sumstats.utils.dataset_utils as utils
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
 from sumstats.utils.interval import FloatInterval
