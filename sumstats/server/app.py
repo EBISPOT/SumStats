@@ -4,7 +4,6 @@ import logging
 from logging import config
 from flask import Flask, request, make_response
 from collections import OrderedDict
-from sumstats.utils.interval import *
 import sumstats.explorer as ex
 import sumstats.controller as search
 from sumstats.utils import register_logger
@@ -212,10 +211,8 @@ def get_chromosome_assocs(chromosome):
     args = request.args.to_dict()
     try:
         start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        bp_lower, bp_upper, bp_interval = apiu._get_bp_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, 'study_accession')
-        bp_lower = apiu._retrieve_endpoint_arguments(args, 'bp_lower')
-        bp_upper = apiu._retrieve_endpoint_arguments(args, 'bp_upper')
-        bp_interval = apiu._get_interval(lower=bp_lower, upper=bp_upper, interval=IntInterval)
     except ValueError as error:
         logging.error("/chromosomes/" + chromosome + ". " + (str(error)))
         raise BadUserRequest(str(error))
