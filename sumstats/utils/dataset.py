@@ -8,6 +8,11 @@ can filter the list
 import numpy as np
 import itertools
 from functools import reduce
+from sumstats.utils import register_logger
+import logging
+
+logger = logging.getLogger(__name__)
+register_logger.register(__name__)
 
 
 class Dataset(list):
@@ -39,6 +44,7 @@ class Dataset(list):
         self._check_type_compatibility(lower_limit)
         if lower_limit is not None and upper_limit is not None:
             if lower_limit > upper_limit:
+                logger.debug("lower %s, upper %s", str(lower_limit), str(upper_limit))
                 raise ValueError("Lower limit must be numerically lower than upper limit!")
         mask_u = self.get_upper_limit_mask(upper_limit)
         mask_l = self.get_lower_limit_mask(lower_limit)

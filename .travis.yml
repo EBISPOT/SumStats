@@ -4,7 +4,7 @@ python:
 branches:
   only:
   - master
-  - test-travis
+  - dev
 before_install:
     - mkdir logs
 install:

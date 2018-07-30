@@ -40,10 +40,11 @@ class BlockService:
         self.file_group = gu.Group(self.file)
 
     def query(self, chromosome, bp_interval, start, size):
-        logger.debug("Starting query for chromosome: %s, bp_interval: %s, start: %s, size: %s", str(chromosome),
-                     str(bp_interval), str(start), str(size))
+        logger.debug("Starting query for chromosome: %s, bp floor: %s, bp ceil: %s start: %s, size: %s",
+                     str(chromosome), str(bp_interval.floor()), str(bp_interval.ceil()), str(start), str(size))
         chr_group = self.file_group.get_subgroup(chromosome)
         block = bk.Block(bp_interval)
+        logger.debug("Block interval floor and ceiling: %s, %s", str(block.floor_block), str(block.ceil_block))
 
         filter_block_ceil = None
         filter_block_floor = None
@@ -58,14 +59,21 @@ class BlockService:
             filter_block_floor = bp_interval.floor()
         if block.ceil_block != bp_interval.ceil():
             filter_block_ceil = bp_interval.ceil()
+        if filter_block_ceil is None and filter_block_floor is None and bp_interval.floor() == bp_interval.ceil():
+            filter_block_floor = bp_interval.floor()
+            filter_block_ceil = bp_interval.ceil()
 
         datasets = query.load_datasets_from_groups(block_groups, start, size)
         bp_mask = datasets[BP_DSET].interval_mask(filter_block_floor, filter_block_ceil)
 
+        logger.debug("BP mask is: %s", str(bp_mask))
+
         if bp_mask is not None:
+            logger.debug("Applying bp mask, size before filter: %s", str(len(datasets[REFERENCE_DSET])))
             datasets = utils.filter_dictionary_by_mask(datasets, bp_mask)
-        logger.debug("Query for chromosome: %s, bp_interval: %s, start: %s, size: %s done...", str(chromosome),
-                     str(bp_interval), str(start), str(size))
+            logger.debug("Applying bp mask, size after filter: %s", str(len(datasets[REFERENCE_DSET])))
+        logger.debug("Starting query for chromosome: %s, bp floor: %s, bp ceil: %s start: %s, size: %s done...",
+                     str(chromosome), str(bp_interval.floor()), str(bp_interval.ceil()), str(start), str(size))
         self.datasets = datasets
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
