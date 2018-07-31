@@ -81,9 +81,9 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
         # elements are numpy types, they need to be python types to be json serializable
         element_info = OrderedDict()
         for dset, dataset in datasets.items():
-            if dataset[index] == 'nan':
-                # string elements that where empty are saved as the string 'nan'
-                # and as such need to be converted and displayed as null like the numbers
+            if dataset[index] == '':
+                # elements that are None are saved as nan if they are numbers or empty strings if they are str type
+                # and as such the strings need to be converted and displayed as null like the numbers
                 dataset[index] = None
             element_info[dset] = np.asscalar(np.array(dataset[index]))
 
