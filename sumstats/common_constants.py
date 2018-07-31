@@ -14,20 +14,21 @@ SE_DSET = 'standard_error'
 EFFECT_DSET = 'effect_allele'
 OTHER_DSET = 'other_allele'
 FREQ_DSET = 'effect_allele_frequency'
+HM_EFFECT_DSET = 'hm_effect_allele'
 
 vlen_dtype = h5py.special_dtype(vlen=str)
 DSET_TYPES = {SNP_DSET: vlen_dtype, PVAL_DSET: vlen_dtype, MANTISSA_DSET: float, EXP_DSET: int,
               STUDY_DSET: vlen_dtype,
               CHR_DSET: int, BP_DSET: int, OR_DSET: float, RANGE_DSET: vlen_dtype,
               BETA_DSET: float, SE_DSET: float,
-              EFFECT_DSET: vlen_dtype, OTHER_DSET: vlen_dtype, FREQ_DSET: float}
+              EFFECT_DSET: vlen_dtype, OTHER_DSET: vlen_dtype, FREQ_DSET: float, HM_EFFECT_DSET: vlen_dtype}
 
 REFERENCE_DSET = MANTISSA_DSET
 
 
 TO_LOAD_DSET_HEADERS_DEFAULT = {SNP_DSET, PVAL_DSET, CHR_DSET, BP_DSET, OR_DSET, RANGE_DSET, BETA_DSET,
-                        SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET}
+                        SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET, HM_EFFECT_DSET}
 TO_STORE_DSETS_DEFAULT = {SNP_DSET, MANTISSA_DSET, EXP_DSET, STUDY_DSET, CHR_DSET, BP_DSET, OR_DSET, RANGE_DSET,
-                  BETA_DSET, SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET}
+                  BETA_DSET, SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET, HM_EFFECT_DSET}
 TO_QUERY_DSETS_DEFAULT = {SNP_DSET, MANTISSA_DSET, EXP_DSET, STUDY_DSET, CHR_DSET, BP_DSET, OR_DSET, RANGE_DSET, BETA_DSET,
-                  SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET}
+                  SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET, HM_EFFECT_DSET}

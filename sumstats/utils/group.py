@@ -197,8 +197,9 @@ def _assert_all_dsets_are_none(datasets):
 def _assert_all_dsets_have_same_shape(first_dset, dsets):
     length = first_dset.shape[0]
     for dset in dsets:
-        assert dset.shape[0] == length, \
-            "Group has datasets with inconsistent shape!"
+        if dset is not None:
+            assert dset.shape[0] == length, \
+                "Group has datasets with inconsistent shape!"
 
 
 def _create_dset_placeholder(value, size):
