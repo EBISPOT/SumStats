@@ -88,6 +88,9 @@ class Group:
 
         :param data: a list of data elements (string, int, float)
         """
+        if data[0] != data[0]:
+            print(dset_name)
+            data = [None]*len(data)
         data = np.array(data, dtype=DSET_TYPES[dset_name])
         self.group.create_dataset(dset_name, data=data, maxshape=(None,), compression="gzip")
 
