@@ -55,7 +55,7 @@ def root():
 def get_assocs():
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, raw = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/associations. " + (str(error)))
         raise BadUserRequest(str(error))
@@ -64,7 +64,7 @@ def get_assocs():
 
     datasets, index_marker = searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
 
-    data_dict = apiu._get_array_to_display(datasets)
+    data_dict = apiu._get_array_to_display(datasets=datasets, raw=raw)
     params = dict(p_lower=p_lower, p_upper=p_upper)
     response = apiu._create_response(method_name='api.get_assocs', start=start, size=size, index_marker=index_marker,
                                      data_dict=data_dict, params=params)
@@ -94,7 +94,7 @@ def get_traits():
 def get_trait_assocs(trait):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, raw = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/traits/" + trait + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -104,7 +104,7 @@ def get_trait_assocs(trait):
     try:
         datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
 
-        data_dict = apiu._get_array_to_display(datasets)
+        data_dict = apiu._get_array_to_display(datasets=datasets, raw=raw)
         params = dict(trait=trait, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_response(method_name='api.get_trait_assocs', start=start, size=size, index_marker=index_marker,
                                          data_dict=data_dict, params=params)
@@ -166,7 +166,7 @@ def get_studies_for_trait(trait):
 def get_trait_study_assocs(study, trait=None):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, raw = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/studies/" + study + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -178,7 +178,7 @@ def get_trait_study_assocs(study, trait=None):
         datasets, index_marker = searcher.search_study(trait=trait, study=study,
                                                        start=start, size=size, pval_interval=pval_interval)
 
-        data_dict = apiu._get_array_to_display(datasets)
+        data_dict = apiu._get_array_to_display(datasets=datasets, raw=raw)
         params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
                                          index_marker=index_marker,
@@ -210,7 +210,7 @@ def get_chromosomes():
 def get_chromosome_assocs(chromosome):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, raw = apiu._get_basic_arguments(args)
         bp_lower, bp_upper, bp_interval = apiu._get_bp_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, 'study_accession')
     except ValueError as error:
@@ -223,7 +223,7 @@ def get_chromosome_assocs(chromosome):
         datasets, index_marker = searcher.search_chromosome(chromosome=chromosome,
                                                             start=start, size=size, study=study,
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
-        data_dict = apiu._get_array_to_display(datasets, chromosome=chromosome)
+        data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, raw=raw)
 
         return _return_chromosome_info(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
                                             index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
@@ -256,7 +256,7 @@ def _return_chromosome_info(search_info):
 def get_variants(chromosome, variant):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, raw = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
     except ValueError as error:
         logging.debug("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
@@ -268,7 +268,7 @@ def get_variants(chromosome, variant):
         datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
 
-        data_dict = apiu._get_array_to_display(datasets, variant=variant)
+        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, raw =raw)
         params = {'variant': variant, 'chromosome': chromosome, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         response = apiu._create_response(method_name='api.get_variants', start=start, size=size, index_marker=index_marker,
                                          data_dict=data_dict, params=params)
