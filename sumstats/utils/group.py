@@ -145,11 +145,7 @@ class Group:
         :return: True or False based on the consistency of the datasets
         """
         dsets = [self.group.get(dset_name) for dset_name in TO_STORE_DSETS]
-        first_dset = dsets.pop()
-        if first_dset is None:
-            _assert_all_dsets_are_none(dsets)
-        else:
-            _assert_all_dsets_have_same_shape(first_dset, dsets)
+        _assert_all_dsets_have_same_shape(dsets)
 
     def is_value_in_dataset(self, element, dset_name):
         dataset = self.group.get(dset_name)
@@ -189,16 +185,23 @@ class Group:
                             subgroup="sub group: " + str(child_group))
 
 
-def _assert_all_dsets_are_none(datasets):
-    for dataset in datasets:
-        assert dataset is None, "Group has datasets with inconsistent shape!"
+def _assert_all_dsets_have_same_shape(dsets):
+    first_dset = _get_first_non_empty_dset(dsets)
+    if first_dset is not None:
+        length = first_dset.shape[0]
+        for dset in dsets:
+            if dset is not None:
+                assert dset.shape[0] == length, \
+                    "Group has datasets with inconsistent shape!"
 
 
-def _assert_all_dsets_have_same_shape(first_dset, dsets):
-    length = first_dset.shape[0]
-    for dset in dsets:
-        assert dset.shape[0] == length, \
-            "Group has datasets with inconsistent shape!"
+def _get_first_non_empty_dset(dsets):
+    while len(dsets) > 0:
+        # get the first dataset that is not None
+        first_dset = dsets.pop()
+        if first_dset is not None:
+            return first_dset
+    return None
 
 
 def _create_dset_placeholder(value, size):

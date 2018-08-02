@@ -187,17 +187,6 @@ class TestUnitGroup(object):
         with pytest.raises(AssertionError):
             group.check_datasets_consistent(TO_STORE_DSETS)
 
-    def test_check_group_dsets_shape_one_dset_empty(self):
-        self.file_group.create_subgroup("/rs185339560")
-        group = self.file_group.get_subgroup("rs185339560")
-        study_dset = np.array(['study1'], dtype=h5py.special_dtype(vlen=str))
-
-        group.generate_dataset(STUDY_DSET, study_dset)
-        TO_STORE_DSETS = [STUDY_DSET, MANTISSA_DSET]
-
-        with pytest.raises(AssertionError):
-            group.check_datasets_consistent(TO_STORE_DSETS)
-
     def test_check_group_dsets_shape_first_load(self):
         self.file_group.create_subgroup("/rs185339560")
         group = self.file_group.get_subgroup("/rs185339560")

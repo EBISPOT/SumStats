@@ -13,3 +13,4 @@ orarray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]
 searray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]
 betaarray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]
 rangearray = [random.uniform(0.0000000003, 0.01) for _ in range(array_range)]
+codearray = [0]*array_range
