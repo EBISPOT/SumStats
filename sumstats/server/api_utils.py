@@ -65,7 +65,7 @@ def _create_gwas_catalog_href(study):
     return {'href': str(properties.gwas_study_location + study)}
 
 
-def _get_array_to_display(datasets, variant=None, chromosome=None, raw=False):
+def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False):
     if datasets is None: return {}
     if len(datasets[REFERENCE_DSET]) <= 0: return {}
 
@@ -81,7 +81,7 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, raw=False):
         # elements are numpy types, they need to be python types to be json serializable
         element_info = OrderedDict()
         for dset, dataset in datasets.items():
-            element_info = _add_dset_index(info_array=element_info, dset_name=dset, dataset=dataset, index=index, raw=raw )
+            element_info = _add_element_depending_on_view(info_array=element_info, dset_name=dset, dataset=dataset, index=index, reveal=reveal)
 
         specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index)
         specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index)
@@ -105,14 +105,27 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, raw=False):
     return data_dict
 
 
-def _add_dset_index(info_array, dset_name, dataset, index, raw=False):
-    if not raw:
+def _add_element_depending_on_view(info_array, dset_name, dataset, index, reveal=None):
+    if reveal == 'raw':
+        if dset_name not in TO_DISPLAY_RAW:
+            # if reveal is set to 'raw' we don't want to include the harmonised fields, only the raw ones
+            return info_array
+    elif reveal == 'all':
+        # do nothing, display all the information that is returned from the queries
+        pass
+    else:
         if dset_name not in TO_DISPLAY_DEFAULT:
-            # if raw is False we don't want to include the original fields, only the default ones
+            # if reveal not set we don't want to include the original fields, only the default ones
             return info_array
         else:
+            # if reveal not set we don't want to include the original fields, only the default ones
+            # but we still want to remove the 'hm_' prefix from the harmonised fields
             dset_name = dset_name.replace(HARMONISATION_PREFIX, '')
 
+    return _add_dset_index(info_array=info_array, dset_name=dset_name, dataset=dataset, index=index)
+
+
+def _add_dset_index(info_array, dset_name, dataset, index):
     if index >= len(dataset):
         dataset.append(None)
     if dataset[index] == 'nan':
@@ -202,8 +215,8 @@ def _get_basic_arguments(args):
     p_lower = _retrieve_endpoint_arguments(args, "p_lower")
     p_upper = _retrieve_endpoint_arguments(args, "p_upper")
     pval_interval = _get_interval(lower=p_lower, upper=p_upper, interval=FloatInterval)
-    raw = _retrieve_endpoint_arguments(args, "raw", False)
-    return start, size, p_lower, p_upper, pval_interval, raw
+    reveal = _retrieve_endpoint_arguments(args, "reveal", None)
+    return start, size, p_lower, p_upper, pval_interval, reveal
 
 
 def _get_start_size(args):
