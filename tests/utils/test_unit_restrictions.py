@@ -202,6 +202,12 @@ class TestUnitUtils(object):
         restriction = get_restriction(FloatInterval().set_string_tuple("1.:2."), dataset_float)
         assert isinstance(restriction, IntervalRestriction)
 
+    def test_get_float_restriction_ceiling_none(self):
+        dataset_float = Dataset([1., 2., 3.])
+
+        restriction = get_restriction(FloatInterval().set_tuple(1., None), dataset_float)
+        assert isinstance(restriction, IntervalRestriction)
+
     def test_get_equality_str_restriction(self):
         dataset_str = Dataset(['rs1', 'rs2', 'rs3'])
 

@@ -236,8 +236,8 @@ def _retrieve_endpoint_arguments(args, argument_name, value_if_empty=None):
 def _get_interval(lower, upper, interval):
     if (lower is None) and upper is None:
         return None
+    interval = interval().set_tuple(lower_limit=lower, upper_limit=upper)
     if lower is not None and upper is not None:
-        interval = interval().set_tuple(lower_limit=lower, upper_limit=upper)
         if interval.floor() > interval.ceil():
             raise ValueError("Lower limit (%s) is bigger than upper limit (%s)." %(lower, upper))
     return interval
