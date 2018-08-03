@@ -7,6 +7,9 @@ class TestUnitUtils(object):
         interval = FloatInterval().set_string_tuple("2:1")
         assert is_interval(interval)
 
+        interval = FloatInterval().set_tuple(1., None)
+        assert is_interval(interval)
+
         interval = IntInterval().set_string_tuple("2:1")
         assert is_interval(interval)
 
