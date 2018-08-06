@@ -76,7 +76,7 @@ class SNPSearch:
         """
         logger.debug("Calculating chromosome for variant %s...", self.snp)
 
-        for chromosome in range(1, 25):
+        for chromosome in range(1, (self.properties.available_chromosomes + 1)):
             self.service = self._calculate_snp_service_for_chromosome(chromosome)
             if self.service is not None:
                 return self.service

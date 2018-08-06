@@ -33,7 +33,7 @@ def main():
                 writer.writerows([header])
                 is_header = False
             else:
-                if (row[chromosome_index] != ''):
+                if row[chromosome_index] != '':
                     if int(row[chromosome_index]) == chromosome:
                         writer.writerows([row])
                         total_of_lines += 1
