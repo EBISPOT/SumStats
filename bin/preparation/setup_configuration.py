@@ -3,7 +3,7 @@
 # Will:
 # (a) clean up the file from non-valid variant IDs
 # (b) move the clean input file to the <parent>/files/toload directory
-# (c) create up to 22 sub files named chr_<x>_<filename>.tsv in the
+# (c) create up to 24 sub files named chr_<x>_<filename>.tsv in the
 #       <parent>/files/toload directory each file containing the information
 #       for its correspoding chromosome
 # (d) create up to $bp_step sub files for each chromosome, split for the bp range
@@ -20,7 +20,8 @@ def get_properties(config):
         props = json.load(config)
         return {"h5files_path": props["h5files_path"], "tsvfiles_path": props["tsvfiles_path"],
                 "local_h5files_path": props["local_h5files_path"], "local_tsvfiles_path": props["local_tsvfiles_path"],
-                "max_bp": props["max_bp"], "bp_step": props["bp_step"], "snp_dir": props["snp_dir"],
+                "max_bp": props["max_bp"], "bp_step": props["bp_step"],
+                "available_chromosomes": props["available_chromosomes"], "snp_dir": props["snp_dir"],
                 "chr_dir": props["chr_dir"], "trait_dir": props["trait_dir"]}
 
 
@@ -44,6 +45,7 @@ def main():
     properties = get_properties(config)
     max_bp = int(properties["max_bp"])
     bp_step = int(properties["bp_step"])
+    available_chromosomes = int(properties["available_chromosomes"])
     bp_range = int(max_bp / bp_step)
     local_tsvfiles_path = properties["local_tsvfiles_path"]
     local_h5files_path = properties["local_h5files_path"]
@@ -74,19 +76,16 @@ def main():
         bk_snpdir = os.path.join(local_h5files_path, "bk_" + snp_dir)
         if not os.path.exists(bk_snpdir):
             os.makedirs(bk_snpdir)
-        for step in range(1, 25):
+        for step in range(1, (available_chromosomes + 1)):
             snp_chrdir = os.path.join(local_h5files_path, snp_dir, str(step))
             if not os.path.exists(snp_chrdir):
                 os.makedirs(snp_chrdir)
 
-    # $base/bin/utils/clean_input.sh "$file"
-    # # move it to the correct location
-    # mv $base/"$filename"_clean $to_load_location/"$filename"
     copyfile(file, local_tsvfiles_path + "/" + filename)
 
     print("Pre-processing the file")
     # split up the script into one per chromosome
-    for chromosome in range(1, 25):
+    for chromosome in range(1, (available_chromosomes + 1)):
         command = where_am_i + '/split_by_chromosome.py -f ' + file + ' -chr ' + str(
             chromosome) + ' -path ' + local_tsvfiles_path
         os.system('python ' + command)

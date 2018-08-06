@@ -38,7 +38,7 @@ def main():
                 is_header = False
                 writer.writerows([header])
             else:
-                if (row[bp_index] != ''):
+                if row[bp_index] != '':
                     if start <= int(row[bp_index]) < end:
                         writer.writerows([row])
                         total_of_lines += 1

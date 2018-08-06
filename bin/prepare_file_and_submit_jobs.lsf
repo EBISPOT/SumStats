@@ -7,17 +7,17 @@ config="$SS_CONFIG"
 to_load_location=$SS_LOAD
 
 if [ -z $file ]; then
-        echo "Need to provide the file (full path)"
+        echo "Need to provide the file (full path). Exiting..."
         exit
 fi
 
 if [ -z $config ]; then
-        echo "Need to provide the configuration file (full path)"
+        echo "Need to set the SS_CONFIG env variable (without trailing slash, full path). Exiting..."
         exit
 fi
 
 if [ -z $to_load_location ]; then
-        echo "Need to provide the path where the files to be loaded live (without trailing slash)"
+        echo "Need to set the SS_LOAD env variable (without trailing slash, full path) to the path where the files to be loaded live. Exiting..."
         exit
 fi
 
@@ -31,17 +31,19 @@ done
 filename=$(basename $file)
 name=$(echo $filename | cut -f 1 -d '.')
 echo "FILE: $file"
-bp_step=16
+
+bp_step=$(grep bp_step $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
+available_chromosomes=$(grep available_chromosomes $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
 
 # pre-process the file
 filename="$filename"
 
 bsub -K -o $base/output.txt -e $base/error.txt python $base/bin/preparation/setup_configuration.py -f $file -config $config -create
 
-for i in {1..24}
+for i in `seq 1 $available_chromosomes`;
 do
 	$base/bin/load/submit_chr.sh $name $i $to_load_location
-	for bp in `seq 1 $bp_step`; do	
+	for bp in `seq 1 $bp_step`; do
 		$base/bin/load/submit_snp.sh $name $i $bp $to_load_location
 	done
 done
