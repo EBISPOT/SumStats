@@ -34,8 +34,8 @@ def _create_study_info_for_trait(studies, trait):
                                                       params={'trait': trait, 'study': study}),
                                  'trait': _create_href(method_name='api.get_trait_assocs', params={'trait': trait})}}
 
-        study_info['_links']['gwas_catalog'] = _create_gwas_catalog_href(study)
-        study_info['_links']['ols'] = _create_ontology_href(trait)
+        study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
+        study_info['_links'] = _add_ontology_href(info_array=study_info['_links'], trait=trait)
         study_list.append(study_info)
     return study_list
 
@@ -53,16 +53,19 @@ def _create_info_for_trait(trait):
     trait_info = {'trait': trait,
                   '_links': {'self': _create_href(method_name='api.get_trait_assocs', params={'trait': trait})}}
     trait_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
-    trait_info['_links']['ols'] = _create_ontology_href(trait)
+    trait_info['_links'] = _add_ontology_href(info_array=trait_info['_links'], trait=trait)
     return trait_info
 
 
-def _create_ontology_href(trait):
-    return {'href': str(properties.ols_terms_location + trait)}
+def _add_ontology_href(info_array, trait):
+    info_array['ols'] = {'href': str(properties.ols_terms_location + trait)}
+    return info_array
 
 
-def _create_gwas_catalog_href(study):
-    return {'href': str(properties.gwas_study_location + study)}
+def _add_gwas_catalog_href(info_array, study_accession):
+    if study_accession.startswith(GWAS_CATALOG_STUDY_PREFIX):
+        info_array['gwas_catalog'] = {'href': str(properties.gwas_study_location + study_accession)}
+    return info_array
 
 
 def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False):
