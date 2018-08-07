@@ -3,17 +3,19 @@
 base=$(cd ${0%/*}/../..; pwd)
 
 file=$1
-load_type=$2
-report_file=$3
-failed_file=$4
-output_loc=$5
-type_dir=$6
+config=$2
+load_type=$3
+report_file=$4
+failed_file=$5
+output_loc=$6
+type_dir=$7
 
 filename=$(basename $file)
 name=$(echo $filename | cut -f 1 -d '.')
 trait=$(echo "$name" | cut -d"-" -f3)
 
-bp_step=16
+bp_step=$(grep bp_step $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
+available_chromosomes=$(grep available_chromosomes $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
 
 function act_on_error(){
     if grep -i -q "AlreadyLoadedError" $job_error ;
@@ -67,7 +69,7 @@ then
 	log_loading_status
 elif [ $load_type == "chr" ];
 then
-    for instance in {1..24};
+    for instance in `seq 1 $available_chromosomes`;
     do
         input_file=chr_"$instance"_"$name".tsv
         job_output=$base/chr_output"$instance".txt
@@ -78,7 +80,7 @@ then
     done	
 elif [ $load_type == "snp" ];
 then
-    for instance in {1..24};
+    for instance in `seq 1 $available_chromosomes`;
     do
         for bp in `seq 1 $bp_step`;
         do

@@ -109,7 +109,7 @@ def get_trait_assocs(trait):
         response = apiu._create_response(method_name='api.get_trait_assocs', start=start, size=size, index_marker=index_marker,
                                          data_dict=data_dict, params=params)
         response['_links']['studies'] = apiu._create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
-        response['_links']['ols'] = apiu._create_ontology_href(trait)
+        response['_links'] = apiu._add_ontology_href(info_array=response['_links'], trait=trait)
 
         return simplejson.dumps(response, ignore_nan=True)
 
@@ -183,7 +183,7 @@ def get_trait_study_assocs(study, trait=None):
         response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
                                          index_marker=index_marker,
                                          data_dict=data_dict, params=params)
-        response['_links']['gwas_catalog'] = apiu._create_gwas_catalog_href(study)
+        response['_links'] = apiu._add_gwas_catalog_href(info_array=response['_links'], study_accession=study)
         response['_links']['trait'] = apiu._create_href(method_name='api.get_trait_assocs', params={'trait': trait})
 
         return simplejson.dumps(response, ignore_nan=True)
@@ -196,7 +196,8 @@ def get_trait_study_assocs(study, trait=None):
 @api.route('/chromosomes')
 def get_chromosomes():
     chromosomes_list = []
-    for chromosome in range(1, 24):
+    for chromosome in range(1, (properties.available_chromosomes + 1)):
+        # adding plus one to include the available_chromosomes number
         chromosome_info = {'chromosome': chromosome,
                            '_links': {'self': apiu._create_href(method_name='api.get_chromosome_assocs',
                                                            params={'chromosome': chromosome})}}

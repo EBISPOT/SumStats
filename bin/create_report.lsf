@@ -5,9 +5,10 @@ base=$(cd ${0%/*}/..; pwd)
 file=$1
 output_loc=$SS_OUT
 config="$SS_CONFIG"
-trait_dir=bytrait
-chr_dir=bychr
-snp_dir=bysnp
+
+trait_dir=$(grep trait_dir $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
+chr_dir=$(grep chr_dir $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
+snp_dir=$(grep snp_dir $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
 
 docker_output_loc="$output_loc"
 
@@ -19,33 +20,33 @@ report_file="$base/Report.txt"
 report_failed_file="$base/Failed.txt"
 
 if [ -z $file ]; then
-    echo "Need to provide the file"
+    echo "Need to provide the file. Exiting..."
     exit
 fi
 
 if [ -z $output_loc ]; then
-    output_loc="/output"
-    echo "Setting default output location as /output ..."
+    echo "Need to provide location of database output (where the files will be saved), i.e. SS_OUT env variable. Exiting..."
+    exit
 fi
 
 if [ -z $config ]; then
-    echo "Need to provide the config file"
+    echo "Need to provide the config file i.e. SS_CONFIG env variable. Exiting..."
     exit
 fi
 
 if [ -z $trait_dir ]; then
-    trait_dir="bytrait"
-    echo "Setting default trait directory as bytrait..."
+    echo "Could not set trait dir, take a look at the config file (should be exported in SS_CONFIG env variable). Exiting..."
+    exit
 fi
 
 if [ -z $chr_dir ]; then
-    chr_dir="bychr"
-    echo "Setting default chromosome directory as bychr..."
+    echo "Could not set chr dir, take a look at the config file (should be exported in SS_CONFIG env variable). Exiting..."
+    exit
 fi
 
 if [ -z $snp_dir ]; then
-    snp_dir="bysnp"
-    echo "Setting default snp directory as bysnp..."
+    echo "Could not set snp dir, take a look at the config file (should be exported in SS_CONFIG env variable). Exiting..."
+    exit
 fi
 
 function wait_job_completion(){
@@ -90,9 +91,9 @@ while true; do
 	echo -e "file\truntime\tdisk\tlines\tmaxmem\tmaxswap" >> $report_file
 	echo "" >> $report_file
 
-	$base/bin/failure/find_errors_in_load.sh $file trait $report_file $report_failed_file $output_loc $trait_dir
-	$base/bin/failure/find_errors_in_load.sh $file chr $report_file $report_failed_file $output_loc $chr_dir
-	$base/bin/failure/find_errors_in_load.sh $file snp $report_file $report_failed_file $output_loc $snp_dir
+	$base/bin/failure/find_errors_in_load.sh $file $config trait $report_file $report_failed_file $output_loc $trait_dir
+	$base/bin/failure/find_errors_in_load.sh $file $config chr $report_file $report_failed_file $output_loc $chr_dir
+	$base/bin/failure/find_errors_in_load.sh $file $config snp $report_file $report_failed_file $output_loc $snp_dir
 
 
 	echo "------------" >> $report_file
