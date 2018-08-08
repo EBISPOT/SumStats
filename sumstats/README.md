@@ -16,7 +16,8 @@ You should use these higher level components when you want to (1) search the dat
 available in the database.
 
 - **explorer.py**: when wanting to list all traits or all studies in the database (even from other lower level components) or look for a study in a trait
-you should try and use the explorer.py class. The main reason is that it will return the lists in a sorted order.
+you should try and use the explorer.py class. The main reason is that it will return the lists in a sorted order. It will also let you know if a chromosome
+has data or not.
 
 - **load.py**: when wanting to load data into the database, this is the module you should use as an entrypoint to the database.
 

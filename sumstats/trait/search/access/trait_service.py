@@ -61,6 +61,12 @@ class TraitService:
         traits = self.file_group.get_all_subgroups_keys()
         return traits
 
+    def has_trait(self, trait):
+        list_of_traits = self.list_traits()
+        if trait in list_of_traits:
+            return True
+        return False
+
     def close_file(self):
         logger.debug("Closing file %s...", self.file.file)
         self.file.close()

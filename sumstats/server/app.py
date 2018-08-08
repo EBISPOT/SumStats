@@ -91,6 +91,18 @@ def get_traits():
 
 
 @api.route('/traits/<string:trait>')
+def get_trait(trait):
+    try:
+        explorer = ex.Explorer(config_properties=properties)
+        if explorer.has_trait(trait):
+            response = apiu._create_info_for_trait(trait)
+            return simplejson.dumps(response, ignore_nan=True)
+    except NotFoundError as error:
+        logging.error("/traits/" + trait + ". " + (str(error)))
+        raise RequestedNotFound(str(error))
+
+
+@api.route('/traits/<string:trait>/associations')
 def get_trait_assocs(trait):
     args = request.args.to_dict()
     try:
@@ -108,8 +120,6 @@ def get_trait_assocs(trait):
         params = dict(trait=trait, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_response(method_name='api.get_trait_assocs', start=start, size=size, index_marker=index_marker,
                                          data_dict=data_dict, params=params)
-        response['_links']['studies'] = apiu._create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
-        response['_links'] = apiu._add_ontology_href(info_array=response['_links'], trait=trait)
 
         return simplejson.dumps(response, ignore_nan=True)
 
@@ -163,6 +173,25 @@ def get_studies_for_trait(trait):
 
 @api.route('/studies/<study>')
 @api.route('/traits/<string:trait>/studies/<string:study>')
+def get_trait_study(study, trait=None):
+    try:
+        # try to find the study's trait by looking for it in the database
+        # if it doesn't exist it will raise an error
+        trait_found = apiu._find_study_info(study=study)
+        # check to see that the trait the study actually belongs to is the same
+        # as the trait provided by the user
+        if trait_found != trait:
+            raise BadUserRequest("Trait-study combination does not exist!")
+        response = apiu._create_info_for_study(study=study, trait=trait)
+        return simplejson.dumps(response, ignore_nan=True)
+
+    except (NotFoundError, SubgroupError) as error:
+        logging.error("/studies/" + study + ". " + (str(error)))
+        raise RequestedNotFound(str(error))
+
+
+@api.route('/studies/<study>/associations')
+@api.route('/traits/<string:trait>/studies/<string:study>/associations')
 def get_trait_study_assocs(study, trait=None):
     args = request.args.to_dict()
     try:
@@ -184,7 +213,6 @@ def get_trait_study_assocs(study, trait=None):
                                          index_marker=index_marker,
                                          data_dict=data_dict, params=params)
         response['_links'] = apiu._add_gwas_catalog_href(info_array=response['_links'], study_accession=study)
-        response['_links']['trait'] = apiu._create_href(method_name='api.get_trait_assocs', params={'trait': trait})
 
         return simplejson.dumps(response, ignore_nan=True)
 
@@ -197,17 +225,30 @@ def get_trait_study_assocs(study, trait=None):
 def get_chromosomes():
     chromosomes_list = []
     for chromosome in range(1, (properties.available_chromosomes + 1)):
-        # adding plus one to include the available_chromosomes number
-        chromosome_info = {'chromosome': chromosome,
-                           '_links': {'self': apiu._create_href(method_name='api.get_chromosome_assocs',
-                                                           params={'chromosome': chromosome})}}
-        chromosomes_list.append(chromosome_info)
+        try:
+            explorer = ex.Explorer(apiu.properties)
+            explorer.has_chromosome(chromosome)
+            # adding plus one to include the available_chromosomes number
+            chromosome_info = _create_chromosome_info(chromosome)
+            chromosomes_list.append(chromosome_info)
+        except NotFoundError:
+            logger.debug("Chromosome %s does not have data...", str(chromosome))
 
     response = OrderedDict({'_embedded': {'chromosomes': chromosomes_list}})
     return simplejson.dumps(response)
 
 
 @api.route('/chromosomes/<string:chromosome>')
+def get_chromosome(chromosome):
+    try:
+        response = _create_chromosome_info(chromosome)
+        return simplejson.dumps(response)
+    except NotFoundError as error:
+        logging.error("/chromosomes/" + chromosome + ". " + (str(error)))
+        raise RequestedNotFound(str(error))
+
+
+@api.route('/chromosomes/<string:chromosome>/associations')
 def get_chromosome_assocs(chromosome):
     args = request.args.to_dict()
     try:
@@ -226,9 +267,9 @@ def get_chromosome_assocs(chromosome):
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
         data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, reveal=reveal)
 
-        return _return_chromosome_info(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
-                                            index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
-                                            p_lower=p_lower, p_upper=p_upper, study=study))
+        return _create_chromosome_response(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
+                                                index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
+                                                p_lower=p_lower, p_upper=p_upper, study=study))
 
     except NotFoundError as error:
         logging.error("/chromosomes/" + chromosome + ". " + (str(error)))
@@ -237,12 +278,27 @@ def get_chromosome_assocs(chromosome):
         # we have not found bp in chromosome, return empty collection
         data_dict = {}
         index_marker = 0
-        return _return_chromosome_info(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
-                                            index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
-                                            p_lower=p_lower, p_upper=p_upper, study=study))
+        return _create_chromosome_response(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
+                                                index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
+                                                p_lower=p_lower, p_upper=p_upper, study=study))
 
 
-def _return_chromosome_info(search_info):
+def _create_chromosome_info(chromosome):
+    explorer = ex.Explorer(apiu.properties)
+    if explorer.has_chromosome(chromosome):
+        chromosome_info = {'chromosome': chromosome,
+                           '_links': {'self': apiu._create_href(method_name='api.get_chromosome',
+                                                                params={'chromosome': chromosome}),
+                                      'associations': apiu._create_href(method_name='api.get_chromosome_assocs',
+                                                                        params={'chromosome': chromosome}),
+                                      'variant': apiu._create_href(method_name='api.get_variants',
+                                                                   params={'variant': '{variant_id}',
+                                                                           'chromosome': chromosome})}}
+        return chromosome_info
+    raise NotFoundError("Chromosome " + str(chromosome))
+
+
+def _create_chromosome_response(search_info):
     params = dict(chromosome=search_info['chromosome'], p_lower=search_info['p_lower'], p_upper=search_info['p_upper'],
                   bp_lower=search_info['bp_lower'], bp_upper=search_info['bp_upper'],
                   study_accession=search_info['study'])
