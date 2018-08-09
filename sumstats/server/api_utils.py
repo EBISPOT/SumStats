@@ -9,6 +9,8 @@ import sumstats.explorer as ex
 from collections import OrderedDict
 import logging
 from sumstats.utils import register_logger
+from sumstats.errors.error_classes import *
+
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
 
@@ -29,15 +31,21 @@ def _get_study_list(studies, start, size):
 def _create_study_info_for_trait(studies, trait):
     study_list = []
     for study in studies:
-        study_info = {'study_accession': study, 'trait': trait,
-                      '_links': {'self': _create_href(method_name='api.get_trait_study_assocs',
-                                                      params={'trait': trait, 'study': study}),
-                                 'trait': _create_href(method_name='api.get_trait_assocs', params={'trait': trait})}}
-
-        study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
-        study_info['_links'] = _add_ontology_href(info_array=study_info['_links'], trait=trait)
+        study_info = _create_info_for_study(study=study, trait=trait)
         study_list.append(study_info)
     return study_list
+
+
+def _create_info_for_study(study, trait):
+    study_info = {'study_accession': study,
+                  '_links': {'self': _create_href(method_name='api.get_trait_study',
+                                                  params={'trait': trait, 'study': study}),
+                             'trait': _create_href(method_name='api.get_trait', params={'trait': trait})}}
+
+    study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
+    study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
+                                                        params={'trait': trait, 'study': study})
+    return study_info
 
 
 def _get_trait_list(traits, start, size):
@@ -51,9 +59,10 @@ def _get_trait_list(traits, start, size):
 
 def _create_info_for_trait(trait):
     trait_info = {'trait': trait,
-                  '_links': {'self': _create_href(method_name='api.get_trait_assocs', params={'trait': trait})}}
+                  '_links': {'self': _create_href(method_name='api.get_trait', params={'trait': trait})}}
     trait_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
     trait_info['_links'] = _add_ontology_href(info_array=trait_info['_links'], trait=trait)
+    trait_info['_links']['associations'] = _create_href(method_name='api.get_trait_assocs', params={'trait': trait})
     return trait_info
 
 
@@ -95,14 +104,14 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         element_info['trait'] = trait
 
-        element_info['_links'] = {'self': _create_href(method_name='api.get_variants',
+        element_info['_links'] = {'self': _create_href(method_name='api.get_chromosome_variants',
                                                    params={'variant': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
                                                            'chromosome': specific_chromosome})}
-        element_info['_links']['variant'] = _create_href(method_name='api.get_variants',
+        element_info['_links']['variant'] = _create_href(method_name='api.get_chromosome_variants',
                                                          params={'variant': specific_variant, 'chromosome': specific_chromosome})
-        element_info['_links']['study'] = _create_href(method_name='api.get_trait_study_assocs',
+        element_info['_links']['study'] = _create_href(method_name='api.get_trait_study',
                                                        params={'study': study})
-        element_info['_links']['trait'] = _create_href(method_name='api.get_trait_assocs', params={'trait': trait})
+        element_info['_links']['trait'] = _create_href(method_name='api.get_trait', params={'trait': trait})
 
         data_dict[index] = element_info
     return data_dict
@@ -177,6 +186,13 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
         size_retrieved=len(data_dict),
         params=params
     ))])
+
+
+def _create_resource_response(data_dict, params):
+    if len(data_dict) == 1:
+        return data_dict[0]
+    elif len(data_dict) == 0:
+        raise NotFoundError("Request for resource with parameters " + str(params))
 
 
 def _create_next_links(method_name, start, size, index_marker, size_retrieved, params=None):

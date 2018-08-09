@@ -2,8 +2,9 @@ import argparse
 import sys
 from os.path import isfile
 import sumstats.utils.filesystem_utils as fsutils
-import sumstats.trait.search.access.trait_service as trait_searcher
-import sumstats.trait.search.access.study_service as study_searcher
+import sumstats.trait.search.access.trait_service as trait_service
+import sumstats.trait.search.access.study_service as study_service
+import sumstats.chr.search.chromosome_search as chr_search
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
@@ -19,9 +20,9 @@ class Explorer:
         traits = []
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
-            searcher = trait_searcher.TraitService(h5file=h5file)
-            traits.extend(searcher.list_traits())
-            searcher.close_file()
+            service = trait_service.TraitService(h5file=h5file)
+            traits.extend(service.list_traits())
+            service.close_file()
 
         return sorted(traits)
 
@@ -29,32 +30,47 @@ class Explorer:
         h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait)
         if not isfile(h5file):
             raise NotFoundError("Trait " + trait)
-        searcher = study_searcher.StudyService(h5file=h5file)
-        studies = searcher.list_studies()
-        searcher.close_file()
+        service = study_service.StudyService(h5file=h5file)
+        studies = service.list_studies()
+        service.close_file()
         return sorted(studies)
 
     def get_list_of_studies(self):
         studies = []
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
-            searcher = study_searcher.StudyService(h5file=h5file)
-            studies.extend(searcher.list_studies())
-            searcher.close_file()
+            service = study_service.StudyService(h5file=h5file)
+            studies.extend(service.list_studies())
+            service.close_file()
 
         return sorted(studies)
 
     def get_trait_of_study(self, study_to_find):
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
-            searcher = study_searcher.StudyService(h5file=h5file)
-            for trait_study in searcher.list_trait_study_pairs():
+            service = study_service.StudyService(h5file=h5file)
+            for trait_study in service.list_trait_study_pairs():
                 if study_to_find == trait_study.split(":")[1]:
-                    searcher.close_file()
+                    service.close_file()
                     return trait_study.split(":")[0]
-            searcher.close_file()
+            service.close_file()
         # study not found
         raise NotFoundError("Study " + study_to_find)
+
+    def has_trait(self, trait):
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        for h5file in h5files:
+            service = trait_service.TraitService(h5file=h5file)
+            if service.has_trait(trait):
+                return True
+        raise NotFoundError("Trait " + trait)
+
+    def has_chromosome(self, chromosome):
+        # raises Not Found Error
+        search = chr_search.ChromosomeSearch(chromosome=chromosome, start=0, size=0, config_properties=self.properties)
+        if search is not None:
+            return True
+        raise NotFoundError("Chromosome " + str(chromosome))
 
 
 def main():

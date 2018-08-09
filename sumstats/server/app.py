@@ -2,16 +2,14 @@ import simplejson
 import sys
 import logging
 from logging import config
-from flask import Flask, request, make_response
-from collections import OrderedDict
-import sumstats.explorer as ex
-import sumstats.controller as search
+from flask import Flask, make_response
 from sumstats.utils import register_logger
 from sumstats.utils.properties_handler import properties
 from sumstats.server.error_classes import *
-from sumstats.errors.error_classes import *
 import sumstats.server.api_utils as apiu
 from flask import Blueprint
+import sumstats.server.api_endpoints_impl as endpoints
+
 api = Blueprint('api', __name__)
 
 logger = logging.getLogger()
@@ -38,250 +36,74 @@ def internal_server_error(error):
 
 @api.route('/')
 def root():
-    response = {
-        '_links': OrderedDict([
-            ('associations', apiu._create_href(method_name='api.get_assocs')),
-            ('traits', apiu._create_href(method_name='api.get_traits')),
-            ('studies', apiu._create_href(method_name='api.get_studies')),
-            ('chromosomes', apiu._create_href(method_name='api.get_chromosomes')),
-            ('variant', apiu._create_href(method_name='api.get_variants',
-                                          params={'variant': '{variant_id}', 'chromosome': '{chromosome}'}))
-        ])
-    }
-    return simplejson.dumps(response)
+    return endpoints.root()
 
 
 @api.route('/associations')
 def get_assocs():
-    args = request.args.to_dict()
-    try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
-    except ValueError as error:
-        logging.error("/associations. " + (str(error)))
-        raise BadUserRequest(str(error))
-
-    searcher = search.Search(apiu.properties)
-
-    datasets, index_marker = searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
-
-    data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
-    params = dict(p_lower=p_lower, p_upper=p_upper)
-    response = apiu._create_response(method_name='api.get_assocs', start=start, size=size, index_marker=index_marker,
-                                     data_dict=data_dict, params=params)
-
-    return simplejson.dumps(response, ignore_nan=True)
+    return endpoints.associations()
 
 
 @api.route('/traits')
 def get_traits():
-    args = request.args.to_dict()
-    try:
-        start, size = apiu._get_start_size(args)
-    except ValueError as error:
-        logging.error("/traits. " + (str(error)))
-        raise BadUserRequest(str(error))
-    explorer = ex.Explorer(apiu.properties)
-    traits = explorer.get_list_of_traits()
-    trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
-
-    response = apiu._create_response(collection_name='traits', method_name='api.get_traits',
-                                     start=start, size=size, index_marker=size, data_dict=trait_list)
-
-    return simplejson.dumps(response)
+    return endpoints.traits()
 
 
 @api.route('/traits/<string:trait>')
+def get_trait(trait):
+    return endpoints.trait(trait)
+
+
+@api.route('/traits/<string:trait>/associations')
 def get_trait_assocs(trait):
-    args = request.args.to_dict()
-    try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
-    except ValueError as error:
-        logging.error("/traits/" + trait + ". " + (str(error)))
-        raise BadUserRequest(str(error))
-
-    searcher = search.Search(apiu.properties)
-
-    try:
-        datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
-
-        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
-        params = dict(trait=trait, p_lower=p_lower, p_upper=p_upper)
-        response = apiu._create_response(method_name='api.get_trait_assocs', start=start, size=size, index_marker=index_marker,
-                                         data_dict=data_dict, params=params)
-        response['_links']['studies'] = apiu._create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
-        response['_links'] = apiu._add_ontology_href(info_array=response['_links'], trait=trait)
-
-        return simplejson.dumps(response, ignore_nan=True)
-
-    except NotFoundError as error:
-        logging.error("/traits/" + trait + ". " + (str(error)))
-        raise RequestedNotFound(str(error))
+    return endpoints.trait_associations(trait)
 
 
 @api.route('/studies')
 def get_studies():
-    args = request.args.to_dict()
-    try:
-        start, size = apiu._get_start_size(args)
-    except ValueError as error:
-        logging.error("/studies. " + (str(error)))
-        raise BadUserRequest(str(error))
-
-    explorer = ex.Explorer(apiu.properties)
-    studies = explorer.get_list_of_studies()
-    study_list = apiu._get_study_list(studies=studies, start=start, size=size)
-
-    response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
-                                     start=start, size=size, index_marker=size, data_dict=study_list)
-
-    return simplejson.dumps(response)
+    return endpoints.studies()
 
 
 @api.route('/traits/<string:trait>/studies')
 def get_studies_for_trait(trait):
-    args = request.args.to_dict()
-    try:
-        start, size = apiu._get_start_size(args)
-    except ValueError as error:
-        logging.error("/traits/" + trait + "/studies. " + (str(error)))
-        raise BadUserRequest(str(error))
-
-    try:
-        explorer = ex.Explorer(apiu.properties)
-        studies = explorer.get_list_of_studies_for_trait(trait)
-        study_list = apiu._create_study_info_for_trait(studies, trait)
-        end = min(start + size, len(study_list))
-        response = apiu._create_response(collection_name='studies', method_name='api.get_studies_for_trait',
-                                         start=start, size=size, index_marker=size,
-                                         data_dict=study_list[start:end], params=dict(trait=trait))
-
-        return simplejson.dumps(response)
-    except NotFoundError as error:
-        logging.error("/traits/" + trait + "/studies. " + (str(error)))
-        raise RequestedNotFound(str(error))
+    return endpoints.studies_for_trait(trait)
 
 
 @api.route('/studies/<study>')
 @api.route('/traits/<string:trait>/studies/<string:study>')
+def get_trait_study(study, trait=None):
+    return endpoints.trait_study(study, trait)
+
+
+@api.route('/studies/<study>/associations')
+@api.route('/traits/<string:trait>/studies/<string:study>/associations')
 def get_trait_study_assocs(study, trait=None):
-    args = request.args.to_dict()
-    try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
-    except ValueError as error:
-        logging.error("/studies/" + study + ". " + (str(error)))
-        raise BadUserRequest(str(error))
-
-    try:
-        trait = apiu._find_study_info(study=study, trait=trait)
-        searcher = search.Search(apiu.properties)
-
-        datasets, index_marker = searcher.search_study(trait=trait, study=study,
-                                                       start=start, size=size, pval_interval=pval_interval)
-
-        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
-        params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
-        response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
-                                         index_marker=index_marker,
-                                         data_dict=data_dict, params=params)
-        response['_links'] = apiu._add_gwas_catalog_href(info_array=response['_links'], study_accession=study)
-        response['_links']['trait'] = apiu._create_href(method_name='api.get_trait_assocs', params={'trait': trait})
-
-        return simplejson.dumps(response, ignore_nan=True)
-
-    except (NotFoundError, SubgroupError) as error:
-        logging.error("/studies/" + study + ". " + (str(error)))
-        raise RequestedNotFound(str(error))
+    return endpoints.trait_study_associations(study, trait)
 
 
 @api.route('/chromosomes')
 def get_chromosomes():
-    chromosomes_list = []
-    for chromosome in range(1, (properties.available_chromosomes + 1)):
-        # adding plus one to include the available_chromosomes number
-        chromosome_info = {'chromosome': chromosome,
-                           '_links': {'self': apiu._create_href(method_name='api.get_chromosome_assocs',
-                                                           params={'chromosome': chromosome})}}
-        chromosomes_list.append(chromosome_info)
-
-    response = OrderedDict({'_embedded': {'chromosomes': chromosomes_list}})
-    return simplejson.dumps(response)
+    return endpoints.chromosomes()
 
 
 @api.route('/chromosomes/<string:chromosome>')
+def get_chromosome(chromosome):
+    return endpoints.chromosome(chromosome)
+
+
+@api.route('/chromosomes/<string:chromosome>/associations')
 def get_chromosome_assocs(chromosome):
-    args = request.args.to_dict()
-    try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
-        bp_lower, bp_upper, bp_interval = apiu._get_bp_arguments(args)
-        study = apiu._retrieve_endpoint_arguments(args, 'study_accession')
-    except ValueError as error:
-        logging.error("/chromosomes/" + chromosome + ". " + (str(error)))
-        raise BadUserRequest(str(error))
-
-    searcher = search.Search(apiu.properties)
-
-    try:
-        datasets, index_marker = searcher.search_chromosome(chromosome=chromosome,
-                                                            start=start, size=size, study=study,
-                                                            pval_interval=pval_interval, bp_interval=bp_interval)
-        data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, reveal=reveal)
-
-        return _return_chromosome_info(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
-                                            index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
-                                            p_lower=p_lower, p_upper=p_upper, study=study))
-
-    except NotFoundError as error:
-        logging.error("/chromosomes/" + chromosome + ". " + (str(error)))
-        raise RequestedNotFound(str(error))
-    except SubgroupError:
-        # we have not found bp in chromosome, return empty collection
-        data_dict = {}
-        index_marker = 0
-        return _return_chromosome_info(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
-                                            index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
-                                            p_lower=p_lower, p_upper=p_upper, study=study))
+    return endpoints.chromosome_associations(chromosome)
 
 
-def _return_chromosome_info(search_info):
-    params = dict(chromosome=search_info['chromosome'], p_lower=search_info['p_lower'], p_upper=search_info['p_upper'],
-                  bp_lower=search_info['bp_lower'], bp_upper=search_info['bp_upper'],
-                  study_accession=search_info['study'])
-    response = apiu._create_response(method_name='api.get_chromosome_assocs', start=search_info['start'], size=search_info['size'],
-                                     index_marker=search_info['index_marker'],
-                                     data_dict=search_info['data_dict'], params=params)
-
-    return simplejson.dumps(response, ignore_nan=True)
+@api.route('/chromosomes/<string:chromosome>/associations/<string:variant>')
+def get_chromosome_variants(chromosome, variant):
+    return endpoints.variants(chromosome=chromosome, variant=variant)
 
 
-@api.route('/chromosomes/<string:chromosome>/variants/<string:variant>')
-def get_variants(chromosome, variant):
-    args = request.args.to_dict()
-    try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
-        study = apiu._retrieve_endpoint_arguments(args, "study_accession")
-    except ValueError as error:
-        logging.debug("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
-        raise BadUserRequest(str(error))
-
-    searcher = search.Search(apiu.properties)
-
-    try:
-        datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
-                                                     pval_interval=pval_interval, study=study)
-
-        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        params = {'variant': variant, 'chromosome': chromosome, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
-        response = apiu._create_response(method_name='api.get_variants', start=start, size=size, index_marker=index_marker,
-                                         data_dict=data_dict, params=params)
-
-        return simplejson.dumps(response, ignore_nan=True)
-
-    except NotFoundError as error:
-        logging.debug("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
-        raise RequestedNotFound(str(error))
-    except SubgroupError as error:
-        logging.debug("/chromosomes/" + chromosome + "/variants/" + variant + ". " + (str(error)))
-        raise RequestedNotFound("Wrong variant id or chromosome. Chromosome: %s, variant %s" %(chromosome, variant))
+@api.route('/associations/<string:variant>')
+def get_variant(variant):
+    return endpoints.variants(variant=variant)
 
 
 def _set_log_level(LOG_CONF, LOG_LEVEL):
