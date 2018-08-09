@@ -48,10 +48,6 @@ def _create_info_for_study(study, trait):
     return study_info
 
 
-def _create_info_for_variant(variant, study):
-    variant_info = OrderedDict()
-
-
 def _get_trait_list(traits, start, size):
     trait_list = []
     end = min(start + size, len(traits))
