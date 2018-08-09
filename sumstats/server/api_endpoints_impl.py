@@ -8,6 +8,7 @@ from sumstats.utils.properties_handler import properties
 from sumstats.server.error_classes import *
 from sumstats.errors.error_classes import *
 import sumstats.server.api_utils as apiu
+from sumstats.common_constants import *
 
 
 def root():
@@ -224,6 +225,7 @@ def chromosome_associations(chromosome):
         datasets, index_marker = searcher.search_chromosome(chromosome=chromosome,
                                                             start=start, size=size, study=study,
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
+        datasets.update({CHR_DSET: [chromosome]})
         data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, reveal=reveal)
 
         return _create_chromosome_response(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
@@ -259,6 +261,7 @@ def variants(variant, chromosome=None):
         datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
 
+        datasets.update({SNP_DSET: [variant]})
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
         params = {'variant': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is None:
@@ -294,6 +297,7 @@ def variant_resource(variant, chromosome=None):
     try:
         datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
+        datasets.update({SNP_DSET: [variant]})
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
         params = {'variant': variant, 'study_accession': study}
         if chromosome is not None:
