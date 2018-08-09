@@ -2,7 +2,8 @@ import os
 import shutil
 from sumstats.errors.error_classes import *
 import sumstats.explorer as ex
-import sumstats.trait.loader as loader
+import sumstats.trait.loader as trait_loader
+import sumstats.chr.loader as chr_loader
 from tests.prep_tests import *
 import pytest
 from config import properties
@@ -11,30 +12,37 @@ from config import properties
 @pytest.yield_fixture(scope="class", autouse=True)
 def load_studies(request):
     os.makedirs('./outputexplorer/bytrait')
-    output_location = './outputexplorer/bytrait/'
+    os.makedirs('./outputexplorer/bychr')
+    trait_output_location = './outputexplorer/bytrait/'
+    chr_output_location = './outputexplorer/bychr/'
 
-    h5file = output_location + 'file_t1.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', trait='t1', loader=loader)
+    h5file = trait_output_location + 'file_t1.h5'
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', trait='t1', loader=trait_loader)
     load.load()
 
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=loader)
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=trait_loader)
     load.load()
 
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s11', trait='t1', loader=loader)
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s11', trait='t1', loader=trait_loader)
     load.load()
 
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s12', trait='t1', loader=loader)
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s12', trait='t1', loader=trait_loader)
     load.load()
 
-    h5file = output_location + 'file_t2.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=loader)
+    h5file = trait_output_location + 'file_t2.h5'
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=trait_loader)
     load.load()
 
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', trait='t2', loader=loader)
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', trait='t2', loader=trait_loader)
     load.load()
 
-    h5file = output_location + 'file_t3.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s5', trait='t3', loader=loader)
+    h5file = trait_output_location + 'file_t3.h5'
+    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s5', trait='t3', loader=trait_loader)
+    load.load()
+
+    # load by chromosome
+    h5file = chr_output_location + 'file_1.h5'
+    load = prepare_load_object_with_study(h5file=h5file, study='s1', loader=chr_loader)
     load.load()
 
     request.addfinalizer(remove_dir)
@@ -101,3 +109,18 @@ class TestLoader(object):
         studies2 = self.explorer.get_list_of_studies_for_trait('t1')
         for i in range(len(studies1)):
             assert studies1[i] == studies2[i]
+
+    def test_trait_exists(self):
+        for trait in self.loaded_traits:
+            assert self.explorer.has_trait(trait)
+
+    def test_trait_doesnt_exist_raises_error(self):
+        with pytest.raises(NotFoundError):
+            assert not self.explorer.has_trait('foo')
+
+    def test_chromosome_exists(self):
+        assert self.explorer.has_chromosome(1)
+
+    def test_chromosome_doesnt_exist_raises_error(self):
+        with pytest.raises(NotFoundError):
+            self.explorer.has_chromosome(3)
