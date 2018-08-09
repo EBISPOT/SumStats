@@ -9,6 +9,8 @@ import sumstats.explorer as ex
 from collections import OrderedDict
 import logging
 from sumstats.utils import register_logger
+from sumstats.errors.error_classes import *
+
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
 
@@ -106,10 +108,10 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         element_info['trait'] = trait
 
-        element_info['_links'] = {'self': _create_href(method_name='api.get_variants',
+        element_info['_links'] = {'self': _create_href(method_name='api.get_chromosome_variants',
                                                    params={'variant': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
                                                            'chromosome': specific_chromosome})}
-        element_info['_links']['variant'] = _create_href(method_name='api.get_variants',
+        element_info['_links']['variant'] = _create_href(method_name='api.get_chromosome_variants',
                                                          params={'variant': specific_variant, 'chromosome': specific_chromosome})
         element_info['_links']['study'] = _create_href(method_name='api.get_trait_study',
                                                        params={'study': study})
@@ -188,6 +190,13 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
         size_retrieved=len(data_dict),
         params=params
     ))])
+
+
+def _create_resource_response(data_dict, params):
+    if len(data_dict) == 1:
+        return data_dict[0]
+    elif len(data_dict) == 0:
+        raise NotFoundError("Request for resource with parameters " + str(params))
 
 
 def _create_next_links(method_name, start, size, index_marker, size_retrieved, params=None):
