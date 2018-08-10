@@ -95,6 +95,8 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
         for dset, dataset in datasets.items():
             element_info = _add_element_depending_on_view(info_array=element_info, dset_name=dset, dataset=dataset, index=index, reveal=reveal)
 
+        # when we are constructing each element's _links we need variant and/or chromosome information for them. If they
+        # where not provided in the query, we can find out what they are for each element (index) here.
         specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index)
         specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index)
 
@@ -172,6 +174,15 @@ def _reconstruct_pvalue(mantissa_dset, exp_dset):
 
 
 def _evaluate_variable(variable, datasets, dset_name, traversal_index):
+    """
+    Used to find (in the datasets) the variable that/if it is missing (if it's not passed as None)
+    :param variable: None or the value of the variable
+    :param datasets: the dictionary of datasets containing the information
+    :param dset_name: the name of the dataset that the variable will retrieved from
+    :param traversal_index: the index of the datasets that we are currently traversing and want the value to come from
+    :return: either what was passed in as the 'variable' value, or what is in the dataset called dset_name, at
+    index traversal_index
+    """
     if variable is not None:
         return variable
     return datasets[dset_name][traversal_index]
