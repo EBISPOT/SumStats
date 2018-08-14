@@ -16,7 +16,7 @@ class BadUserRequest(APIException):
             self.status_code = status_code
 
     def to_dict(self):
-        return {'message': "Bad request. " + self.message}
+        return {'message': "Bad request. " + self.message, 'error': "Bad User Request"}
 
 
 class RequestedNotFound(APIException):
@@ -31,4 +31,4 @@ class RequestedNotFound(APIException):
             self.status_code = status_code
 
     def to_dict(self):
-        return {'message': "Not found. " + self.message}
+        return {'message': "Not found. " + self.message, 'error': "Resource Not Found"}
