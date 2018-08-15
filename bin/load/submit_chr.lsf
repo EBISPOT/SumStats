@@ -27,5 +27,5 @@ echo "Attempting chromosome load for chromosome: $chromosome"
     then
 	echo "Submitting chromosome load for chromosome: $chromosome"
 
-        bsub -g "/sumstatsloader" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome"
+        bsub -g "/sumstatsloader" -M 16384 -R "rusage[mem=16384]" -o $base/chr_output"$chromosome".txt -e $base/chr_error"$chromosome".txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv chr_"$chromosome"_"$name".tsv -study $study -loader chr -chr $chromosome"
     fi
