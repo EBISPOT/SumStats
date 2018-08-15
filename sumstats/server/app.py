@@ -61,6 +61,7 @@ def get_assocs():
     .. :quickref: Associations; Lists all of the available associations.
 
     Lists all of the available associations that are loaded into the database.
+    Can be specify by p-value cutoff threshold.
 
     **Example request**:
 
@@ -178,6 +179,13 @@ def get_variant(variant_id):
 
         .. :quickref: Variant Associations; Lists all of the available associations of a specific variant.
 
+        Lists all of the associations of the variant requested.
+        Variant id must be a valid rsid.
+        Will return 404 Not Found if the variant id does not exist.
+        If study_accession query parameter is specified, you will get
+        a single association resource in response.
+        Can be specify by p-value cutoff threshold.
+
         **Example request**:
 
         .. sourcecode:: http
@@ -294,6 +302,8 @@ def get_traits():
     """Traits
 
         .. :quickref: Traits; List all existing trait resources
+
+        Lists all of the existing trait resources.
 
         **Example request**:
 

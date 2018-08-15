@@ -83,6 +83,18 @@ You can also filter all of the association endpoints by p-value. This is done by
 threshold that you want to be cutoff, the upper p-value threshold that you want to be cutoff, or both. This is done by
 passing the query parameters ``p_lower=<lower p-value>`` and/or ``p_upper=<upper p-value>`` to the API call.
 
+Requesting associations for variant
+-----------------------------------
+
+You can query the associations of a specific variant by variant id (valid rsid). This can be done either via the
+/associations/(string: variant_id) endpoint or via the /chromosomes/(int: chromosome)/associations/(string: variant_id)
+endpoint. If you know the chromosome that the variant belongs to, the latter query should be faster.
+
+Querying via the /chromosomes endpoint should return a subset of the resources returned via the /associations endpoint.
+
+You can request for a single association resource identified by it's unique variant_id/study_accession combination via
+either of the above endpoints. You can query for a single association resource using the above endpoints and passing the
+query parameter ``study_accession``.
 
 Listing Resources
 -----------------
