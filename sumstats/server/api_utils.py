@@ -100,8 +100,8 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
         specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index)
         specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index)
 
-        _add_missing_variables(variable=variant, datasets=datasets, dset_name=SNP_DSET, element_info=element_info)
-        _add_missing_variables(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, element_info=element_info)
+        element_info = _add_missing_variables(variable=variant, datasets=datasets, dset_name=SNP_DSET, element_info=element_info)
+        element_info = _add_missing_variables(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, element_info=element_info)
 
         study = datasets[STUDY_DSET][index]
 
@@ -198,7 +198,8 @@ def _add_missing_variables(variable, datasets, dset_name, element_info):
         if DSET_TYPES[dset_name] == object:
             dset_type = str
         element_info.update({dset_name: dset_type(variable)})
- 
+    return element_info
+
 
 def _create_response(method_name, start, size, index_marker, data_dict, params=None, collection_name=None):
     if collection_name is None:
