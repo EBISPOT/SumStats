@@ -97,8 +97,11 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         # when we are constructing each element's _links we need variant and/or chromosome information for them. If they
         # where not provided in the query, we can find out what they are for each element (index) here.
-        specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index, element_info=element_info)
-        specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index, element_info=element_info)
+        specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index)
+        specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index)
+
+        _add_missing_variables(variable=variant, datasets=datasets, dset_name=SNP_DSET, element_info=element_info)
+        _add_missing_variables(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, element_info=element_info)
 
         study = datasets[STUDY_DSET][index]
 
@@ -174,7 +177,7 @@ def _reconstruct_pvalue(mantissa_dset, exp_dset):
     return pval_array.tolist()
 
 
-def _evaluate_variable(variable, datasets, dset_name, traversal_index, element_info):
+def _evaluate_variable(variable, datasets, dset_name, traversal_index):
     """
     Used to find (in the datasets) the variable that/if it is missing (if it's not passed as None)
     :param variable: None or the value of the variable
@@ -185,13 +188,17 @@ def _evaluate_variable(variable, datasets, dset_name, traversal_index, element_i
     index traversal_index
     """
     if variable is not None:
-        dset_type = str
-        if DSET_TYPES[dset_name] != object:
-            dset_type = DSET_TYPES[dset_name]
-        element_info.update({dset_name: dset_type(variable)})
         return variable
     return datasets[dset_name][traversal_index]
 
+
+def _add_missing_variables(variable, datasets, dset_name, element_info):
+    if variable is not None:
+        dset_type = DSET_TYPES[dset_name]
+        if DSET_TYPES[dset_name] == object:
+            dset_type = str
+        element_info.update({dset_name: dset_type(variable)})
+ 
 
 def _create_response(method_name, start, size, index_marker, data_dict, params=None, collection_name=None):
     if collection_name is None:
