@@ -259,7 +259,7 @@ def variants(variant, chromosome=None):
                                                      pval_interval=pval_interval, study=study)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        params = {'variant': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
+        params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is None:
             method_name = 'api.get_variant'
         else:
