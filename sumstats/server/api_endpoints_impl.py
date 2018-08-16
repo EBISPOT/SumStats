@@ -174,7 +174,6 @@ def trait_study_associations(study, trait=None):
         response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
                                          index_marker=index_marker,
                                          data_dict=data_dict, params=params)
-        response['_links'] = apiu._add_gwas_catalog_href(info_array=response['_links'], study_accession=study)
 
         return simplejson.dumps(response, ignore_nan=True)
 
@@ -260,7 +259,7 @@ def variants(variant, chromosome=None):
                                                      pval_interval=pval_interval, study=study)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        params = {'variant': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
+        params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is None:
             method_name = 'api.get_variant'
         else:
@@ -272,12 +271,9 @@ def variants(variant, chromosome=None):
                                          data_dict=data_dict, params=params)
 
         return simplejson.dumps(response, ignore_nan=True)
-    except NotFoundError as error:
+    except (NotFoundError, SubgroupError) as error:
         logging.debug(str(error))
         raise RequestedNotFound(str(error))
-    except SubgroupError as error:
-        logging.debug(str(error))
-        raise RequestedNotFound("Wrong variant id. Variant %s" % (variant))
 
 
 def variant_resource(variant, chromosome=None):
@@ -301,12 +297,9 @@ def variant_resource(variant, chromosome=None):
         response = apiu._create_resource_response(data_dict=data_dict, params=params)
 
         return simplejson.dumps(response, ignore_nan=True)
-    except NotFoundError as error:
+    except (NotFoundError, SubgroupError) as error:
         logging.debug(str(error))
         raise RequestedNotFound(str(error))
-    except SubgroupError as error:
-        logging.debug(str(error))
-        raise RequestedNotFound("Wrong variant id. Variant %s" % (variant))
 
 
 def _create_chromosome_info(chromosome):
