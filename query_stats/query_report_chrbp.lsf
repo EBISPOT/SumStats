@@ -5,15 +5,15 @@
 > chrbp.out
 > chrbp.err
 
-bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -bp 1000:1009608500" 
+bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -bp 1000:1009608500"
 
-bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -bp 1000:1009608500 -start 1000" 
+bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -bp 1000:1009608500 -start 1000"
 
-bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -bp 1000:1009608500 -start 10000" 
+bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -bp 1000:1009608500 -start 10000"
 
-bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -bp 1000:1009608500 -start 100000" 
+bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -bp 1000:1009608500 -start 100000"
 
-bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -bp 1000:1009608500 -start 1000000" 
+bsub -K -o chrbp.out -e chrbp.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -bp 1000:1009608500 -start 1000000"
 
 sleep 10
 

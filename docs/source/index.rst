@@ -75,9 +75,15 @@ Association Queries
 
 For all endpoints that return associations you can assume the below.
 
-Default data values displayed are the harmonised values. You can query specifically for the original or 'raw' values of
-the data or you can query for both harmonised and raw values to be displayed. Harmonised values will, in the latter case,
-be prefixed with ``hm_``. This is done by passing the query parameter ``reveal=raw`` or ``reveal=all`` in the API call.
+Default data values displayed are the harmonised values. If the harmonised/default values are null, that means that the
+the specific entries for this study could not be harmonised and you can query for the raw study data if you need to. The
+``code`` field indicates the level of harmonisation that the data could go through. Take a look at the harmonisation
+documentation for more details on the harmonisation process and what each ``code`` value means.
+
+You can query specifically for the original or 'raw' values of the data or you can query for both harmonised and raw
+values to be displayed. Harmonised values will, in the latter case, be prefixed with ``hm_``. This is done by passing the
+query parameter ``reveal=raw`` or ``reveal=all`` in the API call. If the "raw" and harmonised values are the same, this
+indicates that the original data was already harmonised.
 
 You can also filter all of the association endpoints by p-value. This is done by setting either the lower p-value
 threshold that you want to be cutoff, the upper p-value threshold that you want to be cutoff, or both. This is done by
@@ -95,6 +101,50 @@ Querying via the /chromosomes endpoint should return a subset of the resources r
 You can request for a single association resource identified by it's unique variant_id/study_accession combination via
 either of the above endpoints. You can query for a single association resource using the above endpoints and passing the
 query parameter ``study_accession``.
+
+
+Available data fields
+---------------------
+
+If the query parameter ``reveal=all`` is specified, some of the below fields will have the prefix ``hm_`` to indicate that
+they are the harmonised fields.
+
++-------------------------+--------+--------------------------------------------------------------+
+| Name                    | Type   | Description                                                  |
++=========================+========+==============================================================+
+| variant_id              | String | The rsid of the variant                                      |
++-------------------------+--------+--------------------------------------------------------------+
+| chromosome              | Number | The chromosome that the variant is located in                |
++-------------------------+--------+--------------------------------------------------------------+
+| base_pair_location      | Number | The base pair location that the variant is located in        |
++-------------------------+--------+--------------------------------------------------------------+
+| study_accession         | String | The study accession of the association                       |
++-------------------------+--------+--------------------------------------------------------------+
+| trait                   | String | The EFO trait that the study is associated with              |
++-------------------------+--------+--------------------------------------------------------------+
+| p_value                 | Number | The p-value of the variant/study association                 |
++-------------------------+--------+--------------------------------------------------------------+
+| code                    | Number | When displayed, indicates the harmonsiation outcome          |
++-------------------------+--------+--------------------------------------------------------------+
+| effect_allele           | String | The effect allele of the variant                             |
++-------------------------+--------+--------------------------------------------------------------+
+| other_allele            | String | The effect allele of the variant                             |
++-------------------------+--------+--------------------------------------------------------------+
+| effect_allele_frequency | Number | The effect allele frequency of the variant/study association |
++-------------------------+--------+--------------------------------------------------------------+
+| odds_ratio              | Number | The odds ratio of the variant/study association              |
++-------------------------+--------+--------------------------------------------------------------+
+| ci_lower                | Number | The odds ratio's confidence interval's lower range           |
++-------------------------+--------+--------------------------------------------------------------+
+| ci_upper                | Number | The odds ratio's confidence interval's upper range           |
++-------------------------+--------+--------------------------------------------------------------+
+| beta                    | Number | The beta of the variant/study association                    |
++-------------------------+--------+--------------------------------------------------------------+
+| se                      | Number | The beta's standard error                                    |
++-------------------------+--------+--------------------------------------------------------------+
+
+
+
 
 Listing Resources
 -----------------

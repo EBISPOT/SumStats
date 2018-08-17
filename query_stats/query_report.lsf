@@ -2,7 +2,7 @@
 
 # count and log how many studies we have
 
-bsub -K -o o.out -e o.err "singularity exec docker://ebispot/sumstats:latest gwas-explore -studies -config properties.json > studies"
+bsub -K -o o.out -e o.err "singularity exec docker://ebispot/sumstats:latest gwas-explore -studies > studies"
 
 studies=$(wc -l studies | cut -d" " -f1)
 studies=$(( studies - 3 ))
