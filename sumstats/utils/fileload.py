@@ -3,6 +3,7 @@ Used by all the loader scripts in the trait/chr/snp modules to load the
 tsv file and make it into a dictionary of Datasets
 """
 
+import sys
 import time
 import pandas as pd
 from sumstats.utils import dataset_utils
@@ -16,7 +17,12 @@ def read_datasets_from_input(tsv, dict_of_data, const):
         print(time.strftime('%a %H:%M:%S'))
         for name in const.TO_LOAD_DSET_HEADERS:
             datasets_as_lists[name] = \
-                pd.read_csv(tsv, dtype=const.DSET_TYPES[name], usecols=[name], delimiter="\t").to_dict(orient='list')[name]
+                pd.read_csv(tsv, dtype=const.DSET_TYPES[name],
+                converters={const.RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
+                            const.RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits},
+                usecols=[name],
+                delimiter="\t").to_dict(orient='list')[name]
+            print(datasets_as_lists)
         print("Loaded tsv file: ", tsv)
         print(time.strftime('%a %H:%M:%S'))
     else:
@@ -38,3 +44,12 @@ def format_datasets(datasets_as_lists, study, const):
     dataset_utils.assert_datasets_not_empty(datasets_as_lists)
 
     return dataset_utils.create_datasets_from_lists(datasets_as_lists)
+
+
+def coerce_zero_and_inf_floats_within_limits(value):
+    value = float(value)
+    if value == 0.0:
+        value = sys.float_info.min
+    if value == float('inf'):
+        value = sys.float_info.max
+    return value
