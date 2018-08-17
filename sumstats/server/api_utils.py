@@ -111,10 +111,10 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
         element_info['trait'] = trait
 
         element_info['_links'] = {'self': _create_href(method_name='api.get_chromosome_variants',
-                                                   params={'variant': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
+                                                   params={'variant_id': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
                                                            'chromosome': specific_chromosome})}
         element_info['_links']['variant'] = _create_href(method_name='api.get_chromosome_variants',
-                                                         params={'variant': specific_variant, 'chromosome': specific_chromosome})
+                                                         params={'variant_id': specific_variant, 'chromosome': specific_chromosome})
         element_info['_links']['study'] = _create_href(method_name='api.get_trait_study',
                                                        params={'study': study})
         element_info['_links']['trait'] = _create_href(method_name='api.get_trait', params={'trait': trait})
