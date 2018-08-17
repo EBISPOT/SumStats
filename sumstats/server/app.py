@@ -475,9 +475,9 @@ def get_chromosome_assocs(chromosome):
                     mimetype="application/json")
 
 
-@api.route('/chromosomes/<string:chromosome>/associations/<string:variant>')
-def get_chromosome_variants(chromosome, variant):
-    resp = endpoints.variants(chromosome=chromosome, variant=variant)
+@api.route('/chromosomes/<string:chromosome>/associations/<string:variant_id>')
+def get_chromosome_variants(chromosome, variant_id):
+    resp = endpoints.variants(chromosome=chromosome, variant=variant_id)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
