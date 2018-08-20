@@ -47,6 +47,8 @@ def format_datasets(datasets_as_lists, study, const):
 
 
 def coerce_zero_and_inf_floats_within_limits(value):
+    if value == 'NA':
+        value = 'NaN'
     value = float(value)
     if value == 0.0:
         value = sys.float_info.min
