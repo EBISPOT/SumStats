@@ -5,17 +5,17 @@
 > chr.err
 
 # chromosome 1 and various SNP sizes
-bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json" 
+bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1"
 
-bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -start 1000" 
+bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -start 1000"
 
-bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -start 10000" 
+bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -start 10000"
 
-bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -start 100000" 
+bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -start 100000"
 
-bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -start 1000000" 
+bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -start 1000000"
 
-bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -start 10000000" 
+bsub -K -o chr.out -e chr.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -start 10000000"
 
 sleep 10
 
