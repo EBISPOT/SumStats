@@ -22,7 +22,6 @@ def read_datasets_from_input(tsv, dict_of_data, const):
                             const.RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits},
                 usecols=[name],
                 delimiter="\t").to_dict(orient='list')[name]
-            print(datasets_as_lists)
         print("Loaded tsv file: ", tsv)
         print(time.strftime('%a %H:%M:%S'))
     else:
