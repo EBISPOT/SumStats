@@ -4,7 +4,11 @@
    contain the root `toctree` directive.
 
 
-.. contents:: The Summary Statistics Database API Documentation
+.. .. contents:: The Summary Statistics Database API Documentation
+
+Summary Statistics Database API Documentation
+=============================================
+
 
 API quick reference
 ===================
@@ -33,15 +37,15 @@ HTTP status codes
 
 This API tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
 
-+---------------------+------------------------------------+
-| Status code         | Usage                              |
-+=====================+====================================+
-| ``200 OK``          | The request completed successfully |
-+---------------------+------------------------------------+
-| ``400 Bad Request`` | The request completed successfully |
-+---------------------+------------------------------------+
-| ``404 Not Found``   | The request completed successfully |
-+---------------------+------------------------------------+
++---------------------+-------------------------------------------------------------------------------------------------+
+| Status code         | Usage                                                                                           |
++=====================+=================================================================================================+
+| ``200 OK``          | The request completed successfully                                                              |
++---------------------+-------------------------------------------------------------------------------------------------+
+| ``400 Bad Request`` | The request was malformed. The response body will include an error providing further information|
++---------------------+-------------------------------------------------------------------------------------------------+
+| ``404 Not Found``   | The requested resource did not exist                                                            |
++---------------------+-------------------------------------------------------------------------------------------------+
 
 Errors
 ------
@@ -63,7 +67,7 @@ Hypermedia
 ----------
 
 This API uses hypermedia and resources include links to other resources in their responses. Responses are in Hypertext
-Application Language (HAL) format. Links can be found benath the _links key. Users of the API should not created URIs
+Application Language (HAL) format. Links can be found beneath the _links key. Users of the API should not created URIs
 themselves, instead they should use the above-described links to navigate from resource to resource.
 
 
@@ -88,6 +92,11 @@ indicates that the original data was already harmonised.
 You can also filter all of the association endpoints by p-value. This is done by setting either the lower p-value
 threshold that you want to be cutoff, the upper p-value threshold that you want to be cutoff, or both. This is done by
 passing the query parameters ``p_lower=<lower p-value>`` and/or ``p_upper=<upper p-value>`` to the API call.
+
+Furthermore, if you would like to query associations by a base-pair location range on a specific chromosome, you can pass
+in one or both of the following parameters, ``bp_lower=<lower base-pair limit>`` and ``bp_upper=<upper base-pair limit>``.
+Note: base-pair location limit filtering will only work via the /chromosomes/(int: chromosome)/associations endpoint.
+
 
 Requesting associations for variant
 -----------------------------------
