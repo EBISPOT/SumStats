@@ -5,17 +5,17 @@
 > chrpl.out
 > chrpl.err
 
-bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -pval 2.74e-1:" 
+bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -pval 2.74e-1:"
 
-bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -pval 2.74e-1: -start 1000" 
+bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -pval 2.74e-1: -start 1000"
 
-bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -pval 2.74e-1: -start 10000" 
+bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -pval 2.74e-1: -start 10000"
 
-bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -pval 2.74e-1: -start 100000" 
+bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -pval 2.74e-1: -start 100000"
 
-bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -pval 2.74e-1: -start 1000000" 
+bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -pval 2.74e-1: -start 1000000"
 
-bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -pval 2.74e-1: -start 10000000" 
+bsub -K -o chrpl.out -e chrpl.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -pval 2.74e-1: -start 10000000"
 
 sleep 10
 

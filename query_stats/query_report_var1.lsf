@@ -5,15 +5,15 @@
  > var1.out
  > var1.err
 
-bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -snp rs568927457 -size 1000" 
+bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -snp rs568927457 -size 1000"
 
 # chromosome 1 variant and study acc
 
-bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -config properties.json -snp rs568927457 -size 1000 -study GCST004601"
+bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -chr 1 -snp rs568927457 -size 1000 -study GCST004601"
 
 # just first variant 
  
-bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -config properties.json -snp rs568927457 -size 1000"
+bsub -K -o var1.out -e var1.err "singularity exec docker://ebispot/sumstats:latest gwas-search -snp rs568927457 -size 1000"
 
 sleep 10
 

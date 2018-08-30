@@ -5,7 +5,7 @@
 > var.out
 > var.err
 
-bsub -K -o var.out -e var.err "singularity exec docker://ebispot/sumstats:latest gwas-search -config properties.json -snp rs123abcde -size 1000"
+bsub -K -o var.out -e var.err "singularity exec docker://ebispot/sumstats:latest gwas-search -snp rs123abcde -size 1000"
 
 sleep 10
 
