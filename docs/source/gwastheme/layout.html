@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body>
+
+  <div>
+
+      Hello world
+      {# PAGE CONTENT #}
+      <div>
+        <div>
+          {% block body %}{% endblock %}
+          {% include "footer.html" %}
+        </div>
+      </div>
+
+  </div>
+</body>
+</html>
