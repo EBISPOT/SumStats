@@ -19,7 +19,10 @@ def read_datasets_from_input(tsv, dict_of_data, const):
             datasets_as_lists[name] = \
                 pd.read_csv(tsv, dtype=const.DSET_TYPES[name],
                 converters={const.RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
-                            const.RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits},
+                            const.RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits,
+                            const.HM_RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
+                            const.HM_RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits
+                            },
                 usecols=[name],
                 delimiter="\t").to_dict(orient='list')[name]
         print("Loaded tsv file: ", tsv)
@@ -46,6 +49,8 @@ def format_datasets(datasets_as_lists, study, const):
 
 
 def coerce_zero_and_inf_floats_within_limits(value):
+    if value == 'NA':
+        value = 'NaN'
     value = float(value)
     if value == 0.0:
         value = sys.float_info.min
