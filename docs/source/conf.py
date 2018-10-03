@@ -140,7 +140,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'sumstats.tex', 'sumstats Documentation',
-     'EMBL-EBI', 'manual'),
+     'olgavrou', 'manual'),
 ]
 
 
