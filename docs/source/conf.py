@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('../.env/src/sphinx'))
 
 project = 'sumstats'
 copyright = '2018, EMBL-EBI'
-author = 'EMBL-EBI'
+author = 'olgavrou'
 
 # The short X.Y version
 version = ''
