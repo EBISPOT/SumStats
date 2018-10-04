@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath('../.env/src/sphinx'))
 # -- Project information -----------------------------------------------------
 
 project = 'sumstats'
-copyright = '2018, EMBL-EBI'
-#author = 'EMBL-EBI'
+copyright = '2018, olgavrou'
+author = 'olgavrou'
 
 # The short X.Y version
 version = ''
@@ -138,20 +138,20 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-#latex_documents = [
-#    (master_doc, 'sumstats.tex', 'sumstats Documentation',
-#     'olgavrou', 'manual'),
-#]
+latex_documents = [
+    (master_doc, 'sumstats.tex', 'sumstats Documentation',
+     'olgavrou', 'manual'),
+]
 
 
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-#man_pages = [
-#    (master_doc, 'sumstats', 'sumstats Documentation',
-#     [author], 1)
-#]
+man_pages = [
+    (master_doc, 'sumstats', 'sumstats Documentation',
+     [author], 1)
+]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -159,11 +159,11 @@ latex_elements = {
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-#texinfo_documents = [
-#    (master_doc, 'sumstats', 'sumstats Documentation',
-#     author, 'sumstats', 'One line description of project.',
-#     'Miscellaneous'),
-#]
+texinfo_documents = [
+    (master_doc, 'sumstats', 'sumstats Documentation',
+     author, 'sumstats', 'One line description of project.',
+     'Miscellaneous'),
+]
 
 
 # -- Extension configuration -------------------------------------------------
@@ -177,3 +177,4 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
