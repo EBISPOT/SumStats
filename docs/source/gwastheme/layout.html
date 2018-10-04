@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+
+  <title>TITLE</title>
+
+  <link rel="stylesheet" type="text/css" href="_static/css/gwastoctitle.css">
+  <!--link rel="stylesheet" type="text/css" href="_static/css/gwastheme.css"-->
+  <!-- Bootstrap core CSS -->
+  <link href="http://www.ebi.ac.uk/gwas/rest/css/bootstrap.css" rel="stylesheet"/>
+  <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"
+        rel="stylesheet"/>
+  <link href="http://www.ebi.ac.uk/gwas/rest/css/bootstrap-table.css" rel="stylesheet"/>
+  <link href="http://www.ebi.ac.uk/gwas/rest/css/bootstrap-theme.css" rel="stylesheet"/>
+
+  <!-- Custom styles for this template -->
+  <!--<link href="http://www.ebi.ac.uk/gwas/rest/css/jumbotron.css" href="@{http://www.ebi.ac.uk/gwas/rest/css/jumbotron.css}" rel="stylesheet"/>-->
+  <link href="http://www.ebi.ac.uk/gwas/rest/css/sticky-footer-navbar.css" rel="stylesheet"/>
+
+  <!-- Additional styling on top of bootstrap -->
+  <link rel="stylesheet" href="http://www.ebi.ac.uk/gwas/rest/css/goci-ui.css"/>
+  <link rel="stylesheet" href="http://www.ebi.ac.uk/gwas/rest//css/icons/flaticon.css"/>
+  <link rel="stylesheet" type="text/css" href="http://www.ebi.ac.uk/gwas/rest/css/goci-color-palette-1.css">
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body>
+
+  {% include "header.html" %}
+
+
+<div class="container">
+
+    <div id="docs-header">
+
+        <div id="header">
+        <h1>&nbsp;</h1>
+        <div id="toc" class="toc2">
+
+        {% set toctree = toctree(maxdepth=3, collapse=False) %}
+        {% if toctree %}
+            {{ toctree }}
+        {% else %}
+            {{ toc }}
+        {% endif %}
+        </div>
+        </div>
+    </div>
+
+
+    <div id="docs-content" style="overflow: hidden;">
+        <div id="content">
+        {% block body %}{% endblock %}
+        </div>
+        <!--
+
+        #####################################
+        #  Page specific content goes here  #
+        #####################################
+
+        -->
+
+    </div>
+
+    <div id="docs-footer">
+
+    </div>
+
+    <hr/>
+
+</div>
+<!-- /container -->
+  {% include "footer.html" %}
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<script src="http://www.ebi.ac.uk/gwas/rest/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="http://www.ebi.ac.uk/gwas/rest/js/ie10-viewport-bug-workaround.js"></script>
+
+<!-- GOCI JavaScript
+================================================== -->
+<!--script src="http://www.ebi.ac.uk/gwas/rest/static/js/api-documentation.js"></script-->
+
+<!-- Google analytics
+================================================== -->
+<!--script>
+    (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function() {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-60195133-1', 'auto');
+    ga('send', 'pageview');
+
+</script-->
+</body>
+</html>
