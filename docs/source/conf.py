@@ -27,6 +27,9 @@ version = ''
 # The full version, including alpha/beta/rc tags
 release = '1.0.0'
 
+#def setup(app):
+#    app.add_stylesheet('css/ebi-global.css')
+
 
 # -- General configuration ---------------------------------------------------
 
@@ -85,7 +88,8 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinxdoc'
+html_theme = 'gwastheme'
+html_theme_path = ['.']
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
