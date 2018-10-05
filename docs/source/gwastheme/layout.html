@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <head>
 
-  <title>TITLE</title>
+  <title>Summary Statistics API Documentation</title>
 
+  <link rel="stylesheet" type="text/css" href="_static/css/gwastheme.css">
   <link rel="stylesheet" type="text/css" href="_static/css/gwastoctitle.css">
   <!--link rel="stylesheet" type="text/css" href="_static/css/gwastheme.css"-->
   <!-- Bootstrap core CSS -->
@@ -39,23 +40,23 @@
     <div id="docs-header">
 
         <div id="header">
-        <h1>&nbsp;</h1>
-        <div id="toc" class="toc2">
+            <h1>&nbsp;</h1>
+                <div id="toc" class="toc2">
 
-        {% set toctree = toctree(maxdepth=3, collapse=False) %}
-        {% if toctree %}
-            {{ toctree }}
-        {% else %}
-            {{ toc }}
-        {% endif %}
-        </div>
+                    {% set toctree = toctree(maxdepth=3, collapse=False) %}
+                    {% if toctree %}
+                        {{ toctree }}
+                    {% else %}
+                        {{ toc }}
+                    {% endif %}
+                </div>
         </div>
     </div>
 
 
     <div id="docs-content" style="overflow: hidden;">
         <div id="content">
-        {% block body %}{% endblock %}
+            {% block body %}{% endblock %}
         </div>
         <!--
 
@@ -65,11 +66,11 @@
 
         -->
 
-    </div>
+        </div>
 
-    <div id="docs-footer">
+        <div id="docs-footer">
 
-    </div>
+        </div>
 
     <hr/>
 
