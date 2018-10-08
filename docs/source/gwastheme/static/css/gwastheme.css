@@ -7,5 +7,69 @@ html {
 body {
 	margin: 0;
     font-size: 16px;
-	font-style: italic
+	font-style: regular
 }
+
+table.docutils {
+    border: 0px solid {{ theme_table_border }};
+    -moz-box-shadow: 2px 2px 4px {{ theme_shadow }};
+    -webkit-box-shadow: 2px 2px 4px {{ theme_shadow }};
+    box-shadow: 2px 2px 4px {{ theme_shadow }};
+}
+
+table.docutils td, table.docutils th {
+    border: 0px solid {{ theme_table_border }};
+    padding: 0.25em 0.7em;
+}
+
+table.field-list, table.footnote {
+    border: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+table.footnote {
+    margin: 15px 0;
+    width: 100%;
+    border: 0px solid {{ theme_footnote_border }};
+    background: {{ theme_footnote_bg }};
+    font-size: 0.9em;
+}
+
+table.footnote + table.footnote {
+    margin-top: -15px;
+    border-top: none;
+}
+
+table.field-list th {
+    padding: 0 0.8em 0 0;
+}
+
+table.field-list td {
+    padding: 0;
+}
+
+table.field-list p {
+    margin-bottom: 0.8em;
+}
+
+/* Cloned from
+ * https://github.com/sphinx-doc/sphinx/commit/ef60dbfce09286b20b7385333d63a60321784e68
+ */
+.field-name {
+    -moz-hyphens: manual;
+    -ms-hyphens: manual;
+    -webkit-hyphens: manual;
+    hyphens: manual;
+}
+
+table.footnote td.label {
+    width: .1px;
+    padding: 0.3em 0 0.3em 0.5em;
+}
+
+table.footnote td {
+    padding: 0.3em 0.5em;
+}
+
