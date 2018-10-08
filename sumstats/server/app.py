@@ -291,7 +291,7 @@ def get_variant(variant_id):
 
         :statuscode 200: no error
         :statuscode 404: not found error
-        """
+    """
     resp = endpoints.variants(variant=variant_id)
     return Response(response=resp,
                     status=200,
@@ -622,55 +622,55 @@ def get_studies():
 def get_studies_for_trait(trait):
     """Search Trait for Studies
 
-         .. :quickref: Search Trait for Studies; Lists studies for a specific trait.
+        .. :quickref: Search Trait for Studies; Lists studies for a specific trait.
 
-         Lists studies for a specific trait.
+        Lists studies for a specific trait.
 
-         **Example request**:
+        **Example request**:
 
-         .. sourcecode:: http
+        .. sourcecode:: http
 
-             GET /traits/EFO_0003785/studies HTTP/1.1
-             Host: www.ebi.ac.uk
+            GET /traits/EFO_0003785/studies HTTP/1.1
+            Host: www.ebi.ac.uk
 
-         **Example response**:
+        **Example response**:
 
-         .. sourcecode:: http
+        .. sourcecode:: http
 
-             HTTP/1.1 200 OK
-             Content-Type: application/json
+            HTTP/1.1 200 OK
+            Content-Type: application/json
 
-             {
-               "_embedded": {
-                 "studies": [
-                   {
-                     "study_accession": "GCST005038",
-                     "_links": {
-                       "associations": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
-                       },
-                       "self": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
-                       },
-                       "trait": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                       },
-                       "gwas_catalog": {
-                         "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
-                       }
-                     }
-                   }
-                 ]
-               },
-               "_links": {
-                 "self": {
-                   "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies"
-                 },
-                 "first": {
-                   "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies?start=0&size=20"
-                 }
-               }
-             }
+            {
+              "_embedded": {
+                "studies": [
+                  {
+                    "study_accession": "GCST005038",
+                    "_links": {
+                      "associations": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
+                      },
+                      "self": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
+                      },
+                      "trait": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
+                      },
+                      "gwas_catalog": {
+                        "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
+                      }
+                    }
+                  }
+                ]
+              },
+              "_links": {
+                "self": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies"
+                },
+                "first": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies?start=0&size=20"
+                }
+              }
+            }
 
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
@@ -689,41 +689,41 @@ def get_studies_for_trait(trait):
 def get_trait_study(study, trait=None):
     """Study Resource
 
-         .. :quickref: Study Resource; Lists resources for a specific study. Will return 404 Not Found if the study accession does not exist.
+        .. :quickref: Study Resource; Lists resources for a specific study. Will return 404 Not Found if the study accession does not exist.
 
-         Lists resources for a specific study.
+        Lists resources for a specific study.
 
-         **Example request**:
+        **Example request**:
 
-         .. sourcecode:: http
+        .. sourcecode:: http
 
-             GET /studies/GCST005038 HTTP/1.1
-             Host: www.ebi.ac.uk
+            GET /studies/GCST005038 HTTP/1.1
+            Host: www.ebi.ac.uk
 
-         **Example response**:
+        **Example response**:
 
-         .. sourcecode:: http
+        .. sourcecode:: http
 
-             HTTP/1.1 200 OK
-             Content-Type: application/json
+            HTTP/1.1 200 OK
+            Content-Type: application/json
 
-             {
-               "study_accession": "GCST005038",
-               "_links": {
-                 "associations": {
-                   "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
-                 },
-                 "self": {
-                   "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
-                 },
-                 "trait": {
-                   "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                 },
-                 "gwas_catalog": {
-                   "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
-                 }
-               }
-             }
+            {
+              "study_accession": "GCST005038",
+              "_links": {
+                "associations": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
+                },
+                "self": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
+                },
+                "trait": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
+                },
+                "gwas_catalog": {
+                  "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
+                }
+              }
+            }
 
         :statuscode 200: no error
         :statuscode 404: not found error
@@ -739,101 +739,101 @@ def get_trait_study(study, trait=None):
 def get_trait_study_assocs(study, trait=None):
     """Search Study Associations
 
-         .. :quickref: Search Study Associations; Returns associations for a specific study. Will return 404 Not Found if the study accession does not exist.
+        .. :quickref: Search Study Associations; Returns associations for a specific study. Will return 404 Not Found if the study accession does not exist.
 
-         Returns associations for a specific study.
+        Returns associations for a specific study.
 
-         **Example request**:
+        **Example request**:
 
-         .. sourcecode:: http
+        .. sourcecode:: http
 
-             GET /studies/GCST005038/associations HTTP/1.1
-             Host: www.ebi.ac.uk
+            GET /studies/GCST005038/associations HTTP/1.1
+            Host: www.ebi.ac.uk
 
-         **Example response**:
+        **Example response**:
 
-         .. sourcecode:: http
+        .. sourcecode:: http
 
-             HTTP/1.1 200 OK
-             Content-Type: application/json
+            HTTP/1.1 200 OK
+            Content-Type: application/json
 
-             {
-               "_embedded": {
-                 "associations": {
-                   "0": {
-                     "ci_lower": null,
-                     "variant_id": "rs10875231",
-                     "chromosome": 1,
-                     "other_allele": "G",
-                     "code": 10,
-                     "odds_ratio": null,
-                     "effect_allele_frequency": 0.2449,
-                     "p_value": "2.826e-1",
-                     "base_pair_location": 99534456,
-                     "study_accession": "GCST005038",
-                     "effect_allele": "T",
-                     "beta": -0.0072,
-                     "ci_upper": null,
-                     "trait": "EFO_0003785",
-                     "_links": {
-                       "study": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038"
-                       },
-                       "variant": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231"
-                       },
-                       "self": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005038"
-                       },
-                       "trait": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                       }
-                     }
-                   },
-                   "1": {
-                     "ci_lower": null,
-                     "variant_id": "rs6678176",
-                     "chromosome": 1,
-                     "other_allele": "C",
-                     "code": 10,
-                     "odds_ratio": null,
-                     "effect_allele_frequency": 0.3197,
-                     "p_value": "2.656e-1",
-                     "base_pair_location": 99535271,
-                     "study_accession": "GCST005038",
-                     "effect_allele": "T",
-                     "beta": -0.006999999999999999,
-                     "ci_upper": null,
-                     "trait": "EFO_0003785",
-                     "_links": {
-                       "study": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038"
-                       },
-                       "variant": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176"
-                       },
-                       "self": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176?study_accession=GCST005038"
-                       },
-                       "trait": {
-                         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                       }
-                     }
-                   }
-                 }
-               },
-               "_links": {
-                 "self": {
-                   "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
-                 },
-                 "first": {
-                   "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations?start=0&size=2"
-                 },
-                 "next": {
-                   "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations?start=2&size=2"
-                 }
-               }
-             }
+            {
+              "_embedded": {
+                "associations": {
+                  "0": {
+                    "ci_lower": null,
+                    "variant_id": "rs10875231",
+                    "chromosome": 1,
+                    "other_allele": "G",
+                    "code": 10,
+                    "odds_ratio": null,
+                    "effect_allele_frequency": 0.2449,
+                    "p_value": "2.826e-1",
+                    "base_pair_location": 99534456,
+                    "study_accession": "GCST005038",
+                    "effect_allele": "T",
+                    "beta": -0.0072,
+                    "ci_upper": null,
+                    "trait": "EFO_0003785",
+                    "_links": {
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038"
+                      },
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231"
+                      },
+                      "self": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005038"
+                      },
+                      "trait": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
+                      }
+                    }
+                  },
+                  "1": {
+                    "ci_lower": null,
+                    "variant_id": "rs6678176",
+                    "chromosome": 1,
+                    "other_allele": "C",
+                    "code": 10,
+                    "odds_ratio": null,
+                    "effect_allele_frequency": 0.3197,
+                    "p_value": "2.656e-1",
+                    "base_pair_location": 99535271,
+                    "study_accession": "GCST005038",
+                    "effect_allele": "T",
+                    "beta": -0.006999999999999999,
+                    "ci_upper": null,
+                    "trait": "EFO_0003785",
+                    "_links": {
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038"
+                      },
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176"
+                      },
+                      "self": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176?study_accession=GCST005038"
+                      },
+                      "trait": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
+                      }
+                    }
+                  }
+                }
+              },
+              "_links": {
+                "self": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
+                },
+                "first": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations?start=0&size=2"
+                },
+                "next": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations?start=2&size=2"
+                }
+              }
+            }
 
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
@@ -1201,101 +1201,101 @@ def get_chromosome(chromosome):
 def get_chromosome_assocs(chromosome):
     """Search Chromosome Associations
 
-             .. :quickref: Search Chromosome Associations; Returns associations for a specific chromosome. Will return 404 Not Found if the chromosome value does not exist.
+        .. :quickref: Search Chromosome Associations; Returns associations for a specific chromosome. Will return 404 Not Found if the chromosome value does not exist.
 
-             Returns associations for a specific chromosome.
+        Returns associations for a specific chromosome.
 
-             **Example request**:
+        **Example request**:
 
-             .. sourcecode:: http
+        .. sourcecode:: http
 
-                 GET /chromosomes/1/associations HTTP/1.1
-                 Host: www.ebi.ac.uk
+            GET /chromosomes/1/associations HTTP/1.1
+            Host: www.ebi.ac.uk
 
-             **Example response**:
+        **Example response**:
 
-             .. sourcecode:: http
+        .. sourcecode:: http
 
-                 HTTP/1.1 200 OK
-                 Content-Type: application/json
+            HTTP/1.1 200 OK
+            Content-Type: application/json
 
-                 {
-                   "_embedded": {
-                     "associations": {
-                       "0": {
-                         "ci_lower": null,
-                         "base_pair_location": 11820711,
-                         "other_allele": "A",
-                         "code": 10,
-                         "odds_ratio": null,
-                         "effect_allele_frequency": 0.09228,
-                         "ci_upper": null,
-                         "p_value": "1.86278e-2",
-                         "variant_id": "rs146777460",
-                         "study_accession": "GCST005353",
-                         "effect_allele": "G",
-                         "beta": 0.45443999999999996,
-                         "chromosome": 1,
-                         "trait": "EFO_0008531",
-                         "_links": {
-                           "study": {
-                             "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353"
-                           },
-                           "variant": {
-                             "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs146777460"
-                           },
-                           "self": {
-                             "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs146777460?study_accession=GCST005353"
-                           },
-                           "trait": {
-                             "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531"
-                           }
-                         }
-                       },
-                       "1": {
-                         "ci_lower": null,
-                         "base_pair_location": 11844019,
-                         "other_allele": "T",
-                         "code": 10,
-                         "odds_ratio": null,
-                         "effect_allele_frequency": 0.24731999999999998,
-                         "ci_upper": null,
-                         "p_value": "2.100256e-2",
-                         "variant_id": "rs198358",
-                         "study_accession": "GCST005353",
-                         "effect_allele": "C",
-                         "beta": 0.2694,
-                         "chromosome": 1,
-                         "trait": "EFO_0008531",
-                         "_links": {
-                           "study": {
-                             "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353"
-                           },
-                           "variant": {
-                             "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs198358"
-                           },
-                           "self": {
-                             "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs198358?study_accession=GCST005353"
-                           },
-                           "trait": {
-                             "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531"
-                           }
-                         }
-                       }
-                     }
-                   },
-                   "_links": {
-                     "self": {
-                       "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?bp_upper=11850510"
-                     },
-                     "first": {
-                       "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?start=0&size=2&bp_upper=11850510"
-                     },
-                     "next": {
-                       "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?start=2&size=2&bp_upper=11850510"
-                     }
-                   }
-                 }
+            {
+              "_embedded": {
+                "associations": {
+                  "0": {
+                    "ci_lower": null,
+                    "base_pair_location": 11820711,
+                    "other_allele": "A",
+                    "code": 10,
+                    "odds_ratio": null,
+                    "effect_allele_frequency": 0.09228,
+                    "ci_upper": null,
+                    "p_value": "1.86278e-2",
+                    "variant_id": "rs146777460",
+                    "study_accession": "GCST005353",
+                    "effect_allele": "G",
+                    "beta": 0.45443999999999996,
+                    "chromosome": 1,
+                    "trait": "EFO_0008531",
+                    "_links": {
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353"
+                      },
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs146777460"
+                      },
+                      "self": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs146777460?study_accession=GCST005353"
+                      },
+                      "trait": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531"
+                      }
+                    }
+                  },
+                  "1": {
+                    "ci_lower": null,
+                    "base_pair_location": 11844019,
+                    "other_allele": "T",
+                    "code": 10,
+                    "odds_ratio": null,
+                    "effect_allele_frequency": 0.24731999999999998,
+                    "ci_upper": null,
+                    "p_value": "2.100256e-2",
+                    "variant_id": "rs198358",
+                    "study_accession": "GCST005353",
+                    "effect_allele": "C",
+                    "beta": 0.2694,
+                    "chromosome": 1,
+                    "trait": "EFO_0008531",
+                    "_links": {
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353"
+                      },
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs198358"
+                      },
+                      "self": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs198358?study_accession=GCST005353"
+                      },
+                      "trait": {
+                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531"
+                      }
+                    }
+                  }
+                }
+              },
+              "_links": {
+                "self": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?bp_upper=11850510"
+                },
+                "first": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?start=0&size=2&bp_upper=11850510"
+                },
+                "next": {
+                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?start=2&size=2&bp_upper=11850510"
+                }
+              }
+            }
 
 
         :query start: offset number. default is 0

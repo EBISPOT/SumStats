@@ -10,16 +10,9 @@ Summary Statistics Database API Documentation
 =============================================
 
 
-API quick reference
-===================
-
-.. qrefflask:: sumstats.server.app:app
-   :undoc-static:
-   :order: path
-
-
 Overview
 ========
+
 
 HTTP Verbs
 ----------
@@ -70,6 +63,13 @@ This API uses hypermedia and resources include links to other resources in their
 Application Language (HAL) format. Links can be found beneath the _links key. Users of the API should not created URIs
 themselves, instead they should use the above-described links to navigate from resource to resource.
 
+
+API quick reference
+===================
+
+.. qrefflask:: sumstats.server.app:app
+   :undoc-static:
+   :order: path
 
 API General Guidelines
 ======================
