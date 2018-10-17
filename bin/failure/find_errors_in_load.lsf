@@ -54,6 +54,9 @@ function log_loading_status () {
         else
            echo "$load_type:$instance:$bp" >> $failed_file
         fi
+    elif [ ! -f $job_error ];
+    then
+        echo "$load_type:$instance:$bp" >> $failed_file
     fi
 }
 
