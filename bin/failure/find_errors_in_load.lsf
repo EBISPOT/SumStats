@@ -54,9 +54,10 @@ function log_loading_status () {
         else
            echo "$load_type:$instance:$bp" >> $failed_file
         fi
-    elif [ ! -f $job_error ];
+    elif [ ! -f $job_error ] && [ -s $base/files/toload/$input_file ];
     then
         echo "$load_type:$instance:$bp" >> $failed_file
+        echo "CHECK: $load_type:$instance:$bp"
     fi
 }
 
