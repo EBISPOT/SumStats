@@ -31,12 +31,12 @@ if [ -z $report_failed_file ]; then
 fi
 
 # delete output files
-rm -f $base/snp_output*
-rm -f $base/snp_error*
-rm -f $base/chr_output*
-rm -f $base/chr_error*
-rm -f $base/trait_output*
-rm -f $base/trait_error*
+#rm -f $base/snp_output*
+#rm -f $base/snp_error*
+#rm -f $base/chr_output*
+#rm -f $base/chr_error*
+#rm -f $base/trait_output*
+#rm -f $base/trait_error*
 
 while read line; do
     jobtype=$(echo $line | cut -d":" -f1)
