@@ -3,7 +3,7 @@
     "tsvfiles_path":"./files/toload",
     "local_h5files_path":"./files/output",
     "local_tsvfiles_path":"./files/toload",
-    "latest_snapshot_output_path":"/nfs/public/release/gwas/latest/staging/summary-statistics-data/output",
+    "latest_snapshot_output_path":"/latest/snapshot/output",
     "snp_dir":"bysnp",
     "chr_dir":"bychr",
     "trait_dir":"bytrait",
