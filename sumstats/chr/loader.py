@@ -90,15 +90,16 @@ class Loader:
     def _is_block_loaded_with_study(self, chromosome, bp_position):
         chromosome = str(chromosome)
         block_number = bk.get_block_number(bp_position)
+        block_number_study = "/".join([str(block_number), str(self.study)])
         if not self.file_group.subgroup_exists(chromosome):
             return False
         chr_group = self.file_group.get_subgroup(chromosome)
 
-        if not chr_group.subgroup_exists(block_number):
+        if not chr_group.subgroup_exists(block_number_study):
             return False
 
-        block_group = chr_group.get_subgroup(block_number)
-        return block_group.is_value_in_dataset(self.study, STUDY_DSET)
+        block_study_group = chr_group.get_subgroup(block_number_study)
+        return block_study_group.is_value_in_dataset(self.study, STUDY_DSET)
 
     def _get_chromosome_array(self):
         datasets = self.datasets
