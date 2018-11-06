@@ -56,6 +56,14 @@ class Group:
         """
         return str(subgroup_name) in self.group
 
+
+    def contains_subgroups(self):
+        for i in self.group.values():
+            if isinstance(i, h5py.Group):
+                return True
+            else:
+                return False
+
     def get_subgroup(self, child_group):
         group = self.group.get(str(child_group))
         if group is None:
@@ -183,6 +191,7 @@ class Group:
             parent_name = self.group.name.split("/")[-1]
         raise SubgroupError(parent="parent group: " + parent_name,
                             subgroup="sub group: " + str(child_group))
+
 
 
 def _assert_all_dsets_have_same_shape(dsets):

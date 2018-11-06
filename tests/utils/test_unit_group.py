@@ -33,6 +33,8 @@ class TestUnitGroup(object):
         self.subgroup1.generate_dataset(STUDY_DSET, ["study1"])
         self.file_group.create_subgroup("1/sub2")
         self.subgroup1_studies = ["study1"]
+        self.file_group.create_subgroup("2/sub2/subsub2")
+
 
     def teardown_method(self, method):
         os.remove(self.h5file)
@@ -204,6 +206,12 @@ class TestUnitGroup(object):
         TO_STORE_DSETS = [STUDY_DSET,  MANTISSA_DSET]
 
         group.check_datasets_consistent(TO_STORE_DSETS)
+
+    def test_contains_subgroups_returns_true_if_subgroups_exist(self):
+        assert self.group_1.contains_subgroups()
+
+    def test_contains_subgroups_returns_false_if_subgroups_not_exist(self):
+        assert not self.subgroup1.contains_subgroups()
 
     def test_already_loaded_returns_true_for_loaded_data(self):
         self.group_1.generate_dataset(simple_dset_name, simple_dset)
