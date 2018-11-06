@@ -23,6 +23,7 @@ import sumstats.utils.restrictions as rst
 from sumstats.common_constants import *
 import logging
 from sumstats.utils import register_logger
+import itertools
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -43,11 +44,17 @@ class ChromosomeService:
 
         # we need to get all the study level subgroups from the bp range subgroups
 
-        for child_group in all_chr_sub_groups:
-            if child_group.contains_subgroups():
-                all_subgroups = child_group.get_all_subgroups()
-            else:
-                all_subgroups = chr_group.get_all_subgroups()
+        # Do ww need to check for subgroups?
+        #if child_group.contains_subgroups()
+
+        all_subgroups = itertools.chain.from_iterable(
+            child_group.get_all_subgroups()
+            for child_group in all_chr_sub_groups
+        )
+
+        #else:
+        #    all_subgroups = chr_group.get_all_subgroups()
+
 
         self.datasets = query.load_datasets_from_groups(all_subgroups, start, size)
         logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))

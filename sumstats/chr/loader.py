@@ -117,10 +117,11 @@ class Loader:
         block_floor, block_ceil = initialize_block_limits()
 
         while block_limit_not_reached_max(block_ceil, max_bp):
-            chr_group.create_subgroup(block_ceil)
-            block_group = chr_group.get_subgroup(block_ceil)
+            block_study = "/".join([str(block_ceil),self.study])
+            chr_group.create_subgroup(block_study)
+            block_study_group = chr_group.get_subgroup(block_study)
             block_mask = dsets_sliced_by_chr[BP_DSET].interval_mask(block_floor, block_ceil)
-            self._save_block(block_group, block_mask, dsets_sliced_by_chr)
+            self._save_block(block_study_group, block_mask, dsets_sliced_by_chr)
 
             block_floor, block_ceil = increment_block_limits(block_ceil)
 
