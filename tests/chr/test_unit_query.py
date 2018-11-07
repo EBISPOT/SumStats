@@ -3,9 +3,12 @@ import os
 import sumstats.chr.block as bk
 import sumstats.chr.loader as loader
 import sumstats.chr.search.access.repository as query
+import sumstats.utils.group as gu
 from sumstats.chr.constants import *
 from sumstats.utils.interval import *
 from tests.prep_tests import *
+import sumstats.utils.dataset_utils as du
+
 
 
 class TestUnitQueryUtils(object):
@@ -37,8 +40,9 @@ class TestUnitQueryUtils(object):
         bp_interval = IntInterval().set_tuple(48500000, 49200000)
         block = bk.Block(bp_interval)
         block_groups = block.get_block_groups_from_parent(chr_group_2)
+        all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(block_groups)
 
-        datasets = query.load_datasets_from_groups(block_groups, self.start, self.size)
+        datasets = query.load_datasets_from_groups(all_subgroups, self.start, self.size)
         assert datasets.__class__ is dict
 
         for dset_name in TO_QUERY_DSETS:
@@ -63,9 +67,15 @@ class TestUnitQueryUtils(object):
 
         block_group = next(block_groups)
 
-        datasets = query.get_dsets_from_group(block_group, self.start, self.size)
-        assert len(datasets) == len(TO_STORE_DSETS)
-        for dset_name, dset in datasets.items():
+        block_sub_groups = block_group.get_all_subgroups()
+        d = du.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+
+        for block_sub_group in block_sub_groups:
+            datasets = query.get_dsets_from_group(block_sub_group, self.start, self.size)
+            assert len(datasets) == len(TO_STORE_DSETS)
+            d = du.extend_dsets_with_subset(d, datasets)
+
+        for dset_name, dset in d.items():
             if dset_name is STUDY_DSET:
                 assert len(set(dset)) == 3
             else:

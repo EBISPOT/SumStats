@@ -27,6 +27,7 @@ import sumstats.utils.dataset_utils as utils
 from sumstats.common_constants import *
 import logging
 from sumstats.utils import register_logger
+import itertools
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -63,7 +64,9 @@ class BlockService:
             filter_block_floor = bp_interval.floor()
             filter_block_ceil = bp_interval.ceil()
 
-        datasets = query.load_datasets_from_groups(block_groups, start, size)
+        all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(block_groups)
+
+        datasets = query.load_datasets_from_groups(all_subgroups, start, size)
         bp_mask = datasets[BP_DSET].interval_mask(filter_block_floor, filter_block_ceil)
 
         logger.debug("BP mask is: %s", str(bp_mask))
@@ -97,7 +100,8 @@ class BlockService:
         chr_group = self.file_group.get_subgroup(chromosome)
         block = bk.Block(bp_interval)
         block_groups = block.get_block_groups_from_parent(chr_group)
-        size = sum(bp_group.get_max_group_size() for bp_group in block_groups)
+        all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(block_groups)
+        size = sum(bp_group.get_max_group_size() for bp_group in all_subgroups)
         logger.debug("Size of block group in range: %s, %s is %s",
                      str(bp_interval.floor()), str(bp_interval.ceil()), size)
         return size

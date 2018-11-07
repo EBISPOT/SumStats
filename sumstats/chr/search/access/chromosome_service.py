@@ -23,7 +23,6 @@ import sumstats.utils.restrictions as rst
 from sumstats.common_constants import *
 import logging
 from sumstats.utils import register_logger
-import itertools
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -43,18 +42,7 @@ class ChromosomeService:
         all_chr_sub_groups = chr_group.get_all_subgroups()
 
         # we need to get all the study level subgroups from the bp range subgroups
-
-        # Do ww need to check for subgroups?
-        #if child_group.contains_subgroups()
-
-        all_subgroups = itertools.chain.from_iterable(
-            child_group.get_all_subgroups()
-            for child_group in all_chr_sub_groups
-        )
-
-        #else:
-        #    all_subgroups = chr_group.get_all_subgroups()
-
+        all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
 
         self.datasets = query.load_datasets_from_groups(all_subgroups, start, size)
         logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))
@@ -71,7 +59,10 @@ class ChromosomeService:
 
     def get_chromosome_size(self, chromosome):
         chromosome_group = self.file_group.get_subgroup(chromosome)
-        size = sum(bp_group.get_max_group_size() for bp_group in chromosome_group.get_all_subgroups())
+        all_chr_sub_groups = chromosome_group.get_all_subgroups()
+
+        all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
+        size = sum(sub_group.get_max_group_size() for sub_group in all_subgroups)
         logger.debug("Chromosome %s group size is %s", str(chromosome), str(size))
         return size
 

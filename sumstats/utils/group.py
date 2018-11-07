@@ -6,6 +6,7 @@ from sumstats.utils.dataset import Dataset
 import numpy as np
 from sumstats.common_constants import *
 from sumstats.errors.error_classes import *
+import itertools
 
 
 class Group:
@@ -192,6 +193,21 @@ class Group:
         raise SubgroupError(parent="parent group: " + parent_name,
                             subgroup="sub group: " + str(child_group))
 
+
+def generate_subgroups_from_generator_of_subgroups(generator):
+    """
+    The Group method get_all_subgroups() returns a generator of subgroups.
+    If we need the subgroups of each of those subgroups, we need to return a generator of generators!
+    E.g. We have a generator of bp blocks (subgroups) for a given chr (group), but we want the subgroups of
+    those bp blocks (which are the studies, so we use this function to achieve this.
+    For this, we use the itertools.chain method.
+    :param generator: the generator from the get_all_subgroups()
+    :return: a generator of subgroups of the generator of subgroups
+    """
+    return itertools.chain.from_iterable(
+        subgroup.get_all_subgroups()
+        for subgroup in generator
+    )
 
 
 def _assert_all_dsets_have_same_shape(dsets):
