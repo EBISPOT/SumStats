@@ -57,14 +57,6 @@ class Group:
         """
         return str(subgroup_name) in self.group
 
-
-    def contains_subgroups(self):
-        for i in self.group.values():
-            if isinstance(i, h5py.Group):
-                return True
-            else:
-                return False
-
     def get_subgroup(self, child_group):
         group = self.group.get(str(child_group))
         if group is None:

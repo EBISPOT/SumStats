@@ -207,12 +207,6 @@ class TestUnitGroup(object):
 
         group.check_datasets_consistent(TO_STORE_DSETS)
 
-    def test_contains_subgroups_returns_true_if_subgroups_exist(self):
-        assert self.group_1.contains_subgroups()
-
-    def test_contains_subgroups_returns_false_if_subgroups_not_exist(self):
-        assert not self.subgroup1.contains_subgroups()
-
     def test_already_loaded_returns_true_for_loaded_data(self):
         self.group_1.generate_dataset(simple_dset_name, simple_dset)
         assert self.group_1.is_value_in_dataset(simple_dset[0], simple_dset_name)
