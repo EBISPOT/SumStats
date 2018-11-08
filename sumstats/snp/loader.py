@@ -72,10 +72,11 @@ class Loader:
             self._save_snp(snp, i)
 
     def _save_snp(self, snp, snp_index):
+        snp_study = "/".join([str(snp), str(self.study)])
 
-        self.file_group.create_subgroup(snp)
-        snp_group = self.file_group.get_subgroup(snp)
+        self.file_group.create_subgroup(snp_study)
+        snp_study_group = self.file_group.get_subgroup(snp_study)
 
         for dset_name in TO_STORE_DSETS:
             data_point = self.datasets[dset_name][snp_index]
-            snp_group.expand_dataset(dset_name, [data_point])
+            snp_study_group.expand_dataset(dset_name, [data_point])
