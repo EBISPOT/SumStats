@@ -31,8 +31,9 @@ class TestUnitQueryUtils(object):
 
     def test_get_dsets_group(self):
         snp_group = gu.Group(self.f.get("rs7085086"))
+        all_subgroups = snp_group.get_all_subgroups()
 
-        datasets = query.get_dsets_from_group(snp_group, self.start, self.size)
+        datasets = query.get_dsets_from_parent_group(all_subgroups, self.start, self.size)
         assert len(datasets) == len(TO_QUERY_DSETS)
         for dset_name, dset in datasets.items():
             if dset_name is STUDY_DSET:

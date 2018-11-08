@@ -59,7 +59,9 @@ class Loader:
 
         self.file_group.create_subgroup(snp)
         snp_group = self.file_group.get_subgroup(snp)
-        return snp_group.is_value_in_dataset(self.study, STUDY_DSET)
+
+        return snp_group.subgroup_exists(self.study)
+        #return snp_group.is_value_in_dataset(self.study, STUDY_DSET)
 
     def close_file(self):
         self.file.close()

@@ -37,22 +37,36 @@ class TestLoader(object):
     def test_snp_group_content(self):
         snp1 = self.f.get("/rs185339560")
         assert snp1 is not None
-        info = list(snp1.keys())
+        info = list(snp1["PM001"].keys())
         assert len(info) == len(TO_STORE_DSETS)
 
-        chromosome = snp1.get(CHR_DSET)
-        assert len(chromosome[:]) == 3  # loaded 3 times for 3 diff studies
+        chrom_count = 0
+        for study in snp1:
+            chromosome = snp1[study].get(CHR_DSET)
+            chrom_count += len(chromosome[:])
+        assert chrom_count == 3  # loaded 3 times for 3 diff studies
         assert chromosome[:][0] == 1
 
-        mantissa = snp1.get(MANTISSA_DSET)
-        assert len(mantissa[:]) == 3  # loaded 3 times for 3 diff studies
+        mantissa_count = 0
+        for study in snp1:
+            mantissa = snp1[study].get(MANTISSA_DSET)
+            mantissa_count += len(mantissa[:])
+
+        assert mantissa_count == 3  # loaded 3 times for 3 diff studies
         assert mantissa[:][0] == 4.865
 
-        exp = snp1.get(EXP_DSET)
-        assert len(exp[:]) == 3  # loaded 3 times for 3 diff studies
+
+        exp_count = 0
+        for study in snp1:
+            exp = snp1[study].get(EXP_DSET)
+            exp_count += len(exp[:])
+        assert exp_count == 3  # loaded 3 times for 3 diff studies
         assert exp[:][0] == -1
 
-        studies = snp1.get(STUDY_DSET)
+
+        studies = [study for study in snp1]
+
+        #studies = snp1.get(STUDY_DSET)
         assert len(studies[:]) == 3
         assert studies[:][0] == "PM001"
         assert studies[:][1] == "PM002"

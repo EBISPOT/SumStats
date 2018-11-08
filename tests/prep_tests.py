@@ -31,5 +31,6 @@ def prepare_load_object_with_study_and_trait(h5file, study, loader, trait, test_
 
 def save_snps_and_study_in_file(opened_file, list_of_snps, study):
     for snp in list_of_snps:
-        group = gu.Group(opened_file.create_group(snp))
+        snp_study = "/".join([snp, study])
+        group = gu.Group(opened_file.create_group(snp_study))
         group.generate_dataset(STUDY_DSET, [study])
