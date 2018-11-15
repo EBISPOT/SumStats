@@ -25,16 +25,61 @@ class TestDeleter(object):
         load.load()
 
         properties.h5files_path = "./output"
-        # open h5 file in read/write mode
-        self.f = h5py.File(self.h5file, mode="r+")
+        self.f = h5py.File(self.h5file, mode="r")
         self.deleter = Deleter(study='PM001', config_properties=properties)
 
     def teardown_method(self):
         shutil.rmtree('./output')
 
-    def test_study_deleted(self):
+    def test_trait1_has_one_study_deleted(self):
         trait_1 = self.f.get("Trait1")
-
+        assert len(trait_1.keys()) == 2
         self.deleter.delete_study()
-        #assert x == '/Trait1/PM001'
         assert len(trait_1.keys()) == 1
+
+    def test_trait2_is_unaffected(self):
+        self.deleter.delete_study()
+        trait_2 = self.f.get("Trait2")
+        assert len(trait_2.keys()) == 1
+
+    def test_trait1_has_correct_study(self):
+        self.deleter.delete_study()
+        trait_1 = self.f.get("Trait1")
+        study_1 = trait_1.get("PM001")
+        study_2 = trait_1.get("PM002")
+        assert study_1 is None
+        assert study_2 is not None
+        assert study_2.name == "/Trait1/PM002"
+        
+        
+    def test_non_deleted_trait_datasets_are_unaffected(self):
+        self.deleter.delete_study()
+        study_2 = self.f.get("/Trait1/PM002")
+        dsets = list(study_2.keys())
+
+        assert len(dsets) == len(TO_STORE_DSETS)
+        assert study_2.get(SNP_DSET) is not None
+        assert study_2.get(CHR_DSET) is not None
+        assert study_2.get(BP_DSET) is not None
+        assert study_2.get(MANTISSA_DSET) is not None
+        assert study_2.get(EXP_DSET) is not None
+
+        mantissa = study_2.get(MANTISSA_DSET)
+        assert len(mantissa[:]) == 4
+        assert mantissa[:][0] == 4.865
+
+        exp = study_2.get(EXP_DSET)
+        assert len(exp[:]) == 4
+        assert exp[:][0] == -1
+
+        study_3 = self.f.get("/Trait2/PM003")
+        dsets = list(study_3.keys())
+
+        assert len(dsets) == len(TO_STORE_DSETS)
+        assert study_3.get(SNP_DSET) is not None
+        assert study_3.get(CHR_DSET) is not None
+        assert study_3.get(BP_DSET) is not None
+        assert study_3.get(MANTISSA_DSET) is not None
+        assert study_3.get(EXP_DSET) is not None
+
+
