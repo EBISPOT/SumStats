@@ -28,6 +28,7 @@ class Explorer:
 
     def get_list_of_studies_for_trait(self, trait):
         h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait)
+        print(h5file)
         if not isfile(h5file):
             raise NotFoundError("Trait " + trait)
         service = study_service.StudyService(h5file=h5file)

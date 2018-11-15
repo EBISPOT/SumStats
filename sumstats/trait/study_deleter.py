@@ -4,9 +4,11 @@
     datasets within the study group.
 
 """
+import os
 
 from sumstats.common_constants import *
 from sumstats.errors.error_classes import *
+import sumstats.explorer as ex
 import sumstats.utils.properties_handler as properties_handler
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.search.access.study_service as study_service
@@ -28,12 +30,16 @@ class Deleter:
         assert study is not None, "You must specify a study to delete a study!"
 
     def delete_study(self):
-         hf_study = self._find_h5file_study_group()
-         if hf_study is not None:
-             for h5file, study in hf_study.items():
-                 with h5py.File(h5file, 'r+') as hf:
-                    del hf[study]
+        hf_study = self._find_h5file_study_group()
+        if hf_study is not None:
+            for h5file, study_group in hf_study.items():
+                trait = study_group.split("/")[1]
+                with h5py.File(h5file, 'r+') as hf:
+                    if self._trait_has_no_children_left(trait):
+                        del hf[trait]
+                    else:
 
+                        del hf[study_group]
 
     def _find_h5file_study_group(self):
         """
@@ -53,6 +59,15 @@ class Deleter:
         else:
             logger.debug("Study %s not found in any trait!", self.study)
             raise NotFoundError("Study " + self.study)
+
+    def _trait_has_no_children_left(self, trait):
+        explorer = ex.Explorer(config_properties=self.properties)
+        studies = explorer.get_list_of_studies_for_trait(trait)
+        if len(studies) == 1 and studies[0] == self.study:
+            return True
+        else:
+            return False
+
 
 
 
