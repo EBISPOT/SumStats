@@ -3,52 +3,45 @@ import sys
 from os.path import isfile
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.study_deleter as trait_deleter
+import sumstats.snp.study_deleter as snp_deleter
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
 
 
-class Deleter:
+class Deleter(object):
 
-    def __init__(self, config_properties=None):
+    def __init__(self, study, config_properties=None):
         self.properties = properties_handler.get_properties(config_properties)
-        self.search_path = properties_handler.get_search_path(self.properties)
-        self.trait_dir = self.properties.trait_dir
+        self.study = study
 
     def delete_trait_study_group(self):
-        pass
+        trait_study_deleter = trait_deleter.Deleter(study=self.study, config_properties=self.properties)
+        trait_study_deleter.delete_study()
 
+    def delete_snp_study_group(self):
+        snp_study_deleter = snp_deleter.Deleter(study=self.study, config_properties=self.properties)
+        snp_study_deleter.delete_study()
+
+    def delete_chr_study_group(self):
+        pass
 
 
 def main():
     args = argument_parser(sys.argv[1:])  # pragma: no cover
-    explorer = Explorer(properties)  # pragma: no cover
+    study = args.study
+    deleter = Deleter(study, properties)  # pragma: no cover
 
-    if args.traits:  # pragma: no cover
-        traits = explorer.get_list_of_traits()
-        for trait in traits:
-            print(trait)
-
-    if args.studies:  # pragma: no cover
-        studies = explorer.get_list_of_studies()
-        for study in studies:
-            print(study)
-
-    if args.study is not None:  # pragma: no cover
-        trait = explorer.get_trait_of_study(args.study)
-        if trait is None:
-            print("The study does not exist: ", args.study)
-        else:
-            print(trait + ":" + args.study)
+    if study is not None:
+        deleter.delete_trait_study_group()
+        deleter.delete_snp_study_group()
 
 if __name__ == "__main__":
     main()  # pragma: no cover
 
 def argument_parser(args):
     parser = argparse.ArgumentParser()  # pragma: no cover
-    parser.add_argument('-traits', action='store_true', help='List all the traits')  # pragma: no cover
-    parser.add_argument('-studies', action='store_true', help='List all the studies')  # pragma: no cover
-    parser.add_argument('-study', help='Will list \'trait: study\' if it exists')  # pragma: no cover
+    parser.add_argument('-study', help='The study to be deleted')  # pragma: no cover
     properties_handler.set_properties()  # pragma: no cover
 
     return parser.parse_args(args)  # pragma: no cover

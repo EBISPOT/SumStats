@@ -36,10 +36,17 @@ class Deleter:
                 trait = study_group.split("/")[1]
                 with h5py.File(h5file, 'r+') as hf:
                     if self._trait_has_no_children_left(trait):
+                        logger.info("Deleting {f}/{t}".format(f=h5file, t=trait))
                         del hf[trait]
                     else:
-
+                        logger.info("Deleting {f}/{s}".format(f=h5file, s=study_group))
                         del hf[study_group]
+        """
+        Think about:
+        1) deleting entire hdf5 for the trait if trait is deleted
+        2) flushing out the free space - repack?
+        3) keyboard input for confirming deletion.
+        """
 
     def _find_h5file_study_group(self):
         """
