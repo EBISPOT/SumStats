@@ -42,7 +42,9 @@ class TestLoader(object):
         # open h5 file in read/write mode
         self.f = h5py.File(self.h5file, mode="r+")
         self.f2 = h5py.File(self.h5file2, mode="r+")
-        self.deleter = Deleter(study='PM001', config_properties=properties)
+        self.deleter1 = Deleter(study='PM001', config_properties=properties)
+        self.deleter2 = Deleter(study='PM002', config_properties=properties)
+        self.deleter3 = Deleter(study='PM003', config_properties=properties)
 
     def teardown_method(self, method):
         shutil.rmtree('./output')
@@ -54,7 +56,7 @@ class TestLoader(object):
         info = list(snp1["PM001"].keys())
         assert len(info) == len(TO_STORE_DSETS)
         assert len(snp1) == 3
-        self.deleter.delete_study()
+        self.deleter1.delete_study()
         assert "PM002" in snp1
         assert "PM001" not in snp1
         assert len(snp1) == 2
@@ -62,3 +64,10 @@ class TestLoader(object):
         assert "PM002" in snp1_2
         assert "PM001" not in snp1_2
         assert len(snp1_2) == 2
+
+    def test_snp_groups_deleted_when_no_studies_belong_to_it(self):
+        self.deleter1.delete_study()
+        self.deleter2.delete_study()
+        self.deleter3.delete_study()
+        snp1 = self.f.get("/rs185339560")
+        assert snp1 is None

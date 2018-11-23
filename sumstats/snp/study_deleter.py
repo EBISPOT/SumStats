@@ -35,14 +35,16 @@ class Deleter:
 
     def delete_study(self):
         hf_study = self._find_h5file_study_group()
+        print(self.study)
+        print(hf_study)
         if hf_study is not None:
             for h5file, study_group_list in hf_study.items():
                 with h5py.File(h5file, 'r+') as hf:
                     for sg in study_group_list:
-                        #snp_group = sg.split("/")[1]
+                        snp = sg.split("/")[1]
 
-                        #for snp in snp_group:
-                        #    print(snp)
+
+
                             #for study in snp.get_all_subgroups():
                             #    print(study.get_name())
 
@@ -75,7 +77,11 @@ class Deleter:
         study_groups = gu.generate_subgroups_from_generator_of_subgroups(snp_groups)
         for study_group in study_groups:
             if self.study == study_group.get_name().split("/")[-1]:
-                hf_study_dict[h5file].append(study_group.get_name())
+                snp_group = study_group.get_parent()
+                if len(snp_group.get_all_subgroups_keys()) == 1:
+                    hf_study_dict[h5file].append(snp_group.get_name())
+                else:
+                    hf_study_dict[h5file].append(study_group.get_name())
         file.close()
         return hf_study_dict
 

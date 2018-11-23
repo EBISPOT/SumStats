@@ -43,6 +43,9 @@ class Group:
     def get_name(self):
         return self.group.name
 
+    def get_parent(self):
+        return Group(self.group.parent)
+
     def contains_dataset(self, dataset_name):
         """
         :param dataset_name: a dataset we are looking for in the group
