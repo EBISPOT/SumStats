@@ -4,6 +4,7 @@ from os.path import isfile
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.study_deleter as trait_deleter
 import sumstats.snp.study_deleter as snp_deleter
+import sumstats.chr.study_deleter as chr_deleter
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
@@ -24,7 +25,8 @@ class Deleter(object):
         snp_study_deleter.delete_study()
 
     def delete_chr_study_group(self):
-        pass
+        chr_study_deleter = chr_deleter.Deleter(study=self.study, config_properties=self.properties)
+        chr_study_deleter.delete_study()
 
 
 def main():
@@ -35,6 +37,7 @@ def main():
     if study is not None:
         deleter.delete_trait_study_group()
         deleter.delete_snp_study_group()
+        deleter.delete_chr_study_group()
 
 if __name__ == "__main__":
     main()  # pragma: no cover

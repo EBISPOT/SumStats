@@ -69,5 +69,6 @@ class TestLoader(object):
         self.deleter1.delete_study()
         self.deleter2.delete_study()
         self.deleter3.delete_study()
+        assert len(self.f.keys()) == 0
         snp1 = self.f.get("/rs185339560")
         assert snp1 is None

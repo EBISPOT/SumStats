@@ -1,5 +1,5 @@
 """
-    Data is stored in the hierarchy of /SNP/Study/DATA
+    Data is stored in the hierarchy of /CHR/BLOCK/Study/DATA
     Deleter removes the Study group and therefore all the
     datasets within the study group.
 
@@ -26,7 +26,7 @@ class Deleter:
         self.study = study
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
-        self.snp_dir = self.properties.snp_dir
+        self.chr_dir = self.properties.chr_dir
 
         assert study is not None, "You must specify a study to delete a study!"
 
@@ -46,11 +46,10 @@ class Deleter:
         :return: dict of {h5file: studygroup path}
         """
         hf_study_dict = defaultdict(list)
-        snp_path = join(self.search_path, self.snp_dir)
+        snp_path = join(self.search_path, self.chr_dir)
         h5files = [y for x in os.walk(snp_path) for y in glob(os.path.join(x[0], '*.h5'))]
 
         for h5file in h5files:
-
             hf_study_dict.update(self._get_dict_of_h5_to_study_groups(h5file, hf_study_dict))
         if any(hf_study_dict):
             return hf_study_dict
@@ -61,14 +60,11 @@ class Deleter:
     def _get_dict_of_h5_to_study_groups(self, h5file, hf_study_dict):
         file = h5py.File(h5file, 'r')
         file_group = gu.Group(file)
-        snp_groups = file_group.get_all_subgroups()
-        study_groups = gu.generate_subgroups_from_generator_of_subgroups(snp_groups)
+        chr_groups = file_group.get_all_subgroups()
+        block_groups = gu.generate_subgroups_from_generator_of_subgroups(chr_groups)
+        study_groups = gu.generate_subgroups_from_generator_of_subgroups(block_groups)
         for study_group in study_groups:
             if self.study == study_group.get_name().split("/")[-1]:
-                snp_group = study_group.get_parent()
-                if len(snp_group.get_all_subgroups_keys()) == 1:
-                    hf_study_dict[h5file].append(snp_group.get_name())
-                else:
-                    hf_study_dict[h5file].append(study_group.get_name())
+                hf_study_dict[h5file].append(study_group.get_name())
         file.close()
         return hf_study_dict
