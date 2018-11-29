@@ -27,8 +27,9 @@ def main():
 
     if loader_type == "trait":
         if trait is None: raise ValueError("You have chosen the trait loader but haven't specified a trait")
+        file_name = trait[-2:]
 
-        to_store = fsutils.create_h5file_path(path=h5files_path, file_name=trait, dir_name=trait_dir)
+        to_store = fsutils.create_h5file_path(path=h5files_path, file_name=file_name, dir_name=trait_dir)
         loader = trait_loader.Loader(to_load, to_store, study, trait)
         loader.load()
         loader.close_file()
