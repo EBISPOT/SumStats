@@ -8,6 +8,7 @@ import sumstats.chr.search.chromosome_search as chr_search
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
+import cProfile
 
 
 class Explorer:
@@ -27,7 +28,7 @@ class Explorer:
         return sorted(traits)
 
     def get_list_of_studies_for_trait(self, trait):
-        h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait)
+        h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait[-2:])
         if not isfile(h5file):
             raise NotFoundError("Trait " + trait)
         service = study_service.StudyService(h5file=h5file)
@@ -36,6 +37,8 @@ class Explorer:
         return sorted(studies)
 
     def get_list_of_studies(self):
+        pr = cProfile.Profile()
+        pr.enable()
         studies = []
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
@@ -43,6 +46,8 @@ class Explorer:
             studies.extend(service.list_studies())
             service.close_file()
 
+        pr.disable()
+        pr.print_stats(sort='time')
         return sorted(studies)
 
     def get_trait_of_study(self, study_to_find):
@@ -74,6 +79,9 @@ class Explorer:
 
 
 def main():
+
+
+
     args = argument_parser(sys.argv[1:])  # pragma: no cover
     explorer = Explorer(properties)  # pragma: no cover
 

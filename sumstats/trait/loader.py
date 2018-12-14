@@ -19,6 +19,7 @@ import sumstats.trait.constants as const
 import sumstats.utils.fileload as fl
 import sumstats.utils.group as gu
 from sumstats.errors.error_classes import *
+import cProfile
 
 
 class Loader:
@@ -38,7 +39,8 @@ class Loader:
         self.file_group = gu.Group(self.file)
 
     def load(self):
-
+        pr = cProfile.Profile()
+        pr.enable()
         datasets = self.datasets
 
         trait_group = self._create_trait_group()
@@ -47,6 +49,8 @@ class Loader:
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
             study_group.generate_dataset(dset_name, datasets[dset_name])
+        pr.disable()
+        pr.print_stats(sort='time')
 
     def _create_trait_group(self):
         self.file_group.create_subgroup(self.trait)

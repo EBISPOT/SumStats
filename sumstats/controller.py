@@ -1,5 +1,6 @@
 import argparse
 import sys
+import cProfile
 
 import sumstats.chr.retriever as cr
 import sumstats.snp.retriever as snpr
@@ -34,7 +35,8 @@ class Search(object):
 
 
 def main():  # pragma: no cover
-
+    pr = cProfile.Profile()
+    pr.enable()
     args = argument_parser(sys.argv[1:])  # pragma: no cover
 
     trait, study, chromosome, bp_interval, snp, pval_interval = au.convert_search_args(args)  # pragma: no cover
@@ -85,7 +87,8 @@ def main():  # pragma: no cover
             print(name, dataset)
     else:
         print("Result is empty!")
-
+    pr.disable()
+    pr.print_stats(sort='time')
 
 if __name__ == "__main__":
     main()  # pragma: no cover

@@ -14,17 +14,23 @@
     study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
 
 """
-
 import sumstats.snp.search.access.service as snp_service
+from sumstats.chr.search.access import block_service
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
 from sumstats.snp.constants import *
 from sumstats.utils import search
+from sumstats.utils.interval import *
 from sumstats.errors.error_classes import *
 import logging
 from sumstats.utils import register_logger
 from multiprocessing import Pool
 from sumstats.utils import properties_handler
+from sumstats.utils.ensembl_rest_client import EnsemblRestClient
+import sumstats.chr.search.block_search as bs
+import sumstats.chr.retriever as cr
+import os
+import re
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -42,9 +48,9 @@ class SNPSearch:
     """
     def __init__(self, snp, start, size, config_properties=None, chromosome=None):
         self.snp = snp
-        self.chromosome = chromosome
         self.start = start
         self.size = size
+        self.chromosome = chromosome
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
@@ -56,18 +62,53 @@ class SNPSearch:
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.index_marker = 0
 
-        if chromosome is None:
-            self.service = self._calculate_snp_service()
-        else:
-            self.service = self._get_snp_service()
+        #if chromosome is None:
+        #    self.service = self._calculate_snp_service()
+        #else:
+        #    self.service = self._get_snp_service()
+        self.chromosome, self.bp_interval = self._parse_chromosome_bp_location()
+        #self.h5file = fsutils.create_h5file_path(path=self.search_path, dir_name=self.chr_dir, file_name=self.chromosome)
+        #if not os.path.isfile(self.h5file):
+        #    raise NotFoundError("Chromosome " + str(self.chromosome))
+        #self.service = block_service.BlockService(self.h5file)
+
+    #def search_snp(self, study=None, pval_interval=None):
+    #    logger.info("Searching for variant %s", self.snp)
+    #    max_size = self.service.get_snp_size(self.snp)
+    #    method_arguments = {'snp': self.snp}
+    #    restrictions = {'pval_interval': pval_interval, 'study': study}
+    #    return search.general_search(search_obj=self, max_size=max_size,
+    #                                 arguments=method_arguments, restriction_dictionary=restrictions)
+
+    """
+    Search the chromosome implementation based on bp position
+    """
+
 
     def search_snp(self, study=None, pval_interval=None):
-        logger.info("Searching for variant %s", self.snp)
-        max_size = self.service.get_snp_size(self.snp)
-        method_arguments = {'snp': self.snp}
-        restrictions = {'pval_interval': pval_interval, 'study': study}
-        return search.general_search(search_obj=self, max_size=max_size,
-                                     arguments=method_arguments, restriction_dictionary=restrictions)
+        return cr.search_chromosome(chromosome=self.chromosome, start=self.start, size=self.size,
+                                        properties=self.properties,
+                                        bp_interval=self.bp_interval, study=study, pval_interval=pval_interval, snp=self.snp)
+
+    def _get_bp_from_ensembl(self):
+        client = EnsemblRestClient()
+        return client.resolve_location_with_rest(self.snp)
+
+
+    def _parse_chromosome_bp_location(self):
+        bp_interval = self._get_bp_from_ensembl()
+        print(bp_interval)
+        if re.match(r'[0-9XYMT]{2}:[0-9]+-[0-9]+', bp_interval):
+            chromosome, bp = bp_interval.split(':')
+            bp_lower = str(int(bp.split('-')[0]) - 10000)
+            bp_upper = str(int(bp.split('-')[0]) + 10000)
+            bp_interval = ':'.join([bp_lower, bp_upper])
+            bp_interval = IntInterval().set_string_tuple(bp_interval)
+            return chromosome, bp_interval
+        # Need to handle this not working
+
+
+
 
     def _calculate_snp_service(self):
         """
