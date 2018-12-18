@@ -58,51 +58,6 @@ class EnsemblRestClient(object):
             self.last_req = time.time()
             self.req_count = 0
 
-    def map_bp_to_build_with_rest(self, chromosome, bp, build_orig, build_mapped):
-        map_build = self.perform_rest_action(
-            '/map/human/{orig}/{chromosome}:{bp}:{bp}/{mapped}?'.format(
-            chromosome=chromosome, bp=bp, orig=build_orig, mapped=build_mapped)
-            )
-        return self.retrieve_mapped_item(map_build)
-
-    @staticmethod
-    def retrieve_mapped_item(map_build):
-        if "mappings" in map_build:
-            mappings = map_build["mappings"]
-            if len(mappings) > 0:
-                if "mapped" in mappings and "start" in mappings["mapped"]:
-                    return map_build["mappings"][0]["mapped"]["start"]
-        return 'NA'
-
-    def resolve_rsid(self, chromosome, bp):
-        rsid_request = self.perform_rest_action(
-            '/overlap/region/human/{chromosome}:{bp}:{bp}?feature=variation'.format(
-            chromosome=chromosome, bp=bp)
-            )
-        return self.retrieve_rsid(rsid_request)
-
-    @staticmethod
-    def retrieve_rsid(rsid_request):
-        if len(rsid_request) > 0 and "id" in rsid_request[0]:
-            return rsid_request[0]["id"]
-        return 'id:NA'
-
-    def check_orientation_with_rest(self, rsid):
-        variation_request = self.perform_rest_action(
-            '/variation/human/{rsid}?'.format(
-            rsid=rsid)
-            )
-        return self.retrieve_strand(variation_request)
-
-    # RETRIEVE STRAND - I DON'T BELIEVE THIS RETRIEVES THE CORRECT INFORMATION
-    @staticmethod
-    def retrieve_strand(variation_request):
-        if "mappings" in variation_request:
-            mappings = variation_request["mappings"]
-            if len(mappings) > 0:
-                if "strand" in mappings[0]:
-                    return mappings[0]["strand"]
-        return False
 
     def resolve_location_with_rest(self, rsid):
         variation_request = self.perform_rest_action(

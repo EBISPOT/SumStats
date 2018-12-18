@@ -9,8 +9,8 @@ import shutil
 
 
 class TestDeleter(object):
-    h5file1 = "./output/bytrait/file_Trait1.h5"
-    h5file2 = "./output/bytrait/file_Trait2.h5"
+    h5file1 = "./output/bytrait/file_t1.h5"
+    h5file2 = "./output/bytrait/file_t2.h5"
 
     f = None
 

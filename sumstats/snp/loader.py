@@ -19,7 +19,6 @@ from sumstats.snp.constants import *
 import sumstats.snp.constants as const
 import sumstats.utils.group as gu
 from sumstats.errors.error_classes import *
-import cProfile
 
 
 class Loader:
@@ -34,15 +33,10 @@ class Loader:
         self.file_group = gu.Group(self.file)
 
     def load(self):
-        pr = cProfile.Profile()
-        pr.enable()
-
         if self.is_loaded():
             self.close_file()
             raise AlreadyLoadedError(self.study)
         self._save_info_in_file()
-        pr.disable()
-        pr.print_stats(sort='time')
 
     def is_loaded(self):
         datasets = self.datasets

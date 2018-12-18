@@ -12,8 +12,8 @@ import shutil
 
 
 class TestDeleter(object):
-    h5file1 = "./output/bytrait/file_Trait1.h5"
-    h5file2 = "./output/bytrait/file_Trait2.h5"
+    h5file1 = "./output/bytrait/file_t1.h5"
+    h5file2 = "./output/bytrait/file_t2.h5"
     f = None
 
     def setup_method(self, method):
@@ -39,7 +39,7 @@ class TestDeleter(object):
         assert len(find_study_group) == 1
         assert len(find_study_group.keys()) == 1
         for key, value in find_study_group.items():
-            assert key == "./output/bytrait/file_Trait1.h5"
+            assert key == "./output/bytrait/file_t1.h5"
             assert value == "/Trait1/PM001"
         with pytest.raises(NotFoundError):
             self.deleter = Deleter(study='PM004', config_properties=properties)
