@@ -7,4 +7,3 @@ gunicorn
 paste
 pytest-cov
 eventlet
-requests
