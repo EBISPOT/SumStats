@@ -97,8 +97,6 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         # when we are constructing each element's _links we need variant and/or chromosome information for them. If they
         # where not provided in the query, we can find out what they are for each element (index) here.
-
-
         specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index)
         specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index)
 
