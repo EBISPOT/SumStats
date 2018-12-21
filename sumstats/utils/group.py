@@ -180,6 +180,10 @@ class Group:
         create_size = min(len(reference_dset), size)
         return _create_dset_placeholder(missing_value, create_size)
 
+    def set_attribute(self, key, value):
+        self.group.attrs[key] = value
+
+
     def _raise_non_existent_subgroup_error(self, child_group):
         if self.group.name == "/":
             raise NotFoundError(item_not_found=child_group)

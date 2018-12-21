@@ -26,6 +26,7 @@ from multiprocessing import Pool
 from sumstats.utils import properties_handler
 from sumstats.utils.ensembl_rest_client import EnsemblRestClient
 import sumstats.chr.retriever as cr
+from sumstats.chr.constants import *
 import re
 
 logger = logging.getLogger(__name__)
@@ -94,8 +95,8 @@ class SNPSearch:
         print("Location for variant {} is: {}".format(self.snp, bp_interval))
         if bp_interval and re.match(r'[0-9XYMT]{1,2}:[0-9]+-[0-9]+', bp_interval):
             chromosome, bp = bp_interval.split(':')
-            bp_lower = str(int(bp.split('-')[0]) - 10000)
-            bp_upper = str(int(bp.split('-')[0]) + 10000)
+            bp_lower = str(int(bp.split('-')[0]) - BLOCK_SIZE)
+            bp_upper = str(int(bp.split('-')[0]) + BLOCK_SIZE)
             bp_interval = ':'.join([bp_lower, bp_upper])
             bp_interval = IntInterval().set_string_tuple(bp_interval)
             return chromosome, bp_interval

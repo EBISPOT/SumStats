@@ -23,7 +23,7 @@ from sumstats.errors.error_classes import *
 
 class Loader:
 
-    def __init__(self, tsv, h5file, study, trait, dict_of_data=None):
+    def __init__(self, tsv, h5file, study, trait, dict_of_data=None, metadata=None):
         h5file = h5file
         self.study = study
         self.trait = trait
@@ -32,6 +32,9 @@ class Loader:
 
         datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
         self.datasets = fl.format_datasets(datasets_as_lists, study, const)
+
+        if metadata:
+            self.study_metadata_dict = fl.format_metadata(metadata)
 
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
@@ -42,6 +45,8 @@ class Loader:
 
         trait_group = self._create_trait_group()
         study_group = self._create_study_group(trait_group)
+        """add study specific attributes"""
+        self._add_study_metadata(study_group)
 
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
@@ -57,6 +62,10 @@ class Loader:
             raise AlreadyLoadedError(self.study)
         trait_group.create_subgroup(self.study)
         return trait_group.get_subgroup(self.study)
+
+    def _add_study_metadata(self, study_group):
+        for key, value in self.study_metadata_dict.items():
+            study_group.set_attribute(key, value)
 
     def close_file(self):
         self.file.close()

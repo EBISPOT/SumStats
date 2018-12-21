@@ -5,6 +5,7 @@ tsv file and make it into a dictionary of Datasets
 
 import sys
 import time
+import json
 import pandas as pd
 from sumstats.utils import dataset_utils
 from sumstats.utils.pval import get_mantissa_and_exp_lists
@@ -57,3 +58,12 @@ def coerce_zero_and_inf_floats_within_limits(value):
     if value == float('inf'):
         value = sys.float_info.max
     return value
+
+
+def format_metadata(metadata):
+    with open(metadata) as f:
+        """(1) What if the file doesn't exist!?
+           (2) Validate the metadata - json schema?    
+        """
+
+        return json.loads(f.read())
