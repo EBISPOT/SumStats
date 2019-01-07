@@ -184,6 +184,10 @@ class Group:
         self.group.attrs[key] = value
 
 
+    def get_dict_of_attributes(self):
+        return self.group.attrs.items()
+
+
     def _raise_non_existent_subgroup_error(self, child_group):
         if self.group.name == "/":
             raise NotFoundError(item_not_found=child_group)

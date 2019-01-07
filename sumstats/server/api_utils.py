@@ -45,7 +45,13 @@ def _create_info_for_study(study, trait):
     study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
     study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
                                                         params={'trait': trait, 'study': study})
+
     return study_info
+
+
+def _get_metadata_for_study():
+    pass
+
 
 
 def _get_trait_list(traits, start, size):
