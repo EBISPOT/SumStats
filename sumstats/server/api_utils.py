@@ -61,7 +61,6 @@ def _create_info_for_trait(trait):
     trait_info = {'trait': trait,
                   '_links': {'self': _create_href(method_name='api.get_trait', params={'trait': trait})}}
     trait_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
-    trait_info['_links'] = _add_ontology_href(info_array=trait_info['_links'], trait=trait)
     trait_info['_links']['associations'] = _create_href(method_name='api.get_trait_assocs', params={'trait': trait})
     return trait_info
 

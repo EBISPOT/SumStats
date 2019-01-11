@@ -23,18 +23,23 @@ from sumstats.errors.error_classes import *
 
 class Loader:
 
-    def __init__(self, tsv, h5file, study, trait, dict_of_data=None, metadata=None):
+    def __init__(self, tsv, h5file, study, trait, dict_of_data=None, study_meta_file=None, trait_meta_file=None):
         h5file = h5file
         self.study = study
         self.trait = trait
+        self.study_metadata_dict = None
+        self.trait_metadata_dict = None
 
         assert trait is not None, "You need to specify a trait with the trait loader!"
 
         datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
         self.datasets = fl.format_datasets(datasets_as_lists, study, const)
 
-        if metadata:
-            self.study_metadata_dict = fl.format_metadata(metadata)
+        if study_meta_file:
+            self.study_metadata_dict = fl.format_metadata(study_meta_file)
+
+        if trait_meta_file:
+            self.trait_metadata_dict = fl.format_metadata(trait_meta_file)
 
         # Open the file with read/write permissions and create if it doesn't exist
         self.file = h5py.File(h5file, 'a')
@@ -46,7 +51,10 @@ class Loader:
         trait_group = self._create_trait_group()
         study_group = self._create_study_group(trait_group)
         """add study specific attributes"""
-        self._add_study_metadata(study_group)
+        if self.study_metadata_dict:
+            self._add_study_metadata(study_group)
+        if self.trait_metadata_dict:
+            self._add_trait_metadata(trait_group)
 
         # group, dset_name, data
         for dset_name in TO_STORE_DSETS:
@@ -66,6 +74,10 @@ class Loader:
     def _add_study_metadata(self, study_group):
         for key, value in self.study_metadata_dict.items():
             study_group.set_attribute(key, value)
+
+    def _add_trait_metadata(self, trait_group):
+        for key, value in self.trait_metadata_dict.items():
+            trait_group.set_attribute(key, value)
 
     def close_file(self):
         self.file.close()

@@ -45,6 +45,19 @@ class Explorer:
 
         return sorted(studies)
 
+
+    def get_list_of_tissues(self):
+        tissues = []
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        for h5file in h5files:
+            service = study_service.StudyService(h5file=h5file)
+            tissues.extend(service.list_tissues())
+
+            service.close_file()
+
+        return sorted(list(set(tissues)))
+
+
     def get_trait_of_study(self, study_to_find):
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:

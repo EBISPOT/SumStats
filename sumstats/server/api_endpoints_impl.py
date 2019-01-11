@@ -14,8 +14,10 @@ def root():
     response = {
         '_links': OrderedDict([
             ('associations', apiu._create_href(method_name='api.get_assocs')),
-            ('traits', apiu._create_href(method_name='api.get_traits')),
+            ('molecular_phenotypes', apiu._create_href(method_name='api.get_traits')),
             ('studies', apiu._create_href(method_name='api.get_studies')),
+            ('tissues', apiu._create_href(method_name='api.get_tissues')),
+            ('genes', apiu._create_href(method_name='api.get_genes')),
             ('chromosomes', apiu._create_href(method_name='api.get_chromosomes'))
         ])
     }
@@ -53,7 +55,7 @@ def traits():
     traits = explorer.get_list_of_traits()
     trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
 
-    response = apiu._create_response(collection_name='traits', method_name='api.get_traits',
+    response = apiu._create_response(collection_name='trait', method_name='api.get_traits',
                                      start=start, size=size, index_marker=size, data_dict=trait_list)
 
     return simplejson.dumps(response)
@@ -300,6 +302,41 @@ def variant_resource(variant, chromosome=None):
     except (NotFoundError, SubgroupError) as error:
         logging.debug(str(error))
         raise RequestedNotFound(str(error))
+
+
+def tissues():
+    args = request.args.to_dict()
+    try:
+        start, size = apiu._get_start_size(args)
+    except ValueError as error:
+        logging.error("/studies. " + (str(error)))
+        raise BadUserRequest(str(error))
+
+    explorer = ex.Explorer(apiu.properties)
+    studies = explorer.get_list_of_studies()
+    study_list = apiu._get_study_list(studies=studies, start=start, size=size)
+
+    response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
+                                     start=start, size=size, index_marker=size, data_dict=study_list)
+
+    return simplejson.dumps(response)
+
+
+def genes():
+    args = request.args.to_dict()
+    try:
+        start, size = apiu._get_start_size(args)
+    except ValueError as error:
+        logging.error("/traits. " + (str(error)))
+        raise BadUserRequest(str(error))
+    explorer = ex.Explorer(apiu.properties)
+    traits = explorer.get_list_of_traits()
+    trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
+
+    response = apiu._create_response(collection_name='trait', method_name='api.get_traits',
+                                     start=start, size=size, index_marker=size, data_dict=trait_list)
+
+    return simplejson.dumps(response)
 
 
 def _create_chromosome_info(chromosome):

@@ -183,6 +183,8 @@ class Group:
     def set_attribute(self, key, value):
         self.group.attrs[key] = value
 
+    def get_attribute(self, key):
+        return self.group.attrs[key]
 
     def _raise_non_existent_subgroup_error(self, child_group):
         if self.group.name == "/":
