@@ -23,8 +23,7 @@ def _get_study_list(studies, start, size):
     study_list = []
     end = min(start + size, len(studies))
     for study in studies[start:end]:
-        trait = _find_study_info(study)
-        study_list.append(_create_study_info_for_trait([study], trait))
+        study_list.append([{'study_accession': study}])
     return study_list
 
 
@@ -210,6 +209,12 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
         size_retrieved=len(data_dict),
         params=params
     ))])
+
+
+def _create_response_no_links(method_name, start, size, index_marker, data_dict, params=None, collection_name=None):
+    if collection_name is None:
+        collection_name = 'associations'
+    return OrderedDict([('_embedded', {collection_name: data_dict})])
 
 
 def _create_resource_response(data_dict, params):

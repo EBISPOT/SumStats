@@ -618,6 +618,15 @@ def get_studies():
                     mimetype="application/json")
 
 
+@api.route('/study_list')
+def get_all_studies():
+
+    resp = endpoints.study_list()
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
 @api.route('/traits/<string:trait>/studies')
 def get_studies_for_trait(trait):
     """Search Trait for Studies
