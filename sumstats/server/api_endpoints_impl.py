@@ -314,10 +314,11 @@ def tissues():
 
     explorer = ex.Explorer(apiu.properties)
     studies = explorer.get_list_of_studies()
+    tissues = explorer.get_list_of_tissues()
     study_list = apiu._get_study_list(studies=studies, start=start, size=size)
-
-    response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
-                                     start=start, size=size, index_marker=size, data_dict=study_list)
+    tissue_list = apiu._get_tissue_list(tissues=tissues, start=start, size=size)
+    response = apiu._create_response(collection_name='tissues', method_name='api.get_tissues',
+                                     start=start, size=size, index_marker=size, data_dict=tissue_list)
 
     return simplejson.dumps(response)
 

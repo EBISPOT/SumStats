@@ -28,12 +28,27 @@ def _get_study_list(studies, start, size):
     return study_list
 
 
+
+def _get_tissue_list(tissues, start, size):
+    tissue_list = []
+    end = min(start + size, len(tissues))
+    for tissue in tissues[start:end]:
+        tissue_list.append(_create_info_for_tissue(tissue))
+    return tissue_list
+
+
 def _create_study_info_for_trait(studies, trait):
     study_list = []
     for study in studies:
         study_info = _create_info_for_study(study=study, trait=trait)
         study_list.append(study_info)
     return study_list
+
+
+def _create_info_for_tissue(tissue):
+    tissue_info = {'tissue': tissue
+                   }
+    return tissue_info
 
 
 def _create_info_for_study(study, trait):
