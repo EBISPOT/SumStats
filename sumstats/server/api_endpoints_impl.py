@@ -131,7 +131,7 @@ def study_list():
 
     study_list = apiu._get_study_list_no_info(studies=studies, start=start, size=size)
 
-    response = apiu._create_response_no_links(collection_name='studies', method_name='api.get_studies',
+    response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
                                      start=start, size=size, index_marker=size, data_dict=study_list)
 
     return simplejson.dumps(response)
