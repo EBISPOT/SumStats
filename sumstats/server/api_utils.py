@@ -23,9 +23,16 @@ def _get_study_list(studies, start, size):
     study_list = []
     end = min(start + size, len(studies))
     for study in studies[start:end]:
-        study_list.append([{'study_accession': study}])
+        trait = _find_study_info(study)
+        study_list.append(_create_study_info_for_trait([study], trait))
     return study_list
 
+def _get_study_list_no_info(studies, start, size):
+    study_list = []
+    end = min(start + size, len(studies))
+    for study in studies[start:end]:
+        study_list.append([{'study_accession': study}])
+    return study_list
 
 def _create_study_info_for_trait(studies, trait):
     study_list = []
