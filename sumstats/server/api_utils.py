@@ -218,12 +218,6 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
     ))])
 
 
-def _create_response_no_links(method_name, start, size, index_marker, data_dict, params=None, collection_name=None):
-    if collection_name is None:
-        collection_name = 'associations'
-    return OrderedDict([('_embedded', {collection_name: data_dict})])
-
-
 def _create_resource_response(data_dict, params):
     if len(data_dict) == 1:
         return data_dict[0]
