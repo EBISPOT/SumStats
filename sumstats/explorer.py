@@ -31,9 +31,10 @@ class Explorer:
         if not isfile(h5file):
             raise NotFoundError("Trait " + trait)
         service = study_service.StudyService(h5file=h5file)
-        studies = service.list_studies()
+        studies = service.list_studies_for_trait(trait)
         service.close_file()
         return sorted(studies)
+
 
     def get_list_of_studies(self):
         studies = []
@@ -43,7 +44,7 @@ class Explorer:
             studies.extend(service.list_studies())
             service.close_file()
 
-        return sorted(studies)
+        return sorted(list(set(studies)))
 
 
     def get_list_of_tissues(self):
@@ -81,7 +82,7 @@ class Explorer:
                         study = trait_study.split('/')[-1]
                         study_list.append(study)
                 service.close_file()
-            return study_list
+            return sorted(list(set(study_list)))
         except NotFoundError:
             # tissue not found
             raise NotFoundError("Tissue " + tissue_to_find)

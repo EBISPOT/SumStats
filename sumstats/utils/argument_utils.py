@@ -12,6 +12,7 @@ def search_argument_parser():
     parser.add_argument('-chr', help='Filter by chromosome')
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')
+    parser.add_argument('-tissue', help='The tissue I am looking for')
 
     return parser.parse_args()
 
@@ -25,6 +26,7 @@ def convert_search_args(args):
     trait = args.trait
     study = args.study
     snp = args.snp
+    tissue = args.tissue
 
     chromosome = args.chr
     if chromosome is not None:
@@ -36,7 +38,7 @@ def convert_search_args(args):
     bp_interval = args.bp
     bp_interval = IntInterval().set_string_tuple(bp_interval)
 
-    return trait, study, chromosome, bp_interval, snp, pval_interval
+    return trait, study, chromosome, bp_interval, snp, pval_interval, tissue
 
 
 def load_argument_parser():

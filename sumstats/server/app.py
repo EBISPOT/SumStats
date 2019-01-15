@@ -694,7 +694,7 @@ def get_studies_for_tissue(tissue):
 
 @api.route('/tissues/<string:tissue>/associations')
 def get_tissue_assocs(tissue):
-    resp = endpoints.associations_for_tissue(tissue)
+    resp = endpoints.tissue_associations(tissue)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")

@@ -36,7 +36,7 @@ def main():
 
     if study is not None:
         deleter.delete_trait_study_group()
-        deleter.delete_snp_study_group()
+        #deleter.delete_snp_study_group()
         deleter.delete_chr_study_group()
 
 if __name__ == "__main__":

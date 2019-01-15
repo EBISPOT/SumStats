@@ -159,6 +159,35 @@ def studies_for_tissue(tissue):
         logging.error("/tissues/" + tissue + "/studies. " + (str(error)))
         raise RequestedNotFound(str(error))
 
+
+def tissue_associations(tissue):
+    args = request.args.to_dict()
+    try:
+        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        logging.error("/tissues/" + tissue + ". " + (str(error)))
+        raise BadUserRequest(str(error))
+
+    try:
+        trait = apiu._find_study_info(study=study, trait=trait)
+        searcher = search.Search(apiu.properties)
+
+        datasets, index_marker = searcher.search_study(trait=trait, study=study,
+                                                       start=start, size=size, pval_interval=pval_interval)
+
+        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+        params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
+        response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
+                                         index_marker=index_marker,
+                                         data_dict=data_dict, params=params)
+
+        return simplejson.dumps(response, ignore_nan=True)
+
+    except (NotFoundError, SubgroupError) as error:
+        logging.error("/studies/" + study + ". " + (str(error)))
+        raise RequestedNotFound(str(error))
+
+
 def trait_study(study, trait=None):
     try:
         # try to find the study's trait by looking for it in the database
