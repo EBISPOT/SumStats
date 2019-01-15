@@ -139,6 +139,26 @@ def studies_for_trait(trait):
         raise RequestedNotFound(str(error))
 
 
+def studies_for_tissue(tissue):
+    args = request.args.to_dict()
+    try:
+        start, size = apiu._get_start_size(args)
+    except ValueError as error:
+        logging.error("/tissues/" + tissue + "/studies. " + (str(error)))
+        raise BadUserRequest(str(error))
+
+    try:
+        explorer = ex.Explorer(apiu.properties)
+        studies = explorer.get_studies_of_tissue(tissue)
+        study_list = apiu._get_study_list(studies=studies, start=start, size=size)
+        response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
+                                         start=start, size=size, index_marker=size, data_dict=study_list)
+
+        return simplejson.dumps(response)
+    except NotFoundError as error:
+        logging.error("/tissues/" + tissue + "/studies. " + (str(error)))
+        raise RequestedNotFound(str(error))
+
 def trait_study(study, trait=None):
     try:
         # try to find the study's trait by looking for it in the database
@@ -309,18 +329,27 @@ def tissues():
     try:
         start, size = apiu._get_start_size(args)
     except ValueError as error:
-        logging.error("/studies. " + (str(error)))
+        logging.error("/tissues. " + (str(error)))
         raise BadUserRequest(str(error))
 
     explorer = ex.Explorer(apiu.properties)
-    studies = explorer.get_list_of_studies()
     tissues = explorer.get_list_of_tissues()
-    study_list = apiu._get_study_list(studies=studies, start=start, size=size)
     tissue_list = apiu._get_tissue_list(tissues=tissues, start=start, size=size)
     response = apiu._create_response(collection_name='tissues', method_name='api.get_tissues',
                                      start=start, size=size, index_marker=size, data_dict=tissue_list)
 
     return simplejson.dumps(response)
+
+
+def tissue(tissue):
+    try:
+        explorer = ex.Explorer(config_properties=properties)
+        if explorer.get_studies_of_tissue(tissue):
+            response = apiu._create_info_for_tissue(tissue)
+            return simplejson.dumps(response, ignore_nan=True)
+    except NotFoundError as error:
+        logging.error("/tissue/" + tissue + ". " + (str(error)))
+        raise RequestedNotFound(str(error))
 
 
 def genes():

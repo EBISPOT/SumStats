@@ -46,8 +46,11 @@ def _create_study_info_for_trait(studies, trait):
 
 
 def _create_info_for_tissue(tissue):
-    tissue_info = {'tissue': tissue
+    tissue_info = {'tissue': tissue,
+                   '_links': {'self': _create_href(method_name='api.get_tissue', params={'tissue': tissue})}
                    }
+    tissue_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_tissue', params={'tissue': tissue})
+    tissue_info['_links']['associations'] = _create_href(method_name='api.get_tissue_assocs', params={'tissue': tissue})
     return tissue_info
 
 

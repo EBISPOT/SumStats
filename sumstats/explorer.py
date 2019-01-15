@@ -52,7 +52,6 @@ class Explorer:
         for h5file in h5files:
             service = study_service.StudyService(h5file=h5file)
             tissues.extend(service.list_tissues())
-
             service.close_file()
 
         return sorted(list(set(tissues)))
@@ -70,6 +69,24 @@ class Explorer:
         # study not found
         raise NotFoundError("Study " + study_to_find)
 
+
+    def get_studies_of_tissue(self, tissue_to_find):
+        try:
+            study_list = []
+            h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+            for h5file in h5files:
+                service = study_service.StudyService(h5file=h5file)
+                for trait_study, tissue in service.list_tissue_study_pairs().items():
+                    if tissue_to_find == tissue:
+                        study = trait_study.split('/')[-1]
+                        study_list.append(study)
+                service.close_file()
+            return study_list
+        except NotFoundError:
+            # tissue not found
+            raise NotFoundError("Tissue " + tissue_to_find)
+
+
     def has_trait(self, trait):
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
@@ -77,6 +94,7 @@ class Explorer:
             if service.has_trait(trait):
                 return True
         raise NotFoundError("Trait " + trait)
+
 
     def has_chromosome(self, chromosome):
         # raises Not Found Error
@@ -109,6 +127,19 @@ def main():
             print(trait + ":" + args.study)
 
 
+    if args.tissues:  # pragma: no cover
+        tissues = explorer.get_list_of_tissues()
+        for tissue in tissues:
+            print(tissue)
+
+    if args.tissue is not None:  # pragma: no cover
+        studies = explorer.get_studies_of_tissue(args.tissue)
+        study_list = [study for study in studies]
+        if studies is None:
+            print("The tissue does not exist: ", args.tissue)
+        else:
+            print("Tissue " + args.tissue + " belongs to the following studies: " + ','.join(study_list))
+
 if __name__ == "__main__":
     main()  # pragma: no cover
 
@@ -118,6 +149,8 @@ def argument_parser(args):
     parser.add_argument('-traits', action='store_true', help='List all the traits')  # pragma: no cover
     parser.add_argument('-studies', action='store_true', help='List all the studies')  # pragma: no cover
     parser.add_argument('-study', help='Will list \'trait: study\' if it exists')  # pragma: no cover
+    parser.add_argument('-tissues', action='store_true', help='List all the tissues')  # pragma: no cover
+    parser.add_argument('-tissue', help='Will list \'study: tissue\' if it exists')  # pragma: no cover
     properties_handler.set_properties()  # pragma: no cover
 
     return parser.parse_args(args)  # pragma: no cover

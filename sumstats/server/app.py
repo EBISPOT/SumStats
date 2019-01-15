@@ -684,6 +684,22 @@ def get_studies_for_trait(trait):
                     mimetype="application/json")
 
 
+@api.route('/tissues/<string:tissue>/studies')
+def get_studies_for_tissue(tissue):
+    resp = endpoints.studies_for_tissue(tissue)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
+@api.route('/tissues/<string:tissue>/associations')
+def get_tissue_assocs(tissue):
+    resp = endpoints.associations_for_tissue(tissue)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
 @api.route('/studies/<study>')
 @api.route('/molecular_phenotypes/<string:trait>/studies/<string:study>')
 def get_trait_study(study, trait=None):
@@ -1447,6 +1463,15 @@ def get_tissues():
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
+
+
+@api.route('/tissues/<string:tissue>')
+def get_tissue(tissue):
+    resp = endpoints.tissue(tissue=tissue)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
 
 @api.route('/genes')
 def get_genes():
