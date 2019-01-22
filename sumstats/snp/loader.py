@@ -19,6 +19,7 @@ from sumstats.snp.constants import *
 import sumstats.snp.constants as const
 import sumstats.utils.group as gu
 from sumstats.errors.error_classes import *
+from sumstats.utils.sqlite_client import sqlClient
 
 
 class Loader:
@@ -29,14 +30,23 @@ class Loader:
         self.datasets = fl.format_datasets(datasets_as_lists, study, const)
 
         # Open the file with read/write permissions and create if it doesn't exist
-        self.file = h5py.File(h5file, 'a')
-        self.file_group = gu.Group(self.file)
+        #self.file = h5py.File(h5file, 'a')
+        #self.file_group = gu.Group(self.file)
 
     def load(self):
-        if self.is_loaded():
-            self.close_file()
-            raise AlreadyLoadedError(self.study)
-        self._save_info_in_file()
+        sqlcl = sqlClient()
+        sqlcl.drop_index('rsid_idx')
+        for index, snp in enumerate(self.datasets[SNP_DSET]):
+            data = (snp, self.datasets[CHR_DSET][index], self.datasets[BP_DSET][index])
+            sqlcl.insert_snp_row(data)
+        sqlcl.commit()
+        sqlcl.create_index('rsid_idx', 'snp', 'rsid')
+
+
+#        if self.is_loaded():
+#            self.close_file()
+#            raise AlreadyLoadedError(self.study)
+#        self._save_info_in_file()
 
     def is_loaded(self):
         datasets = self.datasets
