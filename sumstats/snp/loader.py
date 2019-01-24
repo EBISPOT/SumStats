@@ -19,12 +19,14 @@ from sumstats.snp.constants import *
 import sumstats.snp.constants as const
 import sumstats.utils.group as gu
 from sumstats.errors.error_classes import *
+import sqlite3
 from sumstats.utils.sqlite_client import sqlClient
 
 
 class Loader:
-    def __init__(self, tsv, h5file, study, dict_of_data=None):
+    def __init__(self, tsv, h5file, study, database, dict_of_data=None):
         self.study = study
+        self.database = database
 
         datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
         self.datasets = fl.format_datasets(datasets_as_lists, study, const)
@@ -34,13 +36,17 @@ class Loader:
         #self.file_group = gu.Group(self.file)
 
     def load(self):
-        sqlcl = sqlClient()
-        sqlcl.drop_index('rsid_idx')
+        sqlcl = sqlClient(database=self.database)
+        print('starting load...')
+        try:
+            sqlcl.drop_rsid_index()
+        except sqlite3.OperationalError as e:
+            print(e)
         for index, snp in enumerate(self.datasets[SNP_DSET]):
             data = (snp, self.datasets[CHR_DSET][index], self.datasets[BP_DSET][index])
             sqlcl.insert_snp_row(data)
         sqlcl.commit()
-        sqlcl.create_index('rsid_idx', 'snp', 'rsid')
+        sqlcl.create_rsid_index()
 
 
 #        if self.is_loaded():

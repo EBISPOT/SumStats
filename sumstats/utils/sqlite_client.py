@@ -1,11 +1,10 @@
 import sqlite3
 
-from sumstats.utils.properties_handler import properties
 
-
-class sqlClient(object):
-    def __init__(self):
-        self.database = properties.sqlite_path
+class sqlClient():
+    def __init__(self, database):
+        self.database = database
+        print(self.database)
         conn = self.create_conn()
         self.cur = conn.cursor()
 
@@ -16,8 +15,6 @@ class sqlClient(object):
         except NameError as e:
             print(e)
         return None
-
-
 
     def check_orientation_with_dbsnp(self, rsid):
 
@@ -40,11 +37,11 @@ class sqlClient(object):
     def insert_snp_row(self, data):
         self.cur.execute('insert or ignore into snp values (?,?,?)', data)
 
-    def drop_index(self, index_name):
-        self.cur.execute('DROP INDEX "{0}"'.format(index_name))
+    def drop_rsid_index(self):
+        self.cur.execute("DROP INDEX rsid_idx")
 
-    def create_index(self, index_name, table, col):
-        self.cur.execute('CREATE INDEX "{0}" on "{1}" ({2})'.format(index_name, table, col))
+    def create_rsid_index(self):
+        self.cur.execute("CREATE INDEX rsid_idx on snp (rsid)")
 
     def commit(self):
         self.cur.execute("COMMIT")
