@@ -27,6 +27,12 @@ def _get_study_list(studies, start, size):
         study_list.append(_create_study_info_for_trait([study], trait))
     return study_list
 
+def _get_study_list_no_info(studies, start, size):
+    study_list = []
+    end = min(start + size, len(studies))
+    for study in studies[start:end]:
+        study_list.append([{'study_accession': study}])
+    return study_list
 
 
 def _get_tissue_list(tissues, start, size):
@@ -63,7 +69,13 @@ def _create_info_for_study(study, trait):
     study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
     study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
                                                         params={'trait': trait, 'study': study})
+
     return study_info
+
+
+def _get_metadata_for_study():
+    pass
+
 
 
 def _get_trait_list(traits, start, size):

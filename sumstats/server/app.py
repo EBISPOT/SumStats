@@ -618,7 +618,6 @@ def get_studies():
                     mimetype="application/json")
 
 
-@api.route('/molecular_phenotypes/<string:trait>/studies')
 def get_studies_for_trait(trait):
     """Search Trait for Studies
 

@@ -116,6 +116,30 @@ def studies():
     return simplejson.dumps(response)
 
 
+def study_list():
+    args = request.args.to_dict()
+    try:
+        start, size = apiu._get_start_size(args)
+    except ValueError as error:
+        logging.error("/study_list. " + (str(error)))
+        raise BadUserRequest(str(error))
+
+    explorer = ex.Explorer(apiu.properties)
+    studies = explorer.get_list_of_studies()
+
+    # default size is max unless specified:
+    if 'size' not in args:
+        size = len(studies)
+
+    study_list = apiu._get_study_list_no_info(studies=studies, start=start, size=size)
+
+    response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
+                                     start=start, size=size, index_marker=size, data_dict=study_list)
+
+    return simplejson.dumps(response)
+
+
+
 def studies_for_trait(trait):
     args = request.args.to_dict()
     try:

@@ -24,10 +24,9 @@ import logging
 from sumstats.utils import register_logger
 from multiprocessing import Pool
 from sumstats.utils import properties_handler
-from sumstats.utils.ensembl_rest_client import EnsemblRestClient
 import sumstats.chr.retriever as cr
 from sumstats.chr.constants import *
-import re
+from sumstats.utils.sqlite_client import sqlClient
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -54,6 +53,7 @@ class SNPSearch:
         self.chr_dir = self.properties.chr_dir
         self.snp_dir = self.properties.snp_dir
         self.bp_step = self.properties.bp_step
+        self.database = self.properties.sqlite_path
 
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.index_marker = 0
@@ -85,21 +85,46 @@ class SNPSearch:
         return datasets
 
 
-    def _get_bp_from_ensembl(self):
-        client = EnsemblRestClient()
-        return client.resolve_location_with_rest(self.snp)
-
+    def _get_bp_from_sqlite(self):
+        client = sqlClient(self.database)
+        return client.get_chr_pos(self.snp)
 
     def _parse_chromosome_bp_location(self):
-        bp_interval = self._get_bp_from_ensembl()
-        print("Location for variant {} is: {}".format(self.snp, bp_interval))
-        if bp_interval and re.match(r'[0-9XYMT]{1,2}:[0-9]+-[0-9]+', bp_interval):
-            chromosome, bp = bp_interval.split(':')
-            bp_lower = str(int(bp.split('-')[0]) - BLOCK_SIZE)
-            bp_upper = str(int(bp.split('-')[0]) + BLOCK_SIZE)
+        #bp_interval = self._get_bp_from_ensembl()
+        locations = self._get_bp_from_sqlite()
+        chrom_list = []
+        bp_list = []
+        chromosome = ''
+        bp_interval = ''
+        if locations:
+            for l in locations:
+                chromosome, bp_interval = l
+                chrom_list.append(chromosome)
+                bp_list.append(bp_interval)
+            if (len(set(chrom_list)) != 1):
+                print("Variant seen in mulitple chromosomes") # Need to handle this
+        if len(bp_list) > 1:
+            bp_list.sort()
+            bp_lower = str(bp_list[0])
+            bp_upper = str(bp_list[-1])
             bp_interval = ':'.join([bp_lower, bp_upper])
             bp_interval = IntInterval().set_string_tuple(bp_interval)
-            return chromosome, bp_interval
+            return str(chromosome), bp_interval
+
+        elif len(bp_list) == 1:
+            bp_lower = str(bp_list[0])
+            bp_upper = str(bp_list[0])
+            bp_interval = ':'.join([bp_lower, bp_upper])
+
+            bp_interval = IntInterval().set_string_tuple(bp_interval)
+
+        #if bp_interval and re.match(r'[0-9XYMT]{1,2}:[0-9]+-[0-9]+', bp_interval):
+        #    chromosome, bp = bp_interval.split(':')
+        #    bp_lower = str(int(bp.split('-')[0]) - BLOCK_SIZE)
+        #    bp_upper = str(int(bp.split('-')[0]) + BLOCK_SIZE)
+        #    bp_interval = ':'.join([bp_lower, bp_upper])
+        #    bp_interval = IntInterval().set_string_tuple(bp_interval)
+            return str(chromosome), bp_interval
         else:
             raise NotFoundError("Variant " + self.snp)
 
