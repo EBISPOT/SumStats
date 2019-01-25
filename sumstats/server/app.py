@@ -298,7 +298,7 @@ def get_variant(variant_id):
                     mimetype="application/json")
 
 
-@api.route('/traits')
+@api.route('/molecular_phenotypes')
 def get_traits():
     """Traits
 
@@ -363,7 +363,7 @@ def get_traits():
                     mimetype="application/json")
 
 
-@api.route('/traits/<string:trait>')
+@api.route('/molecular_phenotypes/<string:trait>')
 def get_trait(trait):
     """Trait Resource
 
@@ -412,7 +412,7 @@ def get_trait(trait):
                     mimetype="application/json")
 
 
-@api.route('/traits/<string:trait>/associations')
+@api.route('/molecular_phenotypes/<string:trait>/associations')
 def get_trait_assocs(trait):
     """Search Trait for Associations
 
@@ -618,16 +618,6 @@ def get_studies():
                     mimetype="application/json")
 
 
-@api.route('/study_list')
-def get_all_studies():
-
-    resp = endpoints.study_list()
-    return Response(response=resp,
-                    status=200,
-                    mimetype="application/json")
-
-
-@api.route('/traits/<string:trait>/studies')
 def get_studies_for_trait(trait):
     """Search Trait for Studies
 
@@ -693,8 +683,24 @@ def get_studies_for_trait(trait):
                     mimetype="application/json")
 
 
+@api.route('/tissues/<string:tissue>/studies')
+def get_studies_for_tissue(tissue):
+    resp = endpoints.studies_for_tissue(tissue)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
+@api.route('/tissues/<string:tissue>/associations')
+def get_tissue_assocs(tissue):
+    resp = endpoints.tissue_associations(tissue)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
 @api.route('/studies/<study>')
-@api.route('/traits/<string:trait>/studies/<string:study>')
+@api.route('/molecular_phenotypes/<string:trait>/studies/<string:study>')
 def get_trait_study(study, trait=None):
     """Study Resource
 
@@ -744,7 +750,7 @@ def get_trait_study(study, trait=None):
 
 
 @api.route('/studies/<study>/associations')
-@api.route('/traits/<string:trait>/studies/<string:study>/associations')
+@api.route('/molecular_phenotypes/<string:trait>/studies/<string:study>/associations')
 def get_trait_study_assocs(study, trait=None):
     """Search Study Associations
 
@@ -1445,6 +1451,30 @@ def get_chromosome_variants(chromosome, variant_id):
         :statuscode 404: not found error
     """
     resp = endpoints.variants(chromosome=chromosome, variant=variant_id)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
+@api.route('/tissues')
+def get_tissues():
+    resp = endpoints.tissues()
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
+@api.route('/tissues/<string:tissue>')
+def get_tissue(tissue):
+    resp = endpoints.tissue(tissue=tissue)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
+@api.route('/genes')
+def get_genes():
+    resp = endpoints.genes()
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")

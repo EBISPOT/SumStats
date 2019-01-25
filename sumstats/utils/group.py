@@ -183,6 +183,8 @@ class Group:
     def set_attribute(self, key, value):
         self.group.attrs[key] = value
 
+    def get_attribute(self, key):
+        return self.group.attrs[key]
 
     def get_dict_of_attributes(self):
         return self.group.attrs.items()

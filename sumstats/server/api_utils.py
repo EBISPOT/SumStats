@@ -34,12 +34,30 @@ def _get_study_list_no_info(studies, start, size):
         study_list.append([{'study_accession': study}])
     return study_list
 
+
+def _get_tissue_list(tissues, start, size):
+    tissue_list = []
+    end = min(start + size, len(tissues))
+    for tissue in tissues[start:end]:
+        tissue_list.append(_create_info_for_tissue(tissue))
+    return tissue_list
+
+
 def _create_study_info_for_trait(studies, trait):
     study_list = []
     for study in studies:
         study_info = _create_info_for_study(study=study, trait=trait)
         study_list.append(study_info)
     return study_list
+
+
+def _create_info_for_tissue(tissue):
+    tissue_info = {'tissue': tissue,
+                   '_links': {'self': _create_href(method_name='api.get_tissue', params={'tissue': tissue})}
+                   }
+    tissue_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_tissue', params={'tissue': tissue})
+    tissue_info['_links']['associations'] = _create_href(method_name='api.get_tissue_assocs', params={'tissue': tissue})
+    return tissue_info
 
 
 def _create_info_for_study(study, trait):
@@ -73,7 +91,6 @@ def _create_info_for_trait(trait):
     trait_info = {'trait': trait,
                   '_links': {'self': _create_href(method_name='api.get_trait', params={'trait': trait})}}
     trait_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
-    trait_info['_links'] = _add_ontology_href(info_array=trait_info['_links'], trait=trait)
     trait_info['_links']['associations'] = _create_href(method_name='api.get_trait_assocs', params={'trait': trait})
     return trait_info
 

@@ -14,8 +14,10 @@ def root():
     response = {
         '_links': OrderedDict([
             ('associations', apiu._create_href(method_name='api.get_assocs')),
-            ('traits', apiu._create_href(method_name='api.get_traits')),
+            ('molecular_phenotypes', apiu._create_href(method_name='api.get_traits')),
             ('studies', apiu._create_href(method_name='api.get_studies')),
+            ('tissues', apiu._create_href(method_name='api.get_tissues')),
+            ('genes', apiu._create_href(method_name='api.get_genes')),
             ('chromosomes', apiu._create_href(method_name='api.get_chromosomes'))
         ])
     }
@@ -53,7 +55,7 @@ def traits():
     traits = explorer.get_list_of_traits()
     trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
 
-    response = apiu._create_response(collection_name='traits', method_name='api.get_traits',
+    response = apiu._create_response(collection_name='trait', method_name='api.get_traits',
                                      start=start, size=size, index_marker=size, data_dict=trait_list)
 
     return simplejson.dumps(response)
@@ -158,6 +160,55 @@ def studies_for_trait(trait):
         return simplejson.dumps(response)
     except NotFoundError as error:
         logging.error("/traits/" + trait + "/studies. " + (str(error)))
+        raise RequestedNotFound(str(error))
+
+
+def studies_for_tissue(tissue):
+    args = request.args.to_dict()
+    try:
+        start, size = apiu._get_start_size(args)
+    except ValueError as error:
+        logging.error("/tissues/" + tissue + "/studies. " + (str(error)))
+        raise BadUserRequest(str(error))
+
+    try:
+        explorer = ex.Explorer(apiu.properties)
+        studies = explorer.get_studies_of_tissue(tissue)
+        study_list = apiu._get_study_list(studies=studies, start=start, size=size)
+        response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
+                                         start=start, size=size, index_marker=size, data_dict=study_list)
+
+        return simplejson.dumps(response)
+    except NotFoundError as error:
+        logging.error("/tissues/" + tissue + "/studies. " + (str(error)))
+        raise RequestedNotFound(str(error))
+
+
+def tissue_associations(tissue):
+    args = request.args.to_dict()
+    try:
+        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        logging.error("/tissues/" + tissue + ". " + (str(error)))
+        raise BadUserRequest(str(error))
+
+    try:
+        trait = apiu._find_study_info(study=study, trait=trait)
+        searcher = search.Search(apiu.properties)
+
+        datasets, index_marker = searcher.search_study(trait=trait, study=study,
+                                                       start=start, size=size, pval_interval=pval_interval)
+
+        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+        params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
+        response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
+                                         index_marker=index_marker,
+                                         data_dict=data_dict, params=params)
+
+        return simplejson.dumps(response, ignore_nan=True)
+
+    except (NotFoundError, SubgroupError) as error:
+        logging.error("/studies/" + study + ". " + (str(error)))
         raise RequestedNotFound(str(error))
 
 
@@ -324,6 +375,51 @@ def variant_resource(variant, chromosome=None):
     except (NotFoundError, SubgroupError) as error:
         logging.debug(str(error))
         raise RequestedNotFound(str(error))
+
+
+def tissues():
+    args = request.args.to_dict()
+    try:
+        start, size = apiu._get_start_size(args)
+    except ValueError as error:
+        logging.error("/tissues. " + (str(error)))
+        raise BadUserRequest(str(error))
+
+    explorer = ex.Explorer(apiu.properties)
+    tissues = explorer.get_list_of_tissues()
+    tissue_list = apiu._get_tissue_list(tissues=tissues, start=start, size=size)
+    response = apiu._create_response(collection_name='tissues', method_name='api.get_tissues',
+                                     start=start, size=size, index_marker=size, data_dict=tissue_list)
+
+    return simplejson.dumps(response)
+
+
+def tissue(tissue):
+    try:
+        explorer = ex.Explorer(config_properties=properties)
+        if explorer.get_studies_of_tissue(tissue):
+            response = apiu._create_info_for_tissue(tissue)
+            return simplejson.dumps(response, ignore_nan=True)
+    except NotFoundError as error:
+        logging.error("/tissue/" + tissue + ". " + (str(error)))
+        raise RequestedNotFound(str(error))
+
+
+def genes():
+    args = request.args.to_dict()
+    try:
+        start, size = apiu._get_start_size(args)
+    except ValueError as error:
+        logging.error("/traits. " + (str(error)))
+        raise BadUserRequest(str(error))
+    explorer = ex.Explorer(apiu.properties)
+    traits = explorer.get_list_of_traits()
+    trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
+
+    response = apiu._create_response(collection_name='trait', method_name='api.get_traits',
+                                     start=start, size=size, index_marker=size, data_dict=trait_list)
+
+    return simplejson.dumps(response)
 
 
 def _create_chromosome_info(chromosome):
