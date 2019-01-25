@@ -38,6 +38,7 @@ class Loader:
     def load(self):
         sqlcl = sqlClient(database=self.database)
         print('starting load...')
+        print('database: {}'.format(self.database))
         try:
             sqlcl.drop_rsid_index()
         except sqlite3.OperationalError as e:
@@ -45,7 +46,6 @@ class Loader:
         for index, snp in enumerate(self.datasets[SNP_DSET]):
             data = (snp, self.datasets[CHR_DSET][index], self.datasets[BP_DSET][index])
             sqlcl.insert_snp_row(data)
-        sqlcl.commit()
         sqlcl.create_rsid_index()
 
 

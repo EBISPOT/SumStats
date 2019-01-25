@@ -49,16 +49,12 @@ def main():
         print("Load complete!")
 
     if loader_type == "snp":
-        #if chromosome is None: raise ValueError(
-        #    "You have chosen the variant loader, you need to specify the chromosome that the variant belongs to")
-#        if bp is None: raise ValueError(
-#            "You have chosen the variant loader, you need to specify the upper bp limit that the variant belongs to")
-
         to_store = fsutils.create_h5file_path(path=h5files_path, dir_name=snp_dir + "/" + str(chromosome), file_name=str(bp))
-        loader = snp_loader.Loader(to_load, to_store, study, sql_database)
+        loader = snp_loader.Loader(tsv=to_load, h5file=to_store, study=study, database=sql_database)
         loader.load()
         #loader.close_file()
         print("Load complete!")
+
 
 
 if __name__ == "__main__":

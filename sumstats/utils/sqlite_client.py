@@ -5,8 +5,8 @@ class sqlClient():
     def __init__(self, database):
         self.database = database
         print(self.database)
-        conn = self.create_conn()
-        self.cur = conn.cursor()
+        self.conn = self.create_conn()
+        self.cur = self.conn.cursor()
 
     def create_conn(self):
         try:
@@ -42,9 +42,6 @@ class sqlClient():
 
     def create_rsid_index(self):
         self.cur.execute("CREATE INDEX rsid_idx on snp (rsid)")
-
-    def commit(self):
-        self.cur.execute("COMMIT")
 
 
     def get_chr_pos(self, snp):

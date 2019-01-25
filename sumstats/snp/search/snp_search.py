@@ -24,10 +24,8 @@ import logging
 from sumstats.utils import register_logger
 from multiprocessing import Pool
 from sumstats.utils import properties_handler
-from sumstats.utils.ensembl_rest_client import EnsemblRestClient
 import sumstats.chr.retriever as cr
 from sumstats.chr.constants import *
-import re
 from sumstats.utils.sqlite_client import sqlClient
 
 logger = logging.getLogger(__name__)
@@ -55,6 +53,7 @@ class SNPSearch:
         self.chr_dir = self.properties.chr_dir
         self.snp_dir = self.properties.snp_dir
         self.bp_step = self.properties.bp_step
+        self.database = self.properties.sqlite_path
 
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.index_marker = 0
@@ -86,12 +85,8 @@ class SNPSearch:
         return datasets
 
 
-    def _get_bp_from_ensembl(self):
-        client = EnsemblRestClient()
-        return client.resolve_location_with_rest(self.snp)
-
     def _get_bp_from_sqlite(self):
-        client = sqlClient()
+        client = sqlClient(self.database)
         return client.get_chr_pos(self.snp)
 
     def _parse_chromosome_bp_location(self):
