@@ -40,16 +40,29 @@ def block_limit_not_reached_max(block_ceil, max_bp):
     return int(block_ceil) <= (int(max_bp) + int(BLOCK_SIZE))
 
 
-def save_info_in_block_group(block_group, datasets):
-    block_group.check_datasets_consistent(TO_STORE_DSETS)
+def save_info_in_block_group(block_study_group, datasets):
+    block_study_group.check_datasets_consistent(TO_STORE_DSETS)
 
     for dset_name in TO_STORE_DSETS:
-        block_group.expand_dataset(dset_name, datasets[dset_name])
+        block_study_group.expand_dataset(dset_name, datasets[dset_name])
+
+    block_group = block_study_group.get_parent()
+    _save_block_max_size_attribute(block_group)
 
 
 def _max_bp_location(datasets):
     bp_list_chr = datasets[BP_DSET]
     return max(bp_list_chr)
+
+def _save_block_max_size_attribute(block_group):
+    subgroups = block_group.get_all_subgroups()
+    size = sum(subgroup.get_max_group_size() for subgroup in subgroups)
+    block_group.set_attribute("size", size)
+
+def _save_chr_max_size_attribute(chr_group):
+    all_chr_sub_groups = chr_group.get_all_subgroups()
+    size = sum(int(sub_group.get_attribute("size")) for sub_group in all_chr_sub_groups if sub_group.get_attribute("size"))
+    chr_group.set_attribute("size", size)
 
 
 class Loader:
@@ -125,6 +138,7 @@ class Loader:
             self._save_block(block_study_group, block_mask, dsets_sliced_by_chr)
 
             block_floor, block_ceil = increment_block_limits(block_ceil)
+        _save_chr_max_size_attribute(chr_group)
 
     def _slice_datasets_where_chromosome(self, chromosome):
         # get the slices from all the arrays where chromosome position == i

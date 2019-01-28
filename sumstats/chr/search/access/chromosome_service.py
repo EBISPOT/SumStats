@@ -60,10 +60,11 @@ class ChromosomeService:
     def get_chromosome_size(self, chromosome):
         chromosome_group = self.file_group.get_subgroup(chromosome)
         all_chr_sub_groups = chromosome_group.get_all_subgroups()
-
         all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
-        size = sum(sub_group.get_max_group_size() for sub_group in all_subgroups)
+        #size = sum(sub_group.get_max_group_size() for sub_group in all_subgroups)
+        size = chromosome_group.get_attribute("size")
         logger.debug("Chromosome %s group size is %s", str(chromosome), str(size))
+        print(size)
         return size
 
     def close_file(self):

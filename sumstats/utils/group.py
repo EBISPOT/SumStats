@@ -132,9 +132,18 @@ class Group:
         """
         :return: the size of the Datasets that are stored under the group
         """
+        #print('getting size')
         if self.contains_dataset(REFERENCE_DSET):
-            return self.get_dset_shape(REFERENCE_DSET)[0]
+            #return self.get_dset_shape(REFERENCE_DSET)[0]
+            return self.get_dset_len(REFERENCE_DSET)
         return 0
+
+
+    def get_dset_len(self, dset_name):
+        if dset_name in self.group:
+            return self.group[dset_name].len()
+        else:
+            self._raise_non_existent_subgroup_error(dset_name)
 
     def get_dset_shape(self, dset_name):
         if dset_name in self.group:
@@ -182,6 +191,13 @@ class Group:
 
     def set_attribute(self, key, value):
         self.group.attrs[key] = value
+
+
+    def get_attribute(self, key):
+        if key in self.group.attrs:
+            return self.group.attrs[key]
+        else:
+            return None
 
 
     def get_dict_of_attributes(self):
