@@ -15,7 +15,8 @@ def main():
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
     loader_type = args.loader
     tsv = args.tsv
-    meta = args.meta
+    study_meta = args.study_meta
+    trait_meta = args.trait_meta
     trait = args.trait
     study = args.study
     chromosome = args.chr
@@ -26,14 +27,20 @@ def main():
     sql_database = properties.sqlite_path
 
     to_load = fsutils.get_file_path(path=tsvfiles_path, file=tsv)
-    study_metadata = fsutils.get_file_path(path=tsvfiles_path, file=meta)
+
+    study_meta_file = None
+    trait_meta_file = None
+    if study_meta:
+        study_meta_file = fsutils.get_file_path(path=tsvfiles_path, file=study_meta)
+    if trait_meta:
+        trait_meta_file = fsutils.get_file_path(path=tsvfiles_path, file=trait_meta)
 
     if loader_type == "trait":
         if trait is None: raise ValueError("You have chosen the trait loader but haven't specified a trait")
         file_name = trait[-2:]
 
         to_store = fsutils.create_h5file_path(path=h5files_path, file_name=file_name, dir_name=trait_dir)
-        loader = trait_loader.Loader(tsv=to_load, h5file=to_store, study=study, trait=trait, metadata=study_metadata)
+        loader = trait_loader.Loader(tsv=to_load, h5file=to_store, study=study, trait=trait, study_meta_file=study_meta_file, trait_meta_file=trait_meta_file)
         loader.load()
         loader.close_file()
         print("Load complete!")
@@ -71,7 +78,8 @@ def argument_parser(args):
     parser.add_argument('-loader', help='The type of loader: [trait|chr|snp]', required=True)  # pragma: no cover
     parser.add_argument('-chr', help='The chromosome that will be loaded')  # pragma: no cover
     parser.add_argument('-bp', help='Upper limit of base pair location that is loaded (for snp loader)')  # pragma: no cover
-    parser.add_argument('-meta', help='The name of the file with study specific metadata', required=False)  # pragma: no cover
+    parser.add_argument('-study_meta', help='The name of the file with study specific metadata', required=False)  # pragma: no cover
+    parser.add_argument('-trait_meta', help='The name of the file with trait specific metadata', required=False)  # pragma: no cover
 
     properties_handler.set_properties()  # pragma: no cover
 

@@ -65,6 +65,34 @@ class StudyService:
             study_groups.extend(trait_group.get_all_subgroups_keys())
         return study_groups
 
+
+    def list_studies_for_trait(self, trait):
+        trait_group = self.file_group.get_subgroup(trait)
+        study_groups = []
+
+        study_groups.extend(trait_group.get_all_subgroups_keys())
+        return study_groups
+
+
+    def list_tissues(self):
+        trait_groups = self.file_group.get_all_subgroups()
+        study_groups = []
+
+        for trait_group in trait_groups:
+            study_groups.extend(trait_group.get_all_subgroups())
+        return [study.get_attribute('tissue') for study in study_groups]
+
+    def list_tissue_study_pairs(self):
+        trait_groups = self.file_group.get_all_subgroups()
+        study_groups = []
+        tissue_study_pairs = {}
+
+        for trait_group in trait_groups:
+            study_groups.extend(trait_group.get_all_subgroups())
+        for study in study_groups:
+            tissue_study_pairs[study.get_name()] = study.get_attribute('tissue')
+        return tissue_study_pairs
+
     def list_trait_study_pairs(self):
         trait_groups = self.file_group.get_all_subgroups()
         study_groups = []

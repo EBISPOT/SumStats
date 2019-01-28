@@ -36,7 +36,7 @@ class Search(object):
 def main():  # pragma: no cover
     args = argument_parser(sys.argv[1:])  # pragma: no cover
 
-    trait, study, chromosome, bp_interval, snp, pval_interval = au.convert_search_args(args)  # pragma: no cover
+    trait, study, chromosome, bp_interval, snp, pval_interval, tissue = au.convert_search_args(args)  # pragma: no cover
 
     find_all = args.all  # pragma: no cover
     start = args.start  # pragma: no cover
@@ -98,6 +98,7 @@ def argument_parser(args):
     parser.add_argument('-size', help='Number of retrieved associations')  # pragma: no cover
     parser.add_argument('-trait', help='The trait I am looking for')  # pragma: no cover
     parser.add_argument('-study', help='The study I am looking for')  # pragma: no cover
+    parser.add_argument('-tissue', help='The tissue I am looking for')  # pragma: no cover
     parser.add_argument('-snp', help='The SNP I am looking for')  # pragma: no cover
     parser.add_argument('-chr', help='The chromosome I am looking for')  # pragma: no cover
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')  # pragma: no cover
