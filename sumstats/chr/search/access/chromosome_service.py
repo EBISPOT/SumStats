@@ -21,6 +21,7 @@ import sumstats.chr.search.access.repository as query
 import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
 from sumstats.common_constants import *
+from sumstats.errors.error_classes import *
 import logging
 from sumstats.utils import register_logger
 
@@ -34,18 +35,32 @@ class ChromosomeService:
         self.file = h5py.File(h5file, 'r')
         self.datasets = {}
         self.file_group = gu.Group(self.file)
+        self.study = None
 
-    def query(self, chromosome, start, size):
+
+    def get_all(self, group):
+        if self.study == group.split('/')[-1]:
+            print(group)
+            return group
+
+    def query(self, chromosome, start, size, study=None):
         logger.debug("Starting query for chromosome %s, start %s, and size %s", str(chromosome), str(start), str(size))
         chr_group = self.file_group.get_subgroup(chromosome)
 
-        all_chr_sub_groups = chr_group.get_all_subgroups()
+        self.study = study
+        print(self.study)
+        if study and not self.file.visit(self.get_all):
+            raise NotFoundError("Study " + self.study)
+            self.datasets = query.create_empty_dataset()
 
-        # we need to get all the study level subgroups from the bp range subgroups
-        all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
+        else:
+            all_chr_sub_groups = chr_group.get_all_subgroups()
 
-        self.datasets = query.load_datasets_from_groups(all_subgroups, start, size)
-        logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))
+            # we need to get all the study level subgroups from the bp range subgroups
+            all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
+
+            self.datasets = query.load_datasets_from_groups(all_subgroups, start, size)
+            logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
         logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s",

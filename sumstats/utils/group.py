@@ -80,6 +80,13 @@ class Group:
         """
         return (Group(group) for group in self.group.values() if isinstance(group, h5py.Group))
 
+    def get_all_subgroups_where(self, condition):
+        """
+        Get's all the subgroups of our group (self)
+        :return: a generator that you can iterate through to get all the subgroups of our group
+        """
+        return (Group(group) for group in self.group.values() if isinstance(group, h5py.Group) and group.name == condition)
+
     def get_all_subgroups_keys(self):
         return sorted(list(self.group.keys()))
 

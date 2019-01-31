@@ -60,12 +60,12 @@ def main():  # pragma: no cover
                                                        pval_interval=pval_interval)
         else:
             result, index_marker = search.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
-    elif study is not None:
-        explorer = ex.Explorer(properties)
-        trait = explorer.get_trait_of_study(study)
+    #elif study is not None:
+    #    explorer = ex.Explorer(properties)
+    #    trait = explorer.get_trait_of_study(study)
 
-        result, index_marker = search.search_study(trait=trait, study=study, start=start, size=size,
-                                                   pval_interval=pval_interval)
+    #    result, index_marker = search.search_study(trait=trait, study=study, start=start, size=size,
+    #                                               pval_interval=pval_interval)
     elif chromosome is not None:
         if snp is not None:
             result, index_marker = search.search_snp(snp=snp, start=start, size=size, study=study,

@@ -10,6 +10,9 @@ def load_datasets_from_groups(groups, start, size):
 def get_dsets_from_group(group, start, size):
     return group.load_datasets(dset_names=TO_QUERY_DSETS, start=start, size=size)
 
+def create_empty_dataset():
+    return create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+
 
 def get_dsets_from_parent_group(group, start, size):
     """
