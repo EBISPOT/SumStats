@@ -14,7 +14,7 @@
 """
 
 import numpy as np
-from mpi4py import MPI
+
 
 from sumstats.utils import fileload as fl
 from sumstats.utils import dataset_utils
@@ -75,8 +75,7 @@ class Loader:
         self.datasets = fl.format_datasets(datasets_as_lists, study, const)
 
         # Open the file with read/write permissions and create if it doesn't exist
-        self.file = h5py.File(h5file, 'a', driver="mpio", comm=MPI.COMM_WORLD)
-        #self.file = h5py.File(h5file, 'a')
+        self.file = h5py.File(h5file, 'a')
         self.file_group = gu.Group(self.file)
 
     def load(self):

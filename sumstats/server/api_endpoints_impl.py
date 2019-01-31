@@ -190,7 +190,9 @@ def trait_study_associations(study, trait=None):
         trait = apiu._find_study_info(study=study, trait=trait)
         searcher = search.Search(apiu.properties)
 
-        datasets, index_marker = searcher.search_study(trait=trait, study=study,
+        #datasets, index_marker = searcher.search_study(trait=trait, study=study,
+        #                                               start=start, size=size, pval_interval=pval_interval)
+        datasets, index_marker = searcher.search_study(study=study,
                                                        start=start, size=size, pval_interval=pval_interval)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)

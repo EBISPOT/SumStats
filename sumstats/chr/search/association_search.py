@@ -1,9 +1,11 @@
 import sumstats.explorer as ex
 from sumstats.trait.search.access import trait_service
 import sumstats.trait.search.trait_search as ts
+from sumstats.chr.search.access import chromosome_service
+import sumstats.chr.search.chromosome_search as cs
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
-from sumstats.trait.constants import *
+from sumstats.chr.constants import *
 import logging
 from sumstats.utils import register_logger
 from sumstats.utils import properties_handler
@@ -13,14 +15,16 @@ register_logger.register(__name__)
 
 
 class AssociationSearch:
-    def __init__(self, start, size, config_properties=None):
+    def __init__(self, start, size, config_properties=None, studies=None):
         self.starting_point = start
         self.start = start
         self.size = size
+        self.studies = []
+        self.studies.append(studies)
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
-        self.trait_dir = self.properties.trait_dir
+        self.chr_dir = self.properties.chr_dir
 
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
@@ -39,33 +43,48 @@ class AssociationSearch:
         logger.info("Searching all associations for start %s, size %s, pval_interval %s",
                     str(self.start), str(self.size), str(pval_interval))
         iteration_size = self.size
-        available_traits = self._get_all_traits()
-        for trait in available_traits:
-            logger.debug(
-                "Searching all associations for trait %s, start %s, and iteration size %s", trait, str(self.start),
-                str(iteration_size))
-            search_trait = ts.TraitSearch(trait=trait, start=self.start, size=iteration_size, config_properties=self.properties)
-            result, current_trait_index = search_trait.search_trait(pval_interval)
+        available_chroms = self._get_all_chroms()
 
-            self._extend_datasets(result)
-            self._calculate_total_traversal_of_search(trait=trait, current_trait_index=current_trait_index)
-            self._increase_search_index(current_trait_index)
+        for chrom in available_chroms:
+            if self.studies:
+                for study in self.studies:
+                    self._perform_search(pval_interval=pval_interval, chrom=chrom, iteration_size=iteration_size, study=study)
+            else:
+                self._perform_search(pval_interval=pval_interval, chrom=chrom, iteration_size=iteration_size)
 
-            if self._search_complete():
-                logger.debug("Search completed for trait %s", trait)
-                logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
-                return self.datasets, self.index_marker
-
-            iteration_size = self._next_iteration_size()
-            logger.debug("Calculating next iteration start and size...")
-            self.start = self._next_start_index(current_search_index=current_trait_index)
-
-            logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
         return self.datasets, self.index_marker
+
+
+    def _perform_search(self, pval_interval, chrom, iteration_size, study=None):
+        logger.debug(
+            "Searching all associations for chrom %s, start %s, and iteration size %s", chrom, str(self.start),
+            str(iteration_size))
+        search_chrom = cs.ChromosomeSearch(chromosome=chrom, start=self.start, size=iteration_size,
+                                           config_properties=self.properties)
+        result, current_chrom_index = search_chrom.search_chromosome(study=study, pval_interval=pval_interval)
+
+        self._extend_datasets(result)
+        self._calculate_total_traversal_of_search(chrom=chrom, current_chrom_index=current_chrom_index)
+        self._increase_search_index(current_chrom_index)
+
+        if self._search_complete():
+            logger.debug("Search completed for trait %s", chrom)
+            logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
+            return self.datasets, self.index_marker
+
+        iteration_size = self._next_iteration_size()
+        logger.debug("Calculating next iteration start and size...")
+        self.start = self._next_start_index(current_search_index=current_chrom_index)
+
+        logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
 
     def _get_all_traits(self):
         explorer = ex.Explorer(self.properties)
         return explorer.get_list_of_traits()
+
+    def _get_all_chroms(self):
+        explorer = ex.Explorer(self.properties)
+        return explorer.get_list_of_chroms()
 
     def _next_iteration_size(self):
         return self.size - len(self.datasets[REFERENCE_DSET])
@@ -76,19 +95,19 @@ class AssociationSearch:
     def _extend_datasets(self, result):
         self.datasets = utils.extend_dsets_with_subset(self.datasets, result)
 
-    def _calculate_total_traversal_of_search(self, trait, current_trait_index):
-        self.search_traversed += self._get_traversed_size(retrieved_index=current_trait_index, trait=trait)
+    def _calculate_total_traversal_of_search(self, chrom, current_chrom_index):
+        self.search_traversed += self._get_traversed_size(retrieved_index=current_chrom_index, chrom=chrom)
 
     def _search_complete(self):
         return len(self.datasets[REFERENCE_DSET]) >= self.size
 
-    def _get_traversed_size(self, retrieved_index, trait):
+    def _get_traversed_size(self, retrieved_index, chrom):
         if retrieved_index == 0:
-            h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait)
-            service = trait_service.TraitService(h5file)
-            trait_size = service.get_trait_size(trait)
+            h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.chrom_dir, file_name=chrom)
+            service = chromosome_service.ChromosomeService(h5file)
+            chrom_size = service.get_chromosome_size(chrom)
             service.close_file()
-            return trait_size
+            return chrom_size
         return retrieved_index
 
     def _next_start_index(self, current_search_index):

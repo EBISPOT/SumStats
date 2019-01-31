@@ -35,10 +35,10 @@ class ChromosomeService:
         self.file = h5py.File(h5file, 'r')
         self.datasets = {}
         self.file_group = gu.Group(self.file)
-        self.study = None
+        self.study = []
 
 
-    def get_all(self, group):
+    def check_study_is_group(self, group):
         if self.study == group.split('/')[-1]:
             print(group)
             return group
@@ -49,7 +49,7 @@ class ChromosomeService:
 
         self.study = study
         print(self.study)
-        if study and not self.file.visit(self.get_all):
+        if study and not self.file.visit(self.check_study_is_group):
             raise NotFoundError("Study " + self.study)
             self.datasets = query.create_empty_dataset()
 
@@ -59,7 +59,7 @@ class ChromosomeService:
             # we need to get all the study level subgroups from the bp range subgroups
             all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
 
-            self.datasets = query.load_datasets_from_groups(all_subgroups, start, size)
+            self.datasets = query.load_datasets_from_groups(all_subgroups, start, size, study)
             logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
@@ -81,6 +81,10 @@ class ChromosomeService:
         logger.debug("Chromosome %s group size is %s", str(chromosome), str(size))
         print(size)
         return size
+
+    def list_chroms(self):
+        chroms = self.file_group.get_all_subgroups_keys()
+        return chroms
 
     def close_file(self):
         logger.debug("Closing file %s...", self.file.file)

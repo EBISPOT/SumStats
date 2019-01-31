@@ -3,8 +3,8 @@ from sumstats.chr.constants import *
 from sumstats.utils.dataset_utils import *
 
 
-def load_datasets_from_groups(groups, start, size):
-    return get_dsets_from_parent_group(groups, start, size)
+def load_datasets_from_groups(groups, start, size, study=None):
+    return get_dsets_from_parent_group(groups, start, size, study)
 
 
 def get_dsets_from_group(group, start, size):
@@ -14,7 +14,7 @@ def create_empty_dataset():
     return create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
 
 
-def get_dsets_from_parent_group(group, start, size):
+def get_dsets_from_parent_group(group, start, size, study=None):
     """
         Traverses the subgroups of the given group and retrieves the data stored in their datasets.
         It traverses the datasets of the first subgroup before it continues to the next subgroup's datasets.
@@ -31,26 +31,28 @@ def get_dsets_from_parent_group(group, start, size):
     original_start = start
 
     for child_group in group:
-        max_traversed += child_group.get_max_group_size()
+        if study and study == child_group.get_name().split('/')[-1]:
+            max_traversed += child_group.get_max_group_size()
 
-        # we want to start higher than where we are now
-        if original_start >= max_traversed:
-            start = original_start - max_traversed
-            continue
+            # we want to start higher than where we are now
+            if original_start >= max_traversed:
+                start = original_start - max_traversed
+                continue
 
-        total_retrieved = len(datasets[REFERENCE_DSET])
-        if end <= total_retrieved:
-            return datasets
+            total_retrieved = len(datasets[REFERENCE_DSET])
+            if end <= total_retrieved:
+                return datasets
 
-        subset_of_datasets = get_dsets_from_group(child_group, start, size)
-        datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
-        retrieved_size = len(subset_of_datasets[REFERENCE_DSET])
+            subset_of_datasets = get_dsets_from_group(child_group, start, size)
+            datasets = extend_dsets_with_subset(datasets, subset_of_datasets)
+            retrieved_size = len(subset_of_datasets[REFERENCE_DSET])
 
-        max_traversed += retrieved_size
-        size = size - retrieved_size
-        # if I have already gathered some information
-        # then I am going on to the next dataset and what to query it from its start
-        start = _new_start_size(start=start, total_retrieved=len(datasets[REFERENCE_DSET]), retrieved=retrieved_size)
+            max_traversed += retrieved_size
+            size = size - retrieved_size
+            # if I have already gathered some information
+            # then I am going on to the next dataset and what to query it from its start
+            start = _new_start_size(start=start, total_retrieved=len(datasets[REFERENCE_DSET]), retrieved=retrieved_size)
+
     return datasets
 
 

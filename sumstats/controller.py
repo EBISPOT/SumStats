@@ -15,14 +15,13 @@ class Search(object):
         self.config_properties = config_properties
 
     def search_all_assocs(self, start, size, pval_interval=None):
-        return tr.search_all_assocs(start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
+        return cr.search_all_assocs(start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
 
     def search_trait(self, trait, start, size, pval_interval=None):
         return tr.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
 
-    def search_study(self, trait, study, start, size, pval_interval=None):
-        return tr.search_study(trait=trait, study=study, start=start, size=size, pval_interval=pval_interval,
-                               properties=self.config_properties)
+    def search_study(self, start, size, study, pval_interval=None):
+        return cr.search_all_assocs(study=study, start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
 
     def search_chromosome(self, chromosome, start, size, bp_interval=None, study=None, pval_interval=None):
         return cr.search_chromosome(chromosome=chromosome, start=start, size=size, properties=self.config_properties,
@@ -60,12 +59,10 @@ def main():  # pragma: no cover
                                                        pval_interval=pval_interval)
         else:
             result, index_marker = search.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
-    #elif study is not None:
-    #    explorer = ex.Explorer(properties)
-    #    trait = explorer.get_trait_of_study(study)
 
-    #    result, index_marker = search.search_study(trait=trait, study=study, start=start, size=size,
-    #                                               pval_interval=pval_interval)
+    elif study is not None:
+        result, index_marker = search.search_study(study=study, start=start, size=size,
+                                                   pval_interval=pval_interval)
     elif chromosome is not None:
         if snp is not None:
             result, index_marker = search.search_snp(snp=snp, start=start, size=size, study=study,

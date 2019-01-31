@@ -4,6 +4,7 @@ from os.path import isfile
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.search.access.trait_service as trait_service
 import sumstats.trait.search.access.study_service as study_service
+import sumstats.chr.search.access.chromosome_service as chrom_service
 import sumstats.chr.search.chromosome_search as chr_search
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
@@ -15,6 +16,7 @@ class Explorer:
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
         self.trait_dir = self.properties.trait_dir
+        self.chr_dir = self.properties.chr_dir
 
     def get_list_of_traits(self):
         traits = []
@@ -25,6 +27,16 @@ class Explorer:
             service.close_file()
 
         return sorted(traits)
+
+    def get_list_of_chroms(self):
+        chroms = []
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.chr_dir)
+        for h5file in h5files:
+            service = chrom_service.ChromosomeService(h5file=h5file)
+            chroms.extend(service.list_chroms())
+            service.close_file()
+
+        return sorted(chroms)
 
     def get_list_of_studies_for_trait(self, trait):
         h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait[-2:])
@@ -83,6 +95,11 @@ def main():
         for trait in traits:
             print(trait)
 
+    if args.chromosomes:  # pragma: no cover
+        chroms = explorer.get_list_of_chroms()
+        for chrom in chroms:
+            print(chrom)
+
     if args.studies:  # pragma: no cover
         studies = explorer.get_list_of_studies()
         for study in studies:
@@ -105,6 +122,7 @@ def argument_parser(args):
     parser.add_argument('-traits', action='store_true', help='List all the traits')  # pragma: no cover
     parser.add_argument('-studies', action='store_true', help='List all the studies')  # pragma: no cover
     parser.add_argument('-study', help='Will list \'trait: study\' if it exists')  # pragma: no cover
+    parser.add_argument('-chromosomes', action='store_true', help='Will list all the chromosomes')  # pragma: no cover
     properties_handler.set_properties()  # pragma: no cover
 
     return parser.parse_args(args)  # pragma: no cover
