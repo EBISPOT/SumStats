@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+
 import sumstats.explorer as ex
 from sumstats.trait.search.access import trait_service
 import sumstats.trait.search.trait_search as ts
@@ -19,8 +21,7 @@ class AssociationSearch:
         self.starting_point = start
         self.start = start
         self.size = size
-        self.studies = []
-        self.studies.append(studies)
+        self.studies = [studies]
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
@@ -34,7 +35,7 @@ class AssociationSearch:
 
     def search_associations(self, pval_interval=None):
         """
-        Traverses the traits available and retrieves the data stored in their datasets.
+        Traverses the chromosomes and studies therein and retrieves the data stored in their datasets.
         It traverses the datasets of the first trait before it continues to the next trait's datasets.
         If a trait will be skipped or not is determined by each trait's search methods.
         :param pval_interval: filter by p-value interval if not None
@@ -42,41 +43,50 @@ class AssociationSearch:
         """
         logger.info("Searching all associations for start %s, size %s, pval_interval %s",
                     str(self.start), str(self.size), str(pval_interval))
-        iteration_size = self.size
+        self.iteration_size = self.size
         available_chroms = self._get_all_chroms()
 
         for chrom in available_chroms:
-            if self.studies:
-                for study in self.studies:
-                    self._perform_search(pval_interval=pval_interval, chrom=chrom, iteration_size=iteration_size, study=study)
-            else:
-                self._perform_search(pval_interval=pval_interval, chrom=chrom, iteration_size=iteration_size)
+            while not self._search_complete():
+                if self.studies[0] is not None:
+                    for study in self.studies:
+                        self.perform_search(pval_interval=pval_interval, chrom=chrom, study=study)
+                else:
+                    self.perform_search(pval_interval=pval_interval, chrom=chrom)
 
         return self.datasets, self.index_marker
 
 
-    def _perform_search(self, pval_interval, chrom, iteration_size, study=None):
+    def perform_search(self, pval_interval=None, chrom=None, study=None):
         logger.debug(
-            "Searching all associations for chrom %s, start %s, and iteration size %s", chrom, str(self.start),
-            str(iteration_size))
-        search_chrom = cs.ChromosomeSearch(chromosome=chrom, start=self.start, size=iteration_size,
+            "Searching all associations for chrom %s, start %s, and iteration size %s", chrom,
+            str(self.start),
+            str(self.iteration_size))
+        print("search chrom")
+        search_chrom = cs.ChromosomeSearch(chromosome=chrom, start=self.start, size=self.iteration_size,
                                            config_properties=self.properties)
-        result, current_chrom_index = search_chrom.search_chromosome(study=study, pval_interval=pval_interval)
+        result, current_chrom_index = search_chrom.search_chromosome(study=study,
+                                                                     pval_interval=pval_interval)
 
+        print("finished search chrom")
         self._extend_datasets(result)
         self._calculate_total_traversal_of_search(chrom=chrom, current_chrom_index=current_chrom_index)
         self._increase_search_index(current_chrom_index)
 
         if self._search_complete():
+            print("search complete")
             logger.debug("Search completed for trait %s", chrom)
-            logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
+            logger.info("Completed search for all associations. Returning index marker %s",
+                        str(self.index_marker))
             return self.datasets, self.index_marker
 
-        iteration_size = self._next_iteration_size()
+        self.iteration_size = self._next_iteration_size()
+        print("it: " + str(self.iteration_size))
         logger.debug("Calculating next iteration start and size...")
         self.start = self._next_start_index(current_search_index=current_chrom_index)
 
-        logger.info("Completed search for all associations. Returning index marker %s", str(self.index_marker))
+        logger.info("Completed search for all associations. Returning index marker %s",
+                    str(self.index_marker))
 
     def _get_all_traits(self):
         explorer = ex.Explorer(self.properties)

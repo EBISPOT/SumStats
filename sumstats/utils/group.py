@@ -85,7 +85,7 @@ class Group:
         Get's all the subgroups of our group (self)
         :return: a generator that you can iterate through to get all the subgroups of our group
         """
-        return (Group(group) for group in self.group.values() if isinstance(group, h5py.Group) and group.name == condition)
+        return (Group(group) for group in self.group.values() if Group(group).get_name() == condition)
 
     def get_all_subgroups_keys(self):
         return sorted(list(self.group.keys()))
@@ -234,7 +234,20 @@ def generate_subgroups_from_generator_of_subgroups(generator):
         subgroup.get_all_subgroups()
         for subgroup in generator
     )
-
+def generate_subgroups_from_generator_of_subgroups_where(generator, condition):
+    """
+    The Group method get_all_subgroups() returns a generator of subgroups.
+    If we need the subgroups of each of those subgroups, we need to return a generator of generators!
+    E.g. We have a generator of bp blocks (subgroups) for a given chr (group), but we want the subgroups of
+    those bp blocks (which are the studies, so we use this function to achieve this.
+    For this, we use the itertools.chain method.
+    :param generator: the generator from the get_all_subgroups()
+    :return: a generator of subgroups of the generator of subgroups
+    """
+    return itertools.chain.from_iterable(
+        subgroup.get_all_subgroups_where(condition)
+        for subgroup in generator
+    )
 
 def _assert_all_dsets_have_same_shape(dsets):
     first_dset = _get_first_non_empty_dset(dsets)

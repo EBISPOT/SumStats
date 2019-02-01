@@ -35,6 +35,7 @@ def general_search(search_obj, max_size, arguments, restriction_dictionary=None)
         arguments['size'] = iteration_size
         arguments['start'] = search_obj.start
 
+        print("gen search")
         # call the query function
         search_obj.service.query(**arguments)
 
@@ -42,6 +43,7 @@ def general_search(search_obj, max_size, arguments, restriction_dictionary=None)
         logger.debug("Search %s - result size before filtering is %s...", search_id,
                      str(len(result_before_filtering[REFERENCE_DSET])))
 
+        print("gen search complete")
         if _traversed(start=search_obj.start, result=result_before_filtering, max_size=max_size):
             logger.debug("Search %s - traverse of group complete...", search_id)
             break
@@ -57,7 +59,9 @@ def general_search(search_obj, max_size, arguments, restriction_dictionary=None)
         logger.debug("Search %s - result size after filtering is %s...", search_id,
                      str(len(result_after_filtering[REFERENCE_DSET])))
 
+        print("gen search extend")
         search_obj.datasets = dataset_utils.extend_dsets_with_subset(search_obj.datasets, result_after_filtering)
+        print("gen search start manip")
         search_obj.start = search_obj.start + iteration_size
         iteration_size = _next_iteration_size(size=search_obj.size, datasets=search_obj.datasets)
 

@@ -35,30 +35,35 @@ class ChromosomeService:
         self.file = h5py.File(h5file, 'r')
         self.datasets = {}
         self.file_group = gu.Group(self.file)
-        self.study = []
+        self.study = None
 
 
     def check_study_is_group(self, group):
         if self.study == group.split('/')[-1]:
-            print(group)
             return group
 
     def query(self, chromosome, start, size, study=None):
+        print("starting query")
         logger.debug("Starting query for chromosome %s, start %s, and size %s", str(chromosome), str(start), str(size))
         chr_group = self.file_group.get_subgroup(chromosome)
 
         self.study = study
-        print(self.study)
+
+        print("got chr group")
         if study and not self.file.visit(self.check_study_is_group):
             raise NotFoundError("Study " + self.study)
             self.datasets = query.create_empty_dataset()
 
         else:
+
+            print("getting subs")
             all_chr_sub_groups = chr_group.get_all_subgroups()
 
             # we need to get all the study level subgroups from the bp range subgroups
+            print("getting sub-subs")
             all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
 
+            print("getting datasets")
             self.datasets = query.load_datasets_from_groups(all_subgroups, start, size, study)
             logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))
 

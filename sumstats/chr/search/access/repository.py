@@ -31,9 +31,8 @@ def get_dsets_from_parent_group(group, start, size, study=None):
     original_start = start
 
     for child_group in group:
-        if study and study == child_group.get_name().split('/')[-1]:
+        if study and study == child_group.get_name().split('/')[-1] or study is None:
             max_traversed += child_group.get_max_group_size()
-
             # we want to start higher than where we are now
             if original_start >= max_traversed:
                 start = original_start - max_traversed
@@ -48,10 +47,14 @@ def get_dsets_from_parent_group(group, start, size, study=None):
             retrieved_size = len(subset_of_datasets[REFERENCE_DSET])
 
             max_traversed += retrieved_size
-            size = size - retrieved_size
+            size -= retrieved_size
+            print(size)
             # if I have already gathered some information
             # then I am going on to the next dataset and what to query it from its start
             start = _new_start_size(start=start, total_retrieved=len(datasets[REFERENCE_DSET]), retrieved=retrieved_size)
+            if size <= 0:
+                break
+                #return datasets
 
     return datasets
 
