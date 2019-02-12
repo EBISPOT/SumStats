@@ -26,7 +26,7 @@ def main():
     sql_database = properties.sqlite_path
 
     to_load = fsutils.get_file_path(path=tsvfiles_path, file=tsv)
-    study_metadata = fsutils.get_file_path(path=tsvfiles_path, file=meta)
+    #study_metadata = fsutils.get_file_path(path=tsvfiles_path, file=meta)
 
     if loader_type == "trait":
         if trait is None: raise ValueError("You have chosen the trait loader but haven't specified a trait")

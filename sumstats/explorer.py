@@ -6,6 +6,7 @@ import sumstats.trait.search.access.trait_service as trait_service
 import sumstats.trait.search.access.study_service as study_service
 import sumstats.chr.search.access.chromosome_service as chrom_service
 import sumstats.chr.search.chromosome_search as chr_search
+import sumstats.utils.sqlite_client as sql_client
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
@@ -17,14 +18,17 @@ class Explorer:
         self.search_path = properties_handler.get_search_path(self.properties)
         self.trait_dir = self.properties.trait_dir
         self.chr_dir = self.properties.chr_dir
+        self.sqlite_db = self.properties.sqlite_path
 
     def get_list_of_traits(self):
-        traits = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
-        for h5file in h5files:
-            service = trait_service.TraitService(h5file=h5file)
-            traits.extend(service.list_traits())
-            service.close_file()
+        #traits = []
+        #h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        #for h5file in h5files:
+        #    service = trait_service.TraitService(h5file=h5file)
+        #    traits.extend(service.list_traits())
+        #    service.close_file()
+        sc = sql_client.sqlClient(self.sqlite_db)
+        traits = sc.get_traits()
 
         return sorted(traits)
 
@@ -48,13 +52,14 @@ class Explorer:
         return sorted(studies)
 
     def get_list_of_studies(self):
-        studies = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            studies.extend(service.list_studies())
-            service.close_file()
-
+        #studies = []
+        #h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        #for h5file in h5files:
+        #    service = study_service.StudyService(h5file=h5file)
+        #    studies.extend(service.list_studies())
+        #    service.close_file()
+        sc = sql_client.sqlClient(self.sqlite_db)
+        studies = sc.get_studies()
         return sorted(studies)
 
     def get_trait_of_study(self, study_to_find):

@@ -51,7 +51,7 @@ class ChromosomeService:
 
         print("got chr group")
         if study and not self.file.visit(self.check_study_is_group):
-            raise NotFoundError("Study " + self.study)
+            raise NotFoundError("Study " + str(self.study))
             self.datasets = query.create_empty_dataset()
 
         else:

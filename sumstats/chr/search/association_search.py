@@ -21,7 +21,7 @@ class AssociationSearch:
         self.starting_point = start
         self.start = start
         self.size = size
-        self.studies = [studies]
+        self.studies = studies
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
@@ -50,6 +50,7 @@ class AssociationSearch:
             while not self._search_complete():
                 if self.studies[0] is not None:
                     for study in self.studies:
+                        print(study)
                         self.perform_search(pval_interval=pval_interval, chrom=chrom, study=study)
                 else:
                     self.perform_search(pval_interval=pval_interval, chrom=chrom)
