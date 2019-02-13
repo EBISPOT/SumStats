@@ -80,6 +80,24 @@ class sqlClient():
         else:
             return False
 
+    def get_studies_for_trait(self, trait):
+        data = []
+        for row in self.cur.execute("select study from study join uuid on study.rowid = uuid.study_id join trait on uuid.trait_id = trait.rowid where trait.trait =?", (trait,)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
+    def get_trait_of_study(self, study):
+        data = []
+        for row in self.cur.execute("select trait from trait join uuid on trait.rowid = uuid.trait_id join study on uuid.study_id = study.rowid where study.study =?", (study,)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
     def get_study_rowid(self, study):
         self.cur.execute("SELECT rowid FROM study where study =?", (study,))
         data = self.cur.fetchone()

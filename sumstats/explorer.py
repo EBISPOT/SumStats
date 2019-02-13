@@ -43,12 +43,16 @@ class Explorer:
         return sorted(chroms)
 
     def get_list_of_studies_for_trait(self, trait):
-        h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait[-2:])
-        if not isfile(h5file):
-            raise NotFoundError("Trait " + trait)
-        service = study_service.StudyService(h5file=h5file)
-        studies = service.list_studies()
-        service.close_file()
+        #h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, trait[-2:])
+        #if not isfile(h5file):
+        #    raise NotFoundError("Trait " + trait)
+        #service = study_service.StudyService(h5file=h5file)
+        #studies = service.list_studies()
+        #service.close_file()
+
+        sc = sql_client.sqlClient(self.sqlite_db)
+        studies = sc.get_studies_for_trait(trait)
+
         return sorted(studies)
 
     def get_list_of_studies(self):
@@ -63,16 +67,21 @@ class Explorer:
         return sorted(studies)
 
     def get_trait_of_study(self, study_to_find):
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            for trait_study in service.list_trait_study_pairs():
-                if study_to_find == trait_study.split(":")[1]:
-                    service.close_file()
-                    return trait_study.split(":")[0]
-            service.close_file()
-        # study not found
-        raise NotFoundError("Study " + study_to_find)
+        #h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        #for h5file in h5files:
+        #    service = study_service.StudyService(h5file=h5file)
+        #    for trait_study in service.list_trait_study_pairs():
+        #        if study_to_find == trait_study.split(":")[1]:
+        #            service.close_file()
+        #            return trait_study.split(":")[0]
+        #    service.close_file()
+        sc = sql_client.sqlClient(self.sqlite_db)
+        traits = sc.get_trait_of_study(study_to_find)
+        if traits:
+            return traits
+        else:
+            # study not found
+            raise NotFoundError("Study " + study_to_find)
 
     def has_trait(self, trait):
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
@@ -111,11 +120,12 @@ def main():
             print(study)
 
     if args.study is not None:  # pragma: no cover
-        trait = explorer.get_trait_of_study(args.study)
-        if trait is None:
+        traits = explorer.get_trait_of_study(args.study)
+        if traits is None:
             print("The study does not exist: ", args.study)
         else:
-            print(trait + ":" + args.study)
+            for trait in traits:
+                print(trait + ":" + args.study)
 
 
 if __name__ == "__main__":
