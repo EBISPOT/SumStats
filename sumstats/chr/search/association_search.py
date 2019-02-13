@@ -48,7 +48,7 @@ class AssociationSearch:
 
         for chrom in available_chroms:
             while not self._search_complete():
-                if self.studies[0] is not None:
+                if self.studies is not None:
                     for study in self.studies:
                         print(study)
                         self.perform_search(pval_interval=pval_interval, chrom=chrom, study=study)

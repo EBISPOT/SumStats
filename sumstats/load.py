@@ -24,6 +24,7 @@ def main():
     snp_dir = properties.snp_dir
     chr_dir = properties.chr_dir
     sql_database = properties.sqlite_path
+    uuid = '-'.join([study, trait]) # would need to add tissue here for eqtls
 
     to_load = fsutils.get_file_path(path=tsvfiles_path, file=tsv)
     #study_metadata = fsutils.get_file_path(path=tsvfiles_path, file=meta)
@@ -33,9 +34,9 @@ def main():
         file_name = trait[-2:]
 
         to_store = fsutils.create_h5file_path(path=h5files_path, file_name=file_name, dir_name=trait_dir)
-        loader = trait_loader.Loader(tsv=to_load, h5file=to_store, study=study, trait=trait, metadata=study_metadata)
+        loader = trait_loader.Loader(tsv=to_load, h5file=to_store, study=study, trait=trait, uuid=uuid, database=sql_database)
         loader.load()
-        loader.close_file()
+        #loader.close_file()
         print("Load complete!")
 
     if loader_type == "chr":
@@ -43,7 +44,7 @@ def main():
             "You have chosen the chromosome loader but haven't specified a chromosome")
 
         to_store = fsutils.create_h5file_path(path=h5files_path, dir_name=chr_dir, file_name=str(chromosome))
-        loader = chr_loader.Loader(to_load, to_store, study)
+        loader = chr_loader.Loader(to_load, to_store, study, uuid)
         loader.load()
         loader.close_file()
         print("Load complete!")

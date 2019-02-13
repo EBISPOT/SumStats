@@ -4,7 +4,6 @@ import sqlite3
 class sqlClient():
     def __init__(self, database):
         self.database = database
-        print(self.database)
         self.conn = self.create_conn()
         self.cur = self.conn.cursor()
 
@@ -16,14 +15,24 @@ class sqlClient():
             print(e)
         return None
 
+
+    """ INSERT STATEMENTS """
+
     def insert_snp_row(self, data):
-        self.cur.execute('insert or ignore into snp values (?,?,?)', data)
+        self.cur.execute("insert or ignore into snp values (?,?,?)", data)
 
-    def drop_rsid_index(self):
-        self.cur.execute("DROP INDEX rsid_idx")
+    def insert_trait_row(self, data):
+        self.cur.execute("insert or ignore into trait values (?)", (data,))
 
-    def create_rsid_index(self):
-        self.cur.execute("CREATE INDEX rsid_idx on snp (rsid)")
+    def insert_study_row(self, data):
+        self.cur.execute("insert or ignore into study (study) values (?)", (data,))
+
+    def insert_uuid_row(self, data):
+        self.cur.execute("insert or ignore into uuid values (?,?,?)", data)
+
+
+
+    """ SELECT STATEMENTS """
 
 
     def get_chr_pos(self, snp):
@@ -70,3 +79,31 @@ class sqlClient():
             return data
         else:
             return False
+
+    def get_study_rowid(self, study):
+        self.cur.execute("SELECT rowid FROM study where study =?", (study,))
+        data = self.cur.fetchone()
+        if data is not None:
+            return data[0]
+        else:
+            return False
+
+    def get_trait_rowid(self, trait):
+        self.cur.execute("SELECT rowid FROM trait where trait =?", (trait,))
+        data = self.cur.fetchone()
+        if data is not None:
+            return data[0]
+        else:
+            return False
+
+
+    """ OTHER STATEMENTS """
+
+    def commit(self):
+        self.cur.execute("COMMIT")
+
+    def drop_rsid_index(self):
+        self.cur.execute("DROP INDEX rsid_idx")
+
+    def create_rsid_index(self):
+        self.cur.execute("CREATE INDEX rsid_idx on snp (rsid)")
