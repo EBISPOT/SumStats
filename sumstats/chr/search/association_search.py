@@ -46,14 +46,16 @@ class AssociationSearch:
         self.iteration_size = self.size
         available_chroms = self._get_all_chroms()
 
+
         for chrom in available_chroms:
             while not self._search_complete():
                 if self.studies is not None:
                     for study in self.studies:
-                        print(study)
-                        self.perform_search(pval_interval=pval_interval, chrom=chrom, study=study)
+                        while not self._search_complete():
+                            self.perform_search(pval_interval=pval_interval, chrom=chrom, study=study)
                 else:
-                    self.perform_search(pval_interval=pval_interval, chrom=chrom)
+                    while not self._search_complete():
+                        self.perform_search(pval_interval=pval_interval, chrom=chrom)
 
         return self.datasets, self.index_marker
 
