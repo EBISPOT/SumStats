@@ -21,6 +21,7 @@ import sumstats.chr.search.access.repository as query
 import sumstats.utils.group as gu
 import sumstats.utils.restrictions as rst
 from sumstats.common_constants import *
+from sumstats.errors.error_classes import *
 import logging
 from sumstats.utils import register_logger
 
@@ -34,18 +35,37 @@ class ChromosomeService:
         self.file = h5py.File(h5file, 'r')
         self.datasets = {}
         self.file_group = gu.Group(self.file)
+        self.study = None
 
-    def query(self, chromosome, start, size):
+
+    def check_study_is_group(self, group):
+        if self.study == group.split('/')[-1]:
+            return group
+
+    def query(self, chromosome, start, size, study=None):
+        print("starting query")
         logger.debug("Starting query for chromosome %s, start %s, and size %s", str(chromosome), str(start), str(size))
         chr_group = self.file_group.get_subgroup(chromosome)
 
-        all_chr_sub_groups = chr_group.get_all_subgroups()
+        self.study = study
 
-        # we need to get all the study level subgroups from the bp range subgroups
-        all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
+        print("got chr group")
+        if study and not self.file.visit(self.check_study_is_group):
+            raise NotFoundError("Study " + str(self.study))
+            self.datasets = query.create_empty_dataset()
 
-        self.datasets = query.load_datasets_from_groups(all_subgroups, start, size)
-        logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))
+        else:
+
+            print("getting subs")
+            all_chr_sub_groups = chr_group.get_all_subgroups()
+
+            # we need to get all the study level subgroups from the bp range subgroups
+            print("getting sub-subs")
+            all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
+
+            print("getting datasets")
+            self.datasets = query.load_datasets_from_groups(all_subgroups, start, size, study)
+            logger.debug("Query for chromosome %s, start %s, and size %s done...", str(chromosome), str(start), str(size))
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
         logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s",
@@ -60,11 +80,16 @@ class ChromosomeService:
     def get_chromosome_size(self, chromosome):
         chromosome_group = self.file_group.get_subgroup(chromosome)
         all_chr_sub_groups = chromosome_group.get_all_subgroups()
-
         all_subgroups = gu.generate_subgroups_from_generator_of_subgroups(all_chr_sub_groups)
-        size = sum(sub_group.get_max_group_size() for sub_group in all_subgroups)
+        #size = sum(sub_group.get_max_group_size() for sub_group in all_subgroups)
+        size = chromosome_group.get_attribute("size")
         logger.debug("Chromosome %s group size is %s", str(chromosome), str(size))
+        print(size)
         return size
+
+    def list_chroms(self):
+        chroms = self.file_group.get_all_subgroups_keys()
+        return chroms
 
     def close_file(self):
         logger.debug("Closing file %s...", self.file.file)

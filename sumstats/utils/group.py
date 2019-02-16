@@ -80,6 +80,13 @@ class Group:
         """
         return (Group(group) for group in self.group.values() if isinstance(group, h5py.Group))
 
+    def get_all_subgroups_where(self, condition):
+        """
+        Get's all the subgroups of our group (self)
+        :return: a generator that you can iterate through to get all the subgroups of our group
+        """
+        return (Group(group) for group in self.group.values() if Group(group).get_name() == condition)
+
     def get_all_subgroups_keys(self):
         return sorted(list(self.group.keys()))
 
@@ -132,9 +139,18 @@ class Group:
         """
         :return: the size of the Datasets that are stored under the group
         """
+        #print('getting size')
         if self.contains_dataset(REFERENCE_DSET):
-            return self.get_dset_shape(REFERENCE_DSET)[0]
+            #return self.get_dset_shape(REFERENCE_DSET)[0]
+            return self.get_dset_len(REFERENCE_DSET)
         return 0
+
+
+    def get_dset_len(self, dset_name):
+        if dset_name in self.group:
+            return self.group[dset_name].len()
+        else:
+            self._raise_non_existent_subgroup_error(dset_name)
 
     def get_dset_shape(self, dset_name):
         if dset_name in self.group:
@@ -186,6 +202,13 @@ class Group:
     def get_attribute(self, key):
         return self.group.attrs[key]
 
+    def get_attribute(self, key):
+        if key in self.group.attrs:
+            return self.group.attrs[key]
+        else:
+            return None
+
+
     def get_dict_of_attributes(self):
         return self.group.attrs.items()
 
@@ -213,7 +236,20 @@ def generate_subgroups_from_generator_of_subgroups(generator):
         subgroup.get_all_subgroups()
         for subgroup in generator
     )
-
+def generate_subgroups_from_generator_of_subgroups_where(generator, condition):
+    """
+    The Group method get_all_subgroups() returns a generator of subgroups.
+    If we need the subgroups of each of those subgroups, we need to return a generator of generators!
+    E.g. We have a generator of bp blocks (subgroups) for a given chr (group), but we want the subgroups of
+    those bp blocks (which are the studies, so we use this function to achieve this.
+    For this, we use the itertools.chain method.
+    :param generator: the generator from the get_all_subgroups()
+    :return: a generator of subgroups of the generator of subgroups
+    """
+    return itertools.chain.from_iterable(
+        subgroup.get_all_subgroups_where(condition)
+        for subgroup in generator
+    )
 
 def _assert_all_dsets_have_same_shape(dsets):
     first_dset = _get_first_non_empty_dset(dsets)

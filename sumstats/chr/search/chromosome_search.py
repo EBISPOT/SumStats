@@ -51,7 +51,7 @@ class ChromosomeSearch:
     def search_chromosome(self, study=None, pval_interval=None):
         logger.info("Searching for chromosome %s", str(self.chromosome))
         max_size = self.service.get_chromosome_size(chromosome=self.chromosome)
-        method_arguments = {'chromosome': self.chromosome}
-        restrictions = {'pval_interval': pval_interval, 'study': study}
+        method_arguments = {'chromosome': self.chromosome, 'study':study}
+        restrictions = {'pval_interval': pval_interval}
         return search.general_search(search_obj=self, max_size=max_size,
                                      arguments=method_arguments, restriction_dictionary=restrictions)

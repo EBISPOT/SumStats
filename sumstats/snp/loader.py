@@ -45,8 +45,10 @@ class Loader:
             print(e)
         for index, snp in enumerate(self.datasets[SNP_DSET]):
             data = (snp, self.datasets[CHR_DSET][index], self.datasets[BP_DSET][index])
+            print(data)
             sqlcl.insert_snp_row(data)
         sqlcl.create_rsid_index()
+        sqlcl.commit()
 
 
 #        if self.is_loaded():

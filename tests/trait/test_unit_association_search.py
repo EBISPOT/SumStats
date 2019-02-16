@@ -1,10 +1,8 @@
 import os
 
-import pytest
-
 import sumstats.trait.loader as loader
 from sumstats.utils.interval import FloatInterval
-from sumstats.trait.search.association_search import AssociationSearch
+from sumstats.chr.search.association_search import AssociationSearch
 from tests.prep_tests import *
 import tests.test_constants as search_arrays
 from config import properties

@@ -19,65 +19,81 @@ import sumstats.trait.constants as const
 import sumstats.utils.fileload as fl
 import sumstats.utils.group as gu
 from sumstats.errors.error_classes import *
+from sumstats.utils.sqlite_client import *
+
+
 
 
 class Loader:
 
-    def __init__(self, tsv, h5file, study, trait, dict_of_data=None, study_meta_file=None, trait_meta_file=None):
-        h5file = h5file
-        self.study = study
-        self.trait = trait
-        self.study_metadata_dict = None
-        self.trait_metadata_dict = None
+    def __init__(self, study, trait, database, uuid, tissue, tsv=None, h5file=None, dict_of_data=None, metadata=None):
+        #h5file = h5file
+        self.study = str(study)
+        self.trait = str(trait)
+        self.tissue = str(tissue)
+        self.sqlite_db = database
+
+
+        # could use a generated uuid but might be risky - perhaps all this should be in MySQL?
+        self.uuid = uuid #'-'.join([self.study, self.trait]) # would need to add tissue here for eqtls
+
 
         assert trait is not None, "You need to specify a trait with the trait loader!"
+#
+#        datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
+#        self.datasets = fl.format_datasets(datasets_as_lists, study, const)
+#
+#        if metadata:
+#            self.study_metadata_dict = fl.format_metadata(metadata)
+#
+#        # Open the file with read/write permissions and create if it doesn't exist
+#        self.file = h5py.File(h5file, 'a')
+#        self.file_group = gu.Group(self.file)
 
-        datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
-        self.datasets = fl.format_datasets(datasets_as_lists, study, const)
-
-        if study_meta_file:
-            self.study_metadata_dict = fl.format_metadata(study_meta_file)
-
-        if trait_meta_file:
-            self.trait_metadata_dict = fl.format_metadata(trait_meta_file)
-
-        # Open the file with read/write permissions and create if it doesn't exist
-        self.file = h5py.File(h5file, 'a')
-        self.file_group = gu.Group(self.file)
 
     def load(self):
-        datasets = self.datasets
 
-        trait_group = self._create_trait_group()
-        study_group = self._create_study_group(trait_group)
-        """add study specific attributes"""
-        if self.study_metadata_dict:
-            self._add_study_metadata(study_group)
-        if self.trait_metadata_dict:
-            self._add_trait_metadata(trait_group)
+        try:
+            sc = sqlClient(database=self.sqlite_db)
+            sc.insert_study_row(self.study) # can add study metadata through here
+            study_id = sc.get_study_rowid(self.study)
+            sc.insert_trait_row(self.trait)
+            trait_id = sc.get_trait_rowid(self.trait)
+            sc.insert_tissue_row(self.tissue)
+            tissue_id = sc.get_tissue_rowid(self.tissue)
+            sc.insert_uuid_row((self.uuid, trait_id, study_id, tissue_id))
+            sc.commit()
 
-        # group, dset_name, data
-        for dset_name in TO_STORE_DSETS:
-            study_group.generate_dataset(dset_name, datasets[dset_name])
+        except sqlite3.OperationalError as e:
+            print(e)
 
-    def _create_trait_group(self):
-        self.file_group.create_subgroup(self.trait)
-        return self.file_group.get_subgroup(self.trait)
 
-    def _create_study_group(self, trait_group):
-        if trait_group.subgroup_exists(self.study):
-            self.close_file()
-            raise AlreadyLoadedError(self.study)
-        trait_group.create_subgroup(self.study)
-        return trait_group.get_subgroup(self.study)
-
-    def _add_study_metadata(self, study_group):
-        for key, value in self.study_metadata_dict.items():
-            study_group.set_attribute(key, value)
-
-    def _add_trait_metadata(self, trait_group):
-        for key, value in self.trait_metadata_dict.items():
-            trait_group.set_attribute(key, value)
-
-    def close_file(self):
-        self.file.close()
+#    def load(self):
+#        datasets = self.datasets
+#
+#        trait_group = self._create_trait_group()
+#        study_group = self._create_study_group(trait_group)
+#        """add study specific attributes"""
+#        self._add_study_metadata(study_group)
+#
+#        # group, dset_name, data
+#        for dset_name in TO_STORE_DSETS:
+#            study_group.generate_dataset(dset_name, datasets[dset_name])
+#
+#    def _create_trait_group(self):
+#        self.file_group.create_subgroup(self.trait)
+#        return self.file_group.get_subgroup(self.trait)
+#
+#    def _create_study_group(self, trait_group):
+#        if trait_group.subgroup_exists(self.study):
+#            self.close_file()
+#            raise AlreadyLoadedError(self.study)
+#        trait_group.create_subgroup(self.study)
+#        return trait_group.get_subgroup(self.study)
+#
+#    def _add_study_metadata(self, study_group):
+#        for key, value in self.study_metadata_dict.items():
+#            study_group.set_attribute(key, value)
+#
+#    def close_file(self):
+#        self.file.close()

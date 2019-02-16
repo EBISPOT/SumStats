@@ -15,6 +15,7 @@
 
 import numpy as np
 
+
 from sumstats.utils import fileload as fl
 from sumstats.utils import dataset_utils
 from sumstats.chr.constants import *
@@ -40,22 +41,36 @@ def block_limit_not_reached_max(block_ceil, max_bp):
     return int(block_ceil) <= (int(max_bp) + int(BLOCK_SIZE))
 
 
-def save_info_in_block_group(block_group, datasets):
-    block_group.check_datasets_consistent(TO_STORE_DSETS)
+def save_info_in_block_group(block_uuid_group, datasets):
+    block_uuid_group.check_datasets_consistent(TO_STORE_DSETS)
 
     for dset_name in TO_STORE_DSETS:
-        block_group.expand_dataset(dset_name, datasets[dset_name])
+        block_uuid_group.expand_dataset(dset_name, datasets[dset_name])
+
+    block_group = block_uuid_group.get_parent()
+    _save_block_max_size_attribute(block_group)
 
 
 def _max_bp_location(datasets):
     bp_list_chr = datasets[BP_DSET]
     return max(bp_list_chr)
 
+def _save_block_max_size_attribute(block_group):
+    subgroups = block_group.get_all_subgroups()
+    size = sum(subgroup.get_max_group_size() for subgroup in subgroups)
+    block_group.set_attribute("size", size)
+
+def _save_chr_max_size_attribute(chr_group):
+    all_chr_sub_groups = chr_group.get_all_subgroups()
+    size = sum(int(sub_group.get_attribute("size")) for sub_group in all_chr_sub_groups if sub_group.get_attribute("size"))
+    chr_group.set_attribute("size", size)
+
 
 class Loader:
-    def __init__(self, tsv, h5file, study, dict_of_data=None):
+    def __init__(self, tsv, h5file, study, uuid, dict_of_data=None):
         self.study = study
-        assert self.study is not None, "You need to specify a study accession"
+        self.uuid = uuid
+        assert self.uuid is not None, "You need to specify a uuid"
 
         datasets_as_lists = fl.read_datasets_from_input(tsv, dict_of_data, const)
         self.datasets = fl.format_datasets(datasets_as_lists, study, const)
@@ -80,26 +95,26 @@ class Loader:
         last_chromosome = self.datasets[CHR_DSET][-1]
         last_bp = self.datasets[BP_DSET][-1]
 
-        first_bp_loaded = self._is_block_loaded_with_study(first_chromosome, first_bp)
-        last_bp_loaded = self._is_block_loaded_with_study(last_chromosome, last_bp)
+        first_bp_loaded = self._is_block_loaded_with_uuid(first_chromosome, first_bp)
+        last_bp_loaded = self._is_block_loaded_with_uuid(last_chromosome, last_bp)
 
         if first_bp_loaded ^ last_bp_loaded:
-            raise RuntimeError("Study is half loaded! Study:", self.study)
+            raise RuntimeError("uuid is half loaded! uuid:", self.uuid)
         return first_bp_loaded and last_bp_loaded
 
-    def _is_block_loaded_with_study(self, chromosome, bp_position):
+    def _is_block_loaded_with_uuid(self, chromosome, bp_position):
         chromosome = str(chromosome)
         block_number = bk.get_block_number(bp_position)
-        block_number_study = "/".join([str(block_number), str(self.study)])
+        block_number_uuid = "/".join([str(block_number), str(self.uuid)])
         if not self.file_group.subgroup_exists(chromosome):
             return False
         chr_group = self.file_group.get_subgroup(chromosome)
 
-        if not chr_group.subgroup_exists(block_number_study):
+        if not chr_group.subgroup_exists(block_number_uuid):
             return False
 
-        block_study_group = chr_group.get_subgroup(block_number_study)
-        return block_study_group.is_value_in_dataset(self.study, STUDY_DSET)
+        block_uuid_group = chr_group.get_subgroup(block_number_uuid)
+        return block_uuid_group.is_value_in_dataset(self.study, STUDY_DSET)
 
     def _get_chromosome_array(self):
         datasets = self.datasets
@@ -118,13 +133,14 @@ class Loader:
         block_floor, block_ceil = initialize_block_limits()
 
         while block_limit_not_reached_max(block_ceil, max_bp):
-            block_study = "/".join([str(block_ceil),self.study])
-            chr_group.create_subgroup(block_study)
-            block_study_group = chr_group.get_subgroup(block_study)
+            block_uuid = "/".join([str(block_ceil),self.uuid])
+            chr_group.create_subgroup(block_uuid)
+            block_uuid_group = chr_group.get_subgroup(block_uuid)
             block_mask = dsets_sliced_by_chr[BP_DSET].interval_mask(block_floor, block_ceil)
-            self._save_block(block_study_group, block_mask, dsets_sliced_by_chr)
+            self._save_block(block_uuid_group, block_mask, dsets_sliced_by_chr)
 
             block_floor, block_ceil = increment_block_limits(block_ceil)
+        _save_chr_max_size_attribute(chr_group)
 
     def _slice_datasets_where_chromosome(self, chromosome):
         # get the slices from all the arrays where chromosome position == i

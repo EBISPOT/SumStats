@@ -19,11 +19,16 @@ def read_datasets_from_input(tsv, dict_of_data, const):
         for name in const.TO_LOAD_DSET_HEADERS:
             datasets_as_lists[name] = \
                 pd.read_csv(tsv, dtype=const.DSET_TYPES[name],
-                converters={const.RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
-                            const.RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits,
-                            const.HM_RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
-                            const.HM_RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits
+                converters={const.R2_DSET: coerce_zero_and_inf_floats_within_limits,
+                            const.MEAN_EXPR_DSET: coerce_zero_and_inf_floats_within_limits#,
+                            #const.AC_DSET: reform_int_representation,
+                            #const.AN_DSET: reform_int_representation
                             },
+                #converters={const.RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
+                #            const.RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits,
+                #            const.HM_RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
+                #            const.HM_RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits
+                #            },
                 usecols=[name],
                 delimiter="\t").to_dict(orient='list')[name]
         print("Loaded tsv file: ", tsv)
@@ -58,6 +63,11 @@ def coerce_zero_and_inf_floats_within_limits(value):
     if value == float('inf'):
         value = sys.float_info.max
     return value
+
+def reform_int_representation(value):
+    if value == 'NA' or value is None:
+        value = 'NaN'
+    return int(value)
 
 
 def format_metadata(metadata):
