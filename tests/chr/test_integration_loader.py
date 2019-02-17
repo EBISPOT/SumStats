@@ -48,7 +48,7 @@ class TestLoader(object):
 
         assert len(block1.keys()) != 0
 
-        block0 = chr_group_1.get("100000")
+        block0 = chr_group_1.get("100000/PM001")
         assert len(block0.keys()) == 0
 
         chr_group_2 = self.f.get("2")
@@ -60,7 +60,7 @@ class TestLoader(object):
         assert max(np.array(list((blocks)), dtype=int)) == 49200000
 
     def test_snps_in_blocks(self):
-        block11 = self.f.get("/1/1200000")
+        block11 = self.f.get("/1/1200000/PM001")
         datasets = list(block11.keys())
         assert len(datasets) == len(TO_STORE_DSETS)
         for dset_name in TO_STORE_DSETS:
@@ -69,7 +69,7 @@ class TestLoader(object):
             assert len(dataset[:]) > 0
         assert "rs11250701" in block11.get(SNP_DSET)[:]
 
-        block21 = self.f.get("/2/48500000")
+        block21 = self.f.get("/2/48500000/PM001")
         datasets = list(block21.keys())
         assert len(datasets) == len(TO_STORE_DSETS)
         for dset_name in TO_STORE_DSETS:
@@ -78,7 +78,7 @@ class TestLoader(object):
             assert len(dataset[:]) > 0
         assert "rs7085086" in block21.get(SNP_DSET)[:]
 
-        block22 = self.f.get("/2/49200000")
+        block22 = self.f.get("/2/49200000/PM002")
         datasets = list(block22.keys())
         assert len(datasets) == len(TO_STORE_DSETS)
         for dset_name in TO_STORE_DSETS:
@@ -88,7 +88,7 @@ class TestLoader(object):
         assert "rs12345" in block22.get(SNP_DSET)[:]
 
     def test_block_group_content(self):
-        block1 = self.f.get("/1/1200000")
+        block1 = self.f.get("/1/1200000/PM001")
         snp_dset = block1.get(SNP_DSET)[:].tolist()
         snp = "rs185339560"
         assert snp in snp_dset
@@ -103,8 +103,8 @@ class TestLoader(object):
 
         studies_dset = block1.get(STUDY_DSET)[:].tolist()
         assert "PM001" in studies_dset
-        assert "PM002" in studies_dset
-        assert "PM003" in studies_dset
+        #assert "PM002" in studies_dset
+        #assert "PM003" in studies_dset
 
     def test_study_already_loaded_raises_error(self):
         load = prepare_load_object_with_study(self.h5file, 'PM001', loader)

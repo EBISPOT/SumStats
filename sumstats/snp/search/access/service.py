@@ -49,7 +49,11 @@ class Service:
     def query(self, snp, start, size):
         logger.debug("Starting query for snp: %s, start: %s, size: %s", snp, str(start), str(size))
         snp_group = self._get_snp_group(snp)
-        self.datasets = repo.get_dsets_from_group(snp_group, start, size)
+
+        all_study_subgroups = snp_group.get_all_subgroups()
+        self.datasets = repo.load_datasets_from_groups(all_study_subgroups, start, size)
+
+        #self.datasets = repo.get_dsets_from_group(snp_group, start, size)
         logger.debug("Query for snp: %s, start: %s, size: %s done...", snp, str(start), str(size))
 
     def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
@@ -65,7 +69,10 @@ class Service:
 
     def get_snp_size(self, snp):
         snp_group = self._get_snp_group(snp)
-        max_group_size = snp_group.get_max_group_size()
+        all_subgroups = snp_group.get_all_subgroups()
+        max_group_size = 0
+        for subgroup in all_subgroups:
+            max_group_size += subgroup.get_max_group_size()
         logger.debug("snp group for snp %s has size %s", snp, max_group_size)
         return max_group_size
 

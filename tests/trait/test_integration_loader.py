@@ -47,7 +47,7 @@ class TestLoader(object):
 
         assert len(study_1.keys()) != 0
 
-        study_2 = trait_1.get("PM001")
+        study_2 = trait_1.get("PM002")
         assert len(study_2.keys()) != 0
 
         trait_2 = self.f.get("Trait2")
@@ -68,25 +68,25 @@ class TestLoader(object):
         assert study_1.get(MANTISSA_DSET) is not None
         assert study_1.get(EXP_DSET) is not None
 
-        study_2 = self.f.get("/Trait1/PM001")
+        study_2 = self.f.get("/Trait1/PM002")
         dsets = list(study_2.keys())
 
         assert len(dsets) == len(TO_STORE_DSETS)
-        assert study_1.get(SNP_DSET) is not None
-        assert study_1.get(CHR_DSET) is not None
-        assert study_1.get(BP_DSET) is not None
-        assert study_1.get(MANTISSA_DSET) is not None
-        assert study_1.get(EXP_DSET) is not None
+        assert study_2.get(SNP_DSET) is not None
+        assert study_2.get(CHR_DSET) is not None
+        assert study_2.get(BP_DSET) is not None
+        assert study_2.get(MANTISSA_DSET) is not None
+        assert study_2.get(EXP_DSET) is not None
 
         study_3 = self.f.get("/Trait2/PM003")
         dsets = list(study_3.keys())
 
         assert len(dsets) == len(TO_STORE_DSETS)
-        assert study_1.get(SNP_DSET) is not None
-        assert study_1.get(CHR_DSET) is not None
-        assert study_1.get(BP_DSET) is not None
-        assert study_1.get(MANTISSA_DSET) is not None
-        assert study_1.get(EXP_DSET) is not None
+        assert study_3.get(SNP_DSET) is not None
+        assert study_3.get(CHR_DSET) is not None
+        assert study_3.get(BP_DSET) is not None
+        assert study_3.get(MANTISSA_DSET) is not None
+        assert study_3.get(EXP_DSET) is not None
 
     def test_study_group_dsets_content(self):
         study_1 = self.f.get("/Trait1/PM001")

@@ -14,17 +14,19 @@
     study[0], mantissa[0], exp[0], and bp[0] hold the information for this SNP for study[0]
 
 """
-
 import sumstats.snp.search.access.service as snp_service
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
 from sumstats.snp.constants import *
-from sumstats.utils import search
+from sumstats.utils.interval import *
 from sumstats.errors.error_classes import *
 import logging
 from sumstats.utils import register_logger
 from multiprocessing import Pool
 from sumstats.utils import properties_handler
+import sumstats.chr.retriever as cr
+from sumstats.chr.constants import *
+from sumstats.utils.sqlite_client import sqlClient
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -40,9 +42,8 @@ class SNPSearch:
     If the chromosome is not given, we need to search for the snp and it's exact file (the same as we would do if we
     knew the chromosome) but we need to do this in all the chromosomes until we find it or run out of chromosomes.
     """
-    def __init__(self, snp, start, size, config_properties=None, chromosome=None):
+    def __init__(self, snp, start, size, chromosome=None, config_properties=None):
         self.snp = snp
-        self.chromosome = chromosome
         self.start = start
         self.size = size
 
@@ -52,22 +53,86 @@ class SNPSearch:
         self.chr_dir = self.properties.chr_dir
         self.snp_dir = self.properties.snp_dir
         self.bp_step = self.properties.bp_step
+        self.database = self.properties.sqlite_path
 
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         self.index_marker = 0
 
-        if chromosome is None:
-            self.service = self._calculate_snp_service()
-        else:
-            self.service = self._get_snp_service()
+        logger.debug("Retrieving location for variant %s...", self.snp)
+        self.chromosome, self.bp_interval = self._parse_chromosome_bp_location()
+        if chromosome and chromosome != self.chromosome:
+            raise NotFoundError("Chromosome-variant combination")
+
 
     def search_snp(self, study=None, pval_interval=None):
-        logger.info("Searching for variant %s", self.snp)
-        max_size = self.service.get_snp_size(self.snp)
-        method_arguments = {'snp': self.snp}
-        restrictions = {'pval_interval': pval_interval, 'study': study}
-        return search.general_search(search_obj=self, max_size=max_size,
-                                     arguments=method_arguments, restriction_dictionary=restrictions)
+        """
+        Search the chromosome implementation based on bp position
+        """
+        datasets, index_marker = cr.search_chromosome(chromosome=self.chromosome, start=self.start, size=self.size,
+                                        properties=self.properties,
+                                        bp_interval=self.bp_interval, study=study, pval_interval=pval_interval, snp=self.snp)
+        datasets = self._update_datasets_with_chromosome(datasets)
+        return datasets, index_marker
+
+
+    def _update_datasets_with_chromosome(self, datasets):
+        """
+        Need to add in the chromosome to the datasets
+        """
+        dset_type = DSET_TYPES[CHR_DSET]
+        chroms = [dset_type(self.chromosome)] * len(datasets[REFERENCE_DSET])
+        datasets.update({CHR_DSET: chroms})
+        return datasets
+
+
+    def _get_bp_from_sqlite(self):
+        client = sqlClient(self.database)
+        return client.get_chr_pos(self.snp)
+
+    def _parse_chromosome_bp_location(self):
+        #bp_interval = self._get_bp_from_ensembl()
+        locations = self._get_bp_from_sqlite()
+        chrom_list = []
+        bp_list = []
+        chromosome = ''
+        bp_interval = ''
+        if locations:
+            for l in locations:
+                chromosome, bp_interval = l
+                chrom_list.append(chromosome)
+                bp_list.append(bp_interval)
+            if (len(set(chrom_list)) != 1):
+                print("Variant seen in mulitple chromosomes") # Need to handle this
+        if len(bp_list) > 1:
+            bp_list.sort()
+            bp_lower = str(bp_list[0])
+            bp_upper = str(bp_list[-1])
+            bp_interval = ':'.join([bp_lower, bp_upper])
+            bp_interval = IntInterval().set_string_tuple(bp_interval)
+            return str(chromosome), bp_interval
+
+        elif len(bp_list) == 1:
+            bp_lower = str(bp_list[0])
+            bp_upper = str(bp_list[0])
+            bp_interval = ':'.join([bp_lower, bp_upper])
+
+            bp_interval = IntInterval().set_string_tuple(bp_interval)
+
+        #if bp_interval and re.match(r'[0-9XYMT]{1,2}:[0-9]+-[0-9]+', bp_interval):
+        #    chromosome, bp = bp_interval.split(':')
+        #    bp_lower = str(int(bp.split('-')[0]) - BLOCK_SIZE)
+        #    bp_upper = str(int(bp.split('-')[0]) + BLOCK_SIZE)
+        #    bp_interval = ':'.join([bp_lower, bp_upper])
+        #    bp_interval = IntInterval().set_string_tuple(bp_interval)
+            return str(chromosome), bp_interval
+        else:
+            raise NotFoundError("Variant " + self.snp)
+
+
+    """
+    CLEAR OUT THE BELOW METHODS ONCE THE ABOVE WORKS
+    """
+
 
     def _calculate_snp_service(self):
         """

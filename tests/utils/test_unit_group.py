@@ -33,6 +33,8 @@ class TestUnitGroup(object):
         self.subgroup1.generate_dataset(STUDY_DSET, ["study1"])
         self.file_group.create_subgroup("1/sub2")
         self.subgroup1_studies = ["study1"]
+        self.file_group.create_subgroup("2/sub2/subsub2")
+
 
     def teardown_method(self, method):
         os.remove(self.h5file)

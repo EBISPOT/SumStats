@@ -74,6 +74,11 @@ class StudyService:
             study_groups.extend([trait_group_name + ":" + study_name for study_name in trait_group.get_all_subgroups_keys()])
         return study_groups
 
+    def get_study_groups(self):
+        trait_groups = self.file_group.get_all_subgroups()
+        study_groups = gu.generate_subgroups_from_generator_of_subgroups(trait_groups)
+        return study_groups
+
     def close_file(self):
         logger.debug("Closing file %s...", self.file.file)
         self.file.close()

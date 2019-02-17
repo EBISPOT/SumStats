@@ -51,7 +51,13 @@ def _create_info_for_study(study, trait):
     study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
     study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
                                                         params={'trait': trait, 'study': study})
+
     return study_info
+
+
+def _get_metadata_for_study():
+    pass
+
 
 
 def _get_trait_list(traits, start, size):
@@ -103,6 +109,8 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         # when we are constructing each element's _links we need variant and/or chromosome information for them. If they
         # where not provided in the query, we can find out what they are for each element (index) here.
+
+
         specific_variant = _evaluate_variable(variable=variant, datasets=datasets, dset_name=SNP_DSET, traversal_index=index)
         specific_chromosome = _evaluate_variable(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, traversal_index=index)
 

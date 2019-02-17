@@ -48,12 +48,12 @@ class BlockSearch:
             raise NotFoundError("Chromosome " + str(chromosome))
         self.service = block_service.BlockService(self.h5file)
 
-    def search_chromosome_block(self, bp_interval, study=None, pval_interval=None):
+    def search_chromosome_block(self, bp_interval, study=None, pval_interval=None, snp=None):
         logger.info("Searching for chromosome %s / block floor %s, block ceil %s", str(self.chromosome),
                     str(bp_interval.floor()), str(bp_interval.ceil()))
         max_size = self.service.get_block_range_size(chromosome=self.chromosome, bp_interval=bp_interval)
         method_arguments = {'chromosome': self.chromosome, 'bp_interval': bp_interval}
-        restrictions = {'pval_interval': pval_interval, 'study': study}
+        restrictions = {'pval_interval': pval_interval, 'study': study, 'snp': snp}
         return search.general_search(search_obj=self, max_size=max_size,
                                      arguments=method_arguments, restriction_dictionary=restrictions)
 

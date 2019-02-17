@@ -1,4 +1,4 @@
-import sumstats.trait.search.association_search as assoc_search
+import sumstats.chr.search.association_search as assoc_search
 import sumstats.trait.search.trait_search as ts
 import sumstats.trait.search.study_search as ss
 
