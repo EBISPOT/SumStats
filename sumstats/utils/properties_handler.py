@@ -20,6 +20,7 @@ def set_config_properties(config):
         properties.trait_dir = props["trait_dir"]
         properties.chr_dir = props["chr_dir"]
         properties.snp_dir = props["snp_dir"]
+        properties.study_dir = props["study_dir"]
         properties.logging_path = props["logging_path"]
         properties.bp_step = props["bp_step"]
         properties.LOG_LEVEL = props["LOG_LEVEL"]

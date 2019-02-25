@@ -3,7 +3,7 @@ import sys
 from os.path import isfile
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.search.access.trait_service as trait_service
-import sumstats.trait.search.access.study_service as study_service
+import sumstats.study.search.access.study_service as study_service
 import sumstats.chr.search.access.chromosome_service as chrom_service
 import sumstats.chr.search.chromosome_search as chr_search
 import sumstats.utils.sqlite_client as sql_client
@@ -16,21 +16,57 @@ class Explorer:
     def __init__(self, config_properties=None):
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
+        self.study_dir = self.properties.study_dir
         self.trait_dir = self.properties.trait_dir
-        self.chr_dir = self.properties.chr_dir
         self.sqlite_db = self.properties.sqlite_path
 
-    def get_list_of_traits(self):
-        #traits = []
-        #h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
-        #for h5file in h5files:
-        #    service = trait_service.TraitService(h5file=h5file)
-        #    traits.extend(service.list_traits())
-        #    service.close_file()
-        sc = sql_client.sqlClient(self.sqlite_db)
-        traits = sc.get_traits()
 
+
+    def get_list_of_studies(self):
+        studies = []
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
+        for h5file in h5files:
+            service = study_service.StudyService(h5file=h5file)
+            studies.extend(service.list_studies())
+            service.close_file()
+        return sorted(list(set(studies)))
+
+
+    def get_list_of_tissues(self):
+        tissues = []
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
+        for h5file in h5files:
+            service = study_service.StudyService(h5file=h5file)
+            tissues.extend(service.list_tissues())
+            service.close_file()
+        return sorted(list(set(tissues)))
+
+
+    def get_list_of_traits(self):
+        traits = []
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        for h5file in h5files:
+            service = trait_service.TraitService(h5file=h5file)
+            traits.extend(service.list_traits())
+            service.close_file()
         return sorted(traits)
+
+
+    def get_list_of_studies_for_trait(self, trait):
+        studies = []
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
+        for h5file in h5files:
+            service = study_service.StudyService(h5file=h5file)
+            found_studies = service.list_studies_for_trait(trait)
+            if found_studies:
+                studies.extend([found_studies])
+            service.close_file()
+        return sorted(list(set(studies)))
+
+
+
+
+
 
     def get_list_of_chroms(self):
         chroms = []
@@ -42,18 +78,6 @@ class Explorer:
 
         return sorted(chroms)
 
-    def get_list_of_studies_for_trait(self, trait):
-
-        sc = sql_client.sqlClient(self.sqlite_db)
-        studies = sc.get_studies_for_trait(trait)
-
-        return sorted(studies)
-
-
-    def get_list_of_studies(self):
-        sc = sql_client.sqlClient(self.sqlite_db)
-        studies = sc.get_studies()
-        return sorted(studies)
 
     def get_trait_of_study(self, study_to_find):
         #h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
@@ -117,6 +141,11 @@ def main():
         for trait in traits:
             print(trait)
 
+    if args.trait is not None:  # pragma: no cover
+        studies = explorer.get_list_of_studies_for_trait(args.trait)
+        for study in studies:
+            print(study)
+
     if args.chromosomes:  # pragma: no cover
         chroms = explorer.get_list_of_chroms()
         for chrom in chroms:
@@ -156,6 +185,7 @@ if __name__ == "__main__":
 def argument_parser(args):
     parser = argparse.ArgumentParser()  # pragma: no cover
     parser.add_argument('-traits', action='store_true', help='List all the traits')  # pragma: no cover
+    parser.add_argument('-trait', help='List all the studies for a trait')  # pragma: no cover
     parser.add_argument('-studies', action='store_true', help='List all the studies')  # pragma: no cover
     parser.add_argument('-study', help='Will list \'trait: study\' if it exists')  # pragma: no cover
     parser.add_argument('-tissues', action='store_true', help='List all the tissues')  # pragma: no cover
