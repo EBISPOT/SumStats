@@ -27,8 +27,6 @@ class AssociationSearch:
         self.search_path = properties_handler.get_search_path(self.properties)
         self.study_dir = self.properties.study_dir
 
-        self.current_hdf = None
-
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
         # it is the number that when added to the 'start' value that we started the query with
@@ -49,53 +47,43 @@ class AssociationSearch:
 
         hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
 
-
-
-        start_next = None
-
         df = pd.DataFrame()
 
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
 
         for hdf in hdfs:
-            if self.current_hdf and hdf != self.current_hdf:
-                continue
-            else:
-                self.current_hdf = None
-                with pd.HDFStore(hdf) as store:
-                    key = None
-                    for (path, subgroups, subkeys) in store.walk():
-                        for subkey in subkeys:
-                            key = '/'.join([path, subkey])
-                    study = key.split('/')[-1] # set study here
+            with pd.HDFStore(hdf) as store:
+                key = None
+                for (path, subgroups, subkeys) in store.walk():
+                    for subkey in subkeys:
+                        key = '/'.join([path, subkey])
+                study = key.split('/')[-1] # set study here
+                chunks = store.select(key, chunksize=1, start=self.start,
+                                      where='position < 61744') #set pvalue and other conditions
+                n = chunks.coordinates.size - (self.start + 1)
+                # skip this file if the start is beyond the chunksize
+                if n < 0:
+                    self.start -= chunks.coordinates.size
+                    continue
 
-
-                    chunks = store.select(key, chunksize=1, start=self.start)
-                                          #where=pvalue < 0.000000000000000001') set pvalue and other conditions
-
-                    n = chunks.coordinates.size - self.start - 1
-
-                    for i, chunk in enumerate(chunks):
-                        chunk[STUDY_DSET] = study
-                        df = pd.concat([df, chunk])
-                        if i == n or len(df.index) >= self.size:
-                            self.index_marker = i + 1
-                            break
-
+                for i, chunk in enumerate(chunks):
+                    chunk[STUDY_DSET] = study
+                    df = pd.concat([df, chunk])
                     if len(df.index) >= self.size:
-                        self.current_hdf = hdf
+                        break
+                    if i == n:
+                        self.start = 0
                         break
 
-        #print("========truncate========")
+                if len(df.index) >= self.size:
+                    self.index_marker += len(df.index)
+                    break
 
-        #diff = len(df.index) - size
-        #print(diff)
 
-        #print(df)
         self.datasets = df.to_dict(orient='list')
+        self.index_marker = self.starting_point + len(df.index)
         return self.datasets, self.index_marker
-        #print(start_next)
 
 
 

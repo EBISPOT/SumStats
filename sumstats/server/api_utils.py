@@ -114,7 +114,7 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
     #exponent_dset = datasets.pop(EXP_DSET)
     #datasets[PVAL_DSET] = _reconstruct_pvalue(mantissa_dset=mantissa_dset, exp_dset=exponent_dset)
 
-    trait_to_study_cache = {}
+    #trait_to_study_cache = {}
     data_dict = {}
     length = len(datasets[PVAL_DSET])
 
@@ -136,7 +136,8 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         study = datasets[STUDY_DSET][index]
 
-        trait, trait_to_study_cache = _get_trait_for_study(study, trait_to_study_cache)
+        #trait, trait_to_study_cache = _get_trait_for_study(study, trait_to_study_cache)
+        trait = datasets[PHEN_DSET][index]
 
 
         element_info['trait'] = trait
