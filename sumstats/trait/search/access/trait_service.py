@@ -45,8 +45,15 @@ class TraitService:
     def list_traits(self):
         traits = []
         for group in self.groups:
-            traits.append(get_data(hdf=self.file, key=group, fields=['phenotype_id'])['phenotype_id'].drop_duplicates().values.tolist())
+            traits.extend(get_data(hdf=self.file, key=group, fields=['phenotype_id'])['phenotype_id'].drop_duplicates().values.tolist())
         return traits
+
+
+    def has_trait(self, trait):
+        list_of_traits = self.list_traits()
+        if trait in list_of_traits:
+            return True
+        return False
 
 #    def query(self, trait, start, size):
 #        logger.debug("Starting query for trait %s, start %s, size %s", trait, str(start), str(size))
@@ -74,11 +81,7 @@ class TraitService:
 #        traits = self.file_group.get_all_subgroups_keys()
 #        return traits
 #
-#    def has_trait(self, trait):
-#        list_of_traits = self.list_traits()
-#        if trait in list_of_traits:
-#            return True
-#        return False
+
 
     def close_file(self):
         logger.debug("Closing file %s...", self.file)

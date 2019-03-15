@@ -110,9 +110,9 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
     if datasets is None: return {}
     if len(datasets[REFERENCE_DSET]) <= 0: return {}
 
-    mantissa_dset = datasets.pop(MANTISSA_DSET)
-    exponent_dset = datasets.pop(EXP_DSET)
-    datasets[PVAL_DSET] = _reconstruct_pvalue(mantissa_dset=mantissa_dset, exp_dset=exponent_dset)
+    #mantissa_dset = datasets.pop(MANTISSA_DSET)
+    #exponent_dset = datasets.pop(EXP_DSET)
+    #datasets[PVAL_DSET] = _reconstruct_pvalue(mantissa_dset=mantissa_dset, exp_dset=exponent_dset)
 
     trait_to_study_cache = {}
     data_dict = {}

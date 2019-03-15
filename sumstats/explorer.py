@@ -10,6 +10,7 @@ import sumstats.utils.sqlite_client as sql_client
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
+from sumstats.common_constants import *
 
 
 class Explorer:
@@ -37,7 +38,7 @@ class Explorer:
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
         for h5file in h5files:
             service = study_service.StudyService(h5file=h5file)
-            tissues.extend(service.list_tissues())
+            tissues.append(service.list_tissues())
             service.close_file()
         return sorted(list(set(tissues)))
 
@@ -49,7 +50,7 @@ class Explorer:
             service = trait_service.TraitService(h5file=h5file)
             traits.extend(service.list_traits())
             service.close_file()
-        return sorted(traits)
+        return sorted(list(set(traits)))
 
 
     def get_list_of_studies_for_trait(self, trait):
@@ -64,34 +65,15 @@ class Explorer:
         return sorted(list(set(studies)))
 
 
-
-
-
-
-    def get_list_of_chroms(self):
-        chroms = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.chr_dir)
-        for h5file in h5files:
-            service = chrom_service.ChromosomeService(h5file=h5file)
-            chroms.extend(service.list_chroms())
-            service.close_file()
-
-        return sorted(chroms)
-
-
     def get_trait_of_study(self, study_to_find):
-        #h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
-        #for h5file in h5files:
-        #    service = study_service.StudyService(h5file=h5file)
-        #    for trait_study in service.list_trait_study_pairs():
-        #        if study_to_find == trait_study.split(":")[1]:
-        #            service.close_file()
-        #            return trait_study.split(":")[0]
-        #    service.close_file()
-        sc = sql_client.sqlClient(self.sqlite_db)
-        traits = sc.get_trait_of_study(study_to_find)
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
+        traits = []
+        for h5file in h5files:
+            service = study_service.StudyService(h5file=h5file)
+            traits.extend(service.list_traits_for_study(study_to_find))
+            service.close_file()
         if traits:
-            return traits
+            return sorted(list(set(traits)))
         else:
             # study not found
             raise NotFoundError("Study " + study_to_find)
@@ -100,12 +82,13 @@ class Explorer:
     def get_studies_of_tissue(self, tissue_to_find):
         try:
             study_list = []
-            h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+            h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
             for h5file in h5files:
                 service = study_service.StudyService(h5file=h5file)
-                for trait_study, tissue in service.list_tissue_study_pairs().items():
+                for study_tissue in service.list_tissue_study_pairs():
+                    study = study_tissue.split('/')[1]
+                    tissue = study_tissue.split('/')[-1]
                     if tissue_to_find == tissue:
-                        study = trait_study.split('/')[-1]
                         study_list.append(study)
                 service.close_file()
             return sorted(list(set(study_list)))
@@ -123,12 +106,25 @@ class Explorer:
         raise NotFoundError("Trait " + trait)
 
 
-    def has_chromosome(self, chromosome):
-        # raises Not Found Error
-        search = chr_search.ChromosomeSearch(chromosome=chromosome, start=0, size=0, config_properties=self.properties)
-        if search is not None:
-            return True
-        raise NotFoundError("Chromosome " + str(chromosome))
+
+    def get_list_of_chroms(self):
+        return CHROMOSOMES
+#        chroms = []
+#        h5files = fsutils.get_h5files_in_dir(self.search_path, self.chr_dir)
+#        for h5file in h5files:
+#            service = chrom_service.ChromosomeService(h5file=h5file)
+#            chroms.extend(service.list_chroms())
+#            service.close_file()
+#
+#        return sorted(chroms)
+#
+#
+#    def has_chromosome(self, chromosome):
+#        # raises Not Found Error
+#        search = chr_search.ChromosomeSearch(chromosome=chromosome, start=0, size=0, config_properties=self.properties)
+#        if search is not None:
+#            return True
+#        raise NotFoundError("Chromosome " + str(chromosome))
 
 
 def main():

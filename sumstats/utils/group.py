@@ -204,7 +204,7 @@ class Group:
 
     def get_attribute(self, key):
         if key in self.group.attrs:
-            return self.group.attrs[key]
+            return self.group.attrs.key
         else:
             return None
 

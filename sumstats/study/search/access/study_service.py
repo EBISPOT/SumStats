@@ -65,12 +65,10 @@ class StudyService:
 
 
     def list_tissues(self):
-        study_groups = self.file_group.get_all_subgroups()
-        tissue_groups = []
+        study_group = self.file_group.get_all_subgroups_keys()[0]
+        tissue = get_study_metadata(hdf=self.pd_hdf, key=study_group)['tissue']
 
-        for study_group in study_groups:
-            tissue_groups.extend(study_group.get_all_subgroups_keys())
-        return tissue_groups
+        return tissue
 
 
     def list_studies_for_trait(self, trait):
@@ -82,33 +80,42 @@ class StudyService:
                     return study.split('/')[-1]
 
 
+    def list_traits_for_study(self, study_to_find):
+        traits = []
+        study = self.file_group.get_all_subgroups_keys()[0]
+        #for study in self.pd_hdf.walk():
 
+        if study.split('/')[-1] == study_to_find:
+            #for tissue in tissues:
+            key = study#'/'.join([study, tissue])
+            traits.extend(get_data(hdf=self.pd_hdf, key=key, fields=['molecular_trait_id'])['molecular_trait_id'].drop_duplicates().values.tolist())
+        return traits
 
 
     def list_tissue_study_pairs(self):
-        trait_groups = self.file_group.get_all_subgroups()
-        study_groups = []
-        tissue_study_pairs = {}
-
-        for trait_group in trait_groups:
-            study_groups.extend(trait_group.get_all_subgroups())
-        for study in study_groups:
-            tissue_study_pairs[study.get_name()] = study.get_attribute('tissue')
+        tissue_study_pairs = []
+        for (study, subgroups, tissues) in self.pd_hdf.walk():
+            for tissue in tissues:
+                key = '/'.join([study, tissue])
+                tissue_study_pairs.append(key)
         return tissue_study_pairs
 
-    def list_trait_study_pairs(self):
-        trait_groups = self.file_group.get_all_subgroups()
-        study_groups = []
 
-        for trait_group in trait_groups:
-            trait_group_name = trait_group.get_name().replace("/","")
-            study_groups.extend([trait_group_name + ":" + study_name for study_name in trait_group.get_all_subgroups_keys()])
-        return study_groups
 
-    def get_study_groups(self):
-        trait_groups = self.file_group.get_all_subgroups()
-        study_groups = gu.generate_subgroups_from_generator_of_subgroups(trait_groups)
-        return study_groups
+
+#    def list_trait_study_pairs(self):
+#        trait_groups = self.file_group.get_all_subgroups()
+#        study_groups = []
+#
+#        for trait_group in trait_groups:
+#            trait_group_name = trait_group.get_name().replace("/","")
+#            study_groups.extend([trait_group_name + ":" + study_name for study_name in trait_group.get_all_subgroups_keys()])
+#        return study_groups
+#
+#    def get_study_groups(self):
+#        trait_groups = self.file_group.get_all_subgroups()
+#        study_groups = gu.generate_subgroups_from_generator_of_subgroups(trait_groups)
+#        return study_groups
 
     def close_file(self):
         logger.debug("Closing file %s...", self.file.file)

@@ -1,4 +1,4 @@
-from multiprocessing import Pool
+import pandas as pd
 
 import sumstats.explorer as ex
 from sumstats.trait.search.access import trait_service
@@ -25,7 +25,9 @@ class AssociationSearch:
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
-        self.chr_dir = self.properties.chr_dir
+        self.study_dir = self.properties.study_dir
+
+        self.current_hdf = None
 
         self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
@@ -44,20 +46,81 @@ class AssociationSearch:
         logger.info("Searching all associations for start %s, size %s, pval_interval %s",
                     str(self.start), str(self.size), str(pval_interval))
         self.iteration_size = self.size
-        available_chroms = self._get_all_chroms()
+
+        hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
 
 
-        for chrom in available_chroms:
-            while not self._search_complete():
-                if self.studies is not None:
-                    for study in self.studies:
-                        while not self._search_complete():
-                            self.perform_search(pval_interval=pval_interval, chrom=chrom, study=study)
-                else:
-                    while not self._search_complete():
-                        self.perform_search(pval_interval=pval_interval, chrom=chrom)
 
+        start_next = None
+
+        df = pd.DataFrame()
+
+        ## This iterates through files one chunksize at a time.
+        ## The index tells it which chunk to take from each file.
+
+        for hdf in hdfs:
+            if self.current_hdf and hdf != self.current_hdf:
+                continue
+            else:
+                self.current_hdf = None
+                with pd.HDFStore(hdf) as store:
+                    key = None
+                    for (path, subgroups, subkeys) in store.walk():
+                        for subkey in subkeys:
+                            key = '/'.join([path, subkey])
+                    study = key.split('/')[-1] # set study here
+
+
+                    chunks = store.select(key, chunksize=1, start=self.start)
+                                          #where=pvalue < 0.000000000000000001') set pvalue and other conditions
+
+                    n = chunks.coordinates.size - self.start - 1
+
+                    for i, chunk in enumerate(chunks):
+                        chunk[STUDY_DSET] = study
+                        df = pd.concat([df, chunk])
+                        if i == n or len(df.index) >= self.size:
+                            self.index_marker = i + 1
+                            break
+
+                    if len(df.index) >= self.size:
+                        self.current_hdf = hdf
+                        break
+
+        #print("========truncate========")
+
+        #diff = len(df.index) - size
+        #print(diff)
+
+        #print(df)
+        self.datasets = df.to_dict(orient='list')
         return self.datasets, self.index_marker
+        #print(start_next)
+
+
+
+
+
+
+
+
+
+
+
+        #available_chroms = self._get_all_chroms()
+
+
+        #for chrom in available_chroms:
+        #    while not self._search_complete():
+        #        if self.studies is not None:
+        #            for study in self.studies:
+        #                while not self._search_complete():
+        #                    self.perform_search(pval_interval=pval_interval, chrom=chrom, study=study)
+        #        else:
+        #            while not self._search_complete():
+        #                self.perform_search(pval_interval=pval_interval, chrom=chrom)
+
+        #return self.datasets, self.index_marker
 
 
     def perform_search(self, pval_interval=None, chrom=None, study=None):
