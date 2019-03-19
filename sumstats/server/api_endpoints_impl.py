@@ -196,7 +196,7 @@ def tissue_associations(tissue):
         trait = apiu._find_study_info(study=study, trait=trait)
         searcher = search.Search(apiu.properties)
 
-        datasets, index_marker = searcher.search_study(trait=trait, study=study,
+        datasets, index_marker = searcher.search(trait=trait, study=study,
                                                        start=start, size=size, pval_interval=pval_interval)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
@@ -216,12 +216,13 @@ def trait_study(study, trait=None):
     try:
         # try to find the study's trait by looking for it in the database
         # if it doesn't exist it will raise an error
-        trait_found = apiu._find_study_info(study=study)
+        #trait_found = apiu._find_study_info(study=study)
         # check to see that the trait the study actually belongs to is the same
         # as the trait provided by the user
-        if trait_found != trait and trait is not None:
-            raise BadUserRequest("Trait-study combination does not exist!")
-        response = apiu._create_info_for_study(study=study, trait=trait_found)
+        #if trait_found != trait and trait is not None:
+        #    raise BadUserRequest("Trait-study combination does not exist!")
+        # otherwise create info without trait
+        response = apiu._create_info_for_study(study=study, trait=trait)
         return simplejson.dumps(response, ignore_nan=True)
 
     except (NotFoundError, SubgroupError) as error:
@@ -238,16 +239,27 @@ def trait_study_associations(study, trait=None):
         raise BadUserRequest(str(error))
 
     try:
-        trait = apiu._find_study_info(study=study, trait=trait)
+        #trait = apiu._find_study_info(study=study, trait=trait)
         searcher = search.Search(apiu.properties)
 
         #datasets, index_marker = searcher.search_study(trait=trait, study=study,
         #                                               start=start, size=size, pval_interval=pval_interval)
-        datasets, index_marker = searcher.search_study(study=study,
-                                                       start=start, size=size, pval_interval=pval_interval)
+        if trait:
+            datasets, index_marker = searcher.search(study=study, trait=trait,
+                                                     start=start, size=size, pval_interval=pval_interval)
 
-        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
-        params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
+            data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+
+            params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
+        else:
+            datasets, index_marker = searcher.search(study=study,
+                                                     start=start, size=size, pval_interval=pval_interval)
+
+            data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+
+            params = dict(study=study, p_lower=p_lower, p_upper=p_upper)
+
+
         response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
                                          index_marker=index_marker,
                                          data_dict=data_dict, params=params)
@@ -331,7 +343,7 @@ def variants(variant, chromosome=None):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
+        datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)

@@ -617,7 +617,7 @@ def get_studies():
                     status=200,
                     mimetype="application/json")
 
-
+@api.route('/traits/<string:trait>/studies')
 def get_studies_for_trait(trait):
     """Search Trait for Studies
 

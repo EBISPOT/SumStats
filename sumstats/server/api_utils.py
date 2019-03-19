@@ -23,8 +23,9 @@ def _get_study_list(studies, start, size):
     study_list = []
     end = min(start + size, len(studies))
     for study in studies[start:end]:
-        trait = _find_study_info(study)
-        study_list.append(_create_study_info_for_trait([study], trait))
+        #trait = _find_study_info(study)
+        #study_list.append(_create_study_info_for_trait([study], trait))
+        study_list.append(_create_study_info_for_trait([study]))
     return study_list
 
 def _get_study_list_no_info(studies, start, size):
@@ -43,7 +44,7 @@ def _get_tissue_list(tissues, start, size):
     return tissue_list
 
 
-def _create_study_info_for_trait(studies, trait):
+def _create_study_info_for_trait(studies, trait=None):
     study_list = []
     for study in studies:
         study_info = _create_info_for_study(study=study, trait=trait)
@@ -60,16 +61,25 @@ def _create_info_for_tissue(tissue):
     return tissue_info
 
 
-def _create_info_for_study(study, trait):
-    study_info = {'study_accession': study,
-                  '_links': {'self': _create_href(method_name='api.get_trait_study',
-                                                  params={'trait': trait, 'study': study}),
-                             'trait': _create_href(method_name='api.get_trait', params={'trait': trait})}}
+def _create_info_for_study(study, trait=None):
+    if trait:
+        study_info = {'study_accession': study,
+                      '_links': {'self': _create_href(method_name='api.get_trait_study',
+                                                      params={'trait': trait, 'study': study}),
+                                 'trait': _create_href(method_name='api.get_traits')}}#, params={'trait': trait})}}
 
-    study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
-    study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
-                                                        params={'trait': trait, 'study': study})
+        study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
+        study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
+                                                            params={'trait': trait, 'study': study})
+    else:
+        study_info = {'study_accession': study,
+                      '_links': {'self': _create_href(method_name='api.get_trait_study',
+                                                      params={'study': study}),
+                                 'trait': _create_href(method_name='api.get_traits')}}  # , params={'trait': trait})}}
 
+        study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
+        study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
+                                                            params={'study': study})
     return study_info
 
 
