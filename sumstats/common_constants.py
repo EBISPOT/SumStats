@@ -5,6 +5,7 @@ MANTISSA_DSET = 'mantissa'
 EXP_DSET = 'exponent'
 PVAL_DSET = 'pvalue'
 STUDY_DSET = 'study_id'
+TISSUE_DSET = 'tissue'
 CHR_DSET = 'chromosome'
 BP_DSET = 'position'
 BETA_DSET = 'beta'
@@ -33,7 +34,7 @@ HM_CODE = 'hm_code'
 vlen_dtype = h5py.special_dtype(vlen=str)
 DSET_TYPES = {SNP_DSET: vlen_dtype, RSID_DSET: vlen_dtype, MUTATION_DSET: vlen_dtype, AC_DSET: int, AN_DSET: int, PVAL_DSET: vlen_dtype, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: vlen_dtype,
               CHR_DSET: int, BP_DSET: int, R2_DSET: float, BETA_DSET: float, SE_DSET: float,
-              EFFECT_DSET: vlen_dtype, OTHER_DSET: vlen_dtype, FREQ_DSET: float, MEAN_EXPR_DSET: float}
+              EFFECT_DSET: vlen_dtype, OTHER_DSET: vlen_dtype, FREQ_DSET: float, MEAN_EXPR_DSET: float, TISSUE_DSET: vlen_dtype}
               
 
 REFERENCE_DSET = SNP_DSET
@@ -53,7 +54,7 @@ TO_LOAD_DSET_HEADERS_DEFAULT = {SNP_DSET, PVAL_DSET, CHR_DSET, BP_DSET, EFFECT_D
 # temp change tp pvalue instead of mantissa exp.
 TO_STORE_DSETS_DEFAULT = {SNP_DSET, PVAL_DSET, STUDY_DSET, CHR_DSET, BP_DSET, EFFECT_DSET, OTHER_DSET, BETA_DSET, RSID_DSET, MUTATION_DSET, AC_DSET, AN_DSET, FREQ_DSET,  R2_DSET, MEAN_EXPR_DSET}
 TO_QUERY_DSETS_DEFAULT = {SNP_DSET, PVAL_DSET, STUDY_DSET, CHR_DSET, BP_DSET, BETA_DSET, RSID_DSET, MUTATION_DSET, AC_DSET, AN_DSET, FREQ_DSET, R2_DSET, MEAN_EXPR_DSET,
-                          EFFECT_DSET, OTHER_DSET}
+                          EFFECT_DSET, OTHER_DSET, TISSUE_DSET}
 
 
 CHROMOSOMES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y', 'MT']

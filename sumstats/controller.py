@@ -17,28 +17,11 @@ class Search(object):
         self.config_properties = config_properties
         self.sqlite_db = properties.sqlite_path
 
-    def search_all_assocs(self, start, size, pval_interval=None):
-        return cr.search_all_assocs(start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
-
-    def search_trait(self, trait, start, size, pval_interval=None):
-        #return tr.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
-        sc = sql_client.sqlClient(self.sqlite_db)
-        uuids = sc.get_uuid_from_trait(trait)
-        return cr.search_all_assocs(uuids=uuids, start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
-
-    def search_study(self, start, size, study, pval_interval=None):
-        sc = sql_client.sqlClient(self.sqlite_db)
-        uuids = sc.get_uuid_from_study(study)
-        return cr.search_all_assocs(uuids=uuids, start=start, size=size, pval_interval=pval_interval, properties=self.config_properties)
-
-    def search_chromosome(self, chromosome, start, size, bp_interval=None, study=None, pval_interval=None):
-        return cr.search_chromosome(chromosome=chromosome, start=start, size=size, properties=self.config_properties,
-                                    bp_interval=bp_interval, study=study, pval_interval=pval_interval)
-
-    def search_snp(self, snp, start, size, chromosome=None, study=None, pval_interval=None):
-        return snpr.search_snp(snp=snp, chromosome=chromosome, start=start, size=size, study=study,
-                               pval_interval=pval_interval, properties=self.config_properties)
-
+    def search(self, start, size, pval_interval=None, study=None, trait=None,
+               chromosome=None, bp_interval=None, tissue=None, snp=None):
+        return cr.search_all_assocs(start=start, size=size, pval_interval=pval_interval,
+                                    properties=self.config_properties, study=study, trait=trait,
+                                    chromosome=chromosome, bp_interval=bp_interval, tissue=tissue, snp=snp)
 
 def main():  # pragma: no cover
     args = argument_parser(sys.argv[1:])  # pragma: no cover
@@ -60,27 +43,13 @@ def main():  # pragma: no cover
     search = Search(properties)  # pragma: no cover
 
     if find_all:  # pragma: no cover
-        result, index_marker = search.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
-    elif trait is not None:
-        if study is not None:
-            result, index_marker = search.search_study(trait=trait, study=study, start=start, size=size,
-                                                       pval_interval=pval_interval)
-        else:
-            result, index_marker = search.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
+        result, index_marker = search.search(start=start, size=size, pval_interval=pval_interval)
 
-    elif study is not None:
-        result, index_marker = search.search_study(study=study, start=start, size=size,
-                                                   pval_interval=pval_interval)
-    elif chromosome is not None:
-        if snp is not None:
-            result, index_marker = search.search_snp(snp=snp, start=start, size=size, study=study,
-                                                     pval_interval=pval_interval, chromosome=chromosome)
-        else:
-            result, index_marker = search.search_chromosome(chromosome=chromosome, start=start, size=size, bp_interval=bp_interval,
-                                              study=study, pval_interval=pval_interval)
-    elif snp is not None:
-        result, index_marker = search.search_snp(snp=snp, start=start, size=size, study=study,
-                                                 pval_interval=pval_interval)
+    elif any([trait, study, chromosome, bp_interval, snp, pval_interval, tissue]):
+        result, index_marker = search.search(start=start, size=size, pval_interval=pval_interval,
+                                             study=study, trait=trait, chromosome=chromosome,
+                                             bp_interval=bp_interval, tissue=tissue, snp=snp)
+
     else:
         raise ValueError("Input is wrong!")
 
