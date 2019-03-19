@@ -17,11 +17,16 @@ register_logger.register(__name__)
 
 
 class AssociationSearch:
-    def __init__(self, start, size, config_properties=None, studies=None):
+    def __init__(self, start, size, pval_interval=None, config_properties=None, studies=None, chrom=None, bp_interval=None, trait=None, gene=None):
         self.starting_point = start
         self.start = start
         self.size = size
         self.studies = studies
+        self.pval_interval = pval_interval
+        self.chrom = chrom
+        self.bp_interval = bp_interval
+        self.trait = trait
+        self.gene = gene
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
@@ -33,7 +38,7 @@ class AssociationSearch:
         # will pinpoint where the next search needs to continue from
         self.index_marker = self.search_traversed = 0
 
-    def search_associations(self, pval_interval=None):
+    def search_associations(self):
         """
         Traverses the chromosomes and studies therein and retrieves the data stored in their datasets.
         It traverses the datasets of the first trait before it continues to the next trait's datasets.
@@ -42,12 +47,13 @@ class AssociationSearch:
         :return: a dictionary containing the dataset names and slices of the datasets
         """
         logger.info("Searching all associations for start %s, size %s, pval_interval %s",
-                    str(self.start), str(self.size), str(pval_interval))
+                    str(self.start), str(self.size), str(self.pval_interval))
         self.iteration_size = self.size
 
         hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
 
         df = pd.DataFrame()
+        condition = self._construct_conditional_statement()
 
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
@@ -59,8 +65,13 @@ class AssociationSearch:
                     for subkey in subkeys:
                         key = '/'.join([path, subkey])
                 study = key.split('/')[-1] # set study here
-                chunks = store.select(key, chunksize=1, start=self.start,
-                                      where='position < 61744') #set pvalue and other conditions
+
+                if condition:
+                    print(condition)
+                    chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
+                else:
+                    chunks = store.select(key, chunksize=1, start=self.start)
+
                 n = chunks.coordinates.size - (self.start + 1)
                 # skip this file if the start is beyond the chunksize
                 if n < 0:
@@ -141,6 +152,21 @@ class AssociationSearch:
 
         logger.info("Completed search for all associations. Returning index marker %s",
                     str(self.index_marker))
+
+    def _construct_conditional_statement(self):
+        conditions = []
+        statement = None
+
+        if self.pval_interval:
+            if self.pval_interval.lower_limit:
+                conditions.append("{PVAL} >= {lower}".format(PVAL = PVAL_DSET, lower = str(self.pval_interval.lower_limit)))
+            if self.pval_interval.upper_limit:
+                conditions.append("{PVAL} <= {upper}".format(PVAL = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
+
+        if len(conditions) > 0:
+            statement = " & ".join(conditions)
+        return statement
+
 
     def _get_all_traits(self):
         explorer = ex.Explorer(self.properties)
