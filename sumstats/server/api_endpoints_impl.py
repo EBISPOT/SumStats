@@ -34,7 +34,7 @@ def associations():
 
     searcher = search.Search(apiu.properties)
 
-    datasets, index_marker = searcher.search_all_assocs(start=start, size=size, pval_interval=pval_interval)
+    datasets, index_marker = searcher.search(start=start, size=size, pval_interval=pval_interval)
 
     data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
     params = dict(p_lower=p_lower, p_upper=p_upper)
@@ -83,7 +83,7 @@ def trait_associations(trait):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search_trait(trait=trait, start=start, size=size, pval_interval=pval_interval)
+        datasets, index_marker = searcher.search(trait=trait, start=start, size=size, pval_interval=pval_interval)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
         params = dict(trait=trait, p_lower=p_lower, p_upper=p_upper)

@@ -1,10 +1,5 @@
 import pandas as pd
 
-import sumstats.explorer as ex
-from sumstats.trait.search.access import trait_service
-import sumstats.trait.search.trait_search as ts
-from sumstats.chr.search.access import chromosome_service
-import sumstats.chr.search.chromosome_search as cs
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
 from sumstats.chr.constants import *
@@ -64,28 +59,27 @@ class AssociationSearch:
 
         for hdf in hdfs:
             with pd.HDFStore(hdf) as store:
-                key = None
-                for (path, subgroups, subkeys) in store.walk():
-                    for subkey in subkeys:
-                        key = '/'.join([path, subkey])
-                #study = key.split('/')[-1] # set study here
-
-                study = store.get_storer(key).attrs.study_metadata['study']
-                tissue = store.get_storer(key).attrs.study_metadata['tissue']
+                key = self._get_group_key(store)
+                study = self._get_study_metadata(store, key)['study']
+                tissue = self._get_study_metadata(store, key)['tissue']
 
                 if self.study and self.study != study:
+                    # move on to next study if this isn't the one we want
                     continue
 
                 if self.tissue and self.tissue != tissue:
+                    # move on to next tissue if this isn't the one we want
                     continue
 
                 if condition:
                     print(condition)
                     chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
                 else:
+                    print("No condition")
                     chunks = store.select(key, chunksize=1, start=self.start)
 
                 n = chunks.coordinates.size - (self.start + 1)
+
                 # skip this file if the start is beyond the chunksize
                 if n < 0:
                     self.start -= chunks.coordinates.size
@@ -95,9 +89,11 @@ class AssociationSearch:
                     chunk[STUDY_DSET] = study
                     chunk[TISSUE_DSET] = tissue
                     df = pd.concat([df, chunk])
-                    if len(df.index) >= self.size:
+
+                    if len(df.index) >= self.size: # break once we have enough
                         break
-                    if i == n:
+
+                    if i == n: # Need to explicitly break loop once complete - not sure why - investigate this
                         self.start = 0
                         break
 
@@ -106,7 +102,7 @@ class AssociationSearch:
                     break
 
 
-        self.datasets = df.to_dict(orient='list')
+        self.datasets = df.to_dict(orient='list') # return as lists - but could be parameterised to return in a specified format
         self.index_marker = self.starting_point + len(df.index)
         return self.datasets, self.index_marker
 
@@ -141,44 +137,11 @@ class AssociationSearch:
         return statement
 
 
-    #def _get_all_traits(self):
-    #    explorer = ex.Explorer(self.properties)
-    #    return explorer.get_list_of_traits()
-#
-    #def _get_all_chroms(self):
-    #    explorer = ex.Explorer(self.properties)
-    #    return explorer.get_list_of_chroms()
-#
-    #def _next_iteration_size(self):
-    #    return self.size - len(self.datasets[REFERENCE_DSET])
-#
-    #def _increase_search_index(self, iteration_size):
-    #    self.index_marker += iteration_size
-#
-    #def _extend_datasets(self, result):
-    #    self.datasets = utils.extend_dsets_with_subset(self.datasets, result)
-#
-    #def _calculate_total_traversal_of_search(self, chrom, current_chrom_index):
-    #    self.search_traversed += self._get_traversed_size(retrieved_index=current_chrom_index, chrom=chrom)
-#
-    #def _search_complete(self):
-    #    return len(self.datasets[REFERENCE_DSET]) >= self.size
-#
-    #def _get_traversed_size(self, retrieved_index, chrom):
-    #    if retrieved_index == 0:
-    #        h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.chr_dir, file_name=chrom)
-    #        service = chromosome_service.ChromosomeService(h5file)
-    #        chrom_size = service.get_chromosome_size(chrom)
-    #        service.close_file()
-    #        return chrom_size
-    #    return retrieved_index
-#
-    #def _next_start_index(self, current_search_index):
-    #    if current_search_index == self.search_traversed:
-    #        # we have retrieved the trait from start to end
-    #        # retrieving next trait from it's beginning
-    #        return 0
-    #    new_start = self.start - self.search_traversed + current_search_index
-    #    if new_start < 0:
-    #        return self.start + current_search_index
-    #    return new_start
+    def _get_study_metadata(self, store, key):
+        return store.get_storer(key).attrs.study_metadata
+
+    def _get_group_key(self, store):
+        for (path, subgroups, subkeys) in store.walk():
+            for subkey in subkeys:
+                return '/'.join([path, subkey])
+

@@ -15,7 +15,7 @@ import sumstats.utils.sqlite_client as sql_client
 class Search(object):
     def __init__(self, config_properties=None):
         self.config_properties = config_properties
-        self.sqlite_db = properties.sqlite_path
+        #self.sqlite_db = properties.sqlite_path
 
     def search(self, start, size, pval_interval=None, study=None, trait=None,
                chromosome=None, bp_interval=None, tissue=None, snp=None):

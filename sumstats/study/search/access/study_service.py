@@ -34,62 +34,23 @@ class StudyService:
         self.datasets = {}
         self.file_group = gu.Group(self.file)
         self.pd_hdf = pd.HDFStore(h5file)
-
-#    def query(self, trait, study, start, size):
-#        logger.debug("Starting query for trait %s, study %s, start %s, size %s", trait, study, str(start), str(size))
-#        trait_group = self.file_group.get_subgroup(trait)
-#        study_group = trait_group.get_subgroup(study)
-#
-#        self.datasets = repo.get_dsets_from_group_directly(study, study_group, start, size)
-#        logger.debug("Query for trait %s, study %s, start %s, size %s done...", trait, study, str(start), str(size))
-#
-#    def apply_restrictions(self, snp=None, study=None, chromosome=None, pval_interval=None, bp_interval=None):
-#        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s",
-#                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
-#        self.datasets = rst.apply_restrictions(self.datasets, snp, study, chromosome, pval_interval, bp_interval)
-#        logger.debug("Applying restrictions: snp %s, study %s, chromosome %s, pval_interval %s, bp_interval %s done...",
-#                     str(snp), str(study), str(chromosome), str(pval_interval), str(bp_interval))
-#
-#    def get_result(self):
-#        return self.datasets
-#
-#    def get_study_size(self, trait, study):
-#        trait_group = self.file_group.get_subgroup(trait)
-#        study_size = trait_group.get_subgroup(study).get_dset_shape(REFERENCE_DSET)[0]
-#        logger.debug("Study %s has group size %s", study, str(study_size))
-#        return study_size
-
-    def list_studies(self):
-        study_groups = self.file_group.get_all_subgroups_keys()
-        return study_groups
-
-
-    def list_tissues(self):
-        study_group = self.file_group.get_all_subgroups_keys()[0]
-        tissue = get_study_metadata(hdf=self.pd_hdf, key=study_group)['tissue']
-
-        return tissue
+        self.key = self.file_group.get_all_subgroups_keys()[0]
+        self.study = get_study_metadata(hdf=self.pd_hdf, key=self.key)['study']
+        self.tissue = get_study_metadata(hdf=self.pd_hdf, key=self.key)['tissue']
 
 
     def list_studies_for_trait(self, trait):
         trait_str = "molecular_trait_id == {}".format(trait)
-        for (study, subgroups, tissues) in self.pd_hdf.walk():
-            for tissue in tissues:
-                key = '/'.join([study, tissue])
-                if len(self.pd_hdf.select(key=key, columns='molecular_trait_id', where=trait_str)) > 0:
-                    return study.split('/')[-1]
+        if len(self.pd_hdf.select(key=self.key, columns='molecular_trait_id', where=trait_str)) > 0:
+            return self.study
 
 
     def list_traits_for_study(self, study_to_find):
         traits = []
-        study = self.file_group.get_all_subgroups_keys()[0]
-        #for study in self.pd_hdf.walk():
-
-        if study.split('/')[-1] == study_to_find:
-            #for tissue in tissues:
-            key = study#'/'.join([study, tissue])
-            traits.extend(get_data(hdf=self.pd_hdf, key=key, fields=['molecular_trait_id'])['molecular_trait_id'].drop_duplicates().values.tolist())
+        if self.study == study_to_find:
+            traits.extend(get_data(hdf=self.pd_hdf, key=self.key, fields=['molecular_trait_id'])['molecular_trait_id'].drop_duplicates().values.tolist())
         return traits
+
 
 
     def list_tissue_study_pairs(self):
@@ -99,6 +60,13 @@ class StudyService:
                 key = '/'.join([study, tissue])
                 tissue_study_pairs.append(key)
         return tissue_study_pairs
+
+    def has_trait(self, trait):
+        trait_str = "molecular_trait_id == {}".format(trait)
+        if any(self.pd_hdf.select(key=self.key, fields=['molecular_trait_id'], where=trait_str).drop_duplicates().values.tolist()):
+            return True
+        else:
+            return False
 
 
 

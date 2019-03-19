@@ -8,3 +8,4 @@ def get_data(hdf, key, fields, condition=None):
 
 def get_study_metadata(hdf, key):
     return hdf.get_storer(key).attrs.study_metadata
+

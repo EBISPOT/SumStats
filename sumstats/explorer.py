@@ -7,6 +7,7 @@ import sumstats.study.search.access.study_service as study_service
 import sumstats.chr.search.access.chromosome_service as chrom_service
 import sumstats.chr.search.chromosome_search as chr_search
 import sumstats.utils.sqlite_client as sql_client
+import sumstats.chr.retriever as cr
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
@@ -28,7 +29,7 @@ class Explorer:
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
         for h5file in h5files:
             service = study_service.StudyService(h5file=h5file)
-            studies.extend(service.list_studies())
+            studies.append(service.study)
             service.close_file()
         return sorted(list(set(studies)))
 
@@ -38,12 +39,12 @@ class Explorer:
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
         for h5file in h5files:
             service = study_service.StudyService(h5file=h5file)
-            tissues.append(service.list_tissues())
+            tissues.append(service.tissue)
             service.close_file()
         return sorted(list(set(tissues)))
 
 
-    def get_list_of_traits(self):
+    def get_list_of_traits(self): # method will change for GWAS Cat style data
         traits = []
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
         for h5file in h5files:
@@ -53,7 +54,7 @@ class Explorer:
         return sorted(list(set(traits)))
 
 
-    def get_list_of_studies_for_trait(self, trait):
+    def get_list_of_studies_for_trait(self, trait): # method will change for GWAS Cat style data
         studies = []
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
         for h5file in h5files:
@@ -81,50 +82,36 @@ class Explorer:
 
     def get_studies_of_tissue(self, tissue_to_find):
         try:
-            study_list = []
+            studies = []
             h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
             for h5file in h5files:
                 service = study_service.StudyService(h5file=h5file)
-                for study_tissue in service.list_tissue_study_pairs():
-                    study = study_tissue.split('/')[1]
-                    tissue = study_tissue.split('/')[-1]
-                    if tissue_to_find == tissue:
-                        study_list.append(study)
+                if service.tissue == tissue_to_find:
+                    studies.append(service.study)
                 service.close_file()
-            return sorted(list(set(study_list)))
+            return sorted(list(set(studies)))
         except NotFoundError:
             # tissue not found
             raise NotFoundError("Tissue " + tissue_to_find)
 
 
     def has_trait(self, trait):
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
-        for h5file in h5files:
-            service = trait_service.TraitService(h5file=h5file)
-            if service.has_trait(trait):
-                return True
+        search = cr.search_all_assocs(trait=trait, start=0, size=0, properties=self.properties)
+        if search is not None:
+            return True
         raise NotFoundError("Trait " + trait)
-
 
 
     def get_list_of_chroms(self):
         return CHROMOSOMES
-#        chroms = []
-#        h5files = fsutils.get_h5files_in_dir(self.search_path, self.chr_dir)
-#        for h5file in h5files:
-#            service = chrom_service.ChromosomeService(h5file=h5file)
-#            chroms.extend(service.list_chroms())
-#            service.close_file()
-#
-#        return sorted(chroms)
-#
-#
-#    def has_chromosome(self, chromosome):
-#        # raises Not Found Error
-#        search = chr_search.ChromosomeSearch(chromosome=chromosome, start=0, size=0, config_properties=self.properties)
-#        if search is not None:
-#            return True
-#        raise NotFoundError("Chromosome " + str(chromosome))
+
+
+    def has_chromosome(self, chromosome):
+        # raises Not Found Error
+        search = cr.search_all_assocs(chromosome=chromosome, start=0, size=0, properties=self.properties)
+        if search is not None:
+            return True
+        raise NotFoundError("Chromosome " + str(chromosome))
 
 
 def main():
