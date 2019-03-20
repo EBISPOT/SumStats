@@ -37,6 +37,8 @@ class StudyService:
         self.key = self.file_group.get_all_subgroups_keys()[0]
         self.study = get_study_metadata(hdf=self.pd_hdf, key=self.key)['study']
         self.tissue = get_study_metadata(hdf=self.pd_hdf, key=self.key)['tissue']
+        self.chromosomes = get_study_metadata(hdf=self.pd_hdf, key=self.key)['chromosomes'].tolist()
+        self.traits = get_study_metadata(hdf=self.pd_hdf, key=self.key)['traits'].tolist()
 
 
     def list_studies_for_trait(self, trait):
@@ -48,7 +50,12 @@ class StudyService:
     def list_traits_for_study(self, study_to_find):
         traits = []
         if self.study == study_to_find:
-            traits.extend(get_data(hdf=self.pd_hdf, key=self.key, fields=['molecular_trait_id'])['molecular_trait_id'].drop_duplicates().values.tolist())
+            """Store the below as a dataset in a group in the hdf5.
+            Something, like /phen_info/[traits], we can keep an attribute linking to the trait metadata too.
+            Same goes for genes"""
+            #traits.extend(get_data(hdf=self.pd_hdf, key=self.key, fields=['molecular_trait_id'])['molecular_trait_id'].drop_duplicates().values.tolist())
+
+            traits.extend(self.traits)
         return traits
 
 
@@ -67,7 +74,6 @@ class StudyService:
             return True
         else:
             return False
-
 
 
 

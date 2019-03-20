@@ -46,17 +46,28 @@ def associations():
 
 def traits():
     args = request.args.to_dict()
+    #need to add in study to url if present
     try:
         start, size = apiu._get_start_size(args)
+        study = apiu._retrieve_endpoint_arguments(args, "study_accession")
     except ValueError as error:
         logging.error("/traits. " + (str(error)))
         raise BadUserRequest(str(error))
     explorer = ex.Explorer(apiu.properties)
-    traits = explorer.get_list_of_traits()
-    trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
+    if study:
+        traits = explorer.get_trait_of_study(study_to_find=study)
+        trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
 
-    response = apiu._create_response(collection_name='trait', method_name='api.get_traits',
-                                     start=start, size=size, index_marker=size, data_dict=trait_list)
+        response = apiu._create_response(collection_name='trait', method_name='api.get_traits', params={'study_accession': study},
+                                         start=start, size=size, index_marker=size, data_dict=trait_list)
+    else:
+        traits = explorer.get_list_of_traits()
+        trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
+
+        response = apiu._create_response(collection_name='trait', method_name='api.get_traits',
+                                         start=start, size=size, index_marker=size, data_dict=trait_list)
+
+
 
     return simplejson.dumps(response)
 
@@ -193,15 +204,16 @@ def tissue_associations(tissue):
         raise BadUserRequest(str(error))
 
     try:
-        trait = apiu._find_study_info(study=study, trait=trait)
+        #trait = apiu._find_study_info(study=study, trait=trait)
         searcher = search.Search(apiu.properties)
 
-        datasets, index_marker = searcher.search(trait=trait, study=study,
+        datasets, index_marker = searcher.search(tissue=tissue,
                                                        start=start, size=size, pval_interval=pval_interval)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
-        params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
-        response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
+        #params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
+        params = dict(p_lower=p_lower, p_upper=p_upper, tissue=tissue)
+        response = apiu._create_response(method_name='api.get_tissue_assocs', start=start, size=size,
                                          index_marker=index_marker,
                                          data_dict=data_dict, params=params)
 
@@ -272,18 +284,19 @@ def trait_study_associations(study, trait=None):
 
 
 def chromosomes():
-    chromosomes_list = []
-    for chromosome in range(1, (properties.available_chromosomes + 1)):
-        try:
-            explorer = ex.Explorer(apiu.properties)
-            explorer.has_chromosome(chromosome)
+    chromosomes = []
+    #for chromosome in range(1, (properties.available_chromosomes + 1)):
+    try:
+        explorer = ex.Explorer(apiu.properties)
+        chrom_list = explorer.get_list_of_chroms()
+        for chromosome in chrom_list:
             # adding plus one to include the available_chromosomes number
             chromosome_info = _create_chromosome_info(chromosome)
-            chromosomes_list.append(chromosome_info)
-        except NotFoundError:
-            logging.debug("Chromosome %s does not have data...", str(chromosome))
+            chromosomes.append(chromosome_info)
+    except NotFoundError:
+        logging.debug("Chromosome %s does not have data...", str(chromosomes))
 
-    response = OrderedDict({'_embedded': {'chromosomes': chromosomes_list}})
+    response = OrderedDict({'_embedded': {'chromosomes': chromosomes}})
     return simplejson.dumps(response)
 
 
@@ -309,7 +322,7 @@ def chromosome_associations(chromosome):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search_chromosome(chromosome=chromosome,
+        datasets, index_marker = searcher.search(chromosome=chromosome,
                                                             start=start, size=size, study=study,
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
         data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, reveal=reveal)
@@ -376,7 +389,7 @@ def variant_resource(variant, chromosome=None):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search_snp(snp=variant, chromosome=chromosome, start=start, size=size,
+        datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
         params = {'variant_id': variant, 'study_accession': study}

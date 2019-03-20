@@ -17,3 +17,4 @@ def search_all_assocs(start, size, pval_interval=None, properties=None, study=No
                                                 config_properties=properties, study=study, chromosome=chromosome,
                                                 bp_interval=bp_interval, tissue=tissue, snp=snp)
     return search_all.search_associations()
+

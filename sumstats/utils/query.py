@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def get_data(hdf, key, fields, condition=None):
     if condition:

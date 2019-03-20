@@ -97,19 +97,34 @@ class Explorer:
 
     def has_trait(self, trait):
         search = cr.search_all_assocs(trait=trait, start=0, size=0, properties=self.properties)
-        if search is not None:
+        if search[-1] > 0:
             return True
         raise NotFoundError("Trait " + trait)
 
 
     def get_list_of_chroms(self):
-        return CHROMOSOMES
+        #return CHROMOSOMES
+        chromosomes = []
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
+        for h5file in h5files:
+            service = study_service.StudyService(h5file=h5file)
+            chromosomes.extend(service.chromosomes)
+            service.close_file()
+        return sorted(list(set(chromosomes)))
 
 
     def has_chromosome(self, chromosome):
         # raises Not Found Error
+        """To do: Store the chromosome list as an attribute in the hdf5 file."""
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
+        #chromosomes = []
+        #for h5file in h5files:
+        #    service = trait_service.StudyService(h5file=h5file)
+        #    traits.extend(service.list_traits())
+        #    service.close_file()
         search = cr.search_all_assocs(chromosome=chromosome, start=0, size=0, properties=self.properties)
-        if search is not None:
+        if search[-1] > 0:
+            print('checked')
             return True
         raise NotFoundError("Chromosome " + str(chromosome))
 
