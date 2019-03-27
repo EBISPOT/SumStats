@@ -36,7 +36,6 @@ class StudyService:
         self.pd_hdf = pd.HDFStore(h5file)
         self.key = self.file_group.get_all_subgroups_keys()[0]
         self.study = get_study_metadata(hdf=self.pd_hdf, key=self.key)['study']
-        self.tissue = get_study_metadata(hdf=self.pd_hdf, key=self.key)['tissue']
         self.chromosomes = get_study_metadata(hdf=self.pd_hdf, key=self.key)['chromosomes'].tolist()
         self.traits = get_study_metadata(hdf=self.pd_hdf, key=self.key)['traits'].tolist()
 

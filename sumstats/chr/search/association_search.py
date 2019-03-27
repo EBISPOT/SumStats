@@ -59,9 +59,10 @@ class AssociationSearch:
 
         for hdf in hdfs:
             with pd.HDFStore(hdf) as store:
-                key = self._get_group_key(store)
+                #key = self._get_group_key(store)
+                key = store.keys()[0]
                 study = self._get_study_metadata(store, key)['study']
-                tissue = self._get_study_metadata(store, key)['tissue']
+                #tissue = self._get_study_metadata(store, key)['tissue']
 
                 if self.study and self.study != study:
                     # move on to next study if this isn't the one we want
@@ -87,7 +88,7 @@ class AssociationSearch:
 
                 for i, chunk in enumerate(chunks):
                     chunk[STUDY_DSET] = study
-                    chunk[TISSUE_DSET] = tissue
+                    #chunk[TISSUE_DSET] = tissue
                     df = pd.concat([df, chunk])
 
                     if len(df.index) >= self.size: # break once we have enough
@@ -117,8 +118,8 @@ class AssociationSearch:
             if self.pval_interval.upper_limit:
                 conditions.append("{pval} <= {upper}".format(pval = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
 
-        if self.trait:
-            conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
+        #if self.trait:
+        #    conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
 
         if self.chromosome:
             conditions.append("{chr} == '{value}'".format(chr=CHR_DSET, value=str(self.chromosome)))
