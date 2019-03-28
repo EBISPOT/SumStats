@@ -14,10 +14,8 @@ def root():
     response = {
         '_links': OrderedDict([
             ('associations', apiu._create_href(method_name='api.get_assocs')),
-            ('molecular_phenotypes', apiu._create_href(method_name='api.get_traits')),
+            ('traits', apiu._create_href(method_name='api.get_traits')),
             ('studies', apiu._create_href(method_name='api.get_studies')),
-            ('tissues', apiu._create_href(method_name='api.get_tissues')),
-            ('genes', apiu._create_href(method_name='api.get_genes')),
             ('chromosomes', apiu._create_href(method_name='api.get_chromosomes'))
         ])
     }

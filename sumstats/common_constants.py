@@ -33,7 +33,7 @@ DSET_TYPES = {SNP_DSET: vlen_dtype, PVAL_DSET: float, MANTISSA_DSET: float, EXP_
               HM_OTHER_DSET: vlen_dtype, HM_BETA_DSET: float, HM_OR_DSET: float, HM_FREQ_DSET: float, HM_CODE: int,
               HM_VAR_ID: vlen_dtype, HM_RANGE_L_DSET: float, HM_RANGE_U_DSET: float}
 
-REFERENCE_DSET = MANTISSA_DSET
+REFERENCE_DSET = BP_DSET
 HARMONISATION_PREFIX = 'hm_'
 GWAS_CATALOG_STUDY_PREFIX = 'GCST'
 
