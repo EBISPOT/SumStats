@@ -1,4 +1,4 @@
-FROM hdfgroup/h5py:2.7.0
+FROM hdfgroup/pytables:3.2.2
 
 # Copy the application folder inside the container
 COPY sumstats /application/sumstats

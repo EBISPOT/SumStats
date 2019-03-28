@@ -18,5 +18,5 @@ trait=$(echo "$name" | cut -d"-" -f3)
 echo "Submitting trait load for trait: $trait and study: $study"
 
 if [ -s "$to_load_location"/"$filename" ]; then
-    bsub -g "/sumstatsloader" -M 24000 -R "rusage[mem=24000]" -o $base/trait_output.txt -e $base/trait_error.txt "singularity exec docker://ebispot/sumstats:latest gwas-load -tsv "$name".tsv -study $study -trait $trait -loader trait"
+    bsub -g "/sumstatsloader" -M 2400 -R "rusage[mem=2400]" -o $base/${study}_output.txt -e $base/${study}_error.txt "singularity exec docker://jdhayhurst/sumstats2:latest gwas-load -tsv "$name".tsv -study $study"
 fi

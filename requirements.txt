@@ -1,7 +1,6 @@
 simplejson
-h5py
 numpy==1.15.4
-pandas
+pandas==0.19.2
 flask
 gunicorn
 paste

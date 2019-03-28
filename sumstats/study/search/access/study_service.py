@@ -30,11 +30,9 @@ register_logger.register(__name__)
 class StudyService:
     def __init__(self, h5file):
         # Open the file with read permissions
-        self.file = h5py.File(h5file, 'r')
         self.datasets = {}
-        self.file_group = gu.Group(self.file)
         self.pd_hdf = pd.HDFStore(h5file)
-        self.key = self.file_group.get_all_subgroups_keys()[0]
+        self.key = self.pd_hdf.keys()[0]
         self.study = get_study_metadata(hdf=self.pd_hdf, key=self.key)['study']
         self.chromosomes = get_study_metadata(hdf=self.pd_hdf, key=self.key)['chromosomes'].tolist()
         self.traits = get_study_metadata(hdf=self.pd_hdf, key=self.key)['traits'].tolist()
@@ -58,15 +56,6 @@ class StudyService:
         return traits
 
 
-
-    def list_tissue_study_pairs(self):
-        tissue_study_pairs = []
-        for (study, subgroups, tissues) in self.pd_hdf.walk():
-            for tissue in tissues:
-                key = '/'.join([study, tissue])
-                tissue_study_pairs.append(key)
-        return tissue_study_pairs
-
     def has_trait(self, trait):
         trait_str = "molecular_trait_id == {}".format(trait)
         if any(self.pd_hdf.select(key=self.key, fields=['molecular_trait_id'], where=trait_str).drop_duplicates().values.tolist()):
@@ -75,22 +64,6 @@ class StudyService:
             return False
 
 
-
-#    def list_trait_study_pairs(self):
-#        trait_groups = self.file_group.get_all_subgroups()
-#        study_groups = []
-#
-#        for trait_group in trait_groups:
-#            trait_group_name = trait_group.get_name().replace("/","")
-#            study_groups.extend([trait_group_name + ":" + study_name for study_name in trait_group.get_all_subgroups_keys()])
-#        return study_groups
-#
-#    def get_study_groups(self):
-#        trait_groups = self.file_group.get_all_subgroups()
-#        study_groups = gu.generate_subgroups_from_generator_of_subgroups(trait_groups)
-#        return study_groups
-
     def close_file(self):
-        logger.debug("Closing file %s...", self.file.file)
-        self.file.close()
+        logger.debug("Closing file %s...", self.study + '.h5')
         self.pd_hdf.close()

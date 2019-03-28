@@ -1,85 +1,91 @@
-import argparse
 import sys
-import sumstats.trait.loader as trait_loader
-import sumstats.chr.loader as chr_loader
-import sumstats.snp.loader as snp_loader
+import argparse
+import pandas as pd
+from sumstats.common_constants import *
 from sumstats.utils.properties_handler import properties
-from sumstats.utils import properties_handler
 from sumstats.utils import filesystem_utils as fsutils
 
 
 def main():
-    args = argument_parser(sys.argv[1:])  # pragma: no cover
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-f', help='The path to the summary statistics file to be processed', required=True)
+    argparser.add_argument('-trait', help='The trait id, or ids if separated by commas', required=True)
+    argparser.add_argument('-study', help='The study identifier', required=True)
+    args = argparser.parse_args()
+    
+    filename = args.f
+    study = args.study
+    traits = args.trait.split(',')
 
+    traits = pd.DataFrame({'traits':traits}).traits.unique()
+    study_group = "/{study}".format(study=study.replace('-','_'))
     h5files_path = properties.h5files_path # pragma: no cover
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
-    loader_type = args.loader
-    tsv = args.tsv
-    study_meta = args.study_meta
-    trait_meta = args.trait_meta
-    trait = args.trait
-    study = args.study
-    tissue = args.tissue
-    chromosome = args.chr
-    bp = args.bp
-    trait_dir = properties.trait_dir
-    snp_dir = properties.snp_dir
-    chr_dir = properties.chr_dir
-    sql_database = properties.sqlite_path
-    uuid = '-'.join([study, tissue, trait]) # would need to add tissue here for eqtls
+    study_dir = properties.study_dir
 
-    to_load = fsutils.get_file_path(path=tsvfiles_path, file=tsv)
+    ss_file = fsutils.get_file_path(path=tsvfiles_path, file=filename)
+    hdf_store = fsutils.create_h5file_path(path=h5files_path, file_name=study, dir_name=study_dir)
+    
+    """ read in the variant column as this will contain the longest values"""
+    
+    df_part = pd.read_csv(ss_file, sep="\t",
+                     dtype=DSET_TYPES,
+                     usecols=[EFFECT_DSET, CHR_DSET])
+    chromosomes = df_part[CHR_DSET].unique()
+    print(chromosomes)
 
-    #study_metadata = fsutils.get_file_path(path=tsvfiles_path, file=meta)
+    """set the min_itemsize to the longest for variant, ref and alt"""
+    alt_itemsize = df_part[EFFECT_DSET].astype(str).map(len).max()
+    ref_itemsize = alt_itemsize
+    
+    df = pd.read_csv(ss_file, sep="\t",
+                     dtype=DSET_TYPES,
+                     converters={RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
+                     RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits,
+                     HM_RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
+                     HM_RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits
+                     },
+                     usecols=list(TO_LOAD_DSET_HEADERS_DEFAULT), chunksize=1000000)
 
-    if loader_type == "trait":
-        if trait is None: raise ValueError("You have chosen the trait loader but haven't specified a trait")
-        file_name = trait[-2:]
+    with pd.HDFStore(hdf_store) as store:
 
-        to_store = fsutils.create_h5file_path(path=h5files_path, file_name=file_name, dir_name=trait_dir)
-        loader = trait_loader.Loader(tsv=to_load, h5file=to_store, study=study, trait=trait, uuid=uuid, tissue=tissue, database=sql_database)
-        loader.load()
-        #loader.close_file()
-        print("Load complete!")
+        """store in hdf5 as below"""
 
-    if loader_type == "chr":
-        if chromosome is None: raise ValueError(
-            "You have chosen the chromosome loader but haven't specified a chromosome")
+        for chunk in df:
+            """drop rows with missing data for required fields"""
+            chunk.dropna(subset=list(REQUIRED))
 
-        to_store = fsutils.create_h5file_path(path=h5files_path, dir_name=chr_dir, file_name=str(chromosome))
-        loader = chr_loader.Loader(to_load, to_store, study, uuid)
-        loader.load()
-        loader.close_file()
-        print("Load complete!")
+            chunk.to_hdf(store, study_group,
+                        complib='blosc:snappy',
+                        format='table',
+                        append=True,
+                        data_columns=list(TO_INDEX),
+                        min_itemsize={OTHER_DSET: ref_itemsize,
+                                      EFFECT_DSET: alt_itemsize,
+                                      HM_EFFECT_DSET: alt_itemsize,
+                                      HM_OTHER_DSET: ref_itemsize,
+                                      CHR_DSET:2,
+                                      BP_DSET:9})
 
-    if loader_type == "snp":
-        to_store = fsutils.create_h5file_path(path=h5files_path, dir_name=snp_dir + "/" + str(chromosome), file_name=str(bp))
-        loader = snp_loader.Loader(tsv=to_load, h5file=to_store, study=study, database=sql_database)
-        loader.load()
-        #loader.close_file()
-        print("Load complete!")
+        """Store study specific metadata"""
+        store.get_storer(study_group).attrs.study_metadata = {'study': study,
+                                                              'chromosomes': chromosomes,
+                                                              'traits':traits}
+
+
+def coerce_zero_and_inf_floats_within_limits(value):
+    if value == 'NA':
+        value = 'NaN'
+    value = float(value)
+    if value == 0.0:
+        value = sys.float_info.min
+    if value == float('inf'):
+        value = sys.float_info.max
+    return value
+
+
 
 
 
 if __name__ == "__main__":
-    main()  # pragma: no cover
-
-
-def argument_parser(args):
-    parser = argparse.ArgumentParser()  # pragma: no cover
-    parser.add_argument('-tsv', help='The name of the file to be loaded', required=True)  # pragma: no cover
-    parser.add_argument('-study',
-                        help='The name of the study the variants of this file are associated with', required=True)  # pragma: no cover
-    parser.add_argument('-trait',
-                        help='The name of the trait the variants of this file are associated with')  # pragma: no cover
-    parser.add_argument('-tissue',
-                        help='The name of the tissue the variants of this file are associated with')  # pragma: no cover
-    parser.add_argument('-loader', help='The type of loader: [trait|chr|snp]', required=True)  # pragma: no cover
-    parser.add_argument('-chr', help='The chromosome that will be loaded')  # pragma: no cover
-    parser.add_argument('-bp', help='Upper limit of base pair location that is loaded (for snp loader)')  # pragma: no cover
-    parser.add_argument('-study_meta', help='The name of the file with study specific metadata', required=False)  # pragma: no cover
-    parser.add_argument('-trait_meta', help='The name of the file with trait specific metadata', required=False)  # pragma: no cover
-
-    properties_handler.set_properties()  # pragma: no cover
-
-    return parser.parse_args(args)  # pragma: no cover
+    main()

@@ -1,5 +1,3 @@
-import h5py
-
 SNP_DSET = 'variant_id'
 MANTISSA_DSET = 'mantissa'
 EXP_DSET = 'exponent'
@@ -26,14 +24,13 @@ HM_VAR_ID = 'hm_variant_id'
 HM_CODE = 'hm_code'
 
 
-vlen_dtype = h5py.special_dtype(vlen=str)
-DSET_TYPES = {SNP_DSET: vlen_dtype, PVAL_DSET: float, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: vlen_dtype,
+DSET_TYPES = {SNP_DSET: str, PVAL_DSET: float, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: str,
               CHR_DSET: int, BP_DSET: int, OR_DSET: float, RANGE_U_DSET: float, RANGE_L_DSET: float, BETA_DSET: float, SE_DSET: float,
-              EFFECT_DSET: vlen_dtype, OTHER_DSET: vlen_dtype, FREQ_DSET: float, HM_EFFECT_DSET: vlen_dtype,
-              HM_OTHER_DSET: vlen_dtype, HM_BETA_DSET: float, HM_OR_DSET: float, HM_FREQ_DSET: float, HM_CODE: int,
-              HM_VAR_ID: vlen_dtype, HM_RANGE_L_DSET: float, HM_RANGE_U_DSET: float}
+              EFFECT_DSET: str, OTHER_DSET: str, FREQ_DSET: float, HM_EFFECT_DSET: str,
+              HM_OTHER_DSET: str, HM_BETA_DSET: float, HM_OR_DSET: float, HM_FREQ_DSET: float, HM_CODE: int,
+              HM_VAR_ID: str, HM_RANGE_L_DSET: float, HM_RANGE_U_DSET: float}
 
-REFERENCE_DSET = BP_DSET
+REFERENCE_DSET = MANTISSA_DSET
 HARMONISATION_PREFIX = 'hm_'
 GWAS_CATALOG_STUDY_PREFIX = 'GCST'
 
@@ -54,4 +51,4 @@ TO_QUERY_DSETS_DEFAULT = {SNP_DSET, MANTISSA_DSET, EXP_DSET, STUDY_DSET, CHR_DSE
                   SE_DSET, EFFECT_DSET, OTHER_DSET, FREQ_DSET, HM_OR_DSET, HM_RANGE_L_DSET, HM_RANGE_U_DSET, HM_BETA_DSET,
                                 HM_EFFECT_DSET, HM_OTHER_DSET, HM_FREQ_DSET, HM_VAR_ID, HM_CODE}
 TO_INDEX = {SNP_DSET, PVAL_DSET, CHR_DSET, BP_DSET}
-
+REQUIRED = {CHR_DSET, PVAL_DSET, SNP_DSET}#, EFFECT_DSET, OTHER_DSET}

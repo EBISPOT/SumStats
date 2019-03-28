@@ -32,19 +32,31 @@ filename=$(basename $file)
 name=$(echo $filename | cut -f 1 -d '.')
 echo "FILE: $file"
 
-bp_step=$(grep bp_step $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
-available_chromosomes=$(grep available_chromosomes $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
+#bp_step=$(grep bp_step $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
+#available_chromosomes=$(grep available_chromosomes $config | cut -d":" -f2 | sed 's/\"//g; s/,//g; s/ //g')
 
 # pre-process the file
 filename="$filename"
 
-bsub -K -o $base/output.txt -e $base/error.txt python $base/bin/preparation/setup_configuration.py -f $file -config $config -create
+name=$(echo $filename | cut -f 1 -d '.')
+study=$(echo "$name" | cut -d"-" -f2)
+trait=$(echo "$name" | cut -d"-" -f3) 
 
-for i in `seq 1 $available_chromosomes`;
-do
-	$base/bin/load/submit_chr.sh $name $i $to_load_location
-	for bp in `seq 1 $bp_step`; do
-		$base/bin/load/submit_snp.sh $name $i $bp $to_load_location
-	done
-done
-$base/bin/load/submit_trait.sh $filename $to_load_location
+echo $study
+echo $trait  
+
+
+#bsub -q production-rh7 -eo stderr -M 2400 -R "rusage[mem=2400]" "singularity exec docker://rcsa/python3-hdf5 python ${ss_dir}/load_ss.py -f $dataset  -trait $trait -hdf $ss_dir/${study}.h5 -study $study"
+
+
+
+#bsub -K -o $base/output.txt -e $base/error.txt python $base/bin/preparation/setup_configuration.py -f $file -config $config -create
+#
+#for i in `seq 1 $available_chromosomes`;
+#do
+#	$base/bin/load/submit_chr.sh $name $i $to_load_location
+#	for bp in `seq 1 $bp_step`; do
+#		$base/bin/load/submit_snp.sh $name $i $bp $to_load_location
+#	done
+#done
+#$base/bin/load/submit_trait.sh $filename $to_load_location
