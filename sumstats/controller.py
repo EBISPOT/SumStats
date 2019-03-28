@@ -2,13 +2,10 @@ import argparse
 import sys
 
 import sumstats.chr.retriever as cr
-import sumstats.snp.retriever as snpr
-import sumstats.trait.retriever as tr
 import sumstats.utils.argument_utils as au
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
 import sumstats.explorer as ex
-import sumstats.utils.sqlite_client as sql_client
 
 
 
