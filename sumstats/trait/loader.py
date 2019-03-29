@@ -26,11 +26,13 @@ from sumstats.utils.sqlite_client import *
 
 class Loader:
 
-    def __init__(self, study, trait, database, uuid, tsv=None, h5file=None, dict_of_data=None, metadata=None):
+    def __init__(self, study, trait, database, uuid, tissue, tsv=None, h5file=None, dict_of_data=None, metadata=None):
         #h5file = h5file
         self.study = str(study)
         self.trait = str(trait)
+        self.tissue = str(tissue)
         self.sqlite_db = database
+
 
         # could use a generated uuid but might be risky - perhaps all this should be in MySQL?
         self.uuid = uuid #'-'.join([self.study, self.trait]) # would need to add tissue here for eqtls
@@ -50,13 +52,16 @@ class Loader:
 
 
     def load(self):
+
         try:
             sc = sqlClient(database=self.sqlite_db)
             sc.insert_study_row(self.study) # can add study metadata through here
             study_id = sc.get_study_rowid(self.study)
             sc.insert_trait_row(self.trait)
             trait_id = sc.get_trait_rowid(self.trait)
-            sc.insert_uuid_row((self.uuid, trait_id, study_id))
+            sc.insert_tissue_row(self.tissue)
+            tissue_id = sc.get_tissue_rowid(self.tissue)
+            sc.insert_uuid_row((self.uuid, trait_id, study_id, tissue_id))
             sc.commit()
 
         except sqlite3.OperationalError as e:

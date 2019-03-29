@@ -27,8 +27,11 @@ class sqlClient():
     def insert_study_row(self, data):
         self.cur.execute("insert or ignore into study (study) values (?)", (data,))
 
+    def insert_tissue_row(self, data):
+        self.cur.execute("insert or ignore into tissue values (?)", (data,))
+
     def insert_uuid_row(self, data):
-        self.cur.execute("insert or ignore into uuid values (?,?,?)", data)
+        self.cur.execute("insert or ignore into uuid values (?,?,?,?)", data)
 
 
 
@@ -108,6 +111,14 @@ class sqlClient():
 
     def get_trait_rowid(self, trait):
         self.cur.execute("SELECT rowid FROM trait where trait =?", (trait,))
+        data = self.cur.fetchone()
+        if data is not None:
+            return data[0]
+        else:
+            return False
+
+    def get_tissue_rowid(self, tissue):
+        self.cur.execute("SELECT rowid FROM tissue where tissue =?", (tissue,))
         data = self.cur.fetchone()
         if data is not None:
             return data[0]

@@ -91,21 +91,21 @@ def main():
         os.system('python ' + command)
         chromosome_file = os.path.join(local_tsvfiles_path, "chr_" + str(chromosome) + "_" + filename)
         print("chromosome: ", chromosome)
-        if os.path.isfile(chromosome_file):
-            previous = 0
-            step = 1
-            for bp in range(bp_range, max_bp, bp_range):
-                command = where_am_i + '/split_by_bp.py -f ' + chromosome_file + ' -start ' + str(
-                    previous) + ' -end ' + str(bp) + ' -accession ' + str(step) + ' -path ' + local_tsvfiles_path
-                os.system('python ' + command)
-                print("start: ", previous, " end: ", bp, " step: ", step)
-                previous = bp
-                step += 1
-            # final step going until inf value to include any bp location that might be over max_bp
-            command = where_am_i + '/split_by_bp.py -f ' + chromosome_file + ' -start ' + str(
-                previous) + ' -end ' + 'inf' + ' -accession ' + str(step) + ' -path ' + local_tsvfiles_path
-            os.system('python ' + command)
-            print("start: ", previous, " end: ", 'inf', " step: ", step)
+        #if os.path.isfile(chromosome_file):
+        #    previous = 0
+        #    step = 1
+        #    for bp in range(bp_range, max_bp, bp_range):
+        #        command = where_am_i + '/split_by_bp.py -f ' + chromosome_file + ' -start ' + str(
+        #            previous) + ' -end ' + str(bp) + ' -accession ' + str(step) + ' -path ' + local_tsvfiles_path
+        #        os.system('python ' + command)
+        #        print("start: ", previous, " end: ", bp, " step: ", step)
+        #        previous = bp
+        #        step += 1
+        #    # final step going until inf value to include any bp location that might be over max_bp
+        #    command = where_am_i + '/split_by_bp.py -f ' + chromosome_file + ' -start ' + str(
+        #        previous) + ' -end ' + 'inf' + ' -accession ' + str(step) + ' -path ' + local_tsvfiles_path
+        #    os.system('python ' + command)
+        #    print("start: ", previous, " end: ", 'inf', " step: ", step)
 
 
 if __name__ == "__main__":

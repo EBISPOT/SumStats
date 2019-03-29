@@ -1,5 +1,5 @@
 # Docker volume
-files
+files*
 
 .git
 /notebooks/*
@@ -15,6 +15,7 @@ env.*
 *.tsv
 *.h5
 *.tar
+*.sql
 *.gz
 *.tar.gz
 # Python specific files

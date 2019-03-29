@@ -4,6 +4,7 @@ bp_step=16
 available_chromosomes=24
 max_bp=300000000
 snp_dir="bysnp"
+study_dir="bystudy"
 chr_dir="bychr"
 trait_dir="bytrait"
 ols_terms_location= "https://www.ebi.ac.uk/ols/api/terms?id="

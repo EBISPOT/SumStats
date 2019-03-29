@@ -11,6 +11,10 @@ def search_chromosome(chromosome, start, size, properties=None, bp_interval=None
         searcher = bls.BlockSearch(chromosome=chromosome, start=start, size=size, config_properties=properties)
         return searcher.search_chromosome_block(bp_interval=bp_interval, study=study, pval_interval=pval_interval, snp=snp)
 
-def search_all_assocs(start, size, pval_interval=None, properties=None, uuids=None):
-    search_all = assoc_search.AssociationSearch(start=start, size=size, config_properties=properties, studies=uuids)
-    return search_all.search_associations(pval_interval)
+def search_all_assocs(start, size, pval_interval=None, properties=None, study=None, trait=None,
+                      chromosome=None, bp_interval=None, tissue=None, snp=None):
+    search_all = assoc_search.AssociationSearch(start=start, size=size, pval_interval=pval_interval, trait=trait,
+                                                config_properties=properties, study=study, chromosome=chromosome,
+                                                bp_interval=bp_interval, tissue=tissue, snp=snp)
+    return search_all.search_associations()
+

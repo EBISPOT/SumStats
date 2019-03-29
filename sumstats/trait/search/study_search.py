@@ -30,7 +30,7 @@ class StudySearch:
         # will pinpoint where the next search needs to continue from
         self.index_marker = 0
 
-        self.h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait[-2])
+        self.h5file = fsutils.create_h5file_path(self.search_path, dir_name=self.trait_dir, file_name=trait[-2:])
         if not os.path.isfile(self.h5file):
             raise NotFoundError("Trait " + trait)
         self.service = study_service.StudyService(self.h5file)

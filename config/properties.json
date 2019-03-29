@@ -5,6 +5,7 @@
     "local_tsvfiles_path":"./files/toload",
     "latest_snapshot_output_path":"/latest/snapshot/output",
     "snp_dir":"bysnp",
+    "study_dir":"bystudy",
     "chr_dir":"bychr",
     "trait_dir":"bytrait",
     "bp_step":16,
