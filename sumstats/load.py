@@ -34,13 +34,16 @@ def main():
     
     df_part = pd.read_csv(ss_file, sep="\t",
                      dtype=DSET_TYPES,
-                     usecols=[EFFECT_DSET, CHR_DSET])
+                     usecols=[SNP_DSET, OTHER_DSET, EFFECT_DSET, CHR_DSET, HM_EFFECT_DSET, HM_OTHER_DSET])
     chromosomes = df_part[CHR_DSET].unique()
     print(chromosomes)
 
     """set the min_itemsize to the longest for variant, ref and alt"""
     alt_itemsize = df_part[EFFECT_DSET].astype(str).map(len).max()
-    ref_itemsize = alt_itemsize
+    ref_itemsize = df_part[OTHER_DSET].astype(str).map(len).max()
+    snp_itemsize = df_part[SNP_DSET].astype(str).map(len).max()
+    hmalt_itemsize = df_part[HM_EFFECT_DSET].astype(str).map(len).max()
+    hmref_itemsize = df_part[HM_OTHER_DSET].astype(str).map(len).max()
     
     df = pd.read_csv(ss_file, sep="\t",
                      dtype=DSET_TYPES,
@@ -66,8 +69,9 @@ def main():
                         data_columns=list(TO_INDEX),
                         min_itemsize={OTHER_DSET: ref_itemsize,
                                       EFFECT_DSET: alt_itemsize,
-                                      HM_EFFECT_DSET: alt_itemsize,
-                                      HM_OTHER_DSET: ref_itemsize,
+                                      SNP_DSET: snp_itemsize,
+                                      HM_EFFECT_DSET: hmalt_itemsize,
+                                      HM_OTHER_DSET: hmref_itemsize,
                                       CHR_DSET:2,
                                       BP_DSET:9})
 
