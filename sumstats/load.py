@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 from sumstats.common_constants import *
 from sumstats.utils.properties_handler import properties
+from sumstats.utils import properties_handler
 from sumstats.utils import filesystem_utils as fsutils
 
 
@@ -13,6 +14,8 @@ def main():
     argparser.add_argument('-study', help='The study identifier', required=True)
     args = argparser.parse_args()
     
+    properties_handler.set_properties()  # pragma: no cover
+
     filename = args.f
     study = args.study
     traits = args.trait.split(',')
@@ -22,6 +25,7 @@ def main():
     h5files_path = properties.h5files_path # pragma: no cover
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
     study_dir = properties.study_dir
+    print(study_dir)
 
     ss_file = fsutils.get_file_path(path=tsvfiles_path, file=filename)
     hdf_store = fsutils.create_h5file_path(path=h5files_path, file_name=study, dir_name=study_dir)
