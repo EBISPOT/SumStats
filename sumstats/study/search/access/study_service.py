@@ -31,7 +31,7 @@ class StudyService:
     def __init__(self, h5file):
         # Open the file with read permissions
         self.datasets = {}
-        self.pd_hdf = pd.HDFStore(h5file)
+        self.pd_hdf = pd.HDFStore(h5file, mode='r')
         self.key = self.pd_hdf.keys()[0]
         self.study = get_study_metadata(hdf=self.pd_hdf, key=self.key)['study']
         self.chromosomes = get_study_metadata(hdf=self.pd_hdf, key=self.key)['chromosomes'].tolist()

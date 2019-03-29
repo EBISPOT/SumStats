@@ -58,7 +58,7 @@ class AssociationSearch:
         ## The index tells it which chunk to take from each file.
 
         for hdf in hdfs:
-            with pd.HDFStore(hdf) as store:
+            with pd.HDFStore(hdf, mode='r') as store:
                 #key = self._get_group_key(store)
                 key = store.keys()[0]
                 study = self._get_study_metadata(store, key)['study']
