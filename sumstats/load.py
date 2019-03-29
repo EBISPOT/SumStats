@@ -36,7 +36,7 @@ def main():
                      dtype=DSET_TYPES,
                      usecols=[SNP_DSET, OTHER_DSET, EFFECT_DSET, CHR_DSET, HM_EFFECT_DSET, HM_OTHER_DSET])
     chromosomes = df_part[CHR_DSET].unique()
-    print(chromosomes)
+    num_rows = len(df_part[CHR_DSET].index)
 
     """set the min_itemsize to the longest for variant, ref and alt"""
     alt_itemsize = df_part[EFFECT_DSET].astype(str).map(len).max()
@@ -44,7 +44,8 @@ def main():
     snp_itemsize = df_part[SNP_DSET].astype(str).map(len).max()
     hmalt_itemsize = df_part[HM_EFFECT_DSET].astype(str).map(len).max()
     hmref_itemsize = df_part[HM_OTHER_DSET].astype(str).map(len).max()
-    
+
+
     df = pd.read_csv(ss_file, sep="\t",
                      dtype=DSET_TYPES,
                      converters={RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
@@ -66,6 +67,7 @@ def main():
                         complib='blosc:snappy',
                         format='table',
                         append=True,
+                        expectedrows=num_rows,
                         data_columns=list(TO_INDEX),
                         min_itemsize={OTHER_DSET: ref_itemsize,
                                       EFFECT_DSET: alt_itemsize,
