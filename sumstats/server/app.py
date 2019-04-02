@@ -292,7 +292,7 @@ def get_variant(variant_id):
         :statuscode 200: no error
         :statuscode 404: not found error
     """
-    resp = endpoints.variant_resource(variant=variant_id)
+    resp = endpoints.variants(variant=variant_id)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
@@ -1434,7 +1434,7 @@ def get_chromosome_variants(chromosome, variant_id):
         :statuscode 200: no error
         :statuscode 404: not found error
     """
-    resp = endpoints.variant_resource(chromosome=chromosome, variant=variant_id)
+    resp = endpoints.variants(chromosome=chromosome, variant=variant_id)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")

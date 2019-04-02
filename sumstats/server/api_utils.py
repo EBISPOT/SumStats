@@ -1,4 +1,5 @@
 import numpy as np
+import ast
 from urllib.parse import unquote
 from sumstats.common_constants import *
 from flask import url_for
@@ -145,8 +146,12 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
         element_info = _add_missing_variables(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, element_info=element_info)
 
         study = datasets[STUDY_DSET][index]
+        trait = datasets[TRAIT_DSET][index]
+        trait = ast.literal_eval(trait)
 
-        trait, trait_to_study_cache = _get_trait_for_study(study, trait_to_study_cache)
+        #print('get trait')
+        #trait, trait_to_study_cache = _get_trait_for_study(study, trait_to_study_cache)
+        #print('got trait')
 
 
         element_info['trait'] = trait
@@ -246,11 +251,14 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
     if collection_name is None:
         collection_name = 'associations'
     params = params or {}
-    return OrderedDict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
-        method_name=method_name, start=start, size=size, index_marker=index_marker,
-        size_retrieved=len(data_dict),
-        params=params
-    ))])
+    if len(data_dict) > 0:
+        return OrderedDict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
+            method_name=method_name, start=start, size=size, index_marker=index_marker,
+            size_retrieved=len(data_dict),
+            params=params
+        ))])
+    else:
+        raise NotFoundError("Request for resource with parameters " + str(params))
 
 
 def _create_resource_response(data_dict, params):
