@@ -390,7 +390,8 @@ def variant_resource(variant, chromosome=None):
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        params = {'variant_id': variant, 'study_accession': study}
+        #params = {'variant_id': variant, 'study_accession': study}
+        params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is not None:
             params['chromosome'] = chromosome
         response = apiu._create_resource_response(data_dict=data_dict, params=params)
@@ -448,13 +449,13 @@ def genes():
 
 def _create_chromosome_info(chromosome):
     explorer = ex.Explorer(apiu.properties)
-    if explorer.has_chromosome(chromosome):
-        chromosome_info = {'chromosome': chromosome,
-                           '_links': {'self': apiu._create_href(method_name='api.get_chromosome',
-                                                                params={'chromosome': chromosome}),
-                                      'associations': apiu._create_href(method_name='api.get_chromosome_assocs',
-                                                                        params={'chromosome': chromosome})}}
-        return chromosome_info
+    #if explorer.has_chromosome(chromosome):
+    chromosome_info = {'chromosome': chromosome,
+                       '_links': {'self': apiu._create_href(method_name='api.get_chromosome',
+                                                            params={'chromosome': chromosome}),
+                                  'associations': apiu._create_href(method_name='api.get_chromosome_assocs',
+                                                                    params={'chromosome': chromosome})}}
+    return chromosome_info
     raise NotFoundError("Chromosome " + str(chromosome))
 
 
