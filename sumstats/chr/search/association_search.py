@@ -30,7 +30,7 @@ class AssociationSearch:
         self.search_path = properties_handler.get_search_path(self.properties)
         self.study_dir = self.properties.study_dir
 
-        self.datasets = utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
+        self.datasets = None #utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
         # it is the number that when added to the 'start' value that we started the query with
         # will pinpoint where the next search needs to continue from
@@ -86,6 +86,7 @@ class AssociationSearch:
                     self.start -= chunks.coordinates.size
                     continue
 
+
                 for i, chunk in enumerate(chunks):
                     chunk[STUDY_DSET] = study
                     #chunk[TISSUE_DSET] = tissue
@@ -103,7 +104,7 @@ class AssociationSearch:
                     break
 
 
-        self.datasets = df.to_dict(orient='list') # return as lists - but could be parameterised to return in a specified format
+        self.datasets = df.to_dict(orient='list') if len(df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
         self.index_marker = self.starting_point + len(df.index)
         return self.datasets, self.index_marker
 

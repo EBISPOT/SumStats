@@ -64,7 +64,8 @@ def main():
             chunk.dropna(subset=list(REQUIRED))
 
             chunk.to_hdf(store, study_group,
-                        complib='blosc:snappy',
+                        complib='blosc',
+                        complevel=9,
                         format='table',
                         append=True,
                         expectedrows=num_rows,
