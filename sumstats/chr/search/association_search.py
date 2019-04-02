@@ -62,6 +62,7 @@ class AssociationSearch:
                 #key = self._get_group_key(store)
                 key = store.keys()[0]
                 study = self._get_study_metadata(store, key)['study']
+                traits = self._get_study_metadata(store, key)['traits'].tolist()
                 #tissue = self._get_study_metadata(store, key)['tissue']
 
                 if self.study and self.study != study:
@@ -89,6 +90,7 @@ class AssociationSearch:
 
                 for i, chunk in enumerate(chunks):
                     chunk[STUDY_DSET] = study
+                    chunk[TRAIT_DSET] = str(traits) 
                     #chunk[TISSUE_DSET] = tissue
                     df = pd.concat([df, chunk])
 

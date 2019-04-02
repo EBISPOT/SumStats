@@ -2,6 +2,7 @@ SNP_DSET = 'variant_id'
 MANTISSA_DSET = 'mantissa'
 EXP_DSET = 'exponent'
 PVAL_DSET = 'p_value'
+TRAIT_DSET = 'trait'
 STUDY_DSET = 'study_accession'
 CHR_DSET = 'chromosome'
 BP_DSET = 'base_pair_location'
@@ -24,7 +25,7 @@ HM_VAR_ID = 'hm_variant_id'
 HM_CODE = 'hm_code'
 
 
-DSET_TYPES = {SNP_DSET: str, PVAL_DSET: float, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: str,
+DSET_TYPES = {SNP_DSET: str, PVAL_DSET: float, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: str, TRAIT_DSET: str,
               CHR_DSET: int, BP_DSET: int, OR_DSET: float, RANGE_U_DSET: float, RANGE_L_DSET: float, BETA_DSET: float, SE_DSET: float,
               EFFECT_DSET: str, OTHER_DSET: str, FREQ_DSET: float, HM_EFFECT_DSET: str,
               HM_OTHER_DSET: str, HM_BETA_DSET: float, HM_OR_DSET: float, HM_FREQ_DSET: float, HM_CODE: int,

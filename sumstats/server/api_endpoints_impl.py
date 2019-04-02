@@ -390,8 +390,8 @@ def variant_resource(variant, chromosome=None):
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        #params = {'variant_id': variant, 'study_accession': study}
-        params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
+        params = {'variant_id': variant, 'study_accession': study}
+        #params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is not None:
             params['chromosome'] = chromosome
         response = apiu._create_resource_response(data_dict=data_dict, params=params)
