@@ -3,14 +3,6 @@ loaded_dir = config["loaded_files_path"]
 h5dir = config["h5files_path"] + "/" + config["study_dir"]
 STUDIES, = glob_wildcards(toload_dir + "/{ss_file}.tsv")
 
-def get_filename(file):
-    return file.split("/")[-1].split(".")[0]
-
-def extract_ids_from_name(file):
-    filename = get_filename(file)
-    parts = filename.split('-')
-    return parts
-
 
 rule all:
     input:
