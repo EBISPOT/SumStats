@@ -57,52 +57,27 @@ def main():
                      usecols=list(TO_LOAD_DSET_HEADERS_DEFAULT), chunksize=1000000)
 
     with pd.HDFStore(hdf_store) as store:
-        first_pass = True
         """store in hdf5 as below"""
         for chunk in df:
-            if first_pass:
-                """drop rows with missing data for required fields"""
-                chunk.dropna(subset=list(REQUIRED))
-                chunk.to_hdf(store, study_group,
-                            complib='blosc',
-                            complevel=9,
-                            format='table',
-                            mode='w',
-                            expectedrows=num_rows,
-                            data_columns=list(TO_INDEX),
-                            min_itemsize={OTHER_DSET: ref_itemsize,
-                                          EFFECT_DSET: alt_itemsize,
-                                          SNP_DSET: snp_itemsize,
-                                          HM_EFFECT_DSET: hmalt_itemsize,
-                                          HM_OTHER_DSET: hmref_itemsize,
-                                          CHR_DSET:2,
-                                          BP_DSET:9})
-
-                """Store study specific metadata"""
-                store.get_storer(study_group).attrs.study_metadata = {'study': study,
-                                                                      'chromosomes': chromosomes,
-                                                                      'traits':traits}
-                first_pass = False
-            else:
-                chunk.dropna(subset=list(REQUIRED))
-                chunk.to_hdf(store, study_group,
-                            complib='blosc',
-                            complevel=9,
-                            format='table',
-                            mode='a',
-                            expectedrows=num_rows,
-                            data_columns=list(TO_INDEX),
-                            min_itemsize={OTHER_DSET: ref_itemsize,
-                                          EFFECT_DSET: alt_itemsize,
-                                          SNP_DSET: snp_itemsize,
-                                          HM_EFFECT_DSET: hmalt_itemsize,
-                                          HM_OTHER_DSET: hmref_itemsize,
-                                          CHR_DSET:2,
-                                          BP_DSET:9})
-                """Store study specific metadata"""
-                store.get_storer(study_group).attrs.study_metadata = {'study': study,
-                                                                      'chromosomes': chromosomes,
-                                                                      'traits':traits}
+            chunk.dropna(subset=list(REQUIRED))
+            chunk.to_hdf(store, study_group,
+                        complib='blosc',
+                        complevel=9,
+                        format='table',
+                        mode='a',
+                        expectedrows=num_rows,
+                        data_columns=list(TO_INDEX),
+                        min_itemsize={OTHER_DSET: ref_itemsize,
+                                      EFFECT_DSET: alt_itemsize,
+                                      SNP_DSET: snp_itemsize,
+                                      HM_EFFECT_DSET: hmalt_itemsize,
+                                      HM_OTHER_DSET: hmref_itemsize,
+                                      CHR_DSET:2,
+                                      BP_DSET:9})
+            """Store study specific metadata"""
+            store.get_storer(study_group).attrs.study_metadata = {'study': study,
+                                                                  'chromosomes': chromosomes,
+                                                                  'traits':traits}
 
 
 
