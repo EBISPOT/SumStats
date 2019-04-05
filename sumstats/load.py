@@ -20,6 +20,7 @@ def main():
     study = args.study
     traits = args.trait.split(',')
 
+    filename_id = filename.split('.')[0]
     traits = pd.DataFrame({'traits':traits}).traits.unique()
     study_group = "/{study}".format(study=study.replace('-','_'))
     h5files_path = properties.h5files_path # pragma: no cover
@@ -28,7 +29,7 @@ def main():
     print(study_dir)
 
     ss_file = fsutils.get_file_path(path=tsvfiles_path, file=filename)
-    hdf_store = fsutils.create_h5file_path(path=h5files_path, file_name=study, dir_name=study_dir)
+    hdf_store = fsutils.create_h5file_path(path=h5files_path, file_name=filename_id, dir_name=study_dir)
     
     """ read in the variant column as this will contain the longest values"""
     
@@ -56,32 +57,53 @@ def main():
                      usecols=list(TO_LOAD_DSET_HEADERS_DEFAULT), chunksize=1000000)
 
     with pd.HDFStore(hdf_store) as store:
-
+        first_pass = True
         """store in hdf5 as below"""
-
         for chunk in df:
-            """drop rows with missing data for required fields"""
-            chunk.dropna(subset=list(REQUIRED))
+            if first_pass:
+                """drop rows with missing data for required fields"""
+                chunk.dropna(subset=list(REQUIRED))
+                chunk.to_hdf(store, study_group,
+                            complib='blosc',
+                            complevel=9,
+                            format='table',
+                            mode='w',
+                            expectedrows=num_rows,
+                            data_columns=list(TO_INDEX),
+                            min_itemsize={OTHER_DSET: ref_itemsize,
+                                          EFFECT_DSET: alt_itemsize,
+                                          SNP_DSET: snp_itemsize,
+                                          HM_EFFECT_DSET: hmalt_itemsize,
+                                          HM_OTHER_DSET: hmref_itemsize,
+                                          CHR_DSET:2,
+                                          BP_DSET:9})
 
-            chunk.to_hdf(store, study_group,
-                        complib='blosc',
-                        complevel=9,
-                        format='table',
-                        append=True,
-                        expectedrows=num_rows,
-                        data_columns=list(TO_INDEX),
-                        min_itemsize={OTHER_DSET: ref_itemsize,
-                                      EFFECT_DSET: alt_itemsize,
-                                      SNP_DSET: snp_itemsize,
-                                      HM_EFFECT_DSET: hmalt_itemsize,
-                                      HM_OTHER_DSET: hmref_itemsize,
-                                      CHR_DSET:2,
-                                      BP_DSET:9})
+                """Store study specific metadata"""
+                store.get_storer(study_group).attrs.study_metadata = {'study': study,
+                                                                      'chromosomes': chromosomes,
+                                                                      'traits':traits}
+                first_pass = False
+            else:
+                chunk.dropna(subset=list(REQUIRED))
+                chunk.to_hdf(store, study_group,
+                            complib='blosc',
+                            complevel=9,
+                            format='table',
+                            mode='a',
+                            expectedrows=num_rows,
+                            data_columns=list(TO_INDEX),
+                            min_itemsize={OTHER_DSET: ref_itemsize,
+                                          EFFECT_DSET: alt_itemsize,
+                                          SNP_DSET: snp_itemsize,
+                                          HM_EFFECT_DSET: hmalt_itemsize,
+                                          HM_OTHER_DSET: hmref_itemsize,
+                                          CHR_DSET:2,
+                                          BP_DSET:9})
+                """Store study specific metadata"""
+                store.get_storer(study_group).attrs.study_metadata = {'study': study,
+                                                                      'chromosomes': chromosomes,
+                                                                      'traits':traits}
 
-        """Store study specific metadata"""
-        store.get_storer(study_group).attrs.study_metadata = {'study': study,
-                                                              'chromosomes': chromosomes,
-                                                              'traits':traits}
 
 
 def coerce_zero_and_inf_floats_within_limits(value):
@@ -93,9 +115,6 @@ def coerce_zero_and_inf_floats_within_limits(value):
     if value == float('inf'):
         value = sys.float_info.max
     return value
-
-
-
 
 
 if __name__ == "__main__":
