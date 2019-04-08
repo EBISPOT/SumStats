@@ -12,6 +12,7 @@ from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
 from sumstats.common_constants import *
+from multiprocessing import Pool
 
 
 class Explorer:
@@ -21,16 +22,18 @@ class Explorer:
         self.study_dir = self.properties.study_dir
         self.trait_dir = self.properties.trait_dir
         self.sqlite_db = self.properties.sqlite_path
-
-
+        
 
     def get_list_of_studies(self):
-        studies = []
+        pool = Pool(processes=8)
+        #studies = []
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            studies.append(service.study)
-            service.close_file()
+        studies = pool.map(get_study_attr, h5files)
+        print(studies)
+ #       for h5file in h5files:
+ #           service = study_service.StudyService(h5file=h5file)
+ #           studies.append(service.study)
+ #           service.close_file()
         return sorted(list(set(studies)))
 
 
@@ -101,6 +104,13 @@ class Explorer:
             print('checked')
             return True
         raise NotFoundError("Chromosome " + str(chromosome))
+
+
+def get_study_attr(h5file):
+    service = study_service.StudyService(h5file=h5file)
+    study = service.study
+    service.close_file()
+    return study
 
 
 def main():
