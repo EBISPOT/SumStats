@@ -52,13 +52,18 @@ def main():
                      converters={RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
                      RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits,
                      HM_RANGE_U_DSET: coerce_zero_and_inf_floats_within_limits,
-                     HM_RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits
+                     HM_RANGE_L_DSET: coerce_zero_and_inf_floats_within_limits,
+                     PVAL_DSET: coerce_zero_and_inf_floats_within_limits,
+                     SE_DSET: coerce_zero_and_inf_floats_within_limits
                      },
                      usecols=list(TO_LOAD_DSET_HEADERS_DEFAULT), chunksize=1000000)
 
     with pd.HDFStore(hdf_store) as store:
         """store in hdf5 as below"""
+        count = 1
         for chunk in df:
+            print(count)
+            count += 1
             chunk.dropna(subset=list(REQUIRED))
             chunk.to_hdf(store, study_group,
                         complib='blosc',
@@ -73,7 +78,8 @@ def main():
                                       HM_EFFECT_DSET: hmalt_itemsize,
                                       HM_OTHER_DSET: hmref_itemsize,
                                       CHR_DSET:2,
-                                      BP_DSET:9})
+                                      BP_DSET:9}
+                        )
             """Store study specific metadata"""
             store.get_storer(study_group).attrs.study_metadata = {'study': study,
                                                                   'chromosomes': chromosomes,
