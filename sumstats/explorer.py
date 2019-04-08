@@ -38,13 +38,11 @@ class Explorer:
 
 
     def get_list_of_traits(self): 
-        traits = []
+        pool = Pool(processes=8)
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            traits.extend(service.traits)
-            service.close_file()
-        return sorted(list(set(traits)))
+        traits = pool.map(get_trait_attr, h5files)
+        traits = sorted(list(set([item for sublist in traits for item in sublist]))) # flatten, drop dupes, list, then sort
+        return traits
 
 
     def get_list_of_studies_for_trait(self, trait): 
@@ -111,6 +109,13 @@ def get_study_attr(h5file):
     study = service.study
     service.close_file()
     return study
+
+
+def get_trait_attr(h5file):
+    service = study_service.StudyService(h5file=h5file)
+    traits = service.traits
+    service.close_file()
+    return traits
 
 
 def main():
