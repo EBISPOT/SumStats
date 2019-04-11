@@ -1,6 +1,7 @@
 {
     "h5files_path":"./files/output",
     "tsvfiles_path":"./files/toload",
+    "loaded_files_path":"./files/loaded",
     "local_h5files_path":"./files/output",
     "local_tsvfiles_path":"./files/toload",
     "latest_snapshot_output_path":"/latest/snapshot/output",

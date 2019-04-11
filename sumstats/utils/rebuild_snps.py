@@ -1,5 +1,7 @@
 import pandas as pd
 import tables as tb
+import subprocess
+import os
 import glob
 import re
 from collections import defaultdict
@@ -25,12 +27,12 @@ def get_file_sizes(file):
 def main():
     properties_handler.set_properties()  # pragma: no cover
     h5files_path = properties.h5files_path # pragma: no cover
-    tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
+    loaded_files_path = properties.loaded_files_path  # pragma: no cover
     study_dir = properties.study_dir
     snp_dir = properties.snp_dir
 
     temp = fsutils.create_h5file_path(path=h5files_path, file_name="temp", dir_name=snp_dir)
-    master = fsutils.create_h5file_path(path=h5files_path, file_name="master", dir_name=snp_dir)
+    snp_map = fsutils.create_h5file_path(path=h5files_path, file_name="snp_map", dir_name=snp_dir)
     print(study_dir)
 
     master_sizes = defaultdict(list)
@@ -39,41 +41,61 @@ def main():
         for key, value in get_file_sizes(f).items():
             master_sizes[key].append(int(value))
     snp_itemsize = sorted(master_sizes["snp_size"])[-1]
+    print("snp min itemsize: " + str(snp_itemsize))
 
-    for f in glob.glob("{}/{}/*.h5".format(h5files_path,study_dir)):
+
+    for f in glob.glob("{}/*.tsv".format(loaded_files_path)):
         print(f)
-        with pd.HDFStore(temp) as store:
-            df = pd.read_hdf(f, columns=[CHR_DSET,BP_DSET,SNP_DSET], chunksize=1000000, ignore_index=True)
+        filename= "temp_" + os.path.basename(f)
+        temp = os.path.abspath(os.path.join(os.sep, h5files_path, snp_dir, filename))
+        print(temp)
+        if not os.path.isfile(temp):
+            df = pd.read_csv(f, usecols=[SNP_DSET, CHR_DSET, BP_DSET], chunksize=1000000, sep="\t")
             count=1
             for chunk in df:
-                """store in hdf5 as below"""
+                chunk = chunk.join(chunk[SNP_DSET].str.extract(r'(?P<rs>[a-zA-Z]*)(?P<id>[0-9]*)'))
+                chunk = chunk[["rs", "id", CHR_DSET, BP_DSET]]
                 print(count)
                 count+=1
-                chunk.to_hdf(store, 'temp',
-                            complib='blosc',
-                            complevel=9,
-                            format='table',
-                            mode='a',
-                            min_itemsize={SNP_DSET: snp_itemsize,
-                                          CHR_DSET:2,
-                                          BP_DSET:9}
-                            )
-    
-        mdf = pd.read_hdf(temp, ignore_index=True)
-        mdf.drop_duplicates(inplace=True)
-        mdf.sort_values(by=[SNP_DSET], inplace=True)
-    
-        with pd.HDFStore(master) as mstore:
-            mdf.to_hdf(mstore, 'master',
-                    complib='blosc',
-                    complevel=9,
-                    format='table',
-                    mode='w',
-                    data_columns=[SNP_DSET],
-                    min_itemsize={SNP_DSET: snp_itemsize,
-                                  CHR_DSET:2,
-                                  BP_DSET:9}
-                    )
+                chunk.to_csv(temp, header=False, index=False)
+        else:
+            print("file exists...skipping")
+
+    # sort the files:
+    for f in glob.glob("{}/{}/temp*.tsv".format(h5files_path, snp_dir)):
+        outfile = f + ".sorted"
+        if not os.path.isfile(outfile):
+            subprocess.call(["sort", "-u", "-t", ",", "-nk2", f, "-o", outfile])
+
+    merge_outfile = os.path.abspath(os.path.join(os.sep, h5files_path, snp_dir, "merge.csv"))
+    sorted_files = glob.glob("{}/{}/*.sorted".format(h5files_path, snp_dir))
+    print(sorted_files)
+    subprocess.call("sort -m {}/{}/*.sorted | uniq > {}".format(h5files_path, snp_dir, merge_outfile), shell=True)
+            
+    print("merged file complete")
+
+    snpdf = pd.read_csv(merge_outfile, header=None, names=['prefix', 'snp_id', CHR_DSET, BP_DSET],
+            dtype={'prefix':str, 'snp_id': int, CHR_DSET: int, BP_DSET: int},
+            chunksize=1000000
+            )
+    with pd.HDFStore(snp_map) as store:
+        count = 1
+        for chunk in snpdf:
+            """store in hdf5 as below"""
+            print(count)
+            count+=1
+            chunk.to_hdf(store, 'snp_map',
+                        complib='blosc',
+                        complevel=9,
+                        format='table',
+                        mode='w',
+                        append=True,
+                        data_columns = ['snp_id'],
+                        min_itemsize={'snp_id': snp_itemsize,
+                                      'prefix': 8,
+                                      CHR_DSET:2,
+                                      BP_DSET:9}
+                        )
 
 
 if __name__ == "__main__":

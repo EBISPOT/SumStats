@@ -20,7 +20,7 @@ class Search(object):
                                     properties=self.config_properties, study=study, trait=trait,
                                     chromosome=chromosome, bp_interval=bp_interval, tissue=tissue, snp=snp)
 
-
+ 
 def argument_parser(args):
     parser = argparse.ArgumentParser()  # pragma: no cover
     parser.add_argument('-path', help='Full path to the dir where the h5files will be stored')  # pragma: no cover
