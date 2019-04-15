@@ -1,6 +1,7 @@
 import pandas as pd
 import re
-
+import glob
+import os
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
 from sumstats.chr.constants import *
@@ -89,10 +90,13 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self.iteration_size = self.size
 
-        hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
+        condition = self._construct_conditional_statement()
+        if self.chromosome:
+            hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
+        else:
+            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*")
 
         df = pd.DataFrame()
-        condition = self._construct_conditional_statement()
 
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
@@ -114,6 +118,7 @@ class AssociationSearch:
                     continue
 
                 if condition:
+                    print(condition)
                     chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
                 else:
                     print("No condition")
@@ -163,8 +168,8 @@ class AssociationSearch:
         #if self.trait:
         #    conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
 
-        if self.chromosome:
-            conditions.append("{chr} == '{value}'".format(chr=CHR_DSET, value=str(self.chromosome)))
+#        if self.chromosome:
+#            conditions.append("{chr} == '{value}'".format(chr=CHR_DSET, value=str(self.chromosome)))
 
         if self.bp_interval:
             if self.bp_interval.lower_limit:
