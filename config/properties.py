@@ -1,5 +1,6 @@
 h5files_path="./files/output"
 tsvfiles_path="./files/toload"
+loaded_files_path="./files/loaded"
 bp_step=16
 available_chromosomes=24
 max_bp=300000000

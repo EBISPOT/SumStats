@@ -16,6 +16,7 @@ def set_config_properties(config):
         properties.h5files_path = props["h5files_path"]
         properties.gwas_study_location = props["gwas_study_location"]
         properties.tsvfiles_path = props["tsvfiles_path"]
+        properties.loaded_files_path = props["loaded_files_path"]
         properties.ols_terms_location = props["ols_terms_location"]
         properties.trait_dir = props["trait_dir"]
         properties.chr_dir = props["chr_dir"]

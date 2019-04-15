@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
@@ -6,6 +7,7 @@ from sumstats.chr.constants import *
 import logging
 from sumstats.utils import register_logger
 from sumstats.utils import properties_handler
+from sumstats.utils.interval import *
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -29,12 +31,50 @@ class AssociationSearch:
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
         self.study_dir = self.properties.study_dir
+        self.snp_map = fsutils.create_h5file_path(self.search_path, self.properties.snp_dir, "snp_map")
+
 
         self.datasets = None #utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
         # it is the number that when added to the 'start' value that we started the query with
         # will pinpoint where the next search needs to continue from
         self.index_marker = self.search_traversed = 0
+
+
+    def _chr_bp_from_snp(self):
+        if self._snp_format() is 'rs':
+            chromosome, bp_interval = self.map_snp_to_location() if self.map_snp_to_location() else (None,None)
+            if chromosome and bp_interval:
+                self.chromosome = chromosome
+                self.bp_interval = IntInterval().set_string_tuple(bp_interval)
+        elif self._snp_format() is 'chr_bp':
+            pass
+
+    def map_snp_to_location(self):
+        try:
+            snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
+            condition = ["snp_id == {}".format(snp_no_prefix)]
+            with pd.HDFStore(self.snp_map) as store:
+                mapped_location = store.select('snp_map', columns=[CHR_DSET, BP_DSET], where=condition)
+                if not mapped_location.empty:
+                    chromosome = mapped_location.iloc[0][CHR_DSET]
+                    bp_min = mapped_location[BP_DSET].min()
+                    bp_max =  mapped_location[BP_DSET].max()
+                    bp_interval = ':'.join([str(bp_min), str(bp_max)])
+                    return (chromosome, bp_interval)
+        except AttributeError:
+            return False
+
+
+    def _snp_format(self):
+        prefix = ["rs", "ss"]
+        if re.search(r"[a-zA-Z]+[0-9]+", self.snp):
+            return "rs"
+        elif re.search(r".+_[0-9]+_[ACTGN]+_[ACTGN]+", self.snp):
+            return "chr_bp"
+        else:
+            return False
+
 
     def search_associations(self):
         """
@@ -74,7 +114,6 @@ class AssociationSearch:
                     continue
 
                 if condition:
-                    print(condition)
                     chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
                 else:
                     print("No condition")
@@ -134,6 +173,11 @@ class AssociationSearch:
                 conditions.append("{bp} <= {upper}".format(bp = BP_DSET, upper = self.bp_interval.upper_limit))
 
         if self.snp:
+            self._chr_bp_from_snp()
+            if self.bp_interval:
+                conditions.append("{bp} >= {lower}".format(bp = BP_DSET, lower = self.bp_interval.lower_limit))
+            if self.bp_interval:
+                conditions.append("{bp} <= {upper}".format(bp = BP_DSET, upper = self.bp_interval.upper_limit))
             conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
 
         if len(conditions) > 0:
