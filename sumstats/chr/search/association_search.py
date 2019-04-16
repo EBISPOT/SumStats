@@ -90,6 +90,7 @@ class AssociationSearch:
         self.iteration_size = self.size
 
         condition = self._construct_conditional_statement()
+        print(condition)
         if self.chromosome:
             #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
             hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/*.h5")
@@ -118,26 +119,42 @@ class AssociationSearch:
                     # move on to next tissue if this isn't the one we want
                     continue
 
+
                 if condition:
                     print(condition)
-                    chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
+                    if self.snp:
+                        print("snp")
+                        chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
+                    else:
+                        print("non-snp")
+                        chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
                 else:
                     print("No condition")
                     chunks = store.select(key, chunksize=1, start=self.start)
 
-                n = chunks.coordinates.size - (self.start + 1)
+                chunk_size = chunks.coordinates.size
+                n = chunk_size - (self.start + 1)
+
+                # update the number of available results if searching for snp and the snp doesn't match
+                #if self.snp:
+                #    for chunk in chunks:
+                #        if chunk[SNP_DSET].values != self.snp:
+                #            n -= 1
 
                 # skip this file if the start is beyond the chunksize
                 if n < 0:
-                    self.start -= chunks.coordinates.size
+                    self.start -= chunk_size
                     continue
 
 
                 for i, chunk in enumerate(chunks):
-                    chunk[STUDY_DSET] = study
-                    chunk[TRAIT_DSET] = str(traits) 
-                    #chunk[TISSUE_DSET] = tissue
-                    df = pd.concat([df, chunk])
+                    if self.snp and chunk[SNP_DSET].values != self.snp:
+                        pass
+                    else:
+                        chunk[STUDY_DSET] = study
+                        chunk[TRAIT_DSET] = str(traits) 
+                        #chunk[TISSUE_DSET] = tissue
+                        df = pd.concat([df, chunk])
 
                     if len(df.index) >= self.size: # break once we have enough
                         break
@@ -169,9 +186,6 @@ class AssociationSearch:
         #if self.trait:
         #    conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
 
-#        if self.chromosome:
-#            conditions.append("{chr} == '{value}'".format(chr=CHR_DSET, value=str(self.chromosome)))
-
         if self.bp_interval:
             if self.bp_interval.lower_limit:
                 conditions.append("{bp} >= {lower}".format(bp = BP_DSET, lower = self.bp_interval.lower_limit))
@@ -184,7 +198,7 @@ class AssociationSearch:
                 conditions.append("{bp} >= {lower}".format(bp = BP_DSET, lower = self.bp_interval.lower_limit))
             if self.bp_interval:
                 conditions.append("{bp} <= {upper}".format(bp = BP_DSET, upper = self.bp_interval.upper_limit))
-            conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
+            #conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
 
         if len(conditions) > 0:
             statement = " & ".join(conditions)
