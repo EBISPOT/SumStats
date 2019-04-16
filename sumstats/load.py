@@ -110,6 +110,7 @@ def main():
                                                                       'chromosomes': chromosomes,
                                                                       'traits':traits}
     
+        os.remove(f)
 
 
 def coerce_zero_and_inf_floats_within_limits(value):

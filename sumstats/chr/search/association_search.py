@@ -34,7 +34,6 @@ class AssociationSearch:
         self.study_dir = self.properties.study_dir
         self.snp_map = fsutils.create_h5file_path(self.search_path, self.properties.snp_dir, "snp_map")
 
-
         self.datasets = None #utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
         # it is the number that when added to the 'start' value that we started the query with
@@ -92,10 +91,12 @@ class AssociationSearch:
 
         condition = self._construct_conditional_statement()
         if self.chromosome:
-            hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
+            #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
+            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/*.h5")
         else:
-            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*")
+            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/[1-25]/*.h5")
 
+        print(hdfs)
         df = pd.DataFrame()
 
         ## This iterates through files one chunksize at a time.
