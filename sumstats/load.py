@@ -1,4 +1,7 @@
 import sys
+import subprocess
+import glob
+import os
 import argparse
 import pandas as pd
 from sumstats.common_constants import *
@@ -29,7 +32,6 @@ def main():
     print(study_dir)
 
     ss_file = fsutils.get_file_path(path=tsvfiles_path, file=filename)
-    hdf_store = fsutils.create_h5file_path(path=h5files_path, file_name=filename_id, dir_name=study_dir)
     
     """ read in the variant column as this will contain the longest values"""
     
@@ -58,33 +60,56 @@ def main():
                      },
                      usecols=list(TO_LOAD_DSET_HEADERS_DEFAULT), chunksize=1000000)
 
-    with pd.HDFStore(hdf_store) as store:
-        """store in hdf5 as below"""
-        count = 1
-        for chunk in df:
-            print(count)
-            count += 1
-            chunk.dropna(subset=list(REQUIRED))
-            chunk.to_hdf(store, study_group,
-                        complib='blosc',
-                        complevel=9,
-                        format='table',
-                        mode='a',
-                        expectedrows=num_rows,
-                        data_columns=list(TO_INDEX),
-                        min_itemsize={OTHER_DSET: ref_itemsize,
-                                      EFFECT_DSET: alt_itemsize,
-                                      SNP_DSET: snp_itemsize,
-                                      HM_EFFECT_DSET: hmalt_itemsize,
-                                      HM_OTHER_DSET: hmref_itemsize,
-                                      CHR_DSET:2,
-                                      BP_DSET:9}
-                        )
-            """Store study specific metadata"""
-            store.get_storer(study_group).attrs.study_metadata = {'study': study,
-                                                                  'chromosomes': chromosomes,
-                                                                  'traits':traits}
+    headers = list(TO_LOAD_DSET_HEADERS_DEFAULT)
+    headers.remove(BP_DSET)
+    headers = [BP_DSET] + headers
+    
+    for chunk in df:
+        chunk.dropna(subset=list(REQUIRED))
+        chunk = chunk[headers] # set bp to first column
+        for chrom, data in chunk.groupby(CHR_DSET):
+            path = os.path.join(tsvfiles_path, "chr_{}_{}.csv".format(str(chrom), filename_id))
+            with open(path, 'a') as f:
+                data.to_csv(f, index=False, header=False)
 
+    for f in glob.glob(os.path.join(tsvfiles_path, "chr_*_{}.csv".format(filename_id))):
+        outfile = f + ".sorted"
+        subprocess.call(["sort", "-t", ",", "-k1n", f, "-o", outfile])
+        os.remove(f)
+
+
+    for f in glob.glob(os.path.join(tsvfiles_path, "chr_*_{}.csv.sorted".format(filename_id))):
+        chromosome = f.split('/')[-1].split('_')[1]
+        print(chromosome)
+        hdf_store = fsutils.create_h5file_path(path=h5files_path, file_name=filename_id, dir_name=study_dir + "/" + chromosome)
+    
+        chrdf = pd.read_csv(f, names=headers, dtype=DSET_TYPES, chunksize=1000000)
+        with pd.HDFStore(hdf_store) as store:
+            """store in hdf5 as below"""
+            count = 1
+            for chunk in chrdf:
+                print(count)
+                count += 1
+                chunk.to_hdf(store, study_group,
+                            complib='blosc',
+                            complevel=9,
+                            format='table',
+                            mode='w',
+                            append=True,
+                            expectedrows=num_rows,
+                            data_columns=list(TO_INDEX),
+                            min_itemsize={OTHER_DSET: ref_itemsize,
+                                          EFFECT_DSET: alt_itemsize,
+                                          SNP_DSET: snp_itemsize,
+                                          HM_EFFECT_DSET: hmalt_itemsize,
+                                          HM_OTHER_DSET: hmref_itemsize,
+                                          BP_DSET:9}
+                            )
+                """Store study specific metadata"""
+                store.get_storer(study_group).attrs.study_metadata = {'study': study,
+                                                                      'chromosomes': chromosomes,
+                                                                      'traits':traits}
+    
 
 
 def coerce_zero_and_inf_floats_within_limits(value):
