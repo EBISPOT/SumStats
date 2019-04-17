@@ -1,5 +1,6 @@
 import pandas as pd
 import tables as tb
+import csv
 import subprocess
 import os
 import glob
@@ -9,6 +10,7 @@ from sumstats.common_constants import *
 from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler
 from sumstats.utils import filesystem_utils as fsutils
+import sumstats.utils.sqlite_client as sq 
 
 
 def get_file_sizes(file):
@@ -30,6 +32,7 @@ def main():
     loaded_files_path = properties.loaded_files_path  # pragma: no cover
     study_dir = properties.study_dir
     snp_dir = properties.snp_dir
+    database = properties.sqlite_path
 
     temp = fsutils.create_h5file_path(path=h5files_path, file_name="temp", dir_name=snp_dir)
     snp_map = fsutils.create_h5file_path(path=h5files_path, file_name="snp_map", dir_name=snp_dir)
@@ -57,7 +60,7 @@ def main():
                 chunk = chunk[["rs", "id", CHR_DSET, BP_DSET]]
                 print(count)
                 count+=1
-                chunk.to_csv(temp, header=False, index=False)
+                chunk.to_csv(temp, mode='a', header=False, index=False)
         else:
             print("file exists...skipping")
 
@@ -65,7 +68,7 @@ def main():
     for f in glob.glob("{}/{}/temp*.tsv".format(h5files_path, snp_dir)):
         outfile = f + ".sorted"
         if not os.path.isfile(outfile):
-            subprocess.call(["sort", "-u", "-t", ",", "-nk2", f, "-o", outfile])
+            subprocess.call(["sort", "-u", "-t", ",", "-k2,2n", f, "-o", outfile])
 
     merge_outfile = os.path.abspath(os.path.join(os.sep, h5files_path, snp_dir, "merge.csv"))
     sorted_files = glob.glob("{}/{}/*.sorted".format(h5files_path, snp_dir))
@@ -75,27 +78,39 @@ def main():
     print("merged file complete")
 
     snpdf = pd.read_csv(merge_outfile, header=None, names=['prefix', 'snp_id', CHR_DSET, BP_DSET],
-            dtype={'prefix':str, 'snp_id': int, CHR_DSET: int, BP_DSET: int},
-            chunksize=1000000
+            dtype={'prefix':str, 'snp_id': str, CHR_DSET: str, BP_DSET: str},
+            chunksize=500000
             )
-    with pd.HDFStore(snp_map) as store:
-        count = 1
-        for chunk in snpdf:
-            """store in hdf5 as below"""
-            print(count)
-            count+=1
-            chunk.to_hdf(store, 'snp_map',
-                        complib='blosc',
-                        complevel=9,
-                        format='table',
-                        mode='w',
-                        append=True,
-                        data_columns = ['snp_id'],
-                        min_itemsize={'snp_id': snp_itemsize,
-                                      'prefix': 8,
-                                      CHR_DSET:2,
-                                      BP_DSET:9}
-                        )
+
+    sql = sq.sqlClient(database)
+    #sql.database = database
+        
+    for chunk in snpdf:
+        chunk = list(chunk.itertuples(index=False, name=None))
+        sql.cur.execute('BEGIN TRANSACTION')
+        sql.cur.executemany("insert or ignore into snp(prefix, rsid, chr, position) values (?, ?, ?, ?)", chunk)
+        sql.cur.execute('COMMIT')
+    sql.create_rsid_index()
+
+   
+   # with pd.HDFStore(snp_map) as store:
+   #     count = 1
+   #     for chunk in snpdf:
+   #         """store in hdf5 as below"""
+   #         print(count)
+   #         count+=1
+   #         chunk.to_hdf(store, 'snp_map',
+   #                     complib='blosc',
+   #                     complevel=9,
+   #                     format='table',
+   #                     mode='w',
+   #                     append=True,
+   #                     data_columns = ['snp_id'],
+   #                     min_itemsize={'snp_id': snp_itemsize,
+   #                                   'prefix': 8,
+   #                                   CHR_DSET:2,
+   #                                   BP_DSET:9}
+   #                     )
 
 
 if __name__ == "__main__":

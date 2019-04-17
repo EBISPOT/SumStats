@@ -9,6 +9,7 @@ import logging
 from sumstats.utils import register_logger
 from sumstats.utils import properties_handler
 from sumstats.utils.interval import *
+import sumstats.utils.sqlite_client as sq
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -32,6 +33,7 @@ class AssociationSearch:
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
         self.study_dir = self.properties.study_dir
+        self.database = self.properties.sqlite_path
         self.snp_map = fsutils.create_h5file_path(self.search_path, self.properties.snp_dir, "snp_map")
 
         self.datasets = None #utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
@@ -54,14 +56,19 @@ class AssociationSearch:
         try:
             snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
             condition = ["snp_id == {}".format(snp_no_prefix)]
-            with pd.HDFStore(self.snp_map) as store:
-                mapped_location = store.select('snp_map', columns=[CHR_DSET, BP_DSET], where=condition)
-                if not mapped_location.empty:
-                    chromosome = mapped_location.iloc[0][CHR_DSET]
-                    bp_min = mapped_location[BP_DSET].min()
-                    bp_max =  mapped_location[BP_DSET].max()
-                    bp_interval = ':'.join([str(bp_min), str(bp_max)])
-                    return (chromosome, bp_interval)
+            sql = sq.sqlClient(self.database)
+            chromosome, position = sql.get_chr_pos(snp_no_prefix)[0]
+            bp_interval = ':'.join([str(position), str(position)])
+            return (chromosome, bp_interval)
+
+            #with pd.HDFStore(self.snp_map) as store:
+            #    mapped_location = store.select('snp_map', columns=[CHR_DSET, BP_DSET], where=condition)
+            #    if not mapped_location.empty:
+            #        chromosome = mapped_location.iloc[0][CHR_DSET]
+            #        bp_min = mapped_location[BP_DSET].min()
+            #        bp_max =  mapped_location[BP_DSET].max()
+            #        bp_interval = ':'.join([str(bp_min), str(bp_max)])
+            #        return (chromosome, bp_interval)
         except AttributeError:
             return False
 
