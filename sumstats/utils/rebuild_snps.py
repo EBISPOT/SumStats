@@ -84,7 +84,7 @@ def main():
 
     sql = sq.sqlClient(database)
     #sql.database = database
-        
+    sql.drop_rsid_index()
     for chunk in snpdf:
         chunk = list(chunk.itertuples(index=False, name=None))
         sql.cur.execute('BEGIN TRANSACTION')
