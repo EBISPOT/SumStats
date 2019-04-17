@@ -4,6 +4,7 @@ import glob
 import os
 import argparse
 import pandas as pd
+import tables as tb
 from sumstats.common_constants import *
 from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler
@@ -74,7 +75,7 @@ def main():
 
     for f in glob.glob(os.path.join(tsvfiles_path, "chr_*_{}.csv".format(filename_id))):
         outfile = f + ".sorted"
-        subprocess.call(["sort", "-t", ",", "-k1n", f, "-o", outfile])
+        subprocess.call(["sort", "-t", ",", "-k1,1n", f, "-o", outfile])
         os.remove(f)
 
 
@@ -110,6 +111,13 @@ def main():
                                                                       'chromosomes': chromosomes,
                                                                       'traits':traits}
     
+        with tb.open_file(hdf_store, "a") as hdf:
+            bp_col = hdf.root[study].table.cols.base_pair_location
+            print(bp_col)
+            bp_col.remove_index()
+            bp_col.create_csindex()
+            print(bp_col)
+
         os.remove(f)
 
 
