@@ -68,7 +68,7 @@ def main():
     for f in glob.glob("{}/{}/temp*.tsv".format(h5files_path, snp_dir)):
         outfile = f + ".sorted"
         if not os.path.isfile(outfile):
-            subprocess.call(["sort", "-u", "-t", ",", "-nk2", f, "-o", outfile])
+            subprocess.call(["sort", "-u", "-t", ",", "-k2,2n", f, "-o", outfile])
 
     merge_outfile = os.path.abspath(os.path.join(os.sep, h5files_path, snp_dir, "merge.csv"))
     sorted_files = glob.glob("{}/{}/*.sorted".format(h5files_path, snp_dir))
