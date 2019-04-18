@@ -1,6 +1,8 @@
 import argparse
+import os
 import sys
 from os.path import isfile
+import glob
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.search.access.trait_service as trait_service
 import sumstats.study.search.access.study_service as study_service
@@ -79,12 +81,9 @@ class Explorer:
 
     def get_list_of_chroms(self):
         #return CHROMOSOMES
-        chromosomes = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            chromosomes.extend(service.chromosomes)
-            service.close_file()
+        study_path = os.path.join(self.search_path, self.study_dir)
+        dirs = os.listdir(study_path)
+        chromosomes = [d for d in dirs if glob.glob(os.path.join(study_path, d, "file*.h5"))]
         return sorted(list(set(chromosomes)))
 
 
