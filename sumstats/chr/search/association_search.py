@@ -10,6 +10,8 @@ from sumstats.utils import register_logger
 from sumstats.utils import properties_handler
 from sumstats.utils.interval import *
 import sumstats.utils.sqlite_client as sq
+from multiprocessing import Pool
+from itertools import repeat
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -41,11 +43,14 @@ class AssociationSearch:
         # it is the number that when added to the 'start' value that we started the query with
         # will pinpoint where the next search needs to continue from
         self.index_marker = self.search_traversed = 0
+        self.df = pd.DataFrame()
+        self.condition = self._construct_conditional_statement()
+        print(self.condition)
 
 
     def _chr_bp_from_snp(self):
         if self._snp_format() is 'rs':
-            chromosome, bp_interval = self.map_snp_to_location() if self.map_snp_to_location() else (None,None)
+            chromosome, bp_interval = self.map_snp_to_location()
             if chromosome and bp_interval:
                 self.chromosome = chromosome
                 self.bp_interval = IntInterval().set_string_tuple(bp_interval)
@@ -55,22 +60,12 @@ class AssociationSearch:
     def map_snp_to_location(self):
         try:
             snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
-            condition = ["snp_id == {}".format(snp_no_prefix)]
             sql = sq.sqlClient(self.database)
             chromosome, position = sql.get_chr_pos(snp_no_prefix)[0]
             bp_interval = ':'.join([str(position), str(position)])
             return (chromosome, bp_interval)
-
-            #with pd.HDFStore(self.snp_map) as store:
-            #    mapped_location = store.select('snp_map', columns=[CHR_DSET, BP_DSET], where=condition)
-            #    if not mapped_location.empty:
-            #        chromosome = mapped_location.iloc[0][CHR_DSET]
-            #        bp_min = mapped_location[BP_DSET].min()
-            #        bp_max =  mapped_location[BP_DSET].max()
-            #        bp_interval = ':'.join([str(bp_min), str(bp_max)])
-            #        return (chromosome, bp_interval)
         except AttributeError:
-            return False
+            return (None, None)
 
 
     def _snp_format(self):
@@ -96,8 +91,6 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self.iteration_size = self.size
 
-        condition = self._construct_conditional_statement()
-        print(condition)
         if self.chromosome:
             #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
             hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/*.h5")
@@ -105,10 +98,18 @@ class AssociationSearch:
             hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/[1-25]/*.h5")
 
         print(hdfs)
-        df = pd.DataFrame()
 
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
+    
+        if self.snp:
+            print("checking files for snps")
+            pool = Pool(16)
+            results = pool.starmap(search_hdf_with_condition, zip(hdfs, repeat(self.snp), repeat(self.condition)))
+            pool.close()
+            pool.join()
+            hdfs = [hdf for hdf in results if hdf is not None]
+        
 
         for hdf in hdfs:
             with pd.HDFStore(hdf, mode='r') as store:
@@ -126,15 +127,9 @@ class AssociationSearch:
                     # move on to next tissue if this isn't the one we want
                     continue
 
-
-                if condition:
-                    print(condition)
-                    if self.snp:
-                        print("snp")
-                        chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
-                    else:
-                        print("non-snp")
-                        chunks = store.select(key, chunksize=1, start=self.start, where=condition) #set pvalue and other conditions
+                if self.condition:
+                    print(self.condition)
+                    chunks = store.select(key, chunksize=1, start=self.start, where=self.condition) #set pvalue and other conditions
                 else:
                     print("No condition")
                     chunks = store.select(key, chunksize=1, start=self.start)
@@ -161,24 +156,26 @@ class AssociationSearch:
                         chunk[STUDY_DSET] = study
                         chunk[TRAIT_DSET] = str(traits) 
                         #chunk[TISSUE_DSET] = tissue
-                        df = pd.concat([df, chunk])
+                        self.df = pd.concat([self.df, chunk])
 
-                    if len(df.index) >= self.size: # break once we have enough
+                    if len(self.df.index) >= self.size: # break once we have enough
                         break
 
                     if i == n: # Need to explicitly break loop once complete - not sure why - investigate this
                         self.start = 0
                         break
 
-                if len(df.index) >= self.size:
-                    self.index_marker += len(df.index)
+                if len(self.df.index) >= self.size:
+                    self.index_marker += len(self.df.index)
                     break
 
 
-        self.datasets = df.to_dict(orient='list') if len(df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
-        self.index_marker = self.starting_point + len(df.index)
+        self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
+        self.index_marker = self.starting_point + len(self.df.index)
         return self.datasets, self.index_marker
 
+
+        
 
     def _construct_conditional_statement(self):
         conditions = []
@@ -220,3 +217,13 @@ class AssociationSearch:
             for subkey in subkeys:
                 return '/'.join([path, subkey])
 
+
+def search_hdf_with_condition(hdf, snp, condition):
+    #hdf, snp, condition = args
+    with pd.HDFStore(hdf, mode='r') as store:
+        key = store.keys()[0]
+        results = store.select(key, where=condition) #set pvalue and other conditions
+        if len(results.index) > 0:
+            return hdf
+        return None
+            
