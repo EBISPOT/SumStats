@@ -1,6 +1,5 @@
 import pandas as pd
 import tables as tb
-import csv
 import subprocess
 import os
 import glob

@@ -97,8 +97,6 @@ class AssociationSearch:
         else:
             hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/[1-25]/*.h5")
 
-        print(hdfs)
-
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
     
