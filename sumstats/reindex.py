@@ -11,8 +11,9 @@ class H5Indexer():
     def reindex_file(self):
         with pd.HDFStore(self.h5file) as store:
             group = store.keys()[0]
-            self.create_index(PVAL_DSET, group)
             self.create_cs_index(BP_DSET, group)
+            for i in TO_INDEX:
+                self.create_index(i, group)
 
 
     def create_index(self, field, group):
