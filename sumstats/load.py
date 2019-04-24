@@ -12,28 +12,25 @@ from sumstats.utils import filesystem_utils as fsutils
 
 
 class Loader():
-    def __init__(self, tsv, study, trait, hdf_path, tsv_path, chr_dir):
+    def __init__(self, tsv, tsv_path, chr_dir, study=None, trait=None, hdf_path=None, chromosome=None):
         self.tsv = tsv
         self.study = study
         self.traits = trait
+        self.chromosome = chromosome
         self.hdf_path = hdf_path
         self.tsv_path = tsv_path
         self.chr_dir = chr_dir
         self.max_string = 255
 
         self.filename = self.tsv.split('.')[0]
-        self.traits = pd.DataFrame({'traits':self.traits}).traits.unique()
+        self.traits = pd.DataFrame({'traits':self.traits}).traits.unique() if trait else None
         self.ss_file = fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
 
 
     def load(self):
-        self.split_csv_into_chroms()
-        for f in glob.glob(os.path.join(self.tsv_path, "chr_*_{}.csv".format(self.filename))):
-            chromosome = f.split('/')[-1].split('_')[1]
-            group = "chr" + chromosome
-            hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=chromosome, dir_name=self.chr_dir)
-            self.csv_to_hdf(f, hdf_store, group)
-            os.remove(f)
+        group = "chr" + self.chromosome
+        hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=group, dir_name=self.chr_dir)
+        self.csv_to_hdf(hdf_store, group)
 
 
     def split_csv_into_chroms(self):
@@ -60,8 +57,8 @@ class Loader():
         return df[field].where(mask, 'NA')
         
 
-    def csv_to_hdf(self, csv, hdf, group):
-        chrdf = pd.read_csv(csv, dtype=DSET_TYPES, chunksize=1000000)
+    def csv_to_hdf(self, hdf, group):
+        chrdf = pd.read_csv(self.ss_file, dtype=DSET_TYPES, chunksize=1000000)
         with pd.HDFStore(hdf) as store:
             """store in hdf5 as below"""
             count = 1
@@ -109,6 +106,7 @@ def main():
     argparser.add_argument('-f', help='The path to the summary statistics file to be processed', required=True)
     argparser.add_argument('-trait', help='The trait id, or ids if separated by commas', required=True)
     argparser.add_argument('-study', help='The study identifier', required=True)
+    argparser.add_argument('-chr', help='The chromosome that the associations belong to', required=True)
     args = argparser.parse_args()
     
     properties_handler.set_properties()  # pragma: no cover
@@ -118,10 +116,11 @@ def main():
 
     filename = args.f
     study = args.study
+    chromosome = args.chr
     traits = args.trait.split(',')
 
 
-    loader = Loader(filename, study, traits, h5files_path, tsvfiles_path, chr_dir)
+    loader = Loader(filename, tsvfiles_path, chr_dir, study, traits, h5files_path, chromosome)
     loader.load()
 
 

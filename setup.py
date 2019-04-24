@@ -10,6 +10,7 @@ setup(
                             'gwas-search = sumstats.controller:main',
                             'gwas-explore = sumstats.explorer:main',
                             'gwas-rebuild-snps = sumstats.utils.rebuild_snps:main',
+                            'gwas-prep-file = sumstats.utils.split_by_chrom:main',
                             'gwas-reindex = sumstats.reindex:main',
                             'gwas-delete = sumstats.deleter:main']
     },
