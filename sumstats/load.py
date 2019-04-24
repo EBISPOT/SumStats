@@ -48,7 +48,6 @@ class Loader():
             chunk.dropna(subset=list(REQUIRED))
             chunk[STUDY_DSET] = self.study #add study
             for field in [SNP_DSET, EFFECT_DSET, OTHER_DSET, HM_EFFECT_DSET, HM_EFFECT_DSET]:
-                print(field)
                 chunk[field] = self.nullify_if_string_too_long(df=chunk, field=field) 
             for chrom, data in chunk.groupby(CHR_DSET):
                 path = os.path.join(self.tsv_path, "chr_{}_{}.csv".format(str(chrom), self.filename))
@@ -75,6 +74,7 @@ class Loader():
                             format='table',
                             mode='a',
                             append=True,
+                            data_columns=list(TO_INDEX),
                             #expectedrows=num_rows,
                             min_itemsize={OTHER_DSET: self.max_string,
                                           EFFECT_DSET: self.max_string,

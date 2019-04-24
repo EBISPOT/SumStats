@@ -10,6 +10,7 @@ setup(
                             'gwas-search = sumstats.controller:main',
                             'gwas-explore = sumstats.explorer:main',
                             'gwas-rebuild-snps = sumstats.utils.rebuild_snps:main',
+                            'gwas-reindex = sumstats.reindex:main',
                             'gwas-delete = sumstats.deleter:main']
     },
     url='https://github.com/EBISPOT/SumStats',
