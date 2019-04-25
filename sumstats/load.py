@@ -21,7 +21,7 @@ class Loader():
         self.hdf_path = hdf_path
         self.tsv_path = tsv_path
         self.chr_dir = chr_dir
-        self.max_string = 255
+        self.max_string = 25
 
         self.filename = self.tsv.split('.')[0]
         self.traits = trait
@@ -48,7 +48,7 @@ class Loader():
             chunk.dropna(subset=list(REQUIRED))
             chunk[STUDY_DSET] = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, '')) # need to sort this properly to store accession as int
             for field in [SNP_DSET, EFFECT_DSET, OTHER_DSET, HM_EFFECT_DSET, HM_EFFECT_DSET]:
-                chunk[field] = self.nullify_if_string_too_long(df=chunk, field=field) 
+                self.nullify_if_string_too_long(df=chunk, field=field) 
             for chrom, data in chunk.groupby(CHR_DSET):
                 path = os.path.join(self.tsv_path, "chr_{}_{}.csv".format(str(chrom), self.filename))
                 with open(path, 'a') as f:
@@ -57,7 +57,7 @@ class Loader():
 
     def nullify_if_string_too_long(self, df, field):
         mask = df[field].str.len() <= self.max_string
-        return df[field].where(mask, 'NA')
+        df[field].where(mask, 'NA', inplace=True)
         
 
     def csv_to_hdf(self, hdf, group):
