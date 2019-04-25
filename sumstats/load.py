@@ -14,7 +14,7 @@ from sumstats.utils import filesystem_utils as fsutils
 class Loader():
     def __init__(self, tsv, tsv_path, chr_dir, study=None, trait=None, hdf_path=None, chromosome=None):
         self.tsv = tsv
-        self.study = study.replace('GCST', '') # need to sort this properly to store accession as int
+        self.study = int(study.replace(GWAS_CATALOG_STUDY_PREFIX, '')) # need to sort this properly to store accession as int
         self.traits = trait
         self.chromosome = chromosome
         self.hdf_path = hdf_path
@@ -25,7 +25,6 @@ class Loader():
         self.filename = self.tsv.split('.')[0]
         self.traits = pd.DataFrame({'traits':self.traits}).traits.unique() if trait else None
         self.ss_file = fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
-        
 
 
     def load(self):
@@ -119,6 +118,7 @@ def main():
     study = args.study
     chromosome = args.chr
     traits = args.trait.split(',')
+    print(study)
 
 
     loader = Loader(filename, tsvfiles_path, chr_dir, study, traits, h5files_path, chromosome)
