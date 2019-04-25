@@ -9,12 +9,13 @@ from sumstats.common_constants import *
 from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler
 from sumstats.utils import filesystem_utils as fsutils
+import sumstats.utils.sqlite_client as sq 
 
 
 class Loader():
-    def __init__(self, tsv, tsv_path, chr_dir, study=None, trait=None, hdf_path=None, chromosome=None):
+    def __init__(self, tsv, tsv_path, chr_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None):
         self.tsv = tsv
-        self.study = int(study.replace(GWAS_CATALOG_STUDY_PREFIX, '')) # need to sort this properly to store accession as int
+        self.study = study
         self.traits = trait
         self.chromosome = chromosome
         self.hdf_path = hdf_path
@@ -23,14 +24,16 @@ class Loader():
         self.max_string = 255
 
         self.filename = self.tsv.split('.')[0]
-        self.traits = pd.DataFrame({'traits':self.traits}).traits.unique() if trait else None
+        self.traits = trait
         self.ss_file = fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
 
+        self.sqldb = sqldb
 
     def load(self):
         group = "chr" + self.chromosome
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=group, dir_name=self.chr_dir)
         self.csv_to_hdf(hdf_store, group)
+        self.load_study_and_trait()
 
 
     def split_csv_into_chroms(self):
@@ -43,7 +46,7 @@ class Loader():
         # write to chromosome files
         for chunk in df:
             chunk.dropna(subset=list(REQUIRED))
-            chunk[STUDY_DSET] = self.study #add study
+            chunk[STUDY_DSET] = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, '')) # need to sort this properly to store accession as int
             for field in [SNP_DSET, EFFECT_DSET, OTHER_DSET, HM_EFFECT_DSET, HM_EFFECT_DSET]:
                 chunk[field] = self.nullify_if_string_too_long(df=chunk, field=field) 
             for chrom, data in chunk.groupby(CHR_DSET):
@@ -81,23 +84,33 @@ class Loader():
                             index = False
                             )
 
-    def reindex_files(self):
-        hdfs = fsutils.get_h5files_in_dir(path=self.hdfs_path, dir_name=self.chr_dir)
-        for f in hdfs:
-            with pd.HDFStore(f) as store:
-                group = store.keys()[0]
-                self.create_index(f, TO_INDEX, group)
-                self.create_cs_index(f, BP_DSET, group)
+
+    def load_study_and_trait(self):
+        sql = sq.sqlClient(self.sqldb)
+        for trait in self.traits:
+            data = [self.study, trait]
+            sql.cur.execute("insert or ignore into study_trait values (?,?)", data)
+        sql.cur.execute('COMMIT')
 
 
-    def create_index(self, hdf, fields, group):
-        with pd.HDFStore(hdf) as store:
-            store.create_table_index(group, columns=fields, optlevel=6, kind='medium')
+
+   # def reindex_files(self):
+   #     hdfs = fsutils.get_h5files_in_dir(path=self.hdfs_path, dir_name=self.chr_dir)
+   #     for f in hdfs:
+   #         with pd.HDFStore(f) as store:
+   #             group = store.keys()[0]
+   #             self.create_index(f, TO_INDEX, group)
+   #             self.create_cs_index(f, BP_DSET, group)
 
 
-    def create_cs_index(self, hdf, fields, group):
-        with pd.HDFStore(hdf) as store:
-            store.create_table_index(group, columns=fields, optlevel=9, kind='full')
+   # def create_index(self, hdf, fields, group):
+   #     with pd.HDFStore(hdf) as store:
+   #         store.create_table_index(group, columns=fields, optlevel=6, kind='medium')
+
+
+   # def create_cs_index(self, hdf, fields, group):
+   #     with pd.HDFStore(hdf) as store:
+   #         store.create_table_index(group, columns=fields, optlevel=9, kind='full')
 
 
 
@@ -112,6 +125,7 @@ def main():
     properties_handler.set_properties()  # pragma: no cover
     h5files_path = properties.h5files_path # pragma: no cover
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
+    database = properties.sqlite_path
     chr_dir = properties.chr_dir
 
     filename = args.f
@@ -121,7 +135,7 @@ def main():
     print(study)
 
 
-    loader = Loader(filename, tsvfiles_path, chr_dir, study, traits, h5files_path, chromosome)
+    loader = Loader(filename, tsvfiles_path, chr_dir, study, traits, h5files_path, chromosome, database)
     loader.load()
 
 
