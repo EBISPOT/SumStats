@@ -14,7 +14,6 @@ from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
 from sumstats.common_constants import *
-from multiprocessing import Pool
 
 
 class Explorer:
@@ -22,49 +21,35 @@ class Explorer:
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
         self.study_dir = self.properties.study_dir
+        self.chr_dir = self.properties.chr_dir
         self.trait_dir = self.properties.trait_dir
         self.sqlite_db = self.properties.sqlite_path
         
 
     def get_list_of_studies(self):
-        pool = Pool(processes=8)
-        #studies = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        studies = pool.map(get_study_attr, h5files)
-        print(studies)
- #       for h5file in h5files:
- #           service = study_service.StudyService(h5file=h5file)
- #           studies.append(service.study)
- #           service.close_file()
+        sq = sql_client.sqlClient(self.sqlite_db)
+        studies = sq.get_studies()
         return sorted(list(set(studies)))
 
 
     def get_list_of_traits(self): 
-        pool = Pool(processes=8)
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        traits = pool.map(get_trait_attr, h5files)
-        traits = sorted(list(set([item for sublist in traits for item in sublist]))) # flatten, drop dupes, list, then sort
+        sq = sql_client.sqlClient(self.sqlite_db)
+        traits = sq.get_traits()
         return traits
 
 
     def get_list_of_studies_for_trait(self, trait): 
-        studies = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            if trait in service.traits:
-                studies.append(service.study)
-            service.close_file()
-        return sorted(list(set(studies)))
+        sq = sql_client.sqlClient(self.sqlite_db)
+        studies = sq.get_studies_for_trait(trait)
+        if studies:
+            return sorted(list(set(studies)))
+        else:
+            raise NotFoundError("Trait " + trait)
 
 
     def get_trait_of_study(self, study_to_find):
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        traits = []
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            traits.extend(service.list_traits_for_study(study_to_find))
-            service.close_file()
+        sq = sql_client.sqlClient(self.sqlite_db)
+        traits = sq.get_traits_for_study(study_to_find)
         if traits:
             return sorted(list(set(traits)))
         else:
@@ -81,9 +66,11 @@ class Explorer:
 
     def get_list_of_chroms(self):
         #return CHROMOSOMES
-        study_path = os.path.join(self.search_path, self.study_dir)
-        dirs = os.listdir(study_path)
-        chromosomes = [d for d in dirs if glob.glob(os.path.join(study_path, d, "file*.h5"))]
+        chromosomes = []
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.chr_dir)
+        for h5file in h5files:
+            service = chrom_service.ChromosomeService(h5file=h5file)
+            chromosomes.append(service.chromosome)
         return sorted(list(set(chromosomes)))
 
 

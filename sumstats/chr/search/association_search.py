@@ -35,6 +35,7 @@ class AssociationSearch:
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
         self.study_dir = self.properties.study_dir
+        self.chr_dir = self.properties.chr_dir
         self.database = self.properties.sqlite_path
         self.snp_map = fsutils.create_h5file_path(self.search_path, self.properties.snp_dir, "snp_map")
 
@@ -93,33 +94,26 @@ class AssociationSearch:
 
         if self.chromosome:
             #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
-            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/*.h5")
+            hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/file_chr" + str(self.chromosome) + ".h5")
         else:
-            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/[1-25]/*.h5")
+            hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_*.h5")
+            print(hdfs)
 
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
     
-        if self.snp:
-            print("checking files for snps")
-            pool = Pool(16)
-            results = pool.starmap(search_hdf_with_condition, zip(hdfs, repeat(self.snp), repeat(self.condition)))
-            pool.close()
-            pool.join()
-            hdfs = [hdf for hdf in results if hdf is not None]
-        
-
         for hdf in hdfs:
+            print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
                 #key = self._get_group_key(store)
                 key = store.keys()[0]
-                study = self._get_study_metadata(store, key)['study']
-                traits = self._get_study_metadata(store, key)['traits'].tolist()
+                #study = self._get_study_metadata(store, key)['study']
+                #traits = self._get_study_metadata(store, key)['traits'].tolist()
                 #tissue = self._get_study_metadata(store, key)['tissue']
 
-                if self.study and self.study != study:
+                #if self.study and self.study != study:
                     # move on to next study if this isn't the one we want
-                    continue
+                #    continue
 
                 if self.tissue and self.tissue != tissue:
                     # move on to next tissue if this isn't the one we want
@@ -151,8 +145,8 @@ class AssociationSearch:
                     if self.snp and chunk[SNP_DSET].values != self.snp:
                         pass
                     else:
-                        chunk[STUDY_DSET] = study
-                        chunk[TRAIT_DSET] = str(traits) 
+                        #chunk[STUDY_DSET] = study
+                        #chunk[TRAIT_DSET] = str(traits) 
                         #chunk[TISSUE_DSET] = tissue
                         self.df = pd.concat([self.df, chunk])
 

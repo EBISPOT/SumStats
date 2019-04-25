@@ -24,6 +24,7 @@ from sumstats.common_constants import *
 from sumstats.errors.error_classes import *
 import logging
 from sumstats.utils import register_logger
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -32,10 +33,20 @@ register_logger.register(__name__)
 class ChromosomeService:
     def __init__(self, h5file):
         # Open the file with read permissions
-        self.file = h5py.File(h5file, 'r')
-        self.datasets = {}
-        self.file_group = gu.Group(self.file)
-        self.study = None
+        #self.file = h5py.File(h5file, 'r')
+        #self.datasets = {}
+        #self.file_group = gu.Group(self.file)
+        #self.study = None
+        self.h5file = h5file
+        self.chromosome = self.get_chromosome()
+
+
+    def get_chromosome(self):
+        with pd.HDFStore(self.h5file, mode='r') as store:
+            key = store.keys()[0]
+            chromosome = key.replace("/chr", "")
+            return chromosome
+        
 
 
     def check_study_is_group(self, group):

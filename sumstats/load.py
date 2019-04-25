@@ -21,7 +21,7 @@ class Loader():
         self.hdf_path = hdf_path
         self.tsv_path = tsv_path
         self.chr_dir = chr_dir
-        self.max_string = 25
+        self.max_string = 255
 
         self.filename = self.tsv.split('.')[0]
         self.traits = trait
