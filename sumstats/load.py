@@ -27,7 +27,7 @@ class Loader():
         self.filename = self.tsv.split('.')[0]
         self.traits = trait
 
-        self.ss_file = fsutils.get_file_path(path=self.tsv_path + "/{chrom}".format(chrom=self.chromosome), file=self.filename + ".csv") if loader else fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
+        self.ss_file = fsutils.get_file_path(path=self.tsv_path + "/{chrom}".format(chrom=self.chromosome), file=self.filename + ".csv") if loader in ['bychr', 'bystudy'] else fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
 
         self.sqldb = sqldb
 
@@ -42,8 +42,6 @@ class Loader():
         group = "/{study}".format(study=self.study.replace('-','_'))
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=self.filename, dir_name=self.study_dir + "/" + self.chromosome)
         self.write_csv_to_hdf(hdf_store, group)
-        self.load_study_and_trait()
-        self.load_study_info()
 
     
     def split_csv_into_chroms(self):
@@ -128,6 +126,9 @@ class Loader():
                 """Store study specific metadata"""
                 store.get_storer(group).attrs.study_metadata = {'study': self.study}
 
+    def load_study_info(self):
+        self.load_study_and_trait()
+        self.load_study_info()
 
     def load_study_and_trait(self):
         sql = sq.sqlClient(self.sqldb)
@@ -170,8 +171,8 @@ def main():
     argparser.add_argument('-f', help='The path to the summary statistics file to be processed', required=True)
     argparser.add_argument('-trait', help='The trait id, or ids if separated by commas', required=True)
     argparser.add_argument('-study', help='The study identifier', required=True)
-    argparser.add_argument('-chr', help='The chromosome that the associations belong to', required=True)
-    argparser.add_argument('-loader', help='The loader: either "bychr" or bystudy"', choices=['bychr', 'bystudy'], default=None, required=True)
+    argparser.add_argument('-chr', help='The chromosome that the associations belong to', required=False)
+    argparser.add_argument('-loader', help='The loader: either "bychr" or bystudy"', choices=['bychr', 'bystudy', 'study_info'], default=None, required=True)
     args = argparser.parse_args()
     
     properties_handler.set_properties()  # pragma: no cover
@@ -188,11 +189,21 @@ def main():
     traits = args.trait.split(',')
     print(study)
 
-    loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
     if loader_type == 'bychr':
-        loader.load_bychr()
+        if chromosome is None:
+            print("You must specify the '-chr'...exiting")
+        else:    
+            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
+            loader.load_bychr()
     elif loader_type == 'bystudy':
-        loader.load_bystudy()
+        if chromosome is None:
+            print("You must specify the '-chr'...exiting")
+        else:
+            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
+            loader.load_bystudy()
+    elif loader_type == "study_info":
+        loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
+        loader.load_study_info()
     else:
         print("You must specify the '-loader'...exiting")
         
