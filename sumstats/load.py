@@ -57,7 +57,7 @@ class Loader():
             for field in [SNP_DSET, EFFECT_DSET, OTHER_DSET, HM_EFFECT_DSET, HM_EFFECT_DSET]:
                 self.nullify_if_string_too_long(df=chunk, field=field) 
             for chrom, data in chunk.groupby(CHR_DSET):
-                path = os.path.join(self.tsv_path, "chr_{}_{}.csv".format(str(chrom), self.filename))
+                path = os.path.join(self.tsv_path, str(chrom), self.filename + ".csv")
                 with open(path, 'a') as f:
                     data.to_csv(f, index=False, header=True)
 
