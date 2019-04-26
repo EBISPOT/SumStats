@@ -13,7 +13,7 @@ import sumstats.utils.sqlite_client as sq
 
 
 class Loader():
-    def __init__(self, tsv, tsv_path, chr_dir, study_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None):
+    def __init__(self, tsv, tsv_path, chr_dir, study_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None, loader=None):
         self.tsv = tsv
         self.study = study
         self.traits = trait
@@ -26,7 +26,8 @@ class Loader():
 
         self.filename = self.tsv.split('.')[0]
         self.traits = trait
-        self.ss_file = fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
+
+        self.ss_file = fsutils.get_file_path(path=self.tsv_path + "/{chrom}".format(chrom=self.chromosome), file=self.tsv) if loader else fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
 
         self.sqldb = sqldb
 
@@ -37,10 +38,12 @@ class Loader():
 
 
     def load_bystudy(self):
+        print(self.ss_file)
         group = "/{study}".format(study=self.study.replace('-','_'))
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=self.filename, dir_name=self.study_dir + "/" + self.chromosome)
         self.write_csv_to_hdf(hdf_store, group)
         self.load_study_and_trait()
+        self.load_study_info()
 
     
     def split_csv_into_chroms(self):
@@ -51,6 +54,7 @@ class Loader():
                          chunksize=1000000)
 
         # write to chromosome files
+        count = 1
         for chunk in df:
             chunk.dropna(subset=list(REQUIRED))
             chunk[STUDY_DSET] = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, '')) # need to sort this properly to store accession as int
@@ -58,8 +62,13 @@ class Loader():
                 self.nullify_if_string_too_long(df=chunk, field=field) 
             for chrom, data in chunk.groupby(CHR_DSET):
                 path = os.path.join(self.tsv_path, str(chrom), self.filename + ".csv")
-                with open(path, 'a') as f:
-                    data.to_csv(f, index=False, header=True)
+                if count == 1:
+                    with open(path, 'w') as f:
+                        data.to_csv(f, index=False, header=True)
+                else:
+                    with open(path, 'a') as f:
+                        data.to_csv(f, index=False, header=False)
+            count += 1
 
 
     def nullify_if_string_too_long(self, df, field):
@@ -128,6 +137,13 @@ class Loader():
         sql.cur.execute('COMMIT')
 
 
+    def load_study_info(self):
+        sql = sq.sqlClient(self.sqldb)
+        data = [self.study, self.filename]
+        sql.cur.execute("insert or ignore into study values (?,?)", data)
+        sql.cur.execute('COMMIT')
+
+
 
    # def reindex_files(self):
    #     hdfs = fsutils.get_h5files_in_dir(path=self.hdfs_path, dir_name=self.chr_dir)
@@ -172,7 +188,7 @@ def main():
     traits = args.trait.split(',')
     print(study)
 
-    loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database)
+    loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
     if loader_type == 'bychr':
         loader.load_bychr()
     elif loader_type == 'bystudy':
