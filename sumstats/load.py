@@ -27,7 +27,7 @@ class Loader():
         self.filename = self.tsv.split('.')[0]
         self.traits = trait
 
-        self.ss_file = fsutils.get_file_path(path=self.tsv_path + "/{chrom}".format(chrom=self.chromosome), file=self.tsv) if loader else fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
+        self.ss_file = fsutils.get_file_path(path=self.tsv_path + "/{chrom}".format(chrom=self.chromosome), file=self.filename + ".csv") if loader else fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
 
         self.sqldb = sqldb
 
