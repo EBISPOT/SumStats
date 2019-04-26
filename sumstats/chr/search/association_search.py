@@ -10,7 +10,6 @@ from sumstats.utils import register_logger
 from sumstats.utils import properties_handler
 from sumstats.utils.interval import *
 import sumstats.utils.sqlite_client as sq
-from multiprocessing import Pool
 from itertools import repeat
 
 logger = logging.getLogger(__name__)
@@ -92,28 +91,54 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self.iteration_size = self.size
 
-        if self.chromosome:
+        # Narrow down hdf pool
+
+        if self.bp_interval and self.chromosome:
+            print("bp/chr")
             #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
             hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/file_chr" + str(self.chromosome) + ".h5")
+        elif self.study or self.trait:
+            print("study/trait")
+            if self.chromosome:
+                print("chr")
+                hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/*.h5")
+            else:
+                print("nochr")
+                hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/*.h5")
         else:
-            hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_*.h5")
-            print(hdfs)
+            print("all")
+            hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_chr*.h5")
 
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
     
+        studies = []
+        if self.trait:
+            sql = sq.sqlClient(self.database)
+            studies.extend(sql.get_studies_for_trait(self.trait))
+        print(studies)
+
+
+        print(hdfs)
         for hdf in hdfs:
             print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
                 #key = self._get_group_key(store)
                 key = store.keys()[0]
-                #study = self._get_study_metadata(store, key)['study']
                 #traits = self._get_study_metadata(store, key)['traits'].tolist()
                 #tissue = self._get_study_metadata(store, key)['tissue']
 
-                #if self.study and self.study != study:
-                    # move on to next study if this isn't the one we want
-                #    continue
+                if self.trait:
+                    study = self._get_study_metadata(store, key)['study']
+                    if study not in studies:
+                        # move on to next study if this isn't the one we want
+                        continue
+
+                if self.study:
+                    study = self._get_study_metadata(store, key)['study']
+                    if self.study != study:
+                        # move on to next study if this isn't the one we want
+                        continue
 
                 if self.tissue and self.tissue != tissue:
                     # move on to next tissue if this isn't the one we want
@@ -197,9 +222,9 @@ class AssociationSearch:
             #conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
 
 
-        if self.study:
-            study_id = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, ""))
-            conditions.append("{study} == {query}".format(study=STUDY_DSET, query=study_id))
+        #if self.study:
+        #    study_id = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, ""))
+        #    conditions.append("{study} == {query}".format(study=STUDY_DSET, query=study_id))
 
         if len(conditions) > 0:
             statement = " & ".join(conditions)

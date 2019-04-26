@@ -13,7 +13,7 @@ import sumstats.utils.sqlite_client as sq
 
 
 class Loader():
-    def __init__(self, tsv, tsv_path, chr_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None):
+    def __init__(self, tsv, tsv_path, chr_dir, study_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None):
         self.tsv = tsv
         self.study = study
         self.traits = trait
@@ -21,6 +21,7 @@ class Loader():
         self.hdf_path = hdf_path
         self.tsv_path = tsv_path
         self.chr_dir = chr_dir
+        self.study_dir = study_dir
         self.max_string = 255
 
         self.filename = self.tsv.split('.')[0]
@@ -29,13 +30,19 @@ class Loader():
 
         self.sqldb = sqldb
 
-    def load(self):
+    def load_bychr(self):
         group = "chr" + self.chromosome
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=group, dir_name=self.chr_dir)
-        self.csv_to_hdf(hdf_store, group)
+        self.append_csv_to_hdf(hdf_store, group)
+
+
+    def load_bystudy(self):
+        group = "/{study}".format(study=self.study.replace('-','_'))
+        hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=self.filename, dir_name=self.study_dir + "/" + self.chromosome)
+        self.write_csv_to_hdf(hdf_store, group)
         self.load_study_and_trait()
 
-
+    
     def split_csv_into_chroms(self):
         df = pd.read_csv(self.ss_file, sep="\t",
                          dtype=DSET_TYPES,
@@ -60,7 +67,7 @@ class Loader():
         df[field].where(mask, 'NA', inplace=True)
         
 
-    def csv_to_hdf(self, hdf, group):
+    def append_csv_to_hdf(self, hdf, group):
         chrdf = pd.read_csv(self.ss_file, dtype=DSET_TYPES, chunksize=1000000)
         with pd.HDFStore(hdf) as store:
             """store in hdf5 as below"""
@@ -83,6 +90,34 @@ class Loader():
                                           HM_OTHER_DSET: self.max_string},
                             index = False
                             )
+
+
+    def write_csv_to_hdf(self, hdf, group):
+        chrdf = pd.read_csv(self.ss_file, dtype=DSET_TYPES, chunksize=1000000)
+        with pd.HDFStore(hdf) as store:
+            """store in hdf5 as below"""
+            count = 1
+            for chunk in chrdf:
+                print(count)
+                count += 1
+                chunk.to_hdf(store, group,
+                            complib='blosc',
+                            complevel=9,
+                            format='table',
+                            mode='w',
+                            append=True,
+                            data_columns=list(TO_INDEX),
+                            #expectedrows=num_rows,
+                            min_itemsize={OTHER_DSET: self.max_string,
+                                          EFFECT_DSET: self.max_string,
+                                          SNP_DSET: self.max_string,
+                                          HM_EFFECT_DSET: self.max_string,
+                                          HM_OTHER_DSET: self.max_string},
+                            index = False
+                            )
+
+                """Store study specific metadata"""
+                store.get_storer(group).attrs.study_metadata = {'study': self.study}
 
 
     def load_study_and_trait(self):
@@ -120,6 +155,7 @@ def main():
     argparser.add_argument('-trait', help='The trait id, or ids if separated by commas', required=True)
     argparser.add_argument('-study', help='The study identifier', required=True)
     argparser.add_argument('-chr', help='The chromosome that the associations belong to', required=True)
+    argparser.add_argument('-loader', help='The loader: either "bychr" or bystudy"', choices=['bychr', 'bystudy'], default=None, required=True)
     args = argparser.parse_args()
     
     properties_handler.set_properties()  # pragma: no cover
@@ -127,17 +163,23 @@ def main():
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
     database = properties.sqlite_path
     chr_dir = properties.chr_dir
+    study_dir = properties.study_dir
 
     filename = args.f
     study = args.study
     chromosome = args.chr
+    loader_type = args.loader
     traits = args.trait.split(',')
     print(study)
 
-
-    loader = Loader(filename, tsvfiles_path, chr_dir, study, traits, h5files_path, chromosome, database)
-    loader.load()
-
+    loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database)
+    if loader_type == 'bychr':
+        loader.load_bychr()
+    elif loader_type == 'bystudy':
+        loader.load_bystudy()
+    else:
+        print("You must specify the '-loader'...exiting")
+        
 
 if __name__ == "__main__":
     main()
