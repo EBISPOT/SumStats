@@ -93,18 +93,24 @@ class AssociationSearch:
 
         # Narrow down hdf pool
 
-        if self.bp_interval or self.chromosome:
+        if self.bp_interval and self.chromosome:
             print("bp/chr")
             #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
             hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/file_chr" + str(self.chromosome) + ".h5")
         elif self.study or self.trait:
+            sql = sq.sqlClient(self.database)
+            file_ids = []
+            if self.study:
+                file_ids.extend(sql.get_file_id_for_study(self.study))
+            elif self.trait:
+                file_ids.extend(sql.get_file_id_for_trait(self.trait))
             print("study/trait")
             if self.chromosome:
                 print("chr")
-                hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/*.h5")
+                hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids][0]
             else:
                 print("nochr")
-                hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/*.h5")
+                hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids][0]
         else:
             print("all")
             hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_chr*.h5")
@@ -116,7 +122,6 @@ class AssociationSearch:
         if self.trait:
             sql = sq.sqlClient(self.database)
             studies.extend(sql.get_studies_for_trait(self.trait))
-        print(studies)
 
 
         print(hdfs)
