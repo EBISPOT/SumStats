@@ -196,6 +196,11 @@ class AssociationSearch:
                 conditions.append("{bp} <= {upper}".format(bp = BP_DSET, upper = self.bp_interval.upper_limit))
             #conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
 
+
+        if self.study:
+            study_id = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, ""))
+            conditions.append("{study} == {query}".format(study=STUDY_DSET, query=study_id))
+
         if len(conditions) > 0:
             statement = " & ".join(conditions)
         return statement
