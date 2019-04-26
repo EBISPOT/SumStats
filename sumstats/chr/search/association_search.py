@@ -93,7 +93,7 @@ class AssociationSearch:
 
         # Narrow down hdf pool
 
-        if self.bp_interval and self.chromosome:
+        if self.bp_interval or self.chromosome:
             print("bp/chr")
             #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
             hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/file_chr" + str(self.chromosome) + ".h5")
