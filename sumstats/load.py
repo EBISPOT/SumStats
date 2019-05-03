@@ -49,7 +49,7 @@ class Loader():
                          dtype=DSET_TYPES,
                          usecols=list(TO_LOAD_DSET_HEADERS_DEFAULT), 
                          float_precision='high', 
-                         chunksize=1)#000000)
+                         chunksize=1000000)
 
         # write to chromosome files
         count = 1
