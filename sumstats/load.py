@@ -131,7 +131,7 @@ class Loader():
         for trait in self.traits:
             data = [self.study, trait]
             sql.cur.execute("insert or ignore into study_trait values (?,?)", data)
-        sql.cur.execute('COMMIT')
+            sql.cur.execute('COMMIT')
 
 
     def load_study_info(self):
