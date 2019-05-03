@@ -49,7 +49,7 @@ class Loader():
                          dtype=DSET_TYPES,
                          usecols=list(TO_LOAD_DSET_HEADERS_DEFAULT), 
                          float_precision='high', 
-                         chunksize=1000000)
+                         chunksize=1)#000000)
 
         # write to chromosome files
         count = 1
@@ -61,11 +61,9 @@ class Loader():
             for chrom, data in chunk.groupby(CHR_DSET):
                 path = os.path.join(self.tsv_path, str(chrom), self.filename + ".csv")
                 if count == 1:
-                    with open(path, 'w') as f:
-                        data.to_csv(f, mode='w', index=False, header=True)
+                    data.to_csv(path, mode='w', index=False, header=True)
                 else:
-                    with open(path, 'a') as f:
-                        data.to_csv(f, mode='a', index=False, header=False)
+                    data.to_csv(path, mode='a', index=False, header=False)
             count += 1
 
 
