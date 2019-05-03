@@ -62,10 +62,10 @@ class Loader():
                 path = os.path.join(self.tsv_path, str(chrom), self.filename + ".csv")
                 if count == 1:
                     with open(path, 'w') as f:
-                        data.to_csv(f, index=False, header=True)
+                        data.to_csv(f, mode='w', index=False, header=True)
                 else:
                     with open(path, 'a') as f:
-                        data.to_csv(f, index=False, header=False)
+                        data.to_csv(f, mode='a', index=False, header=False)
             count += 1
 
 
