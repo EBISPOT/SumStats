@@ -146,11 +146,12 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
         element_info = _add_missing_variables(variable=chromosome, datasets=datasets, dset_name=CHR_DSET, element_info=element_info)
 
         study = datasets[STUDY_DSET][index]
-        trait = datasets[TRAIT_DSET][index]
-        trait = ast.literal_eval(trait)
+        study = _study_acc_from_int(study)
+        #trait = datasets[TRAIT_DSET][index]
+        #trait = ast.literal_eval(trait)
 
         #print('get trait')
-        #trait, trait_to_study_cache = _get_trait_for_study(study, trait_to_study_cache)
+        trait, trait_to_study_cache = _get_trait_for_study(study, trait_to_study_cache)
         #print('got trait')
 
 
@@ -167,6 +168,11 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         data_dict[index] = element_info
     return data_dict
+
+
+def _study_acc_from_int(study_int):
+    acc_no_len = 6
+    return GWAS_CATALOG_STUDY_PREFIX + str(study_int).zfill(acc_no_len)
 
 
 def _add_element_depending_on_view(info_array, dset_name, dataset, index, reveal=None):
