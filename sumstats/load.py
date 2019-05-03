@@ -52,7 +52,7 @@ class Loader():
                          chunksize=1000000)
 
         # write to chromosome files
-        count = 1
+        first = True
         for chunk in df:
             chunk.dropna(subset=list(REQUIRED))
             chunk[STUDY_DSET] = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, '')) # need to sort this properly to store accession as int
@@ -60,11 +60,11 @@ class Loader():
                 self.nullify_if_string_too_long(df=chunk, field=field) 
             for chrom, data in chunk.groupby(CHR_DSET):
                 path = os.path.join(self.tsv_path, str(chrom), self.filename + ".csv")
-                if count == 1:
+                if first:
                     data.to_csv(path, mode='w', index=False, header=True)
+                    first = False
                 else:
                     data.to_csv(path, mode='a', index=False, header=False)
-            count += 1
 
 
     def nullify_if_string_too_long(self, df, field):
