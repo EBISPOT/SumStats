@@ -93,11 +93,7 @@ class AssociationSearch:
 
         # Narrow down hdf pool
 
-        if self.bp_interval or self.chromosome:
-            print("bp/chr")
-            #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
-            hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/file_chr" + str(self.chromosome) + ".h5")
-        elif self.study or self.trait:
+        if self.study or self.trait:
             sql = sq.sqlClient(self.database)
             file_ids = []
             if self.study:
@@ -111,6 +107,10 @@ class AssociationSearch:
             else:
                 print("nochr")
                 hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids][0]
+        elif self.chromosome and not (self.study or self.trait):
+            print("bp/chr")
+            #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
+            hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/file_chr" + str(self.chromosome) + ".h5")
         else:
             print("all")
             hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_chr*.h5")
