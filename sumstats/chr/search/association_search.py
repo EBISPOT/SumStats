@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import glob
+import itertools
 import os
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
@@ -103,10 +104,12 @@ class AssociationSearch:
             print("study/trait")
             if self.chromosome:
                 print("chr")
-                hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids][0]
+                hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids]
+                hdfs = list(itertools.chain.from_iterable(hdfs))
             else:
                 print("nochr")
-                hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids][0]
+                hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids]
+                hdfs = list(itertools.chain.from_iterable(hdfs))
         elif self.chromosome and not (self.study or self.trait):
             print("bp/chr")
             #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
