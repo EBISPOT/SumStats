@@ -1,6 +1,5 @@
 import pandas as pd
 import tables as tb
-import csv
 import subprocess
 import os
 import glob
@@ -83,7 +82,6 @@ def main():
             )
 
     sql = sq.sqlClient(database)
-    #sql.database = database
     sql.drop_rsid_index()
     for chunk in snpdf:
         chunk = list(chunk.itertuples(index=False, name=None))
