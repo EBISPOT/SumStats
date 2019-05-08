@@ -1,85 +1,162 @@
-import argparse
 import sys
-import sumstats.trait.loader as trait_loader
-import sumstats.chr.loader as chr_loader
-import sumstats.snp.loader as snp_loader
+import subprocess
+import glob
+import os
+import argparse
+import pandas as pd
+import tables as tb
+from sumstats.common_constants import *
 from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler
 from sumstats.utils import filesystem_utils as fsutils
+import sumstats.utils.sqlite_client as sq 
+
+
+class Loader():
+    def __init__(self, tsv, csv_out, var_file, qtl_group, study_dir, study, trait, hdf_path, chromosome, expr_file, sqldb=None, loader=None):
+        self.tsv = tsv
+        self.csv_out = csv_out
+        self.var_file = var_file
+        self.qtl_group = qtl_group
+        self.study = study
+        self.trait_file = trait
+        self.chromosome = chromosome
+        self.hdf_path = hdf_path
+        self.study_dir = study_dir
+        self.expr_file = expr_file
+        self.max_string = 255
+
+        self.filename = os.path.splitext(os.path.basename(self.tsv))[0]
+        self.traits = trait
+
+
+        self.sqldb = sqldb
+
+
+    def load_bystudy(self):
+        print(self.tsv)
+        group = "/{study}".format(study=self.study.replace('-','_'))
+        hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=self.filename, dir_name=self.study_dir + "/" + self.chromosome)
+        self.write_csv_to_hdf(hdf_store, group)
+
+
+    def write_csv_to_hdf(self, hdf, group):
+        """Read in the sumstats files in chunks"""
+
+        dfss = pd.read_csv(self.tsv, sep="\t",
+                           names=['molecular_trait_id', 'pchr', 'a', 'b',
+                                  'strand', 'c', 'd', 'variant_ss', 'chromosome_ss',
+                                  'position_ss', 'e', 'pvalue', 'beta', 'top'],
+                           dtype={'chromosome_ss': str, 'position_ss': int, 'variant_ss': str},
+                           header=None,
+                           usecols=['molecular_trait_id','variant_ss', 'chromosome_ss',
+                                    'position_ss','pvalue', 'beta'],
+                           chunksize=1000000)
+        
+        """Read in the variant file"""
+        dfvar = pd.read_csv(self.var_file, sep="\t",
+                            names=['chromosome', 'position', 'variant', 'ref', 'alt',
+                                   'type', 'ac', 'an', 'maf', 'r2'],
+                            dtype={'chromosome': str, 'position': int, 'variant': str})
+        
+        """Read in the trait file"""
+        dftrait = pd.read_csv(self.trait_file, sep="\t", usecols=['phenotype_id', 'gene_id', 'group_id'])
+        dftrait.columns = ['phenotype_id', 'gene_id', 'molecular_trait_object_id']
+        
+        """Read in the gene expression file"""
+        dfexpr = pd.read_csv(self.expr_file, sep="\t") # phenotype_id, study, qtl_group, median_tpm
+        dfexpr = dfexpr[dfexpr.study == self.study]
+        dfexpr = dfexpr[dfexpr.qtl_group == self.qtl_group]
+
+        with pd.HDFStore(hdf) as store:
+            """store in hdf5 as below"""
+            count = 1
+            for chunk in dfss:
+                print(count)
+
+                merged = pd.merge(chunk, dfvar, how='left', left_on=['variant_ss'], right_on=['variant'])
+                print("merged one ")
+                merged2 = pd.merge(merged, dftrait, how='left', left_on=['molecular_trait_id'], right_on=['phenotype_id'])
+                print("merged two")
+                merged3 = pd.merge(merged2, dfexpr, how='left', left_on=['molecular_trait_id'], right_on=['phenotype_id'])
+                print("merged three")
+                merged3 = merged3[list(TO_LOAD_DSET_HEADERS_DEFAULT)]
+
+                merged3.to_hdf(store, group,
+                            complib='blosc',
+                            complevel=9,
+                            format='table',
+                            mode='w',
+                            append=True,
+                            data_columns=list(TO_INDEX),
+                            #expectedrows=num_rows,
+                            min_itemsize={OTHER_DSET: self.max_string,
+                                          EFFECT_DSET: self.max_string,
+                                          SNP_DSET: self.max_string},
+                            index = False
+                            )
+
+                """Store study specific metadata"""
+                store.get_storer(group).attrs.study_metadata = {'study': self.study,
+                                                                'qtl_group': self.qtl_group,
+                                                                'trait_file': os.path.basename(self.trait_file)}
+                if count == 1:
+                    merged3.to_csv(self.csv_out, compression='gzip', columns=list(TO_LOAD_DSET_HEADERS_DEFAULT),
+                                   index=False, mode='w', sep='\t', encoding='utf-8')
+                else:
+                    merged3.to_csv(self.csv_out, compression='gzip', columns=list(TO_LOAD_DSET_HEADERS_DEFAULT),
+                                   header=False, index=False, mode='a', sep='\t', encoding='utf-8')
+
+                count += 1
+
 
 
 def main():
-    args = argument_parser(sys.argv[1:])  # pragma: no cover
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-f', help='The path to the summary statistics file to be processed', required=True)
+    argparser.add_argument('-csv', help='The path to the csv OUT file', required=True)
+    argparser.add_argument('-var', help='The path to the variant/genotype metadata file', required=True)
+    argparser.add_argument('-phen', help='The path to the trait/phenotype metadata file', required=True)
+    argparser.add_argument('-expr', help='The path to the gene expression file', required=True)
+    argparser.add_argument('-study', help='The study identifier', required=True)
+    argparser.add_argument('-qtl_group', help='The qtl group e.g. "LCL"', required=True)
+    argparser.add_argument('-chr', help='The chromosome the data belongs to', required=True)
+    argparser.add_argument('-loader', help='The loader: either "bychr" or bystudy"', choices=['bystudy', 'study_info'], default=None, required=True)
 
+    args = argparser.parse_args()
+    
+    properties_handler.set_properties()  # pragma: no cover
     h5files_path = properties.h5files_path # pragma: no cover
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
-    loader_type = args.loader
-    tsv = args.tsv
-    study_meta = args.study_meta
-    trait_meta = args.trait_meta
-    trait = args.trait
-    study = args.study
-    tissue = args.tissue
-    chromosome = args.chr
-    bp = args.bp
-    trait_dir = properties.trait_dir
-    snp_dir = properties.snp_dir
+    database = properties.sqlite_path
     chr_dir = properties.chr_dir
-    sql_database = properties.sqlite_path
-    uuid = '-'.join([study, tissue, trait]) # would need to add tissue here for eqtls
+    study_dir = properties.study_dir
 
-    to_load = fsutils.get_file_path(path=tsvfiles_path, file=tsv)
+    ss_file = args.f
+    csv_file = args.csv
+    var_file = args.var
+    phen_file = args.phen
+    study = args.study
+    qtl_group = args.qtl_group
+    expr_file = args.expr
+    loader_type = args.loader
+    chromosome = args.chr
 
-    #study_metadata = fsutils.get_file_path(path=tsvfiles_path, file=meta)
-
-    if loader_type == "trait":
-        if trait is None: raise ValueError("You have chosen the trait loader but haven't specified a trait")
-        file_name = trait[-2:]
-
-        to_store = fsutils.create_h5file_path(path=h5files_path, file_name=file_name, dir_name=trait_dir)
-        loader = trait_loader.Loader(tsv=to_load, h5file=to_store, study=study, trait=trait, uuid=uuid, tissue=tissue, database=sql_database)
-        loader.load()
-        #loader.close_file()
-        print("Load complete!")
-
-    if loader_type == "chr":
-        if chromosome is None: raise ValueError(
-            "You have chosen the chromosome loader but haven't specified a chromosome")
-
-        to_store = fsutils.create_h5file_path(path=h5files_path, dir_name=chr_dir, file_name=str(chromosome))
-        loader = chr_loader.Loader(to_load, to_store, study, uuid)
-        loader.load()
-        loader.close_file()
-        print("Load complete!")
-
-    if loader_type == "snp":
-        to_store = fsutils.create_h5file_path(path=h5files_path, dir_name=snp_dir + "/" + str(chromosome), file_name=str(bp))
-        loader = snp_loader.Loader(tsv=to_load, h5file=to_store, study=study, database=sql_database)
-        loader.load()
-        #loader.close_file()
-        print("Load complete!")
+    if loader_type == 'bystudy':
+        if chromosome is None:
+            print("You must specify the '-chr'...exiting")
+        else:
+            loader = Loader(tsv=ss_file, expr_file=expr_file, csv_out=csv_file, var_file=var_file, qtl_group=qtl_group, study_dir=study_dir, study=study, trait=phen_file, hdf_path=h5files_path, chromosome=chromosome, sqldb=database, loader=loader_type)
+            #loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
+            loader.load_bystudy()
+    elif loader_type == "study_info":
+        pass
+        #loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
+        #loader.load_study_info()
+    else:
+        print("You must specify the '-loader'...exiting")
 
 
 
 if __name__ == "__main__":
-    main()  # pragma: no cover
-
-
-def argument_parser(args):
-    parser = argparse.ArgumentParser()  # pragma: no cover
-    parser.add_argument('-tsv', help='The name of the file to be loaded', required=True)  # pragma: no cover
-    parser.add_argument('-study',
-                        help='The name of the study the variants of this file are associated with', required=True)  # pragma: no cover
-    parser.add_argument('-trait',
-                        help='The name of the trait the variants of this file are associated with')  # pragma: no cover
-    parser.add_argument('-tissue',
-                        help='The name of the tissue the variants of this file are associated with')  # pragma: no cover
-    parser.add_argument('-loader', help='The type of loader: [trait|chr|snp]', required=True)  # pragma: no cover
-    parser.add_argument('-chr', help='The chromosome that will be loaded')  # pragma: no cover
-    parser.add_argument('-bp', help='Upper limit of base pair location that is loaded (for snp loader)')  # pragma: no cover
-    parser.add_argument('-study_meta', help='The name of the file with study specific metadata', required=False)  # pragma: no cover
-    parser.add_argument('-trait_meta', help='The name of the file with trait specific metadata', required=False)  # pragma: no cover
-
-    properties_handler.set_properties()  # pragma: no cover
-
-    return parser.parse_args(args)  # pragma: no cover
+    main()
