@@ -51,12 +51,14 @@ class Loader():
                            header=None,
                            usecols=['molecular_trait_id','variant_ss', 'chromosome_ss',
                                     'position_ss','pvalue', 'beta'],
+                           float_precision='high',
                            chunksize=1000000)
         
         """Read in the variant file"""
         dfvar = pd.read_csv(self.var_file, sep="\t",
                             names=['chromosome', 'position', 'variant', 'ref', 'alt',
                                    'type', 'ac', 'an', 'maf', 'r2'],
+                            float_precision='high',
                             dtype={'chromosome': str, 'position': int, 'variant': str})
         
         """Read in the trait file"""
@@ -64,7 +66,7 @@ class Loader():
         dftrait.columns = ['phenotype_id', 'gene_id', 'molecular_trait_object_id']
         
         """Read in the gene expression file"""
-        dfexpr = pd.read_csv(self.expr_file, sep="\t") # phenotype_id, study, qtl_group, median_tpm
+        dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high') # phenotype_id, study, qtl_group, median_tpm
         dfexpr = dfexpr[dfexpr.study == self.study]
         dfexpr = dfexpr[dfexpr.qtl_group == self.qtl_group]
 
@@ -92,6 +94,9 @@ class Loader():
                             #expectedrows=num_rows,
                             min_itemsize={OTHER_DSET: self.max_string,
                                           EFFECT_DSET: self.max_string,
+                                          PHEN_DSET: self.max_string,
+                                          GENE_DSET: self.max_string,
+                                          MTO_DSET: self.max_string,
                                           SNP_DSET: self.max_string},
                             index = False
                             )
@@ -102,10 +107,10 @@ class Loader():
                                                                 'trait_file': os.path.basename(self.trait_file)}
                 if count == 1:
                     merged3.to_csv(self.csv_out, compression='gzip', columns=list(TO_LOAD_DSET_HEADERS_DEFAULT),
-                                   index=False, mode='w', sep='\t', encoding='utf-8')
+                                   index=False, mode='w', sep='\t', encoding='utf-8', na_rep="NA")
                 else:
                     merged3.to_csv(self.csv_out, compression='gzip', columns=list(TO_LOAD_DSET_HEADERS_DEFAULT),
-                                   header=False, index=False, mode='a', sep='\t', encoding='utf-8')
+                                   header=False, index=False, mode='a', sep='\t', encoding='utf-8', na_rep="NA")
 
                 count += 1
 
