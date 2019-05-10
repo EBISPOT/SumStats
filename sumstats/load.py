@@ -13,7 +13,7 @@ import sumstats.utils.sqlite_client as sq
 
 
 class Loader():
-    def __init__(self, tsv, csv_out, var_file, qtl_group, study_dir, study, trait, hdf_path, chromosome, expr_file, sqldb=None, loader=None):
+    def __init__(self, tsv=None, csv_out=None, var_file=None, qtl_group=None, study_dir=None, study=None, trait=None, hdf_path=None, chromosome=None, expr_file=None, sqldb=None, loader=None, trait_dir=None):
         self.tsv = tsv
         self.csv_out = csv_out
         self.var_file = var_file
@@ -23,6 +23,7 @@ class Loader():
         self.chromosome = chromosome
         self.hdf_path = hdf_path
         self.study_dir = study_dir
+        self.trait_dir = trait_dir
         self.expr_file = expr_file
         self.max_string = 255
 
@@ -39,6 +40,10 @@ class Loader():
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=self.filename, dir_name=self.study_dir + "/" + self.chromosome)
         self.write_csv_to_hdf(hdf_store, group)
 
+
+    def load_traits(self):
+        hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name="file_phen_meta", dir_name=self.trait_dir)
+        dftrait = pd.read_csv(self.trait_file, sep="\t")
 
     def write_csv_to_hdf(self, hdf, group):
         """Read in the sumstats files in chunks"""
@@ -111,7 +116,6 @@ class Loader():
                 else:
                     merged3.to_csv(self.csv_out, compression='gzip', columns=list(TO_LOAD_DSET_HEADERS_DEFAULT),
                                    header=False, index=False, mode='a', sep='\t', encoding='utf-8', na_rep="NA")
-
                 count += 1
 
 
@@ -126,7 +130,7 @@ def main():
     argparser.add_argument('-study', help='The study identifier', required=True)
     argparser.add_argument('-qtl_group', help='The qtl group e.g. "LCL"', required=True)
     argparser.add_argument('-chr', help='The chromosome the data belongs to', required=True)
-    argparser.add_argument('-loader', help='The loader: either "bychr" or bystudy"', choices=['bystudy', 'study_info'], default=None, required=True)
+    argparser.add_argument('-loader', help='The loader', choices=['study', 'trait', 'study_info'], default=None, required=True)
 
     args = argparser.parse_args()
     
@@ -135,6 +139,7 @@ def main():
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
     database = properties.sqlite_path
     chr_dir = properties.chr_dir
+    trait_dir = properties.trait_dir
     study_dir = properties.study_dir
 
     ss_file = args.f
@@ -147,17 +152,20 @@ def main():
     loader_type = args.loader
     chromosome = args.chr
 
-    if loader_type == 'bystudy':
+    if loader_type == 'study':
         if chromosome is None:
             print("You must specify the '-chr'...exiting")
         else:
             loader = Loader(tsv=ss_file, expr_file=expr_file, csv_out=csv_file, var_file=var_file, qtl_group=qtl_group, study_dir=study_dir, study=study, trait=phen_file, hdf_path=h5files_path, chromosome=chromosome, sqldb=database, loader=loader_type)
             #loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
             loader.load_bystudy()
+    elif loader_type == 'trait':
+            loader = Loader(tsv=ss_file, expr_file=expr_file, csv_out=csv_file, var_file=var_file, qtl_group=qtl_group, study_dir=study_dir, study=study, trait=phen_file, hdf_path=h5files_path, chromosome=chromosome, sqldb=database, loader=loader_type, trait_dir=trait_dir)
+            loader.load_traits()
     elif loader_type == "study_info":
-        pass
+            loader = Loader(tsv=ss_file, qtl_group=qtl_group, study=study, sqldb=database, loader=loader_type)
         #loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
-        #loader.load_study_info()
+            loader.load_study_info()
     else:
         print("You must specify the '-loader'...exiting")
 
