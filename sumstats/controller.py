@@ -2,8 +2,6 @@ import argparse
 import sys
 
 import sumstats.chr.retriever as cr
-import sumstats.snp.retriever as snpr
-import sumstats.trait.retriever as tr
 import sumstats.utils.argument_utils as au
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
