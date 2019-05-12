@@ -102,6 +102,7 @@ class Loader():
                                           PHEN_DSET: self.max_string,
                                           GENE_DSET: self.max_string,
                                           MTO_DSET: self.max_string,
+                                          CHR_DSET: 2,
                                           SNP_DSET: self.max_string},
                             index = False
                             )
