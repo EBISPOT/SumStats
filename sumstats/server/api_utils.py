@@ -147,6 +147,7 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         study = datasets[STUDY_DSET][index]
         study = _study_acc_from_int(study)
+        element_info[STUDY_DSET] = study # update study with prefix
         #trait = datasets[TRAIT_DSET][index]
         #trait = ast.literal_eval(trait)
 
