@@ -733,6 +733,15 @@ def get_trait_study(study, trait=None):
                     mimetype="application/json")
 
 
+@api.route('/study_list')
+def get_all_studies():
+
+    resp = endpoints.study_list()
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
 @api.route('/studies/<study>/associations')
 @api.route('/traits/<string:trait>/studies/<string:study>/associations')
 def get_trait_study_assocs(study, trait=None):
