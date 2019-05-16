@@ -131,12 +131,14 @@ class AssociationSearch:
         for hdf in hdfs:
             print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
+                print('opened {}'.format(hdf))
+
                 #key = self._get_group_key(store)
-                key = store.keys()[0]
+                #key = store.keys()[0]
                 #traits = self._get_study_metadata(store, key)['traits'].tolist()
                 #tissue = self._get_study_metadata(store, key)['tissue']
                 for key in store.keys():
-
+                    print(key)
                     if self.trait:
                         study = self._get_study_metadata(store, key)['study']
                         if study not in studies:
