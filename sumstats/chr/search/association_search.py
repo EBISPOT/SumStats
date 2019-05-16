@@ -132,9 +132,6 @@ class AssociationSearch:
             print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
-                keys = store.keys()
-                print(keys)
-
                 gen = (key for key in dir(store.root) if GWAS_CATALOG_STUDY_PREFIX in key)
                 #traits = self._get_study_metadata(store, key)['traits'].tolist()
                 #tissue = self._get_study_metadata(store, key)['tissue']
