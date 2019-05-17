@@ -66,11 +66,11 @@ class Explorer:
 
     def get_list_of_chroms(self):
         #return CHROMOSOMES
-        chromosomes = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.chr_dir)
-        for h5file in h5files:
-            service = chrom_service.ChromosomeService(h5file=h5file)
-            chromosomes.append(service.chromosome)
+        chromosomes = [str(i) for i in range(1,25)]
+        #h5files = fsutils.get_h5files_in_dir(self.search_path, self.chr_dir)
+        #for h5file in h5files:
+        #    service = chrom_service.ChromosomeService(h5file=h5file)
+        #    chromosomes.append(service.chromosome)
         return sorted(list(set(chromosomes)))
 
 

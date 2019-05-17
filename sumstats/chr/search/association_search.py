@@ -131,68 +131,61 @@ class AssociationSearch:
         for hdf in hdfs:
             print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
-                #key = self._get_group_key(store)
-                key = store.keys()[0]
-                #traits = self._get_study_metadata(store, key)['traits'].tolist()
-                #tissue = self._get_study_metadata(store, key)['tissue']
+                print('opened {}'.format(hdf))
+                gen = (key for key in dir(store.root) if GWAS_CATALOG_STUDY_PREFIX in key)
+                for key in gen:
+                    if self.trait:
+                        study = self._get_study_metadata(store, key)['study']
+                        if study not in studies:
+                            # move on to next study if this isn't the one we want
+                            continue
 
-                if self.trait:
-                    study = self._get_study_metadata(store, key)['study']
-                    if study not in studies:
-                        # move on to next study if this isn't the one we want
+                    if self.study:
+                        study = self._get_study_metadata(store, key)['study']
+                        if self.study != study:
+                            # move on to next study if this isn't the one we want
+                            continue
+
+                    if self.tissue and self.tissue != tissue:
+                        # move on to next tissue if this isn't the one we want
                         continue
 
-                if self.study:
-                    study = self._get_study_metadata(store, key)['study']
-                    if self.study != study:
-                        # move on to next study if this isn't the one we want
-                        continue
-
-                if self.tissue and self.tissue != tissue:
-                    # move on to next tissue if this isn't the one we want
-                    continue
-
-                if self.condition:
-                    print(self.condition)
-                    chunks = store.select(key, chunksize=1, start=self.start, where=self.condition) #set pvalue and other conditions
-                else:
-                    print("No condition")
-                    chunks = store.select(key, chunksize=1, start=self.start)
-
-                chunk_size = chunks.coordinates.size
-                n = chunk_size - (self.start + 1)
-
-                # update the number of available results if searching for snp and the snp doesn't match
-                #if self.snp:
-                #    for chunk in chunks:
-                #        if chunk[SNP_DSET].values != self.snp:
-                #            n -= 1
-
-                # skip this file if the start is beyond the chunksize
-                if n < 0:
-                    self.start -= chunk_size
-                    continue
-
-
-                for i, chunk in enumerate(chunks):
-                    if self.snp and chunk[SNP_DSET].values != self.snp:
-                        pass
+                    if self.condition:
+                        print(self.condition)
+                        chunks = store.select(key, chunksize=1, start=self.start, where=self.condition) #set pvalue and other conditions
                     else:
-                        #chunk[STUDY_DSET] = study
-                        #chunk[TRAIT_DSET] = str(traits) 
-                        #chunk[TISSUE_DSET] = tissue
-                        self.df = pd.concat([self.df, chunk])
+                        print("No condition")
+                        chunks = store.select(key, chunksize=1, start=self.start)
 
-                    if len(self.df.index) >= self.size: # break once we have enough
+                    chunk_size = chunks.coordinates.size
+                    n = chunk_size - (self.start + 1)
+
+
+                    # skip this file if the start is beyond the chunksize
+                    if n < 0:
+                        self.start -= chunk_size
+                        continue
+
+
+                    for i, chunk in enumerate(chunks):
+                        if self.snp and chunk[SNP_DSET].values != self.snp:
+                            pass
+                        else:
+                            #chunk[STUDY_DSET] = study
+                            #chunk[TRAIT_DSET] = str(traits) 
+                            #chunk[TISSUE_DSET] = tissue
+                            self.df = pd.concat([self.df, chunk])
+
+                        if len(self.df.index) >= self.size: # break once we have enough
+                            break
+
+                        if i == n: # Need to explicitly break loop once complete - not sure why - investigate this
+                            self.start = 0
+                            break
+
+                    if len(self.df.index) >= self.size:
+                        self.index_marker += len(self.df.index)
                         break
-
-                    if i == n: # Need to explicitly break loop once complete - not sure why - investigate this
-                        self.start = 0
-                        break
-
-                if len(self.df.index) >= self.size:
-                    self.index_marker += len(self.df.index)
-                    break
 
 
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
