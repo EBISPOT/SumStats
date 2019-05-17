@@ -132,16 +132,8 @@ class AssociationSearch:
             print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
-                #key = self._get_group_key(store)
-                keys = store.keys()
-                print(keys)
-
                 gen = (key for key in dir(store.root) if GWAS_CATALOG_STUDY_PREFIX in key)
-                #traits = self._get_study_metadata(store, key)['traits'].tolist()
-                #tissue = self._get_study_metadata(store, key)['tissue']
                 for key in gen:
-                    print(key)
-
                     if self.trait:
                         study = self._get_study_metadata(store, key)['study']
                         if study not in studies:
@@ -168,11 +160,6 @@ class AssociationSearch:
                     chunk_size = chunks.coordinates.size
                     n = chunk_size - (self.start + 1)
 
-                    # update the number of available results if searching for snp and the snp doesn't match
-                    #if self.snp:
-                    #    for chunk in chunks:
-                    #        if chunk[SNP_DSET].values != self.snp:
-                    #            n -= 1
 
                     # skip this file if the start is beyond the chunksize
                     if n < 0:
