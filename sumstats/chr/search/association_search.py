@@ -113,7 +113,7 @@ class AssociationSearch:
         elif self.chromosome and not (self.study or self.trait):
             print("bp/chr")
             #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
-            hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/test_file_chr" + str(self.chromosome) + ".h5")
+            hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/file_chr" + str(self.chromosome) + ".h5")
         else:
             print("all")
             hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_chr*.h5")
