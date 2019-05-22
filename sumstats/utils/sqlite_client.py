@@ -150,7 +150,7 @@ class sqlClient():
         self.cur.execute("COMMIT")
 
     def drop_rsid_index(self):
-        self.cur.execute("DROP INDEX rsid_idx")
+        self.cur.execute("DROP INDEX IF EXISTS rsid_idx")
 
     def create_rsid_index(self):
         self.cur.execute("CREATE INDEX rsid_idx on snp (rsid)")
