@@ -44,7 +44,7 @@ class Loader():
 
 
     def load_traits(self):
-        hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name="file_phen_meta", dir_name=self.trait_dir)
+        hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name="phen_meta", dir_name=self.trait_dir)
         dftrait = pd.read_csv(self.trait_file, sep="\t")
         self.write_traitfile_to_hdf(hdf_store, os.path.basename(self.trait_file))
 
