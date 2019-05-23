@@ -4,8 +4,8 @@ from config import properties
 
 
 def set_properties():
-    if 'SS_CONFIG' in os.environ:
-        config = os.environ['SS_CONFIG']
+    if 'EQSS_CONFIG' in os.environ:
+        config = os.environ['EQSS_CONFIG']
         if config is not None:
             set_config_properties(config)
 

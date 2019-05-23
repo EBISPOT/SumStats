@@ -1,6 +1,6 @@
 #!/bin/bash
 
-config="$SS_CONFIG"
+config="$EQSS_CONFIG"
 base=$(cd ${0%/*}/../..; pwd)
 
 output_loc=$1
