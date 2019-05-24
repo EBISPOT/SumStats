@@ -38,10 +38,10 @@ class Loader():
 
     def load_bystudy(self):
         print(self.tsv)
-        identifier = self.study + "_" + self.qtl_group
-        group = "/{study}".format(study=self.study.replace('-','_'))
+        identifier = self.study + "-" + self.qtl_group
+        #group = "/{study}".format(study=self.study.replace('-','_'))
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=identifier, dir_name=self.study_dir + "/" + self.chromosome)
-        self.write_csv_to_hdf(hdf_store, group)
+        self.write_csv_to_hdf(hdf_store, identifier)
 
 
     def load_traits(self):
@@ -54,7 +54,7 @@ class Loader():
         """Read in the trait file"""
         dftrait = pd.read_csv(self.trait_file, sep="\t")
         #mapping = {'X': 23, 'x': 23, 'Y': 24, 'y': 24}
-        dftrait[CHR_DSET].replace({'X': 23, 'x': 23, 'Y': 24, 'y': 24}, inplace=True)
+        dftrait[CHR_DSET].replace({'X': 23, 'x': 23, 'Y': 24, 'y': 24, 'MT': 25}, inplace=True)
         dftrait[CHR_DSET] = dftrait[CHR_DSET].astype(int)
 
         #dftrait = pd.to_numeric(dftrait[CHR_DSET], errors='coerce')
