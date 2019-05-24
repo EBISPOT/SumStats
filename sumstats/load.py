@@ -55,6 +55,7 @@ class Loader():
         dftrait = pd.read_csv(self.trait_file, sep="\t")
         #mapping = {'X': 23, 'x': 23, 'Y': 24, 'y': 24}
         dftrait[CHR_DSET].replace({'X': 23, 'x': 23, 'Y': 24, 'y': 24, 'MT': 25}, inplace=True)
+        dftrait = dftrait[pd.to_numeric(dftrait[CHR_DSET], errors='coerce').notnull()]
         dftrait[CHR_DSET] = dftrait[CHR_DSET].astype(int)
 
         #dftrait = pd.to_numeric(dftrait[CHR_DSET], errors='coerce')
