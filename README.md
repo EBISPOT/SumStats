@@ -1,3 +1,4 @@
+
 # SumStats
 
 [![Build Status](https://travis-ci.org/EBISPOT/SumStats.svg?branch=master)](https://travis-ci.org/EBISPOT/SumStats)
@@ -27,17 +28,20 @@ Docker documentation: https://docs.docker.com
   - [OPTIONAL] set the environmental variable as: `export SS_CONFIG=<path to json config>` if you want to pass in a different configuration than the default one
   - `python /scripts/preparation/load.py -f <file to be loaded> -study <study accession> -trait <efo trait>`
 
-You can run all the commands described in the secion below on the docker container that you have just launched.
+You can run all the commands described in the section below on the docker container that you have just launched.
  
 Files produced by the sumstats package (.h5 files) should be generated in the files/output volume
 
 
-# Installation - using pip install
+# Installation - using conda and pip
 
 - Clone the repository
   - `git clone https://github.com/EBISPOT/SumStats.git`
   - `cd SumStats`
-- Install the sumstats package -  this will install h5py, numpy, flask, gunicorn - and sumstats
+- Create conda environment (installs HDF5 lib and other dependencies)
+	- `conda env create -f sumstats.yml`
+	- `conda  activate  sumstats`
+- pip install the sumstats package -  this will install pytables, numpy, flask, gunicorn - and sumstats
   - `pip install .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
   - `python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>`
@@ -71,13 +75,13 @@ The properties that are being set are:
 
 *NOTE*: `local_h5files_path - h5files_path` and `local_tsvfiles_path - tsvfiles_path` can point the same directories with the same paths (respectively).
 But you can use the `local_` variables to refer to the actual locations where these directories will reside,
-and the variables missing the `local_` prefix when referring to the locations that will be used by gwas-loarer, gwas-search, etc.
+and the variables missing the `local_` prefix when referring to the locations that will be used by gwas-loader, gwas-search, etc.
 that might be running from a docker container and possibly have different paths and/or directory names on the container.
 
 For example, you might want to store the files locally on your maching under ./files/toload but then mount that same directory on docker under /toload
 
 In this case you will set `local_tsvfiles_path=./files/toload` and this will be used by the setup_configuration.py script to process and
-split up your summary statistics file, but you will set `tsvfiles_path=/toload` and this will be used when you are loadin, searching etc
+split up your summary statistics file, but you will set `tsvfiles_path=/toload` and this will be used when you are loading, searching etc
 data when the loading/searching/etc commands are run from docker.
 
 
