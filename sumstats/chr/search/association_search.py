@@ -159,11 +159,13 @@ class AssociationSearch:
 
                     chunk_size = chunks.coordinates.size
                     n = chunk_size - (self.start + 1)
+                    print('chunksize: {}'.format(chunk_size))
 
 
                     # skip this file if the start is beyond the chunksize
                     if n < 0:
                         self.start -= chunk_size
+                        print('skipping file')
                         continue
 
 
@@ -184,6 +186,7 @@ class AssociationSearch:
                             break
 
                     if len(self.df.index) >= self.size:
+                        print('df size: {}, size: {}'.format(self.df.index, self.size))
                         self.index_marker += len(self.df.index)
                         break
 
