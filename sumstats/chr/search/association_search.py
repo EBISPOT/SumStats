@@ -185,7 +185,10 @@ class AssociationSearch:
 
                     if len(self.df.index) >= self.size:
                         self.index_marker += len(self.df.index)
+                        inner_loop_broken = True
                         break
+                if inner_loop_broken:
+                    break
 
 
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
