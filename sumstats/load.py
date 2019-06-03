@@ -15,11 +15,12 @@ import sumstats.utils.sqlite_client as sq
 class Loader():
     def __init__(self, tsv=None, csv_out=None, var_file=None, qtl_group=None, 
                  study_dir=None, study=None, trait=None, hdf_path=None,
-                 chromosome=None, expr_file=None, sqldb=None, loader=None, trait_dir=None):
+                 chromosome=None, expr_file=None, sqldb=None, loader=None, trait_dir=None, tissue=None):
         self.tsv = tsv
         self.csv_out = csv_out
         self.var_file = var_file
         self.qtl_group = qtl_group
+        self.tissue = tissue
         self.study = study
         self.trait_file = trait
         self.chromosome = chromosome
@@ -153,6 +154,16 @@ class Loader():
         df[field].where(mask, 'NA', inplace=True)
 
 
+    def load_study_info(self):
+        sql = sq.sqlClient(self.sqldb)
+        identifier = self.study + "-" + self.qtl_group
+        print(self.trait_file)
+        trait_file_id = os.path.basename(self.trait_file)
+        data = [self.study, identifier, self.qtl_group, self.tissue, trait_file_id]
+        sql.cur.execute("insert or ignore into study_info values (?,?,?,?,?)", data)
+        sql.cur.execute('COMMIT')
+
+
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-f', help='The path to the summary statistics file to be processed', required=False)
@@ -162,6 +173,7 @@ def main():
     argparser.add_argument('-expr', help='The path to the gene expression file', required=False)
     argparser.add_argument('-study', help='The study identifier', required=False)
     argparser.add_argument('-qtl_group', help='The qtl group e.g. "LCL"', required=False)
+    argparser.add_argument('-tissue', help='The tissue ontology term', required=False)
     argparser.add_argument('-chr', help='The chromosome the data belongs to', required=False)
     argparser.add_argument('-loader', help='The loader', choices=['study', 'trait', 'study_info'], default=None, required=True)
 
@@ -181,6 +193,7 @@ def main():
     phen_file = args.phen
     study = args.study
     qtl_group = args.qtl_group
+    tissue = args.tissue
     expr_file = args.expr
     loader_type = args.loader
     chromosome = args.chr
@@ -196,7 +209,7 @@ def main():
             loader = Loader(trait=phen_file, hdf_path=h5files_path, loader=loader_type, trait_dir=trait_dir)
             loader.load_traits()
     elif loader_type == "study_info":
-            loader = Loader(tsv=ss_file, qtl_group=qtl_group, study=study, sqldb=database, loader=loader_type)
+            loader = Loader(qtl_group=qtl_group, study=study, sqldb=database, trait=phen_file, loader=loader_type, tissue=tissue)
         #loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
             loader.load_study_info()
     else:

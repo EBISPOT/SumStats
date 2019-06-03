@@ -23,76 +23,35 @@ class Explorer:
         self.sqlite_db = self.properties.sqlite_path
 
 
-
     def get_list_of_studies(self):
-        studies = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            studies.append(service.study)
-            service.close_file()
+        sq = sql_client.sqlClient(self.sqlite_db)
+        studies = sq.get_studies()
         return sorted(list(set(studies)))
 
 
-    def get_list_of_tissues(self):
-        tissues = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            tissues.append(service.tissue)
-            service.close_file()
-        return sorted(list(set(tissues)))
+    def get_list_of_traits(self): 
+        sq = sql_client.sqlClient(self.sqlite_db)
+        traits = sq.get_traits()
+        return traits
 
 
-    def get_list_of_traits(self): # method will change for GWAS Cat style data
-        traits = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
-        for h5file in h5files:
-            service = trait_service.TraitService(h5file=h5file)
-            traits.extend(service.list_traits())
-            service.close_file()
-        return sorted(list(set(traits)))
-
-
-    def get_list_of_studies_for_trait(self, trait): # method will change for GWAS Cat style data
-        studies = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            found_studies = service.list_studies_for_trait(trait)
-            if found_studies:
-                studies.extend([found_studies])
-            service.close_file()
-        return sorted(list(set(studies)))
+    def get_list_of_studies_for_trait(self, trait): 
+        sq = sql_client.sqlClient(self.sqlite_db)
+        studies = sq.get_studies_for_trait(trait)
+        if studies:
+            return sorted(list(set(studies)))
+        else:
+            raise NotFoundError("Trait " + trait)
 
 
     def get_trait_of_study(self, study_to_find):
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        traits = []
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            traits.extend(service.list_traits_for_study(study_to_find))
-            service.close_file()
+        sq = sql_client.sqlClient(self.sqlite_db)
+        traits = sq.get_traits_for_study(study_to_find)
         if traits:
             return sorted(list(set(traits)))
         else:
             # study not found
             raise NotFoundError("Study " + study_to_find)
-
-
-    def get_studies_of_tissue(self, tissue_to_find):
-        try:
-            studies = []
-            h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-            for h5file in h5files:
-                service = study_service.StudyService(h5file=h5file)
-                if service.tissue == tissue_to_find:
-                    studies.append(service.study)
-                service.close_file()
-            return sorted(list(set(studies)))
-        except NotFoundError:
-            # tissue not found
-            raise NotFoundError("Tissue " + tissue_to_find)
 
 
     def has_trait(self, trait):
@@ -104,12 +63,11 @@ class Explorer:
 
     def get_list_of_chroms(self):
         #return CHROMOSOMES
-        chromosomes = []
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        for h5file in h5files:
-            service = study_service.StudyService(h5file=h5file)
-            chromosomes.extend(service.chromosomes)
-            service.close_file()
+        chromosomes = [str(i) for i in range(1,25)]
+        #h5files = fsutils.get_h5files_in_dir(self.search_path, self.chr_dir)
+        #for h5file in h5files:
+        #    service = chrom_service.ChromosomeService(h5file=h5file)
+        #    chromosomes.append(service.chromosome)
         return sorted(list(set(chromosomes)))
 
 
@@ -127,6 +85,20 @@ class Explorer:
             print('checked')
             return True
         raise NotFoundError("Chromosome " + str(chromosome))
+
+
+def get_study_attr(h5file):
+    service = study_service.StudyService(h5file=h5file)
+    study = service.study
+    service.close_file()
+    return study
+
+
+def get_trait_attr(h5file):
+    service = study_service.StudyService(h5file=h5file)
+    traits = service.traits
+    service.close_file()
+    return traits
 
 
 def main():

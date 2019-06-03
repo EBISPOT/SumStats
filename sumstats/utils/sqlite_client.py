@@ -67,7 +67,7 @@ class sqlClient():
 
     def get_studies(self):
         data = []
-        for row in self.cur.execute("SELECT study FROM study"):
+        for row in self.cur.execute("SELECT study FROM study_info"):
             data.append(row[0])
         if data:
             return data
@@ -76,7 +76,7 @@ class sqlClient():
 
     def get_traits(self):
         data = []
-        for row in self.cur.execute("SELECT trait FROM trait"):
+        for row in self.cur.execute("SELECT trait FROM study_info"):
             data.append(row[0])
         if data:
             return data
@@ -85,16 +85,34 @@ class sqlClient():
 
     def get_studies_for_trait(self, trait):
         data = []
-        for row in self.cur.execute("select study from study join uuid on study.rowid = uuid.study_id join trait on uuid.trait_id = trait.rowid where trait.trait =?", (trait,)):
+        for row in self.cur.execute("select study from study_info where trait =?", (trait,)):
             data.append(row[0])
         if data:
             return data
         else:
             return False
 
-    def get_trait_of_study(self, study):
+    def get_traits_for_study(self, study):
         data = []
-        for row in self.cur.execute("select trait from trait join uuid on trait.rowid = uuid.trait_id join study on uuid.study_id = study.rowid where study.study =?", (study,)):
+        for row in self.cur.execute("select trait from study_info where study =?", (study,)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
+    def get_file_id_for_study(self, study):
+        data = []
+        for row in self.cur.execute("select identifier from study_info where study =?", (study,)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
+    def get_file_id_for_trait(self, trait):
+        data = []
+        for row in self.cur.execute("select file_id from study join study_info on study.study = study_info.study where trait =?", (trait,)):
             data.append(row[0])
         if data:
             return data
