@@ -278,7 +278,7 @@ def _create_resource_response(data_dict, params):
 def _create_next_links(method_name, start, size, index_marker, size_retrieved, params=None):
     params = params or {}
     prev = max(0, start - size)
-    start_new = start + index_marker
+    start_new = index_marker
 
     response = OrderedDict([('self', _create_href(method_name=method_name, params=params))])
     params['start'] = 0
