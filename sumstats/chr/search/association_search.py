@@ -184,7 +184,6 @@ class AssociationSearch:
                             break
 
                     if len(self.df.index) >= self.size:
-                        self.index_marker += len(self.df.index)
                         inner_loop_broken = True
                         break
                 if inner_loop_broken:
@@ -192,10 +191,12 @@ class AssociationSearch:
 
 
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
+        print(self.index_marker)
+        print(self.starting_point)
+        print(len(self.df.index))
         self.index_marker = self.starting_point + len(self.df.index)
+        print(self.index_marker)
         return self.datasets, self.index_marker
-
-
         
 
     def _construct_conditional_statement(self):
