@@ -193,7 +193,6 @@ class AssociationSearch:
 
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
         self.index_marker = self.starting_point + len(self.df.index)
-        print(self.datasets)
         return self.datasets, self.index_marker
         
 
