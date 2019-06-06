@@ -129,6 +129,7 @@ class AssociationSearch:
 
         print(hdfs)
         for hdf in hdfs:
+            inner_loop_broken = False
             print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
