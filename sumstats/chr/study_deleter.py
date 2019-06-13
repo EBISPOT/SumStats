@@ -1,18 +1,18 @@
 """
-    Data is stored in the hierarchy of /CHR/BLOCK/Study/DATA
+    Data is stored in the hierarchy of /CHR/Study/DATA
     Deleter removes the Study group and therefore all the
     datasets within the study group.
 
 """
 import os
 from os.path import join
-from glob import glob
+import glob
+import pandas as pd
 
 from collections import defaultdict
 from sumstats.common_constants import *
 from sumstats.errors.error_classes import *
 import sumstats.utils.properties_handler as properties_handler
-import sumstats.utils.group as gu
 import logging
 from sumstats.utils import register_logger
 
@@ -27,44 +27,17 @@ class Deleter:
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
         self.chr_dir = self.properties.chr_dir
-
         assert study is not None, "You must specify a study to delete a study!"
 
     def delete_study(self):
-        hf_study = self._find_h5file_study_group()
-        if hf_study is not None:
-            for h5file, study_group_list in hf_study.items():
-                with h5py.File(h5file, 'r+') as hf:
-                    for sg in study_group_list:
-                        logger.info("Deleting {f}/{s}".format(f=h5file, s=sg))
-                        del hf[sg]
+        hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_chr*.h5")
+        for hdf in hdfs:
+            with pd.HDFStore(hdf, mode='a') as store:
+                self.delete_study_group_from_store(store)
 
-
-    def _find_h5file_study_group(self):
-        """
-        Traverse all the hdf5 file and find any with the study group of interest
-        :return: dict of {h5file: studygroup path}
-        """
-        hf_study_dict = defaultdict(list)
-        snp_path = join(self.search_path, self.chr_dir)
-        h5files = [y for x in os.walk(snp_path) for y in glob(os.path.join(x[0], '*.h5'))]
-
-        for h5file in h5files:
-            hf_study_dict.update(self._get_dict_of_h5_to_study_groups(h5file, hf_study_dict))
-        if any(hf_study_dict):
-            return hf_study_dict
+    def delete_study_group_from_store(self, store):
+        group = "/" + self.study
+        if group in store.keys():
+            store.remove('{}'.format(group))
         else:
-            logger.debug("Study %s not found in any variant!", self.study)
-            raise NotFoundError("Study " + self.study)
-
-    def _get_dict_of_h5_to_study_groups(self, h5file, hf_study_dict):
-        file = h5py.File(h5file, 'r')
-        file_group = gu.Group(file)
-        chr_groups = file_group.get_all_subgroups()
-        block_groups = gu.generate_subgroups_from_generator_of_subgroups(chr_groups)
-        study_groups = gu.generate_subgroups_from_generator_of_subgroups(block_groups)
-        for study_group in study_groups:
-            if self.study == study_group.get_name().split("/")[-1]:
-                hf_study_dict[h5file].append(study_group.get_name())
-        file.close()
-        return hf_study_dict
+            logger.debug("Study {} not found in {}!".format(self.study, store))

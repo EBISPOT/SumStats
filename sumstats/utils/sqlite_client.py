@@ -144,6 +144,14 @@ class sqlClient():
             return False
 
 
+    """ DELETE STATEMENTS """
+
+    def delete_study(self, study):
+        self.cur.execute("DELETE FROM study_trait WHERE study =?", (study,))
+        self.cur.execute("DELETE FROM study WHERE study =?", (study,))
+        self.commit()
+
+
     """ OTHER STATEMENTS """
 
     def commit(self):
