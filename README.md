@@ -32,12 +32,15 @@ You can run all the commands described in the secion below on the docker contain
 Files produced by the sumstats package (.h5 files) should be generated in the files/output volume
 
 
-# Installation - using pip install
+# Installation - using conda and pip
 
 - Clone the repository
   - `git clone https://github.com/EBISPOT/SumStats.git`
   - `cd SumStats`
-- Install the sumstats package -  this will install h5py, numpy, flask, gunicorn - and sumstats
+- Create conda environment (installs HDF5 lib and other dependencies)
+	- `conda env create -f sumstats.yml`
+	- `conda  activate  sumstats`
+- pip install the sumstats package -  this will install pytables, numpy, flask, gunicorn - and sumstats
   - `pip install .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
   - `python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>`
