@@ -36,8 +36,11 @@ def main():
     deleter = Deleter(study, properties)  # pragma: no cover
 
     if study is not None:
+        print("Removing {} group from chromosome files".format(study))
         deleter.delete_chr_study_group()
+        print("Removing {} study files".format(study))
         deleter.delete_study_files()
+        print("Removing {} metadata".format(study))
         deleter.delete_study_metadata()
 
 

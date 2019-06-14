@@ -30,6 +30,7 @@ class Deleter:
         hdfs = self.get_hdfs_for_study()
         if hdfs:
             for hdf in hdfs:
+                print("Deleting file: {}".format(hdf))
                 logger.info("Deleting file: {}".format(hdf))
                 os.remove(hdf)
 

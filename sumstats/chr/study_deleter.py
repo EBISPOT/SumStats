@@ -32,6 +32,7 @@ class Deleter:
     def delete_study(self):
         hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_chr*.h5")
         for hdf in hdfs:
+            print("Removing {} group from {}".format(self.study, hdf))
             with pd.HDFStore(hdf, mode='a') as store:
                 self.delete_study_group_from_store(store)
 
