@@ -1,5 +1,3 @@
-import h5py
-
 SNP_DSET = 'variant'
 MANTISSA_DSET = 'mantissa'
 EXP_DSET = 'exponent'
@@ -33,10 +31,9 @@ HM_VAR_ID = 'hm_variant_id'
 HM_CODE = 'hm_code'
 
 
-vlen_dtype = h5py.special_dtype(vlen=str)
-DSET_TYPES = {SNP_DSET: vlen_dtype, RSID_DSET: vlen_dtype, MUTATION_DSET: vlen_dtype, AC_DSET: int, AN_DSET: int, PVAL_DSET: vlen_dtype, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: vlen_dtype,
+DSET_TYPES = {SNP_DSET: str, RSID_DSET: str, MUTATION_DSET: str, AC_DSET: int, AN_DSET: int, PVAL_DSET: str, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: str,
               CHR_DSET: int, BP_DSET: int, R2_DSET: float, BETA_DSET: float, SE_DSET: float,
-              EFFECT_DSET: vlen_dtype, OTHER_DSET: vlen_dtype, FREQ_DSET: float, EXPR_DSET: float, TISSUE_DSET: vlen_dtype}
+              EFFECT_DSET: str, OTHER_DSET: str, FREQ_DSET: float, EXPR_DSET: float, TISSUE_DSET: str}
               
 
 REFERENCE_DSET = SNP_DSET

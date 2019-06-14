@@ -29,9 +29,11 @@ class Explorer:
         return sorted(list(set(studies)))
 
 
-    def get_list_of_traits(self): 
-        sq = sql_client.sqlClient(self.sqlite_db)
-        traits = sq.get_traits()
+    def get_list_of_traits(self):
+        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
+        for h5file in h5files:
+            service = trait_service.StudyService(h5file=h5file)
+            traits = service.list_traits()
         return traits
 
 
