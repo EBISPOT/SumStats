@@ -30,12 +30,12 @@ class Loader():
         self.expr_file = expr_file
         self.max_string = 255
  
+        self.filename = None
         if self.tsv:
             self.filename = os.path.splitext(os.path.basename(self.tsv))[0]
         self.traits = trait
 
         self.sqldb = sqldb
-
 
     def load_bystudy(self):
         print(self.tsv)
@@ -159,8 +159,8 @@ class Loader():
         identifier = self.study + "-" + self.qtl_group
         print(self.trait_file)
         trait_file_id = os.path.basename(self.trait_file)
-        data = [self.study, identifier, self.qtl_group, self.tissue, trait_file_id]
-        sql.cur.execute("insert or ignore into study_info values (?,?,?,?,?)", data)
+        data = [self.study, identifier, self.qtl_group, self.tissue, trait_file_id, self.filename]
+        sql.cur.execute("insert or ignore into study_info values (?,?,?,?,?,?)", data)
         sql.cur.execute('COMMIT')
 
 

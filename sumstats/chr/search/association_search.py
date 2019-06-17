@@ -133,6 +133,8 @@ class AssociationSearch:
             with pd.HDFStore(hdf, mode='r') as store:
                 #key = self._get_group_key(store)
                 key = store.keys()[0]
+                study = self._get_study_metadata(store, key)['study']
+
                 #traits = self._get_study_metadata(store, key)['traits'].tolist()
                 #tissue = self._get_study_metadata(store, key)['tissue']
 
@@ -178,7 +180,7 @@ class AssociationSearch:
                     if self.snp and chunk[SNP_DSET].values != self.snp:
                         pass
                     else:
-                        #chunk[STUDY_DSET] = study
+                        chunk[STUDY_DSET] = study
                         #chunk[TRAIT_DSET] = str(traits) 
                         #chunk[TISSUE_DSET] = tissue
                         self.df = pd.concat([self.df, chunk])
