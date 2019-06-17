@@ -112,11 +112,10 @@ class AssociationSearch:
                 hdfs = list(itertools.chain.from_iterable(hdfs))
         elif self.chromosome and not (self.study or self.trait):
             print("bp/chr")
-            #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
             hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
         else:
             print("all")
-            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*.h5")
+            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*.h5") 
 
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
@@ -131,13 +130,11 @@ class AssociationSearch:
         for hdf in hdfs:
             print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
-                #key = self._get_group_key(store)
+                print('opened {}'.format(hdf))
                 key = store.keys()[0]
+                print(key)
                 study = self._get_study_metadata(store, key)['study']
-
-                #traits = self._get_study_metadata(store, key)['traits'].tolist()
-                #tissue = self._get_study_metadata(store, key)['tissue']
-
+                
                 if self.trait:
                     study = self._get_study_metadata(store, key)['study']
                     if study not in studies:
@@ -164,17 +161,10 @@ class AssociationSearch:
                 chunk_size = chunks.coordinates.size
                 n = chunk_size - (self.start + 1)
 
-                # update the number of available results if searching for snp and the snp doesn't match
-                #if self.snp:
-                #    for chunk in chunks:
-                #        if chunk[SNP_DSET].values != self.snp:
-                #            n -= 1
-
                 # skip this file if the start is beyond the chunksize
                 if n < 0:
                     self.start -= chunk_size
                     continue
-
 
                 for i, chunk in enumerate(chunks):
                     if self.snp and chunk[SNP_DSET].values != self.snp:
@@ -193,15 +183,12 @@ class AssociationSearch:
                         break
 
                 if len(self.df.index) >= self.size:
-                    self.index_marker += len(self.df.index)
                     break
 
 
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
         self.index_marker = self.starting_point + len(self.df.index)
         return self.datasets, self.index_marker
-
-
         
 
     def _construct_conditional_statement(self):
