@@ -5,6 +5,7 @@ import itertools
 import os
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
+import sumstats.trait.search.access.trait_service as ts
 from sumstats.chr.constants import *
 import logging
 from sumstats.utils import register_logger
@@ -58,6 +59,18 @@ class AssociationSearch:
         elif self._snp_format() is 'chr_bp':
             pass
 
+
+    def chrom_for_trait(self):
+        trait_service = ts.TraitService()
+        chroms = trait_service.chrom_from_trait(self.trait)
+        if len(chroms) == 1:
+            self.chromosome = chroms[0]
+        elif len(chroms) > 1:
+            print("more than one chrom for this trait?") # need to handle this error
+        else:
+            print("No chrom for this trait?") # need to handle this error
+
+
     def map_snp_to_location(self):
         try:
             snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
@@ -94,13 +107,11 @@ class AssociationSearch:
 
         # Narrow down hdf pool
 
-        if self.study or self.trait:
+        if self.study:
             sql = sq.sqlClient(self.database)
             file_ids = []
             if self.study:
                 file_ids.extend(sql.get_file_id_for_study(self.study))
-            elif self.trait:
-                file_ids.extend(sql.get_file_id_for_trait(self.trait))
             print("study/trait")
             if self.chromosome:
                 print("chr")
@@ -110,6 +121,11 @@ class AssociationSearch:
                 print("nochr")
                 hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids]
                 hdfs = list(itertools.chain.from_iterable(hdfs))
+
+        if self.trait:
+            self.chrom_for_trait()
+            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
+
         elif self.chromosome and not (self.study or self.trait):
             print("bp/chr")
             hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
@@ -195,14 +211,8 @@ class AssociationSearch:
         conditions = []
         statement = None
 
-        if self.pval_interval:
-            if self.pval_interval.lower_limit:
-                conditions.append("{pval} >= {lower}".format(pval = PVAL_DSET, lower = str(self.pval_interval.lower_limit)))
-            if self.pval_interval.upper_limit:
-                conditions.append("{pval} <= {upper}".format(pval = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
-
-        #if self.trait:
-        #    conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
+        if self.trait:
+            conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
 
         if self.bp_interval:
             if self.bp_interval.lower_limit:
@@ -217,6 +227,12 @@ class AssociationSearch:
             if self.bp_interval:
                 conditions.append("{bp} <= {upper}".format(bp = BP_DSET, upper = self.bp_interval.upper_limit))
             #conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
+
+        if self.pval_interval:
+            if self.pval_interval.lower_limit:
+                conditions.append("{pval} >= {lower}".format(pval = PVAL_DSET, lower = str(self.pval_interval.lower_limit)))
+            if self.pval_interval.upper_limit:
+                conditions.append("{pval} <= {upper}".format(pval = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
 
 
         #if self.study:

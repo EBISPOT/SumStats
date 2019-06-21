@@ -34,10 +34,10 @@ class TraitService:
         # Open the file with read permissions
         self.file = pd.HDFStore(h5file, 'r')
         self.datasets = {}
-        self.groups = []
-        for (path, subgroups, subkeys) in self.file.walk():
-            for subkey in subkeys:
-                self.groups.append('/'.join([path, subkey]))
+        self.groups = self.file.keys()
+        #for (path, subgroups, subkeys) in self.file.walk():
+        #    for subkey in subkeys:
+        #        self.groups.append('/'.join([path, subkey]))
         #self.groups = ['/'.join([path, subkey]) for subkey in subkeys for (path, subgroups, subkeys) in self.file.walk()]
 
 
@@ -54,6 +54,14 @@ class TraitService:
         if trait in list_of_traits:
             return True
         return False
+
+    def chrom_from_trait(self, trait):
+        condition = "phenotype_id == {}".format(trait)
+        chroms_found = []
+        for group in self.groups:
+             chroms_found.extend(get_data(hdf=self.file, key=group, where=condition, fields=['chromosome'])['chromosome'].drop_duplicates().values.tolist())
+
+
 
 #    def query(self, trait, start, size):
 #        logger.debug("Starting query for trait %s, start %s, size %s", trait, str(start), str(size))

@@ -83,6 +83,15 @@ class sqlClient():
         else:
             return False
 
+    def get_tissues(self):
+        data = []
+        for row in self.cur.execute("SELECT tissue FROM study_info"):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
     def get_studies_for_trait(self, trait):
         data = []
         for row in self.cur.execute("select study from study_info where trait =?", (trait,)):
@@ -116,6 +125,14 @@ class sqlClient():
             data.append(row[0])
         if data:
             return data
+        else:
+            return False
+
+    def get_chrom_for_trait(self, trait):
+        self.cur.execute("SELECT chromosome FROM study_info where phenotype_id =?", (trait,))
+        data = self.cur.fetchone()
+        if data is not None:
+            return data[0]
         else:
             return False
 

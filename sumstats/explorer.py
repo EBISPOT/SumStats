@@ -21,6 +21,7 @@ class Explorer:
         self.study_dir = self.properties.study_dir
         self.trait_dir = self.properties.trait_dir
         self.sqlite_db = self.properties.sqlite_path
+        self.trait_file = "phen_meta"
 
 
     def get_list_of_studies(self):
@@ -30,10 +31,9 @@ class Explorer:
 
 
     def get_list_of_traits(self):
-        h5files = fsutils.get_h5files_in_dir(self.search_path, self.trait_dir)
-        for h5file in h5files:
-            service = trait_service.StudyService(h5file=h5file)
-            traits = service.list_traits()
+        h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, self.trait_file)
+        service = trait_service.TraitService(h5file=h5file)
+        traits = service.list_traits()
         return traits
 
 
@@ -44,6 +44,11 @@ class Explorer:
             return sorted(list(set(studies)))
         else:
             raise NotFoundError("Trait " + trait)
+
+    def get_list_of_tissues(self):
+        sq = sql_client.sqlClient(self.sqlite_db)
+        studies = sq.get_tissues()
+        return sorted(list(set(studies)))
 
 
     def get_trait_of_study(self, study_to_find):
