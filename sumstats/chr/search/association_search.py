@@ -37,8 +37,11 @@ class AssociationSearch:
         self.search_path = properties_handler.get_search_path(self.properties)
         self.study_dir = self.properties.study_dir
         self.chr_dir = self.properties.chr_dir
+        self.trait_dir = self.properties.trait_dir
         self.database = self.properties.sqlite_path
         self.snp_map = fsutils.create_h5file_path(self.search_path, self.properties.snp_dir, "snp_map")
+        self.trait_file = "phen_meta"
+        
 
         self.datasets = None #utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
@@ -61,7 +64,8 @@ class AssociationSearch:
 
 
     def chrom_for_trait(self):
-        trait_service = ts.TraitService()
+        h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, self.trait_file)
+        trait_service = ts.TraitService(h5file)
         chroms = trait_service.chrom_from_trait(self.trait)
         if len(chroms) == 1:
             self.chromosome = chroms[0]
@@ -136,10 +140,10 @@ class AssociationSearch:
         ## This iterates through files one chunksize at a time.
         ## The index tells it which chunk to take from each file.
     
-        studies = []
-        if self.trait:
-            sql = sq.sqlClient(self.database)
-            studies.extend(sql.get_studies_for_trait(self.trait))
+        #studies = []
+        #if self.trait:
+        #    sql = sq.sqlClient(self.database)
+        #    studies.extend(sql.get_studies_for_trait(self.trait))
 
 
         print(hdfs)
@@ -151,11 +155,11 @@ class AssociationSearch:
                 print(key)
                 study = self._get_study_metadata(store, key)['study']
                 
-                if self.trait:
-                    study = self._get_study_metadata(store, key)['study']
-                    if study not in studies:
-                        # move on to next study if this isn't the one we want
-                        continue
+                #if self.trait:
+                #    study = self._get_study_metadata(store, key)['study']
+                #    if study not in studies:
+                #        # move on to next study if this isn't the one we want
+                #        continue
 
                 if self.study:
                     study = self._get_study_metadata(store, key)['study']
