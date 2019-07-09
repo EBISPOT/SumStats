@@ -200,12 +200,6 @@ class AssociationSearch:
         conditions = []
         statement = None
 
-        if self.pval_interval:
-            if self.pval_interval.lower_limit:
-                conditions.append("{pval} >= {lower}".format(pval = PVAL_DSET, lower = str(self.pval_interval.lower_limit)))
-            if self.pval_interval.upper_limit:
-                conditions.append("{pval} <= {upper}".format(pval = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
-
         #if self.trait:
         #    conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
 
@@ -222,6 +216,12 @@ class AssociationSearch:
             if self.bp_interval:
                 conditions.append("{bp} <= {upper}".format(bp = BP_DSET, upper = self.bp_interval.upper_limit))
             #conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
+
+        if self.pval_interval:
+            if self.pval_interval.lower_limit:
+                conditions.append("{pval} >= {lower}".format(pval = PVAL_DSET, lower = str(self.pval_interval.lower_limit)))
+            if self.pval_interval.upper_limit:
+                conditions.append("{pval} <= {upper}".format(pval = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
 
 
         #if self.study:
