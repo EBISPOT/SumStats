@@ -48,6 +48,11 @@ class TraitService:
             traits.extend(get_data(hdf=self.file, key=group, fields=['phenotype_id'])['phenotype_id'].drop_duplicates().values.tolist())
         return traits
 
+    def list_genes(self):
+        genes = []
+        for group in self.groups:
+            genes.extend(get_data(hdf=self.file, key=group, fields=['gene_id'])['gene_id'].drop_duplicates().values.tolist())
+        return genes
 
     def has_trait(self, trait):
         list_of_traits = self.list_traits()

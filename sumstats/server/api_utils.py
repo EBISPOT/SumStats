@@ -83,11 +83,6 @@ def _create_info_for_study(study, trait=None):
     return study_info
 
 
-def _get_metadata_for_study():
-    pass
-
-
-
 def _get_trait_list(traits, start, size):
     trait_list = []
     end = min(start + size, len(traits))
@@ -97,13 +92,28 @@ def _get_trait_list(traits, start, size):
     return trait_list
 
 
+def _get_gene_list(genes, start, size):
+    gene_list = []
+    end = min(start + size, len(genes))
+    for gene in genes[start:end]:
+        gene_info = _create_info_for_gene(gene)
+        gene_list.append(gene_info)
+    return gene_list
+
+
 def _create_info_for_trait(trait):
     trait_info = {'trait': trait,
                   '_links': {'self': _create_href(method_name='api.get_trait', params={'trait': trait})}}
-    trait_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
+    #trait_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
     trait_info['_links']['associations'] = _create_href(method_name='api.get_trait_assocs', params={'trait': trait})
     return trait_info
 
+def _create_info_for_gene(gene):
+    gene_info = {'gene': gene,
+                  '_links': {'self': _create_href(method_name='api.get_gene', params={'gene': gene})}}
+    #gene_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_gene', params={'gene': gene})
+    gene_info['_links']['associations'] = _create_href(method_name='api.get_gene_assocs', params={'gene': gene})
+    return gene_info
 
 def _add_ontology_href(info_array, trait):
     info_array['ols'] = {'href': str(properties.ols_terms_location + trait)}

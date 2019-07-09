@@ -7,6 +7,7 @@ def search_argument_parser():
     parser.add_argument('-path', help='The location of the h5files')
     parser.add_argument('-h5file', help='The name of the HDF5 file')
     parser.add_argument('-trait', help='The trait I am looking for')
+    parser.add_argument('-gene', help='The gene I am looking for')
     parser.add_argument('-study', help='The study I am looking for')
     parser.add_argument('-snp', help='Filter by SNP')
     parser.add_argument('-chr', help='Filter by chromosome')
@@ -24,6 +25,7 @@ def convert_search_args(args):
     :return: the converted arguments in their correct form
     """
     trait = args.trait
+    gene = args.gene
     study = args.study
     snp = args.snp
     tissue = args.tissue
@@ -38,7 +40,7 @@ def convert_search_args(args):
     bp_interval = args.bp
     bp_interval = IntInterval().set_string_tuple(bp_interval)
 
-    return trait, study, chromosome, bp_interval, snp, pval_interval, tissue
+    return trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue
 
 
 def load_argument_parser():

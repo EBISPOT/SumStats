@@ -439,11 +439,11 @@ def genes():
         logging.error("/traits. " + (str(error)))
         raise BadUserRequest(str(error))
     explorer = ex.Explorer(apiu.properties)
-    traits = explorer.get_list_of_traits()
-    trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
+    genes = explorer.get_list_of_genes()
+    gene_list = apiu._get_gene_list(genes=genes, start=start, size=size)
 
-    response = apiu._create_response(collection_name='trait', method_name='api.get_traits',
-                                     start=start, size=size, index_marker=size, data_dict=trait_list)
+    response = apiu._create_response(collection_name='gene', method_name='api.get_genes',
+                                     start=start, size=size, index_marker=size, data_dict=gene_list)
 
     return simplejson.dumps(response)
 

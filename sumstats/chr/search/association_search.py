@@ -41,6 +41,7 @@ class AssociationSearch:
         self.database = self.properties.sqlite_path
         self.snp_map = fsutils.create_h5file_path(self.search_path, self.properties.snp_dir, "snp_map")
         self.trait_file = "phen_meta"
+        self.hdfs = []
         
 
         self.datasets = None #utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
@@ -94,8 +95,37 @@ class AssociationSearch:
             return "chr_bp"
         else:
             return False
+    
 
+    def _narrow_hdf_pool(self):
+        if self.study:
+            sql = sq.sqlClient(self.database)
+            file_ids = []
+            if self.study:
+                file_ids.extend(sql.get_file_id_for_study(self.study))
+            print("study/trait")
+            if self.chromosome:
+                print("chr")
+                self.hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids]
+                self.hdfs = list(itertools.chain.from_iterable(self.hdfs))
+            else:
+                print("nochr")
+                self.hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids]
+                self.hdfs = list(itertools.chain.from_iterable(self.hdfs))
 
+        if self.trait:
+            self.chrom_for_trait()
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
+
+        elif self.chromosome and not (self.study or self.trait):
+            print("bp/chr")
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
+        else:
+            print("all")
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*.h5") 
+        print(self.hdfs)
+
+ 
     def search_associations(self):
         """
         Traverses the hdfs breaking if once the required results are retrieved, while
@@ -108,47 +138,14 @@ class AssociationSearch:
         logger.info("Searching all associations for start %s, size %s, pval_interval %s",
                     str(self.start), str(self.size), str(self.pval_interval))
         self.iteration_size = self.size
+        self._narrow_hdf_pool()
 
-        # Narrow down hdf pool
-
-        if self.study:
-            sql = sq.sqlClient(self.database)
-            file_ids = []
-            if self.study:
-                file_ids.extend(sql.get_file_id_for_study(self.study))
-            print("study/trait")
-            if self.chromosome:
-                print("chr")
-                hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids]
-                hdfs = list(itertools.chain.from_iterable(hdfs))
-            else:
-                print("nochr")
-                hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids]
-                hdfs = list(itertools.chain.from_iterable(hdfs))
-
-        if self.trait:
-            self.chrom_for_trait()
-            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
-
-        elif self.chromosome and not (self.study or self.trait):
-            print("bp/chr")
-            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
-        else:
-            print("all")
-            hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*.h5") 
-
-        ## This iterates through files one chunksize at a time.
-        ## The index tells it which chunk to take from each file.
-    
         #studies = []
         #if self.trait:
         #    sql = sq.sqlClient(self.database)
         #    studies.extend(sql.get_studies_for_trait(self.trait))
 
-
-        print(hdfs)
-        for hdf in hdfs:
-            print(hdf)
+        for hdf in self.hdfs:
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
                 key = store.keys()[0]

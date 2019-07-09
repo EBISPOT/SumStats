@@ -23,12 +23,10 @@ class Explorer:
         self.sqlite_db = self.properties.sqlite_path
         self.trait_file = "phen_meta"
 
-
     def get_list_of_studies(self):
         sq = sql_client.sqlClient(self.sqlite_db)
         studies = sq.get_studies()
         return sorted(list(set(studies)))
-
 
     def get_list_of_traits(self):
         h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, self.trait_file)
@@ -36,6 +34,11 @@ class Explorer:
         traits = service.list_traits()
         return traits
 
+    def get_list_of_genes(self):
+        h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, self.trait_file)
+        service = trait_service.TraitService(h5file=h5file)
+        genes = service.list_genes()
+        return genes
 
     def get_list_of_studies_for_trait(self, trait): 
         sq = sql_client.sqlClient(self.sqlite_db)
@@ -118,6 +121,11 @@ def main():
         for trait in traits:
             print(trait)
 
+    if args.genes:  # pragma: no cover
+        genes = explorer.get_list_of_genes()
+        for gene in genes:
+            print(gene)
+
     if args.trait is not None:  # pragma: no cover
         studies = explorer.get_list_of_studies_for_trait(args.trait)
         for study in studies:
@@ -168,6 +176,7 @@ def argument_parser(args):
     parser.add_argument('-tissues', action='store_true', help='List all the tissues')  # pragma: no cover
     parser.add_argument('-tissue', help='Will list \'study: tissue\' if it exists')  # pragma: no cover
     parser.add_argument('-chromosomes', action='store_true', help='Will list all the chromosomes')  # pragma: no cover
+    parser.add_argument('-genes', action='store_true', help='List all the genes')  # pragma: no cover
     properties_handler.set_properties()  # pragma: no cover
 
     return parser.parse_args(args)  # pragma: no cover

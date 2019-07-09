@@ -14,16 +14,16 @@ class Search(object):
         self.config_properties = config_properties
         #self.sqlite_db = properties.sqlite_path
 
-    def search(self, start, size, pval_interval=None, study=None, trait=None,
+    def search(self, start, size, pval_interval=None, study=None, trait=None, gene=None,
                chromosome=None, bp_interval=None, tissue=None, snp=None):
         return cr.search_all_assocs(start=start, size=size, pval_interval=pval_interval,
-                                    properties=self.config_properties, study=study, trait=trait,
+                                    properties=self.config_properties, study=study, trait=trait, gene=gene,
                                     chromosome=chromosome, bp_interval=bp_interval, tissue=tissue, snp=snp)
 
 def main():  # pragma: no cover
     args = argument_parser(sys.argv[1:])  # pragma: no cover
 
-    trait, study, chromosome, bp_interval, snp, pval_interval, tissue = au.convert_search_args(args)  # pragma: no cover
+    trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue = au.convert_search_args(args)  # pragma: no cover
 
     find_all = args.all  # pragma: no cover
     start = args.start  # pragma: no cover
@@ -42,9 +42,9 @@ def main():  # pragma: no cover
     if find_all:  # pragma: no cover
         result, index_marker = search.search(start=start, size=size, pval_interval=pval_interval)
 
-    elif any([trait, study, chromosome, bp_interval, snp, pval_interval, tissue]):
+    elif any([trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue]):
         result, index_marker = search.search(start=start, size=size, pval_interval=pval_interval,
-                                             study=study, trait=trait, chromosome=chromosome,
+                                             study=study, trait=trait, gene=gene, chromosome=chromosome,
                                              bp_interval=bp_interval, tissue=tissue, snp=snp)
 
     else:
@@ -68,6 +68,7 @@ def argument_parser(args):
     parser.add_argument('-start', help='Index of the first association retrieved')  # pragma: no cover
     parser.add_argument('-size', help='Number of retrieved associations')  # pragma: no cover
     parser.add_argument('-trait', help='The trait I am looking for')  # pragma: no cover
+    parser.add_argument('-gene', help='The gene I am looking for')  # pragma: no cover
     parser.add_argument('-study', help='The study I am looking for')  # pragma: no cover
     parser.add_argument('-tissue', help='The tissue I am looking for')  # pragma: no cover
     parser.add_argument('-snp', help='The SNP I am looking for')  # pragma: no cover
