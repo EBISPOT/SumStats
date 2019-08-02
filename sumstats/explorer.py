@@ -78,6 +78,13 @@ class Explorer:
         raise NotFoundError("Trait " + trait)
 
 
+    def has_gene(self, gene):
+        search = cr.search_all_assocs(gene=gene, start=0, size=0, properties=self.properties)
+        if search[-1] > 0:
+            return True
+        raise NotFoundError("Gene " + gene)
+
+
     def get_list_of_chroms(self):
         #return CHROMOSOMES
         chromosomes = [str(i) for i in range(1,25)]

@@ -1480,6 +1480,21 @@ def get_genes():
                     mimetype="application/json")
 
 
+@api.route('/genes/<string:gene>')
+def get_gene(gene):
+    resp = endpoints.gene(gene=gene)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+@api.route('/genes/<string:gene>/associations')
+def get_gene_assocs(gene):
+    resp = endpoints.gene_associations(gene=gene)
+    return Response(response=resp,
+                    status=200,
+                    mimetype="application/json")
+
+
 def _set_log_level(LOG_CONF, LOG_LEVEL):
     for handler in LOG_CONF['handlers']:
         LOG_CONF['handlers'][handler]['level'] = LOG_LEVEL

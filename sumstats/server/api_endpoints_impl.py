@@ -444,8 +444,44 @@ def genes():
 
     response = apiu._create_response(collection_name='gene', method_name='api.get_genes',
                                      start=start, size=size, index_marker=size, data_dict=gene_list)
-
     return simplejson.dumps(response)
+
+
+def gene(gene):
+    try:
+        explorer = ex.Explorer(config_properties=properties)
+        if explorer.has_gene(gene):
+            response = apiu._create_info_for_gene(gene)
+            return simplejson.dumps(response, ignore_nan=True)
+    except NotFoundError as error:
+        logging.error("/genes/" + gene + ". " + (str(error)))
+        raise RequestedNotFound(str(error))
+
+
+def gene_associations(gene):
+    args = request.args.to_dict()
+    try:
+        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+    except ValueError as error:
+        logging.error("/traits/" + trait + ". " + (str(error)))
+        raise BadUserRequest(str(error))
+
+    searcher = search.Search(apiu.properties)
+
+    try:
+        datasets, index_marker = searcher.search(gene=gene, start=start, size=size, pval_interval=pval_interval)
+
+        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+        params = dict(gene=gene, p_lower=p_lower, p_upper=p_upper)
+        response = apiu._create_response(method_name='api.get_gene_assocs', start=start, size=size,
+                                         index_marker=index_marker,
+                                         data_dict=data_dict, params=params)
+
+        return simplejson.dumps(response, ignore_nan=True)
+
+    except NotFoundError as error:
+        logging.error("/genes/" + gene + ". " + (str(error)))
+        raise RequestedNotFound(str(error))
 
 
 def _create_chromosome_info(chromosome):
