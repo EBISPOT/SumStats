@@ -12,9 +12,9 @@ def search_chromosome(chromosome, start, size, properties=None, bp_interval=None
         return searcher.search_chromosome_block(bp_interval=bp_interval, study=study, pval_interval=pval_interval, snp=snp)
 
 def search_all_assocs(start, size, pval_interval=None, properties=None, study=None, trait=None,
-                      chromosome=None, bp_interval=None, tissue=None, snp=None):
+                      chromosome=None, bp_interval=None, tissue=None, snp=None, gene=None):
     search_all = assoc_search.AssociationSearch(start=start, size=size, pval_interval=pval_interval, trait=trait,
                                                 config_properties=properties, study=study, chromosome=chromosome,
-                                                bp_interval=bp_interval, tissue=tissue, snp=snp)
+                                                bp_interval=bp_interval, tissue=tissue, snp=snp, gene=gene)
     return search_all.search_associations()
 

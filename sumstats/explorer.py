@@ -50,9 +50,16 @@ class Explorer:
 
     def get_list_of_tissues(self):
         sq = sql_client.sqlClient(self.sqlite_db)
-        studies = sq.get_tissues()
-        return sorted(list(set(studies)))
+        tissues = sq.get_tissues()
+        return sorted(list(set(tissues)))
 
+    def get_studies_of_tissue(self, tissue): 
+        sq = sql_client.sqlClient(self.sqlite_db)
+        studies = sq.get_studies_for_tissue(tissue)
+        if studies:
+            return sorted(list(set(studies)))
+        else:
+            raise NotFoundError("Tissue " + tissue)
 
     def get_trait_of_study(self, study_to_find):
         sq = sql_client.sqlClient(self.sqlite_db)

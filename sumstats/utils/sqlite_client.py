@@ -119,9 +119,27 @@ class sqlClient():
         else:
             return False
 
+    def get_file_ids_for_study_tissue(self, study, tissue):
+        data = []
+        for row in self.cur.execute("select identifier from study_info where study =? and tissue =?", (study, tissue)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
     def get_file_id_for_trait(self, trait):
         data = []
         for row in self.cur.execute("select file_id from study join study_info on study.study = study_info.study where trait =?", (trait,)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
+    def get_file_ids_for_tissue(self, tissue):
+        data = []
+        for row in self.cur.execute("select identifier from study_info where tissue =?", (tissue,)):
             data.append(row[0])
         if data:
             return data
@@ -160,6 +178,14 @@ class sqlClient():
         else:
             return False
 
+    def get_studies_for_tissue(self, tissue):
+        data = []
+        for row in self.cur.execute("select study from study_info where tissue =?", (tissue,)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
 
     """ OTHER STATEMENTS """
 

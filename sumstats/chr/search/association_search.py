@@ -3,6 +3,7 @@ import re
 import glob
 import itertools
 import os
+from sumstats.errors.error_classes import *
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.search.access.trait_service as ts
@@ -75,6 +76,17 @@ class AssociationSearch:
         else:
             print("No chrom for this trait?") # need to handle this error
 
+    def chrom_for_gene(self):
+        h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, self.trait_file)
+        trait_service = ts.TraitService(h5file)
+        chroms = trait_service.chrom_from_gene(self.gene)
+        if len(chroms) == 1:
+            self.chromosome = chroms[0]
+        elif len(chroms) > 1:
+            print("more than one chrom for this gene?") # need to handle this error
+        else:
+            print("No chrom for this trait?") # need to handle this error
+
 
     def map_snp_to_location(self):
         try:
@@ -95,36 +107,72 @@ class AssociationSearch:
             return "chr_bp"
         else:
             return False
-    
+
 
     def _narrow_hdf_pool(self):
-        if self.study:
+        if self.tissue and self.study:
+            print("tissue and study")
             sql = sq.sqlClient(self.database)
             file_ids = []
-            if self.study:
-                file_ids.extend(sql.get_file_id_for_study(self.study))
-            print("study/trait")
-            if self.chromosome:
-                print("chr")
-                self.hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids]
-                self.hdfs = list(itertools.chain.from_iterable(self.hdfs))
+            resp = sql.get_file_ids_for_study_tissue(self.study, self.tissue)
+            if resp:
+                file_ids.extend(resp)
+                if not self._narrow_by_chromosome(file_ids):
+                    raise NotFoundError("Study :{} with tissue: {} and chr {}".format(self.study, self.tissue, self.chromosome))
             else:
-                print("nochr")
-                self.hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids]
-                self.hdfs = list(itertools.chain.from_iterable(self.hdfs))
+                raise NotFoundError("Study :{} with tissue: {}".format(self.study, self.tissue))
 
+        if self.tissue and not self.study:
+            print("tissue")
+            sql = sq.sqlClient(self.database)
+            file_ids = []
+            resp = sql.get_file_ids_for_tissue(self.tissue)
+            if resp:
+                file_ids.extend(resp)
+                if not self._narrow_by_chromosome(file_ids):
+                    raise NotFoundError("Tissue: {} with chr {}".format(self.tissue, self.chromosome))
+            else:
+                raise NotFoundError("Tissue: {}".format(self.tissue))
+
+        if self.study and not self.tissue:
+            print("study")
+            sql = sq.sqlClient(self.database)
+            file_ids = []
+            resp = sql.get_file_id_for_study(self.study)
+            if resp:
+                file_ids.extend(resp)
+                if not self._narrow_by_chromosome(file_ids):
+                    raise NotFoundError("Study :{} with chr {}".format(self.study, self.chromosome))
+            else:
+                raise NotFoundError("Study :{}".format(self.study))
+                
         if self.trait:
+            print("phen")
             self.chrom_for_trait()
-            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
-
-        elif self.chromosome and not (self.study or self.trait):
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*.h5")
+        if self.gene:
+            print("gene")
+            self.chrom_for_gene()
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*.h5")
+        if self.chromosome and all(v is None for v in [self.study, self.trait, self.gene, self.tissue]):
             print("bp/chr")
-            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir)  + "/" + str(self.chromosome) + "/file_*.h5")
-        else:
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*.h5")
+        if all(v is None for v in [self.chromosome, self.study, self.gene, self.trait, self.tissue]):
             print("all")
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*.h5") 
-        print(self.hdfs)
 
+    def _narrow_by_chromosome(self, file_ids):
+        if self.chromosome:
+            print("chr{}".format(self.chromosome))
+            self.hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids]
+            self.hdfs = list(itertools.chain.from_iterable(self.hdfs))
+        else:
+            print("nochr")
+            self.hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids]
+            self.hdfs = list(itertools.chain.from_iterable(self.hdfs))
+        if self.hdfs:
+            return True
+        return False
  
     def search_associations(self):
         """
@@ -151,22 +199,17 @@ class AssociationSearch:
                 key = store.keys()[0]
                 print(key)
                 study = self._get_study_metadata(store, key)['study']
+                tissue = self._get_study_metadata(store, key)['qtl_group'] # check this
                 
-                #if self.trait:
-                #    study = self._get_study_metadata(store, key)['study']
-                #    if study not in studies:
-                #        # move on to next study if this isn't the one we want
-                #        continue
-
                 if self.study:
                     study = self._get_study_metadata(store, key)['study']
                     if self.study != study:
                         # move on to next study if this isn't the one we want
                         continue
 
-                if self.tissue and self.tissue != tissue:
-                    # move on to next tissue if this isn't the one we want
-                    continue
+                #if self.tissue and self.tissue != tissue:
+                #    # move on to next tissue if this isn't the one we want
+                #    continue
 
                 if self.condition:
                     print(self.condition)
@@ -189,7 +232,7 @@ class AssociationSearch:
                     else:
                         chunk[STUDY_DSET] = study
                         #chunk[TRAIT_DSET] = str(traits) 
-                        #chunk[TISSUE_DSET] = tissue
+                        chunk[TISSUE_DSET] = tissue
                         self.df = pd.concat([self.df, chunk])
 
                     if len(self.df.index) >= self.size: # break once we have enough
@@ -215,6 +258,9 @@ class AssociationSearch:
         if self.trait:
             conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
 
+        if self.gene:
+            conditions.append("{gene} == {id}".format(gene=GENE_DSET, id=str(self.gene)))
+
         if self.bp_interval:
             if self.bp_interval.lower_limit:
                 conditions.append("{bp} >= {lower}".format(bp = BP_DSET, lower = self.bp_interval.lower_limit))
@@ -234,6 +280,7 @@ class AssociationSearch:
                 conditions.append("{pval} >= {lower}".format(pval = PVAL_DSET, lower = str(self.pval_interval.lower_limit)))
             if self.pval_interval.upper_limit:
                 conditions.append("{pval} <= {upper}".format(pval = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
+
 
 
         #if self.study:
