@@ -158,9 +158,12 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
 
         #trait, trait_to_study_cache = _get_trait_for_study(study, trait_to_study_cache)
         trait = datasets[PHEN_DSET][index]
-
+        gene = datasets[GENE_DSET][index]
+        tissue = datasets[TISSUE_DSET][index]
 
         element_info['trait'] = trait
+        element_info['gene_id'] = gene
+        element_info['tissue'] = tissue
 
         element_info['_links'] = {'self': _create_href(method_name='api.get_chromosome_variants',
                                                    params={'variant_id': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
