@@ -185,9 +185,10 @@ def studies_for_tissue(tissue):
     try:
         explorer = ex.Explorer(apiu.properties)
         studies = explorer.get_studies_of_tissue(tissue)
-        study_list = apiu._get_study_list(studies=studies, start=start, size=size)
-        response = apiu._create_response(collection_name='studies', method_name='api.get_studies',
-                                         start=start, size=size, index_marker=size, data_dict=study_list)
+        study_list = apiu._create_study_info_for_tissue(studies, tissue)
+        end = min(start + size, len(study_list))
+        response = apiu._create_response(collection_name='studies', method_name='api.get_studies_for_tissue',
+                                         start=start, size=size, index_marker=size, data_dict=study_list, params=dict(tissue=tissue))
 
         return simplejson.dumps(response)
     except NotFoundError as error:
@@ -224,17 +225,10 @@ def tissue_associations(tissue):
         raise RequestedNotFound(str(error))
 
 
-def trait_study(study, trait=None):
+def tissue_study(study, tissue=None):
     try:
-        # try to find the study's trait by looking for it in the database
-        # if it doesn't exist it will raise an error
-        #trait_found = apiu._find_study_info(study=study)
-        # check to see that the trait the study actually belongs to is the same
-        # as the trait provided by the user
-        #if trait_found != trait and trait is not None:
-        #    raise BadUserRequest("Trait-study combination does not exist!")
-        # otherwise create info without trait
-        response = apiu._create_info_for_study(study=study, trait=trait)
+
+        response = apiu._create_info_for_study(study=study, tissue=tissue)
         return simplejson.dumps(response, ignore_nan=True)
 
     except (NotFoundError, SubgroupError) as error:
@@ -242,13 +236,13 @@ def trait_study(study, trait=None):
         raise RequestedNotFound(str(error))
 
 
-def trait_study_associations(study, trait=None):
+def tissue_study_associations(study, tissue=None):
     args = request.args.to_dict()
     gene = None
     try:
         start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
         gene = apiu._retrieve_endpoint_arguments(args, 'gene')
-        tissue =  apiu._retrieve_endpoint_arguments(args, 'tissue')
+        trait = apiu._retrieve_endpoint_arguments(args, 'molecular_phenotype')
     except ValueError as error:
         logging.error("/studies/" + study + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -259,23 +253,22 @@ def trait_study_associations(study, trait=None):
 
         #datasets, index_marker = searcher.search_study(trait=trait, study=study,
         #                                               start=start, size=size, pval_interval=pval_interval)
-        if trait:
-            datasets, index_marker = searcher.search(study=study, trait=trait, gene=gene, tissue=tissue,
+        if tissue:
+            datasets, index_marker = searcher.search(tissue=tissue, study=study, trait=trait, gene=gene, 
                                                      start=start, size=size, pval_interval=pval_interval)
 
             data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
 
-            params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
+            params = dict(tissue=tissue, trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         else:
-            datasets, index_marker = searcher.search(study=study, gene=gene, tissue=tissue,
-                                                     start=start, size=size, pval_interval=pval_interval)
+            datasets, index_marker = searcher.search(study=study, gene=gene,                                                                                                       start=start, size=size, pval_interval=pval_interval)
 
             data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
 
-            params = dict(study=study, p_lower=p_lower, p_upper=p_upper, gene=gene, tissue=tissue)
+            params = dict(study=study, p_lower=p_lower, p_upper=p_upper, gene=gene)
 
 
-        response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
+        response = apiu._create_response(method_name='api.get_tissue_study_assocs', start=start, size=size,
                                          index_marker=index_marker,
                                          data_dict=data_dict, params=params)
 

@@ -25,7 +25,7 @@ def _get_study_list(studies, start, size):
     for study in studies[start:end]:
         #trait = _find_study_info(study)
         #study_list.append(_create_study_info_for_trait([study], trait))
-        study_list.append(_create_study_info_for_trait([study]))
+        study_list.append(_create_study_info_for_tissue([study]))
     return study_list
 
 def _get_study_list_no_info(studies, start, size):
@@ -52,6 +52,14 @@ def _create_study_info_for_trait(studies, trait=None):
     return study_list
 
 
+def _create_study_info_for_tissue(studies, tissue=None):
+    study_list = []
+    for study in studies:
+        study_info = _create_info_for_study(study=study, tissue=tissue)
+        study_list.append(study_info)
+    return study_list
+
+
 def _create_info_for_tissue(tissue):
     tissue_info = {'tissue': tissue,
                    '_links': {'self': _create_href(method_name='api.get_tissue', params={'tissue': tissue})}
@@ -61,24 +69,24 @@ def _create_info_for_tissue(tissue):
     return tissue_info
 
 
-def _create_info_for_study(study, trait=None):
-    if trait:
+def _create_info_for_study(study, tissue=None):
+    if tissue:
         study_info = {'study_accession': study,
-                      '_links': {'self': _create_href(method_name='api.get_trait_study',
-                                                      params={'trait': trait, 'study': study}),
-                                 'trait': _create_href(method_name='api.get_traits', params={'study_accession': study})}}
+                      '_links': {'self': _create_href(method_name='api.get_tissue_study',
+                                                      params={'tissue': tissue, 'study': study}),
+                                 'tissue': _create_href(method_name='api.get_tissues', params={'study_accession': study})}}
 
         study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
-        study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
-                                                            params={'trait': trait, 'study': study})
+        study_info['_links']['associations'] = _create_href(method_name='api.get_tissue_study_assocs',
+                                                            params={'tissue': tissue, 'study': study})
     else:
         study_info = {'study_accession': study,
-                      '_links': {'self': _create_href(method_name='api.get_trait_study',
+                      '_links': {'self': _create_href(method_name='api.get_tissue_study',
                                                       params={'study': study}),
-                                 'trait': _create_href(method_name='api.get_traits', params={'study_accession': study})}}
+                                 'tissue': _create_href(method_name='api.get_tissues', params={'study_accession': study})}}
 
         study_info['_links'] = _add_gwas_catalog_href(info_array=study_info['_links'], study_accession=study)
-        study_info['_links']['associations'] = _create_href(method_name='api.get_trait_study_assocs',
+        study_info['_links']['associations'] = _create_href(method_name='api.get_tissue_study_assocs',
                                                             params={'study': study})
     return study_info
 
@@ -170,9 +178,9 @@ def _get_array_to_display(datasets, variant=None, chromosome=None, reveal=False)
                                                            'chromosome': specific_chromosome})}
         element_info['_links']['variant'] = _create_href(method_name='api.get_chromosome_variants',
                                                          params={'variant_id': specific_variant, 'chromosome': specific_chromosome})
-        element_info['_links']['study'] = _create_href(method_name='api.get_trait_study',
+        element_info['_links']['study'] = _create_href(method_name='api.get_tissue_study',
                                                        params={'study': study})
-        element_info['_links']['trait'] = _create_href(method_name='api.get_trait', params={'trait': trait})
+        element_info['_links']['tissue'] = _create_href(method_name='api.get_tissue', params={'tissue': tissue})
 
         data_dict[index] = element_info
     return data_dict

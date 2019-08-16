@@ -700,169 +700,18 @@ def get_tissue_assocs(tissue):
 
 
 @api.route('/studies/<study>')
-@api.route('/molecular_phenotypes/<string:trait>/studies/<string:study>')
-def get_trait_study(study, trait=None):
-    """Study Resource
-
-        .. :quickref: Study Resource; Lists resources for a specific study. Will return 404 Not Found if the study accession does not exist.
-
-        Lists resources for a specific study.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-            GET /studies/GCST005038 HTTP/1.1
-            Host: www.ebi.ac.uk
-
-        **Example response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 200 OK
-            Content-Type: application/json
-
-            {
-              "study_accession": "GCST005038",
-              "_links": {
-                "associations": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
-                },
-                "self": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
-                },
-                "trait": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                },
-                "gwas_catalog": {
-                  "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
-                }
-              }
-            }
-
-        :statuscode 200: no error
-        :statuscode 404: not found error
-    """
-    resp = endpoints.trait_study(study, trait)
+@api.route('/tissues/<string:tissue>/studies/<string:study>')
+def get_tissue_study(study, tissue=None):
+    resp = endpoints.tissue_study(study, tissue)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
 
 
 @api.route('/studies/<study>/associations')
-@api.route('/molecular_phenotypes/<string:trait>/studies/<string:study>/associations')
-def get_trait_study_assocs(study, trait=None):
-    """Search Study Associations
-
-        .. :quickref: Search Study Associations; Returns associations for a specific study. Will return 404 Not Found if the study accession does not exist.
-
-        Returns associations for a specific study.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-            GET /studies/GCST005038/associations HTTP/1.1
-            Host: www.ebi.ac.uk
-
-        **Example response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 200 OK
-            Content-Type: application/json
-
-            {
-              "_embedded": {
-                "associations": {
-                  "0": {
-                    "ci_lower": null,
-                    "variant_id": "rs10875231",
-                    "chromosome": 1,
-                    "other_allele": "G",
-                    "code": 10,
-                    "odds_ratio": null,
-                    "effect_allele_frequency": 0.2449,
-                    "p_value": "2.826e-1",
-                    "base_pair_location": 99534456,
-                    "study_accession": "GCST005038",
-                    "effect_allele": "T",
-                    "beta": -0.0072,
-                    "ci_upper": null,
-                    "trait": "EFO_0003785",
-                    "_links": {
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231"
-                      },
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005038"
-                      },
-                      "trait": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                      }
-                    }
-                  },
-                  "1": {
-                    "ci_lower": null,
-                    "variant_id": "rs6678176",
-                    "chromosome": 1,
-                    "other_allele": "C",
-                    "code": 10,
-                    "odds_ratio": null,
-                    "effect_allele_frequency": 0.3197,
-                    "p_value": "2.656e-1",
-                    "base_pair_location": 99535271,
-                    "study_accession": "GCST005038",
-                    "effect_allele": "T",
-                    "beta": -0.006999999999999999,
-                    "ci_upper": null,
-                    "trait": "EFO_0003785",
-                    "_links": {
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176"
-                      },
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176?study_accession=GCST005038"
-                      },
-                      "trait": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                      }
-                    }
-                  }
-                }
-              },
-              "_links": {
-                "self": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
-                },
-                "first": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations?start=0&size=2"
-                },
-                "next": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations?start=2&size=2"
-                }
-              }
-            }
-
-        :query start: offset number. default is 0
-        :query size: number of items returned. default is 20
-        :query reveal: ``raw`` or ``all`` will show you the raw association data or both the harmonised and
-             raw association data respectively.
-        :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
-             annotation (0.001 or 1e-3 or 1E-3)
-        :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
-             annotation (0.001 or 1e-3 or 1E-3)
-
-        :statuscode 200: no error
-        :statuscode 404: not found error
-    """
-    resp = endpoints.trait_study_associations(study, trait)
+@api.route('/tissues/<string:tissue>/studies/<string:study>/associations')
+def get_tissue_study_assocs(study, tissue=None):
+    resp = endpoints.tissue_study_associations(study, tissue)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
