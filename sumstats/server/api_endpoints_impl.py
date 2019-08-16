@@ -244,8 +244,11 @@ def trait_study(study, trait=None):
 
 def trait_study_associations(study, trait=None):
     args = request.args.to_dict()
+    gene = None
     try:
         start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        gene = apiu._retrieve_endpoint_arguments(args, 'gene')
+        tissue =  apiu._retrieve_endpoint_arguments(args, 'tissue')
     except ValueError as error:
         logging.error("/studies/" + study + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -257,19 +260,19 @@ def trait_study_associations(study, trait=None):
         #datasets, index_marker = searcher.search_study(trait=trait, study=study,
         #                                               start=start, size=size, pval_interval=pval_interval)
         if trait:
-            datasets, index_marker = searcher.search(study=study, trait=trait,
+            datasets, index_marker = searcher.search(study=study, trait=trait, gene=gene, tissue=tissue,
                                                      start=start, size=size, pval_interval=pval_interval)
 
             data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
 
             params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         else:
-            datasets, index_marker = searcher.search(study=study,
+            datasets, index_marker = searcher.search(study=study, gene=gene, tissue=tissue,
                                                      start=start, size=size, pval_interval=pval_interval)
 
             data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
 
-            params = dict(study=study, p_lower=p_lower, p_upper=p_upper)
+            params = dict(study=study, p_lower=p_lower, p_upper=p_upper, gene=gene, tissue=tissue)
 
 
         response = apiu._create_response(method_name='api.get_trait_study_assocs', start=start, size=size,
