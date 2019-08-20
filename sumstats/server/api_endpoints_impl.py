@@ -226,11 +226,11 @@ def trait_study(study, trait=None):
     try:
         # try to find the study's trait by looking for it in the database
         # if it doesn't exist it will raise an error
-        #trait_found = apiu._find_study_info(study=study)
+        trait_found = apiu._find_study_info(study=study)
         # check to see that the trait the study actually belongs to is the same
         # as the trait provided by the user
-        #if trait_found != trait and trait is not None:
-        #    raise BadUserRequest("Trait-study combination does not exist!")
+        if trait_found != trait and trait is not None:
+            raise BadUserRequest("Trait-study combination does not exist!")
         # otherwise create info without trait
         response = apiu._create_info_for_study(study=study, trait=trait)
         return simplejson.dumps(response, ignore_nan=True)
