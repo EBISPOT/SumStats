@@ -99,7 +99,7 @@ class Loader():
         dftrait.columns = ['phenotype_id', 'gene_id', 'molecular_trait_object_id']
         
         """Read in the gene expression file"""
-        dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high') # phenotype_id, study, qtl_group, median_tpm
+        dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high', names=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
         dfexpr = dfexpr[dfexpr.study == self.study]
         dfexpr = dfexpr[dfexpr.qtl_group == self.qtl_group]
 
