@@ -157,7 +157,7 @@ class Loader():
 
     def placeholder_if_variant_id_too_long(self, df, field):
         mask = df[field].str.len() <= self.max_string
-        df[field].where(mask, df[field].str.replace(to_replace=r'(.*_)(.*_)(.*_.*)$', value=r'\1\2LONG_STRING', regex=True), inplace=True)
+        df[field].where(mask, df[field].str.replace(r'(.*_)(.*_)(.*_.*)$', r'\1\2LONG_STRING'), inplace=True)
 
 
     def load_study_info(self):
