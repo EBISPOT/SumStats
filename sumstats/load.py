@@ -90,8 +90,8 @@ class Loader():
         """Read in the variant file"""
         dfvar = pd.read_csv(self.var_file, sep="\t",
                             names=['chromosome', 'position', 'variant', 'ref', 'alt',
-                                   'type', 'ac', 'an', 'maf', 'r2'],
-                            float_precision='high',
+                                   'type', 'ac', 'an', 'maf', 'r2', 'rsid'],
+                            float_precision='high', skiprows=1,
                             dtype={'chromosome': str, 'position': int, 'variant': str})
         
         """Read in the trait file"""
@@ -116,8 +116,9 @@ class Loader():
                 merged3 = pd.merge(merged2, dfexpr, how='left', left_on=['molecular_trait_id'], right_on=['phenotype_id'])
                 print("merged three")
                 merged3 = merged3[list(TO_LOAD_DSET_HEADERS_DEFAULT)]
-                for field in [SNP_DSET, EFFECT_DSET, OTHER_DSET, PHEN_DSET, GENE_DSET, MTO_DSET]:
-                    self.nullify_if_string_too_long(df=merged3, field=field) 
+                for field in [EFFECT_DSET, OTHER_DSET]:
+                    self.placeholder_if_allele_string_too_long(df=merged3, field=field)
+                self.placeholder_if_variant_id_too_long(df=merged3, field=SNP_DSET)
                 merged3.to_hdf(store, group,
                             complib='blosc',
                             complevel=9,
@@ -149,9 +150,14 @@ class Loader():
                 count += 1
 
 
-    def nullify_if_string_too_long(self, df, field):
+    def placeholder_if_allele_string_too_long(self, df, field):
         mask = df[field].str.len() <= self.max_string
-        df[field].where(mask, 'NA', inplace=True)
+        df[field].where(mask, "LONG_STRING", inplace=True)
+
+
+    def placeholder_if_variant_id_too_long(self, df, field):
+        mask = df[field].str.len() <= self.max_string
+        df[field].where(mask, df[field].str.replace(to_replace=r'(.*_)(.*_)(.*_.*)$', value=r'\1\2LONG_STRING', regex=True), inplace=True)
 
 
     def load_study_info(self):
