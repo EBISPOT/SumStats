@@ -40,7 +40,7 @@ class Loader():
 
     def load_bystudy(self):
         print(self.tsv)
-        identifier = self.study + "+" + self.qtl_group + "+" self.quant_method
+        identifier = self.study + "+" + self.qtl_group + "+" + self.quant_method
         #group = "/{study}".format(study=self.study.replace('-','_'))
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=identifier, dir_name=self.study_dir + "/" + self.chromosome)
         self.write_csv_to_hdf(hdf_store, identifier)
