@@ -99,10 +99,13 @@ class Loader():
         dftrait = pd.read_csv(self.trait_file, sep="\t", usecols=['phenotype_id', 'gene_id', 'group_id'])
         dftrait.columns = ['phenotype_id', 'gene_id', 'molecular_trait_object_id']
         
-        """Read in the gene expression file"""
-        dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high', names=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
-        dfexpr = dfexpr[dfexpr.study == self.study]
-        dfexpr = dfexpr[dfexpr.qtl_group == self.qtl_group]
+        if self.expr_file:
+            """Read in the gene expression file"""
+            dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high', names=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
+            dfexpr = dfexpr[dfexpr.study == self.study]
+            dfexpr = dfexpr[dfexpr.qtl_group == self.qtl_group]
+        else:
+            dfexpr = pd.DataFrame(columns=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
 
         with pd.HDFStore(hdf) as store:
             """store in hdf5 as below"""
@@ -179,7 +182,7 @@ def main():
     argparser.add_argument('-csv', help='The path to the csv OUT file', required=False)
     argparser.add_argument('-var', help='The path to the variant/genotype metadata file', required=False)
     argparser.add_argument('-phen', help='The path to the trait/phenotype metadata file', required=False)
-    argparser.add_argument('-expr', help='The path to the gene expression file', required=False)
+    argparser.add_argument('-expr', help='The path to the gene expression file', default=None, required=False)
     argparser.add_argument('-study', help='The study identifier', required=False)
     argparser.add_argument('-qtl_group', help='The qtl group e.g. "LCL"', required=False)
     argparser.add_argument('-quant', help='The quantification method e.g. "gene counts"', required=False)
