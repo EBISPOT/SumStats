@@ -9,7 +9,7 @@ setup(
         "console_scripts": ['eqtl-load = sumstats.load:main',
                             'eqtl-search = sumstats.controller:main',
                             'eqtl-explore = sumstats.explorer:main',
-                            'eqtl-rebuild-snps = sumstats.utils.rebuild_snps:main',
+                            'eqtl-rebuild-snps = sumstats.utils.vcf_to_sqlite:main',
                             'eqtl-prep-file = sumstats.utils.split_by_chrom:main',
                             'eqtl-reindex = sumstats.reindex:main',
                             'eqtl-delete = sumstats.deleter:main']
