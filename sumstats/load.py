@@ -101,7 +101,7 @@ class Loader():
         
         if self.expr_file:
             """Read in the gene expression file"""
-            dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high', names=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
+            dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high', names=['phenotype_id', 'study', 'qtl_group', 'median_tpm'], dtype={'median_tpm': float})
             dfexpr = dfexpr[dfexpr.study == self.study]
             dfexpr = dfexpr[dfexpr.qtl_group == self.qtl_group]
         else:
