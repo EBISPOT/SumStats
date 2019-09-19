@@ -104,7 +104,7 @@ class Loader():
             dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high', names=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
             dfexpr = dfexpr[dfexpr.study == self.study]
             dfexpr = dfexpr[dfexpr.qtl_group == self.qtl_group]
-            dfexpr["median_tpm"] = pd.to_numeric(df["median_tpm"], errors='coerce')
+            dfexpr["median_tpm"] = pd.to_numeric(dfexpr["median_tpm"], errors='coerce')
         else:
             dfexpr = pd.DataFrame(columns=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
 
