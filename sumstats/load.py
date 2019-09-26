@@ -187,10 +187,10 @@ class Loader():
             );
         """
         sql = sq.sqlClient(self.sqldb)
-        identifier = self.study + "-" + self.qtl_group
+        identifier = self.study + "+" + self.qtl_group + "+" + self.quant_method
         print(self.trait_file)
         trait_file_id = os.path.basename(self.trait_file)
-        data = [self.study, identifier, self.qtl_group, self.tissue, trait_file_id, self.tissue_ontology, self.treatment, self.treatment_ontology, self.quant_method ]
+        data = [self.study, identifier, self.qtl_group, self.tissue, trait_file_id, self.tissue_ont, self.treatment, self.treatment_ont, self.quant_method ]
         sql.cur.execute("insert or ignore into study_info values (?,?,?,?,?,?,?,?,?)", data)
         sql.cur.execute('COMMIT')
 
@@ -210,7 +210,7 @@ def main():
     argparser.add_argument('-loader', help='The loader', choices=['study', 'trait', 'study_info'], default=None, required=True)
     argparser.add_argument('-tissue_ont', help='The tissue ontology term', required=False)
     argparser.add_argument('-treatment', help='The treatment', required=False)
-    argparser.add_argument('-treatement_ont', help='The treatment ontology term', required=False)
+    argparser.add_argument('-treatment_ont', help='The treatment ontology term', required=False)
 
     args = argparser.parse_args()
     

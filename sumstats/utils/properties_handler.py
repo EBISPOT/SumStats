@@ -26,6 +26,8 @@ def set_config_properties(config):
         properties.LOG_LEVEL = props["LOG_LEVEL"]
         properties.APPLICATION_ROOT = props["APPLICATION_ROOT"]
         properties.sqlite_path = props["sumstats_meta"]
+        properties.snpdb = props["snp_db"]
+        
 
 
 def get_properties(config_properties=None):

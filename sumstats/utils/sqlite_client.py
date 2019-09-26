@@ -92,6 +92,15 @@ class sqlClient():
         else:
             return False
 
+    def get_tissue_ontos(self):
+        data = []
+        for row in self.cur.execute("SELECT tissue_ontology FROM study_info"):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
     def get_studies_for_trait(self, trait):
         data = []
         for row in self.cur.execute("select study from study_info where trait =?", (trait,)):
@@ -110,18 +119,18 @@ class sqlClient():
         else:
             return False
 
-    def get_file_id_for_study(self, study):
+    def get_file_id_for_study(self, study, quant):
         data = []
-        for row in self.cur.execute("select identifier from study_info where study =?", (study,)):
+        for row in self.cur.execute("select identifier from study_info where study =? and quant_method =?", (study, quant)):
             data.append(row[0])
         if data:
             return data
         else:
             return False
 
-    def get_file_ids_for_study_tissue(self, study, tissue):
+    def get_file_ids_for_study_tissue(self, study, tissue, quant):
         data = []
-        for row in self.cur.execute("select identifier from study_info where study =? and tissue =?", (study, tissue)):
+        for row in self.cur.execute("select identifier from study_info where study =? and tissue_ontology =? and quant_method =?", (study, tissue, quant)):
             data.append(row[0])
         if data:
             return data
@@ -137,9 +146,9 @@ class sqlClient():
         else:
             return False
 
-    def get_file_ids_for_tissue(self, tissue):
+    def get_file_ids_for_tissue(self, tissue, quant):
         data = []
-        for row in self.cur.execute("select identifier from study_info where tissue =?", (tissue,)):
+        for row in self.cur.execute("select identifier from study_info where tissue_ontology =? and quant_method =?", (tissue, quant)):
             data.append(row[0])
         if data:
             return data
