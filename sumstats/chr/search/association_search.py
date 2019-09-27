@@ -213,8 +213,8 @@ class AssociationSearch:
                 print('opened {}'.format(hdf))
                 key = store.keys()[0]
                 logger.debug(key)
-                study = self._get_study_metadata(store, key)['study']
-                tissue = self._get_study_metadata(store, key)['qtl_group'] # check this
+                study = self._get_study_metadata(key)['study']
+                tissue = self._get_study_metadata(key)['tissue']
                 
                 if self.study:
                     study = self._get_study_metadata(store, key)['study']
@@ -310,8 +310,11 @@ class AssociationSearch:
         return statement
 
 
-    def _get_study_metadata(self, store, key):
-        return store.get_storer(key).attrs.study_metadata
+    def _get_study_metadata(self, key):
+        sql = sq.sqlClient(self.database)
+        metadata_dict = sql.get_study_context_meta(key)
+        return metadata_dict
+        #return store.get_storer(key).attrs.study_metadata
 
     def _get_group_key(self, store):
         for (path, subgroups, subkeys) in store.walk():

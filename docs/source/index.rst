@@ -291,7 +291,7 @@ A ``GET`` request is used to access the API.
 +===========================+============================================================+
 | associations              | Link to the association resources in the database          |
 +---------------------------+------------------------------------------------------------+
-| molecular_phenotyped      | Link to the molecular phenotypes resources in the database |
+| molecular_phenotypes      | Link to the molecular phenotypes resources in the database |
 +---------------------------+------------------------------------------------------------+
 | studies                   | Link to the study resources in the database                |
 +---------------------------+------------------------------------------------------------+

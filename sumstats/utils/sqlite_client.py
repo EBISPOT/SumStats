@@ -74,6 +74,24 @@ class sqlClient():
         else:
             return False
 
+    def get_study_context_meta(self, identifier):
+        data_dict = {"study": None, 
+                     "identifier": None,
+                     "qtl_group": None,
+                     "tissue": None,
+                     "phen": None,
+                     "tissue_ont": None,
+                     "treatment": None,
+                     "treatment_ont": None,
+                     "quant_method": None
+                     }
+
+        self.cur.execute("SELECT * FROM study_info where identifier =?", (identifier,))
+        data = self.cur.fetchone()
+        if data:
+            data_dict["study"], data_dict["identifier"], data_dict["qtl_group"], data_dict["tissue"], data_dict["phen"], data_dict["tissue_ont"], data_dict["treatment"], data_dict["treatment_ont"], data_dict["quant_method"] = data
+        return data_dict
+
     def get_traits(self):
         data = []
         for row in self.cur.execute("SELECT trait FROM study_info"):
