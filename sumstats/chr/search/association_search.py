@@ -212,12 +212,14 @@ class AssociationSearch:
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
                 key = store.keys()[0]
+                identifier = key.strip("/")
+                print(identifier)
                 logger.debug(key)
-                study = self._get_study_metadata(key)['study']
-                tissue = self._get_study_metadata(key)['tissue']
+                study = self._get_study_metadata(identifier)['study']
+                tissue = self._get_study_metadata(identifier)['tissue_ont']
                 
                 if self.study:
-                    study = self._get_study_metadata(store, key)['study']
+                    study = self._get_study_metadata(identifier)['study']
                     if self.study != study:
                         # move on to next study if this isn't the one we want
                         continue
