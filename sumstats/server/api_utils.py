@@ -124,7 +124,7 @@ def _create_info_for_gene(gene):
     return gene_info
 
 def _add_ontology_href(info_array, trait):
-    info_array['ols'] = {'href': str(properties.ols_terms_location + trait)}
+    info_array['ols'] = {'href': str(properties.ols_terms_ocation + trait)}
     return info_array
 
 

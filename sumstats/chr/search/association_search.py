@@ -212,6 +212,7 @@ class AssociationSearch:
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
                 key = store.keys()[0]
+                identifier = key.strip("/")
                 logger.debug(key)
                 study = self._get_study_metadata(key)['study']
                 tissue = self._get_study_metadata(key)['tissue']
