@@ -260,7 +260,7 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
     if collection_name is None:
         collection_name = 'associations'
     params = params or {}
-    return Ordereddict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
+    return OrderedDict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
         method_name=method_name, start=start, size=size, index_marker=index_marker,
         size_retrieved=len(data_dict),
         params=params
