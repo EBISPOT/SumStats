@@ -134,7 +134,7 @@ def _add_gwas_catalog_href(info_array, study_accession):
     return info_array
 
 
-def _get_array_to_display(datasets, variant=None, chromosome=None:
+def _get_array_to_display(datasets, variant=None, chromosome=None):
     if datasets is None: return {}
     if len(datasets[REFERENCE_DSET]) <= 0: return {}
 
@@ -260,7 +260,7 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
     if collection_name is None:
         collection_name = 'associations'
     params = params or {}
-    return OrderedDict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
+    return Ordereddict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
         method_name=method_name, start=start, size=size, index_marker=index_marker,
         size_retrieved=len(data_dict),
         params=params

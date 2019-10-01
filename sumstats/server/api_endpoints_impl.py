@@ -36,7 +36,7 @@ def associations():
 
     datasets, index_marker = searcher.search(start=start, size=size, pval_interval=pval_interval)
 
-    data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
+    data_dict = apiu._get_array_to_display(datasets=datasets)
     params = dict(p_lower=p_lower, p_upper=p_upper)
     response = apiu._create_response(method_name='api.get_assocs', start=start, size=size, index_marker=index_marker,
                                      data_dict=data_dict, params=params)
@@ -96,7 +96,7 @@ def trait_associations(trait):
     try:
         datasets, index_marker = searcher.search(trait=trait, start=start, size=size, pval_interval=pval_interval)
 
-        data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
+        data_dict = apiu._get_array_to_display(datasets=datasets)
         params = dict(trait=trait, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_response(method_name='api.get_trait_assocs', start=start, size=size,
                                          index_marker=index_marker,
@@ -211,7 +211,7 @@ def tissue_associations(tissue):
         datasets, index_marker = searcher.search(tissue=tissue,
                                                        start=start, size=size, pval_interval=pval_interval)
 
-        data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
+        data_dict = apiu._get_array_to_display(datasets=datasets)
         #params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         params = dict(p_lower=p_lower, p_upper=p_upper, tissue=tissue)
         response = apiu._create_response(method_name='api.get_tissue_assocs', start=start, size=size,
@@ -257,13 +257,13 @@ def tissue_study_associations(study, tissue=None):
             datasets, index_marker = searcher.search(tissue=tissue, study=study, trait=trait, gene=gene, 
                                                      start=start, size=size, pval_interval=pval_interval)
 
-            data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
+            data_dict = apiu._get_array_to_display(datasets=datasets)
 
             params = dict(tissue=tissue, trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         else:
             datasets, index_marker = searcher.search(study=study, gene=gene,                                                                                                       start=start, size=size, pval_interval=pval_interval)
 
-            data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
+            data_dict = apiu._get_array_to_display(datasets=datasets)
 
             params = dict(study=study, p_lower=p_lower, p_upper=p_upper, gene=gene)
 
@@ -321,7 +321,7 @@ def chromosome_associations(chromosome):
         datasets, index_marker = searcher.search(chromosome=chromosome,
                                                             start=start, size=size, study=study,
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
-        data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, quant_method=quant_method)
+        data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome)
         return _create_chromosome_response(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
                                                 index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
                                                 p_lower=p_lower, p_upper=p_upper, study=study))
@@ -355,7 +355,7 @@ def variants(variant, chromosome=None):
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
 
-        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, quant_method=quant_method)
+        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant)
         params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is None:
             method_name = 'api.get_variant'
@@ -387,7 +387,7 @@ def variant_resource(variant, chromosome=None):
     try:
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
-        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, quant_method=quant_method)
+        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant)
         params = {'variant_id': variant, 'study_accession': study}
         if chromosome is not None:
             params['chromosome'] = chromosome
