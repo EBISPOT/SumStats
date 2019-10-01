@@ -58,13 +58,13 @@ def traits():
         traits = explorer.get_trait_of_study(study_to_find=study)
         trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
 
-        response = apiu._create_response(collection_name='trait', method_name='api.get_traits', params={'study_accession': study},
+        response = apiu._create_response(collection_name='molecular_trait_id', method_name='api.get_traits', params={'study_accession': study},
                                          start=start, size=size, index_marker=size, data_dict=trait_list)
     else:
         traits = explorer.get_list_of_traits()
         trait_list = apiu._get_trait_list(traits=traits, start=start, size=size)
 
-        response = apiu._create_response(collection_name='trait', method_name='api.get_traits',
+        response = apiu._create_response(collection_name='molecular_trait_id', method_name='api.get_traits',
                                          start=start, size=size, index_marker=size, data_dict=trait_list)
 
 
