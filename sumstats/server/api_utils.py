@@ -110,10 +110,10 @@ def _get_gene_list(genes, start, size):
 
 
 def _create_info_for_trait(trait):
-    trait_info = {'trait': trait,
-                  '_links': {'self': _create_href(method_name='api.get_trait', params={'trait': trait})}}
+    trait_info = {'molecular_trait_id': trait,
+                  '_links': {'self': _create_href(method_name='api.get_trait', params={'molecular_trait_id': trait})}}
     #trait_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_trait', params={'trait': trait})
-    trait_info['_links']['associations'] = _create_href(method_name='api.get_trait_assocs', params={'trait': trait})
+    trait_info['_links']['associations'] = _create_href(method_name='api.get_trait_assocs', params={'molecular_trait_id': trait})
     return trait_info
 
 def _create_info_for_gene(gene):
@@ -169,7 +169,7 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
         gene = datasets[GENE_DSET][index]
         tissue = datasets[TISSUE_DSET][index]
 
-        element_info['trait'] = trait
+        element_info['molecular_trait_id'] = trait
         element_info['gene_id'] = gene
         element_info['tissue'] = tissue
 

@@ -382,7 +382,7 @@ def get_traits():
 
 
 @api.route('/molecular_phenotypes/<string:molecular_trait_id>')
-def get_trait(trait):
+def get_trait(molecular_trait_id):
     """Molecular phenotype Resource
 
         .. :quickref: Molecular Phenotype Resource; Lists a specific molecular phenotype resource.
@@ -424,7 +424,7 @@ def get_trait(trait):
         :statuscode 200: no error
         :statuscode 404: not found error
     """
-    resp = endpoints.trait(trait)
+    resp = endpoints.trait(molecular_trait_id)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
