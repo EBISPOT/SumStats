@@ -134,7 +134,7 @@ def _add_gwas_catalog_href(info_array, study_accession):
     return info_array
 
 
-def _get_array_to_display(datasets, variant=None, chromosome=None:
+def _get_array_to_display(datasets, variant=None, chromosome=None):
     if datasets is None: return {}
     if len(datasets[REFERENCE_DSET]) <= 0: return {}
 
