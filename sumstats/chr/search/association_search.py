@@ -15,13 +15,14 @@ from sumstats.utils.interval import *
 import sumstats.utils.sqlite_client as sq
 from itertools import repeat
 
+
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
 
 
 class AssociationSearch:
     def __init__(self, start, size, pval_interval=None, config_properties=None, study=None, chromosome=None,
-                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None):
+                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method="ge"):
         self.starting_point = start
         self.start = start
         self.size = size
@@ -33,6 +34,7 @@ class AssociationSearch:
         self.gene = gene
         self.tissue = tissue
         self.snp = snp
+        self.quant_method = quant_method
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
@@ -40,7 +42,7 @@ class AssociationSearch:
         self.chr_dir = self.properties.chr_dir
         self.trait_dir = self.properties.trait_dir
         self.database = self.properties.sqlite_path
-        self.snp_map = fsutils.create_h5file_path(self.search_path, self.properties.snp_dir, "snp_map")
+        self.snpdb = self.properties.snpdb
         self.trait_file = "phen_meta"
         self.hdfs = []
         
@@ -52,17 +54,23 @@ class AssociationSearch:
         self.index_marker = self.search_traversed = 0
         self.df = pd.DataFrame()
         self.condition = self._construct_conditional_statement()
-        print(self.condition)
+        logger.debug(self.condition)
+        logger.debug("quant: ".format(self.quant_method))
 
 
     def _chr_bp_from_snp(self):
+        chromosome = None
+        bp_interval = None
         if self._snp_format() is 'rs':
+            print('rs')
             chromosome, bp_interval = self.map_snp_to_location()
-            if chromosome and bp_interval:
-                self.chromosome = chromosome
-                self.bp_interval = IntInterval().set_string_tuple(bp_interval)
         elif self._snp_format() is 'chr_bp':
-            pass
+            print('chr_bp_style')
+            chromosome, bp_interval = self._chr_bp_from_name(self.snp)
+        if chromosome and bp_interval:
+            self.chromosome = chromosome
+            self.bp_interval = IntInterval().set_string_tuple(bp_interval)
+            
 
 
     def chrom_for_trait(self):
@@ -72,9 +80,9 @@ class AssociationSearch:
         if len(chroms) == 1:
             self.chromosome = chroms[0]
         elif len(chroms) > 1:
-            print("more than one chrom for this trait?") # need to handle this error
+            logger.debug("more than one chrom for this trait?") # need to handle this error
         else:
-            print("No chrom for this trait?") # need to handle this error
+            logger.debug("No chrom for this trait?") # need to handle this error
 
     def chrom_for_gene(self):
         h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, self.trait_file)
@@ -83,15 +91,15 @@ class AssociationSearch:
         if len(chroms) == 1:
             self.chromosome = chroms[0]
         elif len(chroms) > 1:
-            print("more than one chrom for this gene?") # need to handle this error
+            logger.debug("more than one chrom for this gene?") # need to handle this error
         else:
-            print("No chrom for this trait?") # need to handle this error
+            logger.debug("No chrom for this trait?") # need to handle this error
 
 
     def map_snp_to_location(self):
         try:
             snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
-            sql = sq.sqlClient(self.database)
+            sql = sq.sqlClient(self.snpdb)
             chromosome, position = sql.get_chr_pos(snp_no_prefix)[0]
             bp_interval = ':'.join([str(position), str(position)])
             return (chromosome, bp_interval)
@@ -101,73 +109,80 @@ class AssociationSearch:
 
     def _snp_format(self):
         prefix = ["rs", "ss"]
-        if re.search(r"[a-zA-Z]+[0-9]+", self.snp):
+        if re.search(r"rs[0-9]+", self.snp):
             return "rs"
         elif re.search(r".+_[0-9]+_[ACTGN]+_[ACTGN]+", self.snp):
             return "chr_bp"
         else:
             return False
 
+    @staticmethod
+    def _chr_bp_from_name(name):
+        parts = name.split("_")
+        chromosome = parts[0].lower().replace("chr","")
+        position = parts[1]
+        bp_interval = ':'.join([str(position), str(position)])
+        return chromosome, bp_interval
 
     def _narrow_hdf_pool(self):
         if self.tissue and self.study:
-            print("tissue and study")
+            logger.debug("tissue and study")
             sql = sq.sqlClient(self.database)
             file_ids = []
-            resp = sql.get_file_ids_for_study_tissue(self.study, self.tissue)
+            resp = sql.get_file_ids_for_study_tissue(self.study, self.tissue, self.quant_method)
             if resp:
                 file_ids.extend(resp)
                 if not self._narrow_by_chromosome(file_ids):
                     raise NotFoundError("Study :{} with tissue: {} and chr {}".format(self.study, self.tissue, self.chromosome))
             else:
-                raise NotFoundError("Study :{} with tissue: {}".format(self.study, self.tissue))
+                raise NotFoundError("Study :{} with tissue: {} and quantification method: {}".format(self.study, self.tissue, self.quant_method))
 
         if self.tissue and not self.study:
-            print("tissue")
+            logger.debug("tissue")
             sql = sq.sqlClient(self.database)
             file_ids = []
-            resp = sql.get_file_ids_for_tissue(self.tissue)
+            resp = sql.get_file_ids_for_tissue(self.tissue, self.quant_method)
             if resp:
                 file_ids.extend(resp)
                 if not self._narrow_by_chromosome(file_ids):
                     raise NotFoundError("Tissue: {} with chr {}".format(self.tissue, self.chromosome))
             else:
-                raise NotFoundError("Tissue: {}".format(self.tissue))
+                raise NotFoundError("Tissue: {} with quantification method: {}".format(self.tissue, self.quant_method))
 
         if self.study and not self.tissue:
-            print("study")
+            logger.debug("study")
             sql = sq.sqlClient(self.database)
             file_ids = []
-            resp = sql.get_file_id_for_study(self.study)
+            resp = sql.get_file_id_for_study(self.study, self.quant_method)
             if resp:
                 file_ids.extend(resp)
                 if not self._narrow_by_chromosome(file_ids):
                     raise NotFoundError("Study :{} with chr {}".format(self.study, self.chromosome))
             else:
-                raise NotFoundError("Study :{}".format(self.study))
+                raise NotFoundError("Study :{} with quantification method: {}".format(self.study, self.quant_method))
                 
         if self.trait:
-            print("phen")
+            logger.debug("phen")
             self.chrom_for_trait()
-            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*.h5")
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
         if self.gene:
-            print("gene")
+            logger.debug("gene")
             self.chrom_for_gene()
-            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*.h5")
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
         if self.chromosome and all(v is None for v in [self.study, self.trait, self.gene, self.tissue]):
-            print("bp/chr")
-            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*.h5")
+            logger.debug("bp/chr")
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
         if all(v is None for v in [self.chromosome, self.study, self.gene, self.trait, self.tissue]):
-            print("all")
-            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*.h5") 
+            logger.debug("all")
+            self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*+" + str(self.quant_method) + ".h5") 
 
     def _narrow_by_chromosome(self, file_ids):
         if self.chromosome:
-            print("chr{}".format(self.chromosome))
+            logger.debug("chr{}".format(self.chromosome))
             self.hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids]
             self.hdfs = list(itertools.chain.from_iterable(self.hdfs))
         else:
-            print("nochr")
+            logger.debug("nochr")
             self.hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids]
             self.hdfs = list(itertools.chain.from_iterable(self.hdfs))
         if self.hdfs:
@@ -197,12 +212,14 @@ class AssociationSearch:
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
                 key = store.keys()[0]
-                print(key)
-                study = self._get_study_metadata(store, key)['study']
-                tissue = self._get_study_metadata(store, key)['qtl_group'] # check this
+                identifier = key.strip("/")
+                print(identifier)
+                logger.debug(key)
+                study = self._get_study_metadata(identifier)['study']
+                tissue = self._get_study_metadata(identifier)['tissue_ont']
                 
                 if self.study:
-                    study = self._get_study_metadata(store, key)['study']
+                    study = self._get_study_metadata(identifier)['study']
                     if self.study != study:
                         # move on to next study if this isn't the one we want
                         continue
@@ -215,7 +232,7 @@ class AssociationSearch:
                     print(self.condition)
                     chunks = store.select(key, chunksize=1, start=self.start, where=self.condition) #set pvalue and other conditions
                 else:
-                    print("No condition")
+                    logger.debug("No condition")
                     chunks = store.select(key, chunksize=1, start=self.start)
 
                 chunk_size = chunks.coordinates.size
@@ -227,13 +244,17 @@ class AssociationSearch:
                     continue
 
                 for i, chunk in enumerate(chunks):
-                    if self.snp and chunk[SNP_DSET].values != self.snp:
-                        pass
-                    else:
-                        chunk[STUDY_DSET] = study
-                        #chunk[TRAIT_DSET] = str(traits) 
-                        chunk[TISSUE_DSET] = tissue
-                        self.df = pd.concat([self.df, chunk])
+                    if self.snp: 
+                        # filter for correct snp
+                        if self._snp_format() == 'rs':
+                            chunk = chunk[chunk[RSID_DSET] == self.snp]
+                        elif self._snp_format() == 'chr_bp':
+                            chunk = chunk[chunk[SNP_DSET] == self.snp]
+                    
+                    chunk[STUDY_DSET] = study
+                    #chunk[TRAIT_DSET] = str(traits) 
+                    chunk[TISSUE_DSET] = tissue
+                    self.df = pd.concat([self.df, chunk])
 
                     if len(self.df.index) >= self.size: # break once we have enough
                         break
@@ -269,11 +290,10 @@ class AssociationSearch:
 
         if self.snp:
             self._chr_bp_from_snp()
+            print(self.bp_interval.lower_limit)
             if self.bp_interval:
                 conditions.append("{bp} >= {lower}".format(bp = BP_DSET, lower = self.bp_interval.lower_limit))
-            if self.bp_interval:
                 conditions.append("{bp} <= {upper}".format(bp = BP_DSET, upper = self.bp_interval.upper_limit))
-            #conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
 
         if self.pval_interval:
             if self.pval_interval.lower_limit:
@@ -292,8 +312,11 @@ class AssociationSearch:
         return statement
 
 
-    def _get_study_metadata(self, store, key):
-        return store.get_storer(key).attrs.study_metadata
+    def _get_study_metadata(self, key):
+        sql = sq.sqlClient(self.database)
+        metadata_dict = sql.get_study_context_meta(key)
+        return metadata_dict
+        #return store.get_storer(key).attrs.study_metadata
 
     def _get_group_key(self, store):
         for (path, subgroups, subkeys) in store.walk():

@@ -15,11 +15,13 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../.env/src/sphinx'))
+sys.path.append(os.path.abspath('../../'))
+
 
 # -- Project information -----------------------------------------------------
 
 project = 'sumstats'
-copyright = '2018, EMBL-EBI'
+copyright = '2019, EMBL-EBI'
 author = 'EMBL-EBI'
 
 # The short X.Y version
@@ -88,7 +90,8 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'gwastheme'
+#html_theme = 'gwastheme'
+html_theme = 'sphinx_rtd_theme'
 html_theme_path = ['.']
 html_add_permalinks = ''
 

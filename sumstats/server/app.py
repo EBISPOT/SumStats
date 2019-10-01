@@ -158,8 +158,8 @@ def get_assocs():
 
      :query start: offset number. default is 0
      :query size: number of items returned. default is 20
-     :query reveal: ``raw`` or ``all`` will show you the raw association data or both the harmonised and
-         raw association data respectively.
+     :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+         different quantification methods. See the API documentation for more details.
      :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
          annotation (0.001 or 1e-3 or 1E-3)
      :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
@@ -281,8 +281,8 @@ def get_variant(variant_id):
 
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
-        :query reveal: ``raw`` or ``all`` will show you the raw association data or both the harmonised and
-            raw association data respectively.
+        :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+         different quantification methods. See the API documentation for more details.
         :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
             annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
@@ -302,9 +302,9 @@ def get_variant(variant_id):
 def get_traits():
     """Traits
 
-        .. :quickref: Traits; List all existing trait resources
+        .. :quickref: Molecular phenotypes; List all existing molecular phenotypes resources
 
-        Lists all of the existing trait resources.
+        Lists all of the existing molecular phenotype resources.
 
         **Example request**:
 
@@ -363,19 +363,19 @@ def get_traits():
                     mimetype="application/json")
 
 
-@api.route('/molecular_phenotypes/<string:trait>')
+@api.route('/molecular_phenotypes/<string:molecular_trait_id>')
 def get_trait(trait):
-    """Trait Resource
+    """Molecular phenotype Resource
 
-        .. :quickref: Trait Resource; Lists a specific trait resource.
+        .. :quickref: Molecular Phenotype Resource; Lists a specific molecular phenotype resource.
 
-        Lists a specific trait resource
+        Lists a specific molecular phenotype resource
 
         **Example request**:
 
         .. sourcecode:: http
 
-            GET /traits/EFO_0003785 HTTP/1.1
+            GET /molecular_phenotypes/ENSG00000187583 HTTP/1.1
             Host: www.ebi.ac.uk
 
         **Example response**:
@@ -412,19 +412,19 @@ def get_trait(trait):
                     mimetype="application/json")
 
 
-@api.route('/molecular_phenotypes/<string:trait>/associations')
+@api.route('/molecular_phenotypes/<string:molecular_trait_id>/associations')
 def get_trait_assocs(trait):
-    """Search Trait for Associations
+    """Search Molecular phenotype for Associations
 
-        .. :quickref: Search Trait for Associations; Lists associations for a specific trait.
+        .. :quickref: Search Molecular phenotype for Associations; Lists associations for a specific molecular trait id.
 
-        Lists associations for a specific trait.
+        Lists associations for a specific molecular trait id.
 
         **Example request**:
 
         .. sourcecode:: http
 
-            GET /traits/EFO_0003785/associations HTTP/1.1
+            GET /molecular_phenotypes/ENSG00000187583/associations HTTP/1.1
             Host: www.ebi.ac.uk
 
         **Example response**:
@@ -513,8 +513,8 @@ def get_trait_assocs(trait):
             }
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
-        :query reveal: ``raw`` or ``all`` will show you the raw association data or both the harmonised and
-             raw association data respectively.
+        :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+         different quantification methods. See the API documentation for more details.
         :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
              annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
@@ -617,70 +617,70 @@ def get_studies():
                     status=200,
                     mimetype="application/json")
 
-@api.route('/traits/<string:trait>/studies')
-def get_studies_for_trait(trait):
-    """Search Trait for Studies
-
-        .. :quickref: Search Trait for Studies; Lists studies for a specific trait.
-
-        Lists studies for a specific trait.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-            GET /traits/EFO_0003785/studies HTTP/1.1
-            Host: www.ebi.ac.uk
-
-        **Example response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 200 OK
-            Content-Type: application/json
-
-            {
-              "_embedded": {
-                "studies": [
-                  {
-                    "study_accession": "GCST005038",
-                    "_links": {
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
-                      },
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
-                      },
-                      "trait": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                      },
-                      "gwas_catalog": {
-                        "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
-                      }
-                    }
-                  }
-                ]
-              },
-              "_links": {
-                "self": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies"
-                },
-                "first": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies?start=0&size=20"
-                }
-              }
-            }
-
-        :query start: offset number. default is 0
-        :query size: number of items returned. default is 20
-
-        :statuscode 200: no error
-        :statuscode 404: not found error
-    """
-    resp = endpoints.studies_for_trait(trait)
-    return Response(response=resp,
-                    status=200,
-                    mimetype="application/json")
+#@api.route('/traits/<string:trait>/studies')
+#def get_studies_for_trait(trait):
+#    """Search Trait for Studies
+#
+#        .. :quickref: Search Trait for Studies; Lists studies for a specific trait.
+#
+#        Lists studies for a specific trait.
+#
+#        **Example request**:
+#
+#        .. sourcecode:: http
+#
+#            GET /traits/EFO_0003785/studies HTTP/1.1
+#            Host: www.ebi.ac.uk
+#
+#        **Example response**:
+#
+#        .. sourcecode:: http
+#
+#            HTTP/1.1 200 OK
+#            Content-Type: application/json
+#
+#            {
+#              "_embedded": {
+#                "studies": [
+#                  {
+#                    "study_accession": "GCST005038",
+#                    "_links": {
+#                      "associations": {
+#                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
+#                      },
+#                      "self": {
+#                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
+#                      },
+#                      "trait": {
+#                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
+#                      },
+#                      "gwas_catalog": {
+#                        "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
+#                      }
+#                    }
+#                  }
+#                ]
+#              },
+#              "_links": {
+#                "self": {
+#                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies"
+#                },
+#                "first": {
+#                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies?start=0&size=20"
+#                }
+#              }
+#            }
+#
+#        :query start: offset number. default is 0
+#        :query size: number of items returned. default is 20
+#
+#        :statuscode 200: no error
+#        :statuscode 404: not found error
+#    """
+#    resp = endpoints.studies_for_trait(trait)
+#    return Response(response=resp,
+#                    status=200,
+#                    mimetype="application/json")
 
 
 @api.route('/tissues/<string:tissue>/studies')
@@ -1164,8 +1164,8 @@ def get_chromosome_assocs(chromosome):
 
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
-        :query reveal: ``raw`` or ``all`` will show you the raw association data or both the harmonised and
-             raw association data respectively.
+        :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+         different quantification methods. See the API documentation for more details.
         :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
              annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
@@ -1289,8 +1289,8 @@ def get_chromosome_variants(chromosome, variant_id):
 
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
-        :query reveal: ``raw`` or ``all`` will show you the raw association data or both the harmonised and
-             raw association data respectively.
+        :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+         different quantification methods. See the API documentation for more details.
         :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
              annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent

@@ -74,6 +74,24 @@ class sqlClient():
         else:
             return False
 
+    def get_study_context_meta(self, identifier):
+        data_dict = {"study": None, 
+                     "identifier": None,
+                     "qtl_group": None,
+                     "tissue": None,
+                     "phen": None,
+                     "tissue_ont": None,
+                     "treatment": None,
+                     "treatment_ont": None,
+                     "quant_method": None
+                     }
+
+        self.cur.execute("SELECT * FROM study_info where identifier =?", (identifier,))
+        data = self.cur.fetchone()
+        if data:
+            data_dict["study"], data_dict["identifier"], data_dict["qtl_group"], data_dict["tissue"], data_dict["phen"], data_dict["tissue_ont"], data_dict["treatment"], data_dict["treatment_ont"], data_dict["quant_method"] = data
+        return data_dict
+
     def get_traits(self):
         data = []
         for row in self.cur.execute("SELECT trait FROM study_info"):
@@ -86,6 +104,15 @@ class sqlClient():
     def get_tissues(self):
         data = []
         for row in self.cur.execute("SELECT tissue FROM study_info"):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
+    def get_tissue_ontos(self):
+        data = []
+        for row in self.cur.execute("SELECT tissue_ontology FROM study_info"):
             data.append(row[0])
         if data:
             return data
@@ -110,18 +137,18 @@ class sqlClient():
         else:
             return False
 
-    def get_file_id_for_study(self, study):
+    def get_file_id_for_study(self, study, quant):
         data = []
-        for row in self.cur.execute("select identifier from study_info where study =?", (study,)):
+        for row in self.cur.execute("select identifier from study_info where study =? and quant_method =?", (study, quant)):
             data.append(row[0])
         if data:
             return data
         else:
             return False
 
-    def get_file_ids_for_study_tissue(self, study, tissue):
+    def get_file_ids_for_study_tissue(self, study, tissue, quant):
         data = []
-        for row in self.cur.execute("select identifier from study_info where study =? and tissue =?", (study, tissue)):
+        for row in self.cur.execute("select identifier from study_info where study =? and tissue_ontology =? and quant_method =?", (study, tissue, quant)):
             data.append(row[0])
         if data:
             return data
@@ -137,9 +164,9 @@ class sqlClient():
         else:
             return False
 
-    def get_file_ids_for_tissue(self, tissue):
+    def get_file_ids_for_tissue(self, tissue, quant):
         data = []
-        for row in self.cur.execute("select identifier from study_info where tissue =?", (tissue,)):
+        for row in self.cur.execute("select identifier from study_info where tissue_ontology =? and quant_method =?", (tissue, quant)):
             data.append(row[0])
         if data:
             return data

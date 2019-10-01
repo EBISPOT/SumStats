@@ -4,10 +4,10 @@
    contain the root `toctree` directive.
 
 
-.. .. contents:: The Summary Statistics Database API Documentation
+.. .. contents:: The eQTL Catalogue Summary Statistics API Documentation
 
-Summary Statistics Database API Documentation
-=============================================
+eQTL Catalogue Summary Statistics API Documentation
+===================================================
 
 
 Overview
@@ -79,15 +79,22 @@ Association Queries
 
 For all endpoints that return associations you can assume the below.
 
-Default data values displayed are the harmonised values. If the harmonised/default values are null, that means that the
-the specific entries for this study could not be harmonised and you can query for the raw study data if you need to. The
-``code`` field indicates the level of harmonisation that the data could go through. Take a look at the harmonisation
-documentation for more details on the harmonisation process and what each ``code`` value means.
+Default data values displayed are from the 'ge' (gene counts) quantification method. You can query specifically for any 
+other quantification method choosing from the table below:
 
-You can query specifically for the original or 'raw' values of the data or you can query for both harmonised and raw
-values to be displayed. Harmonised values will, in the latter case, be prefixed with ``hm_``. This is done by passing the
-query parameter ``reveal=raw`` or ``reveal=all`` in the API call. If the "raw" and harmonised values are the same, this
-indicates that the original data was already harmonised.
+===================== ============
+Quantification method Reference
+===================== ============
+Gene counts           'ge'
+Exon counts           'exon'
+Microarray            'microarray'
+Transcript usage      'tx'
+Txrevise              'txrevise'
+===================== ============
+
+Use the reference to specify the quantification method. For instance, if you want to view exon count data use the query
+parameter ``quant_method=exon``. By default ``quant_method`` is set to 'ge'. It is not possible to view all the quantification
+methods in one API call. 
 
 You can also filter all of the association endpoints by p-value. This is done by setting either the lower p-value
 threshold that you want to be cutoff, the upper p-value threshold that you want to be cutoff, or both. This is done by
@@ -101,57 +108,53 @@ Note: base-pair location limit filtering will only work via the /chromosomes/(in
 Requesting associations for variant
 -----------------------------------
 
-You can query the associations of a specific variant by variant id (valid rsid). This can be done either via the
-/associations/(string: variant_id) endpoint or via the /chromosomes/(int: chromosome)/associations/(string: variant_id)
-endpoint. If you know the chromosome that the variant belongs to, the latter query should be faster.
-
-Querying via the /chromosomes endpoint should return a subset of the resources returned via the /associations endpoint.
-
-You can request for a single association resource identified by it's unique variant_id/study_accession combination via
-either of the above endpoints. You can query for a single association resource using the above endpoints and passing the
-query parameter ``study_accession``.
+You can query the associations of a specific variant by variant id or rsid. This can be done either via the
+/associations/(string: variant_id) or /associations/(string: rsid) endpoint.
 
 
 Available data fields
 ---------------------
 
-If the query parameter ``reveal=all`` is specified, some of the below fields will have the prefix ``hm_`` to indicate that
-they are the harmonised fields.
 
 +-------------------------+--------+--------------------------------------------------------------+
 | Name                    | Type   | Description                                                  |
 +=========================+========+==============================================================+
-| variant_id              | String | The rsid of the variant                                      |
+| variant_id              | String | The variant ID (CHR_BP_REF_ALT) e.g. chr19_226776_C_T        |
 +-------------------------+--------+--------------------------------------------------------------+
-| chromosome              | Number | The chromosome that the variant is located in                |
+| rsid                    | String | The rsID, if given, for the variant                          |
 +-------------------------+--------+--------------------------------------------------------------+
-| base_pair_location      | Number | The base pair location that the variant is located in        |
+| chromosome              | Number | GRCh38 chromosome name of the variant                        |
 +-------------------------+--------+--------------------------------------------------------------+
-| study_accession         | String | The study accession of the association                       |
+| position                | Number | GRCh38 position of the variant                               |
 +-------------------------+--------+--------------------------------------------------------------+
-| trait                   | String | The EFO trait that the study is associated with              |
+| study_id                | String | The study identifier e.g. Alasoo_2018                        |
 +-------------------------+--------+--------------------------------------------------------------+
-| p_value                 | Number | The p-value of the variant/study association                 |
+| molecular_trait_id      | String | ID of the molecular trait e.g. ENSG00000156508               |
 +-------------------------+--------+--------------------------------------------------------------+
-| code                    | Number | When displayed, indicates the harmonsiation outcome          |
+| pvalue                  | Number | P-value of association between the variant and the phenotype |
 +-------------------------+--------+--------------------------------------------------------------+
-| effect_allele           | String | The effect allele of the variant                             |
+| ac                      | Number | Allele count                                                 |
 +-------------------------+--------+--------------------------------------------------------------+
-| other_allele            | String | The effect allele of the variant                             |
+| alt                     | String | GRCh38 effect allele (alt allele)                            |
 +-------------------------+--------+--------------------------------------------------------------+
-| effect_allele_frequency | Number | The effect allele frequency of the variant/study association |
+| ref                     | String | GRCh38 other allele (reference allele)                       |
 +-------------------------+--------+--------------------------------------------------------------+
-| odds_ratio              | Number | The odds ratio of the variant/study association              |
+| maf                     | Number | Minor allele frequency within the QTL mapping study          |
 +-------------------------+--------+--------------------------------------------------------------+
-| ci_lower                | Number | The odds ratio's confidence interval's lower range           |
+| mean_expr               | Number | Expression value for the associated gene + qtl_group         |
 +-------------------------+--------+--------------------------------------------------------------+
-| ci_upper                | Number | The odds ratio's confidence interval's upper range           |
+| type                    | String | SNP, INDEL or OTHER                                          |
 +-------------------------+--------+--------------------------------------------------------------+
-| beta                    | Number | The beta of the variant/study association                    |
+| an                      | Number | Total number of alleles                                      |
++-------------------------+--------+--------------------------------------------------------------+
+| beta                    | Number | Regression coefficient from the linear model                 |
 +-------------------------+--------+--------------------------------------------------------------+
 | se                      | Number | The beta's standard error                                    |
 +-------------------------+--------+--------------------------------------------------------------+
-
+| gene_id                 | String | Ensembl gene ID                                              |
++-------------------------+--------+--------------------------------------------------------------+
+| r2                      | Number | Imputation quality score from the imputation software        |
++-------------------------+--------+--------------------------------------------------------------+
 
 
 
@@ -186,13 +189,13 @@ Links will be provided in the response to navigate the resources.
      },
      "_links": {
        "self": {
-         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/associations"
+         "href": "https://www.ebi.ac.uk/eqtl/api/associations"
        },
        "first": {
-         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/associations?size=1&start=0"
+         "href": "https://www.ebi.ac.uk/eqtl/api/associations?size=1&start=0"
        },
        "next": {
-         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/associations?size=1&start=1"
+         "href": "https://www.ebi.ac.uk/eqtl/api/associations?size=1&start=1"
        }
      }
    }
@@ -251,19 +254,27 @@ A ``GET`` request is used to access the API.
    {
      "_links": {
        "associations": {
-         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/associations"
+             "href": "https://www.ebi.ac.uk/eqtl/api/associations"
        },
-       "traits": {
-         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits"
+       "molecular_phenotypes": {
+             "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes"
        },
        "studies": {
-         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies"
+             "href": "https://www.ebi.ac.uk/eqtl/api/studies"
+       },
+       "tissues": {
+             "href": "https://www.ebi.ac.uk/eqtl/api/tissues"
+       },
+       "genes": {
+             "href": "https://www.ebi.ac.uk/eqtl/api/genes"
        },
        "chromosomes": {
-         "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes"
+             "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes"
        }
      }
    }
+
+
 
 **Response structure**
 
@@ -275,17 +286,21 @@ A ``GET`` request is used to access the API.
 
 **Links**
 
-+--------------+---------------------------------------------------+
-| Relation     | Description                                       |
-+==============+===================================================+
-| associations | Link to the association resources in the database |
-+--------------+---------------------------------------------------+
-| traits       | Link to the trait resources in the database       |
-+--------------+---------------------------------------------------+
-| studies      | Link to the study resources in the database       |
-+--------------+---------------------------------------------------+
-| chromosomes  | Link to the chromosome resources in the database  |
-+--------------+---------------------------------------------------+
++---------------------------+------------------------------------------------------------+
+| Relation                  | Description                                                |
++===========================+============================================================+
+| associations              | Link to the association resources in the database          |
++---------------------------+------------------------------------------------------------+
+| molecular_phenotypes      | Link to the molecular phenotypes resources in the database |
++---------------------------+------------------------------------------------------------+
+| studies                   | Link to the study resources in the database                |
++---------------------------+------------------------------------------------------------+
+| tissues                   | Link to the tissue resources in the database               |
++---------------------------+------------------------------------------------------------+
+| genes                     | Link to the gene resources in the database                 |
++---------------------------+------------------------------------------------------------+
+| chromosomes               | Link to the chromosome resources in the database           |
++---------------------------+------------------------------------------------------------+
 
 
 API detailed reference

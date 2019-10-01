@@ -15,7 +15,8 @@ import sumstats.utils.sqlite_client as sq
 class Loader():
     def __init__(self, tsv=None, csv_out=None, var_file=None, qtl_group=None, quant_method=None,
                  study_dir=None, study=None, trait=None, hdf_path=None,
-                 chromosome=None, expr_file=None, sqldb=None, loader=None, trait_dir=None, tissue=None):
+                 chromosome=None, expr_file=None, sqldb=None, loader=None, trait_dir=None, tissue=None,
+                 tissue_ont=None, treatment=None, treatment_ont=None):
         self.tsv = tsv
         self.csv_out = csv_out
         self.var_file = var_file
@@ -30,6 +31,9 @@ class Loader():
         self.trait_dir = trait_dir
         self.expr_file = expr_file
         self.max_string = 255
+        self.tissue_ont = tissue_ont
+        self.treatment = treatment
+        self.treatment_ont = treatment_ont
  
         self.filename = None
         if self.tsv:
@@ -104,6 +108,7 @@ class Loader():
             dfexpr = pd.read_csv(self.expr_file, sep="\t", float_precision='high', names=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
             dfexpr = dfexpr[dfexpr.study == self.study]
             dfexpr = dfexpr[dfexpr.qtl_group == self.qtl_group]
+            dfexpr["median_tpm"] = pd.to_numeric(dfexpr["median_tpm"], errors='coerce')
         else:
             dfexpr = pd.DataFrame(columns=['phenotype_id', 'study', 'qtl_group', 'median_tpm'])
 
@@ -167,12 +172,26 @@ class Loader():
 
 
     def load_study_info(self):
+        """
+            CREATE TABLE study_info (
+            study blob not null,
+            identifier blob not null,
+            qtl_group blob not null,
+            tissue blob not null,
+            trait_file blob not null,
+            tissue_ontology blob not null,
+            treatment blob,
+            treatment_ontology blob not null, 
+            quant_method blob,
+            UNIQUE (identifier)
+            );
+        """
         sql = sq.sqlClient(self.sqldb)
-        identifier = self.study + "-" + self.qtl_group
+        identifier = self.study + "+" + self.qtl_group + "+" + self.quant_method
         print(self.trait_file)
         trait_file_id = os.path.basename(self.trait_file)
-        data = [self.study, identifier, self.qtl_group, self.tissue, self.quant_method, trait_file_id, self.filename]
-        sql.cur.execute("insert or ignore into study_info values (?,?,?,?,?,?,?)", data)
+        data = [self.study, identifier, self.qtl_group, self.tissue, trait_file_id, self.tissue_ont, self.treatment, self.treatment_ont, self.quant_method ]
+        sql.cur.execute("insert or ignore into study_info values (?,?,?,?,?,?,?,?,?)", data)
         sql.cur.execute('COMMIT')
 
 
@@ -186,9 +205,12 @@ def main():
     argparser.add_argument('-study', help='The study identifier', required=False)
     argparser.add_argument('-qtl_group', help='The qtl group e.g. "LCL"', required=False)
     argparser.add_argument('-quant', help='The quantification method e.g. "gene counts"', required=False)
-    argparser.add_argument('-tissue', help='The tissue ontology term', required=False)
+    argparser.add_argument('-tissue', help='The tissue', required=False)
     argparser.add_argument('-chr', help='The chromosome the data belongs to', required=False)
     argparser.add_argument('-loader', help='The loader', choices=['study', 'trait', 'study_info'], default=None, required=True)
+    argparser.add_argument('-tissue_ont', help='The tissue ontology term', required=False)
+    argparser.add_argument('-treatment', help='The treatment', required=False)
+    argparser.add_argument('-treatment_ont', help='The treatment ontology term', required=False)
 
     args = argparser.parse_args()
     
@@ -211,6 +233,9 @@ def main():
     expr_file = args.expr
     loader_type = args.loader
     chromosome = args.chr
+    tissue_ont = args.tissue_ont
+    treatment = args.treatment
+    treatment_ont = args.treatment_ont
 
     if loader_type == 'study':
         if chromosome is None:
@@ -223,7 +248,7 @@ def main():
             loader = Loader(trait=phen_file, hdf_path=h5files_path, loader=loader_type, trait_dir=trait_dir)
             loader.load_traits()
     elif loader_type == "study_info":
-            loader = Loader(qtl_group=qtl_group, quant_method=quant_method, study=study, sqldb=database, trait=phen_file, loader=loader_type, tissue=tissue)
+            loader = Loader(qtl_group=qtl_group, quant_method=quant_method, study=study, sqldb=database, trait=phen_file, loader=loader_type, tissue=tissue, tissue_ont=tissue_ont, treatment=treatment, treatment_ont=treatment_ont)
         #loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
             loader.load_study_info()
     else:

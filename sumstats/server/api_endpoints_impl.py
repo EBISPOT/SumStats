@@ -27,7 +27,7 @@ def root():
 def associations():
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/associations. " + (str(error)))
         raise BadUserRequest(str(error))
@@ -36,7 +36,7 @@ def associations():
 
     datasets, index_marker = searcher.search(start=start, size=size, pval_interval=pval_interval)
 
-    data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+    data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
     params = dict(p_lower=p_lower, p_upper=p_upper)
     response = apiu._create_response(method_name='api.get_assocs', start=start, size=size, index_marker=index_marker,
                                      data_dict=data_dict, params=params)
@@ -86,7 +86,7 @@ def trait(trait):
 def trait_associations(trait):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/traits/" + trait + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -96,7 +96,7 @@ def trait_associations(trait):
     try:
         datasets, index_marker = searcher.search(trait=trait, start=start, size=size, pval_interval=pval_interval)
 
-        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+        data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
         params = dict(trait=trait, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_response(method_name='api.get_trait_assocs', start=start, size=size,
                                          index_marker=index_marker,
@@ -199,7 +199,7 @@ def studies_for_tissue(tissue):
 def tissue_associations(tissue):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/tissues/" + tissue + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -211,7 +211,7 @@ def tissue_associations(tissue):
         datasets, index_marker = searcher.search(tissue=tissue,
                                                        start=start, size=size, pval_interval=pval_interval)
 
-        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+        data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
         #params = dict(trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         params = dict(p_lower=p_lower, p_upper=p_upper, tissue=tissue)
         response = apiu._create_response(method_name='api.get_tissue_assocs', start=start, size=size,
@@ -240,7 +240,7 @@ def tissue_study_associations(study, tissue=None):
     args = request.args.to_dict()
     gene = None
     try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
         gene = apiu._retrieve_endpoint_arguments(args, 'gene')
         trait = apiu._retrieve_endpoint_arguments(args, 'molecular_phenotype')
     except ValueError as error:
@@ -257,13 +257,13 @@ def tissue_study_associations(study, tissue=None):
             datasets, index_marker = searcher.search(tissue=tissue, study=study, trait=trait, gene=gene, 
                                                      start=start, size=size, pval_interval=pval_interval)
 
-            data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+            data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
 
             params = dict(tissue=tissue, trait=trait, study=study, p_lower=p_lower, p_upper=p_upper)
         else:
             datasets, index_marker = searcher.search(study=study, gene=gene,                                                                                                       start=start, size=size, pval_interval=pval_interval)
 
-            data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+            data_dict = apiu._get_array_to_display(datasets=datasets, quant_method=quant_method)
 
             params = dict(study=study, p_lower=p_lower, p_upper=p_upper, gene=gene)
 
@@ -308,7 +308,7 @@ def chromosome(chromosome):
 def chromosome_associations(chromosome):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
         bp_lower, bp_upper, bp_interval = apiu._get_bp_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, 'study_accession')
     except ValueError as error:
@@ -321,7 +321,7 @@ def chromosome_associations(chromosome):
         datasets, index_marker = searcher.search(chromosome=chromosome,
                                                             start=start, size=size, study=study,
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
-        data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, reveal=reveal)
+        data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, quant_method=quant_method)
         return _create_chromosome_response(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
                                                 index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
                                                 p_lower=p_lower, p_upper=p_upper, study=study))
@@ -341,7 +341,7 @@ def chromosome_associations(chromosome):
 def variants(variant, chromosome=None):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
         if study is not None:
             return variant_resource(variant=variant, chromosome=chromosome)
@@ -355,7 +355,7 @@ def variants(variant, chromosome=None):
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
 
-        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
+        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, quant_method=quant_method)
         params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is None:
             method_name = 'api.get_variant'
@@ -376,7 +376,7 @@ def variants(variant, chromosome=None):
 def variant_resource(variant, chromosome=None):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
     except ValueError as error:
         logging.debug("/chromosomes/" + chromosome + "/associations/" + variant + ". " + (str(error)))
@@ -387,7 +387,7 @@ def variant_resource(variant, chromosome=None):
     try:
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study)
-        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
+        data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, quant_method=quant_method)
         params = {'variant_id': variant, 'study_accession': study}
         if chromosome is not None:
             params['chromosome'] = chromosome
@@ -457,7 +457,7 @@ def gene(gene):
 def gene_associations(gene):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/traits/" + trait + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -465,9 +465,9 @@ def gene_associations(gene):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search(gene=gene, start=start, size=size, pval_interval=pval_interval)
+        datasets, index_marker = searcher.search(gene=gene, start=start, size=size, pval_interval=pval_interval, quant_method=quant_method)
 
-        data_dict = apiu._get_array_to_display(datasets=datasets, reveal=reveal)
+        data_dict = apiu._get_array_to_display(datasets=datasets)
         params = dict(gene=gene, p_lower=p_lower, p_upper=p_upper)
         response = apiu._create_response(method_name='api.get_gene_assocs', start=start, size=size,
                                          index_marker=index_marker,
