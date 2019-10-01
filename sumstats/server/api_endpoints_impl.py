@@ -34,7 +34,7 @@ def associations():
 
     searcher = search.Search(apiu.properties)
 
-    datasets, index_marker = searcher.search(start=start, size=size, pval_interval=pval_interval)
+    datasets, index_marker = searcher.search(start=start, size=size, pval_interval=pval_interval, quant_method=quant_method)
 
     data_dict = apiu._get_array_to_display(datasets=datasets)
     params = dict(p_lower=p_lower, p_upper=p_upper)
