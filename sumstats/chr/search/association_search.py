@@ -213,7 +213,6 @@ class AssociationSearch:
                 print('opened {}'.format(hdf))
                 key = store.keys()[0]
                 identifier = key.strip("/")
-                print(identifier)
                 logger.debug(key)
                 study = self._get_study_metadata(identifier)['study']
                 tissue = self._get_study_metadata(identifier)['tissue_ont']

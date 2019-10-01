@@ -124,7 +124,7 @@ def _create_info_for_gene(gene):
     return gene_info
 
 def _add_ontology_href(info_array, trait):
-    info_array['ols'] = {'href': str(properties.ols_terms_location + trait)}
+    info_array['ols'] = {'href': str(properties.ols_terms_ocation + trait)}
     return info_array
 
 
@@ -260,7 +260,7 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
     if collection_name is None:
         collection_name = 'associations'
     params = params or {}
-    return OrderedDict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
+    return Ordereddict([('_embedded', {collection_name: data_dict}), ('_links', _create_next_links(
         method_name=method_name, start=start, size=size, index_marker=index_marker,
         size_retrieved=len(data_dict),
         params=params
