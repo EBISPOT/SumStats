@@ -339,37 +339,46 @@ def get_traits():
             Content-Type: application/json
 
             {
-             "_embedded": {
-               "traits": [
-                 {
-                   "trait": "EFO_0008531",
-                   "_links": {
-                     "self": {
-                       "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531"
-                     },
-                     "ols": {
-                       "href": "https://www.ebi.ac.uk/ols/api/terms?id=EFO_0008531"
-                     },
-                     "studies": {
-                       "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531/studies"
-                     },
-                     "associations": {
-                       "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531/associations"
-                     }
-                   }
-                 }
-               ]
-             },
-             "_links": {
-               "self": {
-                 "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits"
-               },
-               "first": {
-                 "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits?size=20&start=0"
-               }
-             }
+              "_embedded": {
+                "molecular_trait_id": [
+                  {
+                    "molecular_trait_id": "ENSG00000187583",
+                    "_links": {
+                      "self": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583"
+                      },
+                      "associations": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583/associations"
+                      }
+                    }
+                  },
+                  {
+                    "molecular_trait_id": "ENSG00000227232",
+                    "_links": {
+                      "self": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000227232"
+                      },
+                      "associations": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000227232/associations"
+                      }
+                    }
+                  }
+                ]
+              },
+              "_links": {
+                "self": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes"
+                },
+                "first": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes?start=0&size=2"
+                },
+                "next": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes?start=2&size=2"
+                }
+              }
             }
 
+            
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
 
@@ -404,19 +413,13 @@ def get_trait(molecular_trait_id):
             Content-Type: application/json
 
             {
-              "trait": "EFO_0003785",
+              "molecular_trait_id": "ENSG00000187583",
               "_links": {
-                "studies": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies"
+                "self": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583"
                 },
                 "associations": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/associations"
-                },
-                "self": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                },
-                "ols": {
-                  "href": "https://www.ebi.ac.uk/ols/api/terms?id=EFO_0003785"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583/associations"
                 }
               }
             }
@@ -442,7 +445,7 @@ def get_trait_assocs(trait):
 
         .. sourcecode:: http
 
-            GET /molecular_phenotypes/ENSG00000187583/associations HTTP/1.1
+            GET /molecular_phenotypes/ENSG00000105963/associations HTTP/1.1
             Host: www.ebi.ac.uk
 
         **Example response**:
@@ -453,82 +456,57 @@ def get_trait_assocs(trait):
             Content-Type: application/json
 
             {
-                "_embedded": {
-                    "associations": {
-                        "0": {
-                            "ci_lower": null,
-                            "variant_id": "rs10875231",
-                            "chromosome": 1,
-                            "other_allele": "G",
-                            "code": 10,
-                            "odds_ratio": null,
-                            "effect_allele_frequency": 0.2449,
-                            "p_value": "2.826e-1",
-                            "base_pair_location": 99534456,
-                            "study_accession": "GCST005038",
-                            "effect_allele": "T",
-                            "beta": -0.0072,
-                            "ci_upper": null,
-                            "trait": "EFO_0003785",
-                            "_links": {
-                                "study": {
-                                    "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038"
-                                },
-                                "variant": {
-                                    "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231"
-                                },
-                                "self": {
-                                    "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005038"
-                                },
-                                "trait": {
-                                    "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                                }
-                            }
-                        },
-                        "1": {
-                            "ci_lower": null,
-                            "variant_id": "rs6678176",
-                            "chromosome": 1,
-                            "other_allele": "C",
-                            "code": 10,
-                            "odds_ratio": null,
-                            "effect_allele_frequency": 0.3197,
-                            "p_value": "2.656e-1",
-                            "base_pair_location": 99535271,
-                            "study_accession": "GCST005038",
-                            "effect_allele": "T",
-                            "beta": -0.006999999999999999,
-                            "ci_upper": null,
-                            "trait": "EFO_0003785",
-                            "_links": {
-                                "study": {
-                                    "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038"
-                                },
-                                "variant": {
-                                    "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176"
-                                },
-                                "self": {
-                                    "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176?study_accession=GCST005038"
-                                },
-                                "trait": {
-                                    "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
-                                }
-                            }
-                        }
+              "_embedded": {
+                "associations": {
+                  "0": {
+                    "an": 168,
+                    "type": "SNP",
+                    "r2": 0.50944,
+                    "variant": "chr7_27916_T_C",
+                    "alt": "C",
+                    "pvalue": 0.142001,
+                    "position": 27916,
+                    "maf": 0.047619,
+                    "study_id": "Alasoo_2018",
+                    "rsid": "rs577290214",
+                    "ac": 8,
+                    "chromosome": "7",
+                    "ref": "T",
+                    "beta": -0.127039,
+                    "median_tpm": null,
+                    "molecular_trait_id": "ENSG00000105963",
+                    "gene_id": "ENSG00000105963",
+                    "tissue": "CL_0000235",
+                    "_links": {
+                      "tissue": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                      },
+                      "self": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
+                      },
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
+                      },
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                      }
                     }
-                },
-                "_links": {
-                    "self": {
-                        "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/associations"
-                    },
-                    "first": {
-                        "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/associations?start=0&size=2"
-                    },
-                    "next": {
-                        "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/associations?start=2&size=2"
-                    }
+                  }
                 }
+              },
+              "_links": {
+                "self": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000105963/associations"
+                },
+                "first": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000105963/associations?start=0&size=1"
+                },
+                "next": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000105963/associations?start=1&size=1"
+                }
+              }
             }
+
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
         :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
@@ -574,53 +552,47 @@ def get_studies():
                 "studies": [
                   [
                     {
-                      "study_accession": "GCST001969",
                       "_links": {
-                        "associations": {
-                          "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326/studies/GCST001969/associations"
-                        },
                         "self": {
-                          "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326/studies/GCST001969"
+                          "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
                         },
-                        "trait": {
-                          "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326"
+                        "associations": {
+                          "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018/associations"
                         },
-                        "gwas_catalog": {
-                          "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST001969"
+                        "tissue": {
+                          "href": "https://www.ebi.ac.uk/eqtl/api/tissues?study_accession=Alasoo_2018"
                         }
-                      }
+                      },
+                      "study_accession": "Alasoo_2018"
                     }
                   ],
                   [
                     {
-                      "study_accession": "GCST004415",
                       "_links": {
-                        "associations": {
-                          "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0001075/studies/GCST004415/associations"
-                        },
                         "self": {
-                          "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0001075/studies/GCST004415"
+                          "href": "https://www.ebi.ac.uk/eqtl/api/studies/BLUEPRINT"
                         },
-                        "trait": {
-                          "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0001075"
+                        "associations": {
+                          "href": "https://www.ebi.ac.uk/eqtl/api/studies/BLUEPRINT/associations"
                         },
-                        "gwas_catalog": {
-                          "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST004415"
+                        "tissue": {
+                          "href": "https://www.ebi.ac.uk/eqtl/api/tissues?study_accession=BLUEPRINT"
                         }
-                      }
+                      },
+                      "study_accession": "BLUEPRINT"
                     }
                   ]
                 ]
               },
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/studies"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies?start=0&size=2"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/studies?start=0&size=2"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies?start=2&size=2"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/studies?start=2&size=2"
                 }
               }
             }
@@ -761,268 +733,169 @@ def get_chromosomes():
               "_embedded": {
                 "chromosomes": [
                   {
+                    "chromosome": "1",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations"
                       }
-                    },
-                    "chromosome": 1
+                    }
                   },
                   {
+                    "chromosome": "10",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/2"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/10"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/2/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/10/associations"
                       }
-                    },
-                    "chromosome": 2
+                    }
                   },
                   {
+                    "chromosome": "11",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/3"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/11"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/3/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations"
                       }
-                    },
-                    "chromosome": 3
+                    }
                   },
                   {
+                    "chromosome": "12",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/4"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/12"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/4/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/12/associations"
                       }
-                    },
-                    "chromosome": 4
+                    }
                   },
                   {
+                    "chromosome": "13",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/5"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/13"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/5/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/13/associations"
                       }
-                    },
-                    "chromosome": 5
+                    }
                   },
                   {
+                    "chromosome": "14",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/6"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/14"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/6/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/14/associations"
                       }
-                    },
-                    "chromosome": 6
+                    }
                   },
                   {
+                    "chromosome": "15",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/7"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/15"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/7/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/15/associations"
                       }
-                    },
-                    "chromosome": 7
+                    }
                   },
                   {
+                    "chromosome": "16",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/8"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/16"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/8/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/16/associations"
                       }
-                    },
-                    "chromosome": 8
+                    }
                   },
                   {
+                    "chromosome": "17",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/9"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/17"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/9/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/17/associations"
                       }
-                    },
-                    "chromosome": 9
+                    }
                   },
                   {
+                    "chromosome": "18",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/10"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/18"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/10/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/18/associations"
                       }
-                    },
-                    "chromosome": 10
+                    }
                   },
                   {
+                    "chromosome": "19",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/11"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/19"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/11/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations"
                       }
-                    },
-                    "chromosome": 11
+                    }
                   },
                   {
+                    "chromosome": "2",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/12"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/2"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/12/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/2/associations"
                       }
-                    },
-                    "chromosome": 12
+                    }
                   },
                   {
+                    "chromosome": "20",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/13"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/20"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/13/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/20/associations"
                       }
-                    },
-                    "chromosome": 13
+                    }
                   },
                   {
+                    "chromosome": "21",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/14"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/21"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/14/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/21/associations"
                       }
-                    },
-                    "chromosome": 14
+                    }
                   },
                   {
+                    "chromosome": "22",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/15"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/22"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/15/associations"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/22/associations"
                       }
-                    },
-                    "chromosome": 15
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/16"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/16/associations"
-                      }
-                    },
-                    "chromosome": 16
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/17"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/17/associations"
-                      }
-                    },
-                    "chromosome": 17
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/18"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/18/associations"
-                      }
-                    },
-                    "chromosome": 18
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/19"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/19/associations"
-                      }
-                    },
-                    "chromosome": 19
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/20"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/20/associations"
-                      }
-                    },
-                    "chromosome": 20
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/21"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/21/associations"
-                      }
-                    },
-                    "chromosome": 21
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/22"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/22/associations"
-                      }
-                    },
-                    "chromosome": 22
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/23"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/23/associations"
-                      }
-                    },
-                    "chromosome": 23
-                  },
-                  {
-                    "_links": {
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/24"
-                      },
-                      "associations": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/24/associations"
-                      }
-                    },
-                    "chromosome": 24
+                    }
                   }
                 ]
               }
@@ -1061,10 +934,10 @@ def get_chromosome(chromosome):
             {
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/11"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/11"
                 },
                 "associations": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/11/associations"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations"
                 }
               },
               "chromosome": "11"
@@ -1105,62 +978,70 @@ def get_chromosome_assocs(chromosome):
               "_embedded": {
                 "associations": {
                   "0": {
-                    "ci_lower": null,
-                    "base_pair_location": 11820711,
-                    "other_allele": "A",
-                    "code": 10,
-                    "odds_ratio": null,
-                    "effect_allele_frequency": 0.09228,
-                    "ci_upper": null,
-                    "p_value": "1.86278e-2",
-                    "variant_id": "rs146777460",
-                    "study_accession": "GCST005353",
-                    "effect_allele": "G",
-                    "beta": 0.45443999999999996,
+                    "an": 168,
                     "chromosome": 1,
-                    "trait": "EFO_0008531",
+                    "type": "INDEL",
+                    "r2": 0.50127,
+                    "alt": "TAA",
+                    "pvalue": 0.183417,
+                    "rsid": "rs529266287",
+                    "maf": 0.172619,
+                    "study_id": "Alasoo_2018",
+                    "position": 814583,
+                    "ac": 139,
+                    "ref": "T",
+                    "variant": "chr1_814583_T_TAA",
+                    "median_tpm": null,
+                    "beta": 0.116925,
+                    "molecular_trait_id": "ENSG00000008128",
+                    "gene_id": "ENSG00000008128",
+                    "tissue": "CL_0000235",
                     "_links": {
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs146777460"
+                      "tissue": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
                       },
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs146777460?study_accession=GCST005353"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_814583_T_TAA?study_accession=Alasoo_2018"
                       },
-                      "trait": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531"
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_814583_T_TAA"
+                      },
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
                       }
                     }
                   },
                   "1": {
-                    "ci_lower": null,
-                    "base_pair_location": 11844019,
-                    "other_allele": "T",
-                    "code": 10,
-                    "odds_ratio": null,
-                    "effect_allele_frequency": 0.24731999999999998,
-                    "ci_upper": null,
-                    "p_value": "2.100256e-2",
-                    "variant_id": "rs198358",
-                    "study_accession": "GCST005353",
-                    "effect_allele": "C",
-                    "beta": 0.2694,
+                    "an": 168,
                     "chromosome": 1,
-                    "trait": "EFO_0008531",
+                    "type": "INDEL",
+                    "r2": 0.50127,
+                    "alt": "TAA",
+                    "pvalue": 0.183417,
+                    "rsid": "rs56197012",
+                    "maf": 0.172619,
+                    "study_id": "Alasoo_2018",
+                    "position": 814583,
+                    "ac": 139,
+                    "ref": "T",
+                    "variant": "chr1_814583_T_TAA",
+                    "median_tpm": null,
+                    "beta": 0.116925,
+                    "molecular_trait_id": "ENSG00000008128",
+                    "gene_id": "ENSG00000008128",
+                    "tissue": "CL_0000235",
                     "_links": {
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs198358"
+                      "tissue": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
                       },
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs198358?study_accession=GCST005353"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_814583_T_TAA?study_accession=Alasoo_2018"
                       },
-                      "trait": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531"
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_814583_T_TAA"
+                      },
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
                       }
                     }
                   }
@@ -1168,16 +1049,17 @@ def get_chromosome_assocs(chromosome):
               },
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?bp_upper=11850510"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?start=0&size=2&bp_upper=11850510"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations?start=0&size=2"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?start=2&size=2&bp_upper=11850510"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations?start=2&size=2"
                 }
               }
             }
+
 
 
         :query start: offset number. default is 0
@@ -1216,7 +1098,7 @@ def get_chromosome_variants(chromosome, variant_id):
 
         .. sourcecode:: http
 
-            GET /chromosomes/1/associations/rs10875231 HTTP/1.1
+            GET /chromosomes/1/associations/rs56197012 HTTP/1.1
             Host: www.ebi.ac.uk
 
         **Example response**:
@@ -1230,62 +1112,70 @@ def get_chromosome_variants(chromosome, variant_id):
               "_embedded": {
                 "associations": {
                   "0": {
-                    "ci_lower": null,
-                    "chromosome": 1,
-                    "other_allele": "G",
-                    "code": 10,
-                    "odds_ratio": null,
-                    "effect_allele_frequency": 0.28367,
-                    "ci_upper": null,
-                    "p_value": "5.837561e-1",
-                    "base_pair_location": 99534456,
-                    "study_accession": "GCST005353",
-                    "effect_allele": "T",
-                    "beta": 0.06794,
-                    "variant_id": "rs10875231",
-                    "trait": "EFO_0008531",
+                    "an": 168,
+                    "chromosome": "1",
+                    "type": "INDEL",
+                    "r2": 0.50127,
+                    "alt": "TAA",
+                    "pvalue": 0.183417,
+                    "rsid": "rs56197012",
+                    "maf": 0.172619,
+                    "study_id": "Alasoo_2018",
+                    "position": 814583,
+                    "ac": 139,
+                    "ref": "T",
+                    "variant": "rs56197012",
+                    "median_tpm": null,
+                    "beta": 0.116925,
+                    "molecular_trait_id": "ENSG00000008128",
+                    "gene_id": "ENSG00000008128",
+                    "tissue": "CL_0000235",
                     "_links": {
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231"
+                      "tissue": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
                       },
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005353"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012?study_accession=Alasoo_2018"
                       },
-                      "trait": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531"
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012"
+                      },
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
                       }
                     }
                   },
                   "1": {
-                    "ci_lower": null,
-                    "chromosome": 1,
-                    "other_allele": "G",
-                    "code": 10,
-                    "odds_ratio": null,
-                    "effect_allele_frequency": 0.2665,
-                    "ci_upper": null,
-                    "p_value": "5.167e-1",
-                    "base_pair_location": 99534456,
-                    "study_accession": "GCST001969",
-                    "effect_allele": "T",
-                    "beta": -0.0375,
-                    "variant_id": "rs10875231",
-                    "trait": "EFO_0004326",
+                    "an": 168,
+                    "chromosome": "1",
+                    "type": "INDEL",
+                    "r2": 0.50127,
+                    "alt": "TAA",
+                    "pvalue": 0.472417,
+                    "rsid": "rs56197012",
+                    "maf": 0.172619,
+                    "study_id": "Alasoo_2018",
+                    "position": 814583,
+                    "ac": 139,
+                    "ref": "T",
+                    "variant": "rs56197012",
+                    "median_tpm": null,
+                    "beta": -0.0268522,
+                    "molecular_trait_id": "ENSG00000008130",
+                    "gene_id": "ENSG00000008130",
+                    "tissue": "CL_0000235",
                     "_links": {
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST001969"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231"
+                      "tissue": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
                       },
                       "self": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST001969"
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012?study_accession=Alasoo_2018"
                       },
-                      "trait": {
-                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326"
+                      "variant": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012"
+                      },
+                      "study": {
+                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
                       }
                     }
                   }
@@ -1293,13 +1183,13 @@ def get_chromosome_variants(chromosome, variant_id):
               },
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/associations/rs56197012"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?start=0&size=2"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/associations/rs56197012?start=0&size=2"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?start=2&size=2"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/associations/rs56197012?start=2&size=2"
                 }
               }
             }
