@@ -130,7 +130,7 @@ def main():
     args = argument_parser(sys.argv[1:])  # pragma: no cover
     explorer = Explorer(properties)  # pragma: no cover
 
-    if args.traits:  # pragma: no cover
+    if args.molecular_phenotypes:  # pragma: no cover
         traits = explorer.get_list_of_traits()
         for trait in traits:
             print(trait)
@@ -140,8 +140,8 @@ def main():
         for gene in genes:
             print(gene)
 
-    if args.trait is not None:  # pragma: no cover
-        studies = explorer.get_list_of_studies_for_trait(args.trait)
+    if args.molecular_phenotype is not None:  # pragma: no cover
+        studies = explorer.get_list_of_studies_for_trait(args.molecular_phenotype)
         for study in studies:
             print(study)
 
@@ -183,8 +183,8 @@ if __name__ == "__main__":
 
 def argument_parser(args):
     parser = argparse.ArgumentParser()  # pragma: no cover
-    parser.add_argument('-traits', action='store_true', help='List all the traits')  # pragma: no cover
-    parser.add_argument('-trait', help='List all the studies for a trait')  # pragma: no cover
+    parser.add_argument('-molecular_phenotypes', action='store_true', help='List all the molecular_phenotypes')  # pragma: no cover
+    parser.add_argument('-molecular_phenotype', help='List all the studies for a molecular_phenotype')  # pragma: no cover
     parser.add_argument('-studies', action='store_true', help='List all the studies')  # pragma: no cover
     parser.add_argument('-study', help='Will list \'trait: study\' if it exists')  # pragma: no cover
     parser.add_argument('-tissues', action='store_true', help='List all the tissues')  # pragma: no cover
