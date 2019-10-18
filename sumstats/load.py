@@ -55,7 +55,7 @@ class Loader():
         for chunk in df:
             chunk.dropna(subset=list(REQUIRED))
             chunk[STUDY_DSET] = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, '')) # need to sort this properly to store accession as int
-            for field in [SNP_DSET, EFFECT_DSET, OTHER_DSET, HM_EFFECT_DSET, HM_EFFECT_DSET]:
+            for field in [SNP_DSET, EFFECT_DSET, OTHER_DSET, HM_EFFECT_DSET, HM_OTHER_DSET]:
                 self.nullify_if_string_too_long(df=chunk, field=field) 
             for chrom, data in chunk.groupby(CHR_DSET):
                 path = os.path.join(self.tsv_path, str(chrom), self.filename + ".csv")
