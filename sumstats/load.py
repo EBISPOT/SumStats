@@ -48,6 +48,18 @@ class Loader():
         df = pd.read_csv(self.ss_file, sep="\t",
                          dtype=DSET_TYPES,
                          usecols=list(TO_LOAD_DSET_HEADERS_DEFAULT), 
+                         converters={RANGE_U_DSET:coerce_floats,
+                                     RANGE_L_DSET:coerce_floats,
+                                     PVAL_DSET:coerce_floats,
+                                     OR_DSET:coerce_floats,
+                                     BETA_DSET:coerce_floats,
+                                     SE_DSET:coerce_floats,
+                                     FREQ_DSET:coerce_floats,
+                                     HM_OR_DSET:coerce_floats,
+                                     HM_RANGE_L_DSET:coerce_floats,
+                                     HM_RANGE_U_DSET:coerce_floats,
+                                     HM_BETA_DSET:coerce_floats,
+                                     HM_FREQ_DSET:coerce_floats},
                          float_precision='high', 
                          chunksize=1000000)
 
@@ -140,6 +152,17 @@ class Loader():
         sql.cur.execute("insert or ignore into study values (?,?)", data)
         sql.cur.execute('COMMIT')
 
+    @staticmethod
+    def coerce_floats(value):
+    try:
+        value = float(value)
+        if value == 0.0:
+            value = sys.float_info.min
+        elif value == float('Inf'):
+            value = sys.float_info.max
+    except ValueError:
+        return float('NaN')
+    return value
 
 
    # def reindex_files(self):
