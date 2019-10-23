@@ -154,15 +154,15 @@ class Loader():
 
     @staticmethod
     def coerce_floats(value):
-    try:
-        value = float(value)
-        if value == 0.0:
-            value = sys.float_info.min
-        elif value == float('Inf'):
-            value = sys.float_info.max
-    except ValueError:
-        return float('NaN')
-    return value
+        try:
+            value = float(value)
+            if value == 0.0:
+                value = sys.float_info.min
+            elif value == float('Inf'):
+                value = sys.float_info.max
+        except ValueError:
+            return float('NaN')
+        return value
 
 
    # def reindex_files(self):
