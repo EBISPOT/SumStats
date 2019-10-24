@@ -1,18 +1,22 @@
 {
-    "h5files_path":"./files/output",
-    "tsvfiles_path":"./files/toload",
-    "local_h5files_path":"./files/output",
-    "local_tsvfiles_path":"./files/toload",
+    "h5files_path":"/files/output",
+    "tsvfiles_path":"/files/toload",
+    "loaded_files_path":"/files/loaded",
+    "local_h5files_path":"/files/output",
+    "local_tsvfiles_path":"/files/toload",
     "latest_snapshot_output_path":"/latest/snapshot/output",
     "snp_dir":"bysnp",
     "chr_dir":"bychr",
+    "study_dir":"bystudy",
     "trait_dir":"bytrait",
     "bp_step":16,
     "max_bp":300000000,
     "available_chromosomes": 24,
     "ols_terms_location":"https://www.ebi.ac.uk/ols/api/terms?id=",
     "gwas_study_location":"http://www.ebi.ac.uk/gwas/rest/api/studies/",
-    "logging_path":"./logs",
+    "logging_path":"/logs",
     "LOG_LEVEL": "INFO",
-    "APPLICATION_ROOT": "/gwas/summary-statistics/api"
+    "APPLICATION_ROOT": "/eqtl/api",
+    "sumstats_meta": "/files/output/SumStatsMeta.db",
+    "snp_db":"/files/output/SumStatsMeta.db"
 }

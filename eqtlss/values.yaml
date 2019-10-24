@@ -1,0 +1,68 @@
+# Default values for sumstats-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+replicaCount: 1
+
+image:
+  repository: jdhayhurst/eqtl_sumstats
+  tag: latest
+  pullPolicy: Always
+  containerPort: 8000
+  logMountPath: "/logs"
+  dataMountPath: "/files"
+
+volume:
+  log:
+    ClaimName: eqtl-api-logs
+  data:
+    ClaimName: eqtl-data
+    VolumeName: eqtl-rest-api-data
+    type: persistentVolumeClaim
+    storageClassName: standard
+    capacity:
+      storage: 10Gi
+    accessModes: ReadWriteOnce
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  name: eqtl-rest-api
+  type: ClusterIP
+  port: 8000
+  gunicornCmd: '["gunicorn", "-b", "0.0.0.0:8000", "sumstats_service.app:app","--log-level=debug","--access-logfile=logs/ss_access.log","--error-logfile=logs/ss_error.log"]'
+
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+k8Namespace: eqtl
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+

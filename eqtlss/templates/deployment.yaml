@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.Values.service.name}}
+  namespace: {{.Values.k8Namespace}}
+  lables:
+    version: {{.Values.image.tag}}
+spec:
+  replicas: {{.Values.replicaCount}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.service.name}}
+    spec:
+      containers:
+      - name: {{.Values.service.name}}
+        image: "{{.Values.image.repository}}:{{.Values.image.tag}}"
+        command: {{.Values.service.gunicornCmd}}
+        imagePullPolicy: {{.Values.image.pullPolicy}}
+        resources:
+          requests:
+            cpu: {{.Values.resources.requests.cpu}}
+            memory: {{.Values.resources.requests.memory}}
+        ports:
+        - name: http
+          containerPort: {{.Values.image.containerPort}}
+        volumeMounts:
+        - mountPath: {{.Values.image.logMountPath}}
+          name: log
+        - mountPath: {{.Values.image.dataMountPath}}
+          name: data
+      volumes:
+      - name: log
+        persistentVolumeClaim:
+           claimName: {{ .Values.volume.log.ClaimName }}
+      - name: data
+        persistentVolumeClaim:
+           claimName: {{ .Values.volume.data.ClaimName }}
+

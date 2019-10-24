@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: {{.Values.service.name}}
+    version: {{.Values.image.tag}}
+  name: {{.Values.service.name}}
+  namespace: {{.Values.k8Namespace}}
+spec:
+  type: {{.Values.service.type}}
+  ports:
+  - name: "application"
+    port: {{.Values.service.port}}
+    targetPort: {{.Values.image.containerPort}}
+  selector:
+    app: {{.Values.service.name}}
+
