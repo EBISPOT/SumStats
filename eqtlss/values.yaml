@@ -18,12 +18,18 @@ volume:
     ClaimName: eqtl-api-logs
   data:
     ClaimName: eqtl-data
-    VolumeName: eqtl-rest-api-data
-    type: persistentVolumeClaim
-    storageClassName: standard
-    capacity:
-      storage: 10Gi
-    accessModes: ReadWriteOnce
+    path: "/path/to/files/"
+    #    VolumeName: eqtl-data
+    #    type: persistentVolumeClaim
+    #    storageClassName: standard
+    #    accessModes:
+    #      - ReadOnlyMany
+    #    hostPath:
+
+#    nfs:
+#      server: <server ip or fqdn>
+#      path: /path/to/ur/mount
+
 
 imagePullSecrets: []
 nameOverride: ""
@@ -33,7 +39,7 @@ service:
   name: eqtl-rest-api
   type: ClusterIP
   port: 8000
-  gunicornCmd: '["gunicorn", "-b", "0.0.0.0:8000", "sumstats_service.app:app","--log-level=debug","--access-logfile=logs/ss_access.log","--error-logfile=logs/ss_error.log"]'
+  gunicornCmd: '["gunicorn", "-b", "0.0.0.0:8000", "sumstats.server.app:app","--log-level=debug","--access-logfile=logs/ss_access.log","--error-logfile=logs/ss_error.log"]'
 
 
 ingress:

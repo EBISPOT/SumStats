@@ -34,6 +34,10 @@ spec:
         persistentVolumeClaim:
            claimName: {{ .Values.volume.log.ClaimName }}
       - name: data
-        persistentVolumeClaim:
-           claimName: {{ .Values.volume.data.ClaimName }}
+#        nfs:
+#          server: "<host name or IP>"
+#          path: "<mount path>"
+
+        hostPath:
+          path: {{ .Values.volume.data.path }}
 
