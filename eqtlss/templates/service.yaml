@@ -11,7 +11,7 @@ spec:
   ports:
   - name: "application"
     port: {{.Values.service.port}}
-    targetPort: {{.Values.image.containerPort}}
+    targetPort: {{.Values.image.targetPort}}
   selector:
     app: {{.Values.service.name}}
 
