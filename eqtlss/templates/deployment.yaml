@@ -29,6 +29,16 @@ spec:
           name: log
         - mountPath: {{.Values.image.dataMountPath}}
           name: data
+      - name: {{.Values.staticService.name}}
+        image: "{{.Values.staticService.image.repository}}:{{.Values.staticService.image.tag}}"
+        imagePullPolicy: {{.Values.staticService.image.pullPolicy}}
+        resources:
+          requests:
+            cpu: {{.Values.resources.requests.cpu}}
+            memory: {{.Values.resources.requests.memory}}
+        ports:
+        - name: http
+          containerPort: {{.Values.staticService.image.containerPort}}
       volumes:
       - name: log
         persistentVolumeClaim:

@@ -11,7 +11,25 @@ spec:
   ports:
   - name: "application"
     port: {{.Values.service.port}}
+    protocol: TCP
     targetPort: {{.Values.image.targetPort}}
   selector:
     app: {{.Values.service.name}}
-
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: {{.Values.staticService.name}}
+    version: {{.Values.staticService.image.tag}}
+  name: {{.Values.staticService.name}}
+  namespace: {{.Values.k8Namespace}}
+spec:
+  type: {{.Values.staticService.type}}
+  ports:
+  - name: "application"
+    port: {{.Values.staticService.port}}
+    protocol: TCP
+    targetPort: {{.Values.staticService.image.targetPort}}
+  selector:
+    app: {{.Values.staticService.name}}
