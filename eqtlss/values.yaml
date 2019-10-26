@@ -46,7 +46,7 @@ service:
 staticService:
   replicaCount: 1
   name: api-docs
-  path: /*
+  path: /api-docs
   type: NodePort
   targetPort: 80  
   port: 80  
