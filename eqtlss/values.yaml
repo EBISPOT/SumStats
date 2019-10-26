@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 
-replicaCount: 2
+replicaCount: 1
 
 image:
   repository: jdhayhurst/eqtl_sumstats
@@ -40,12 +40,13 @@ service:
   type: LoadBalancer
   port: 8000
   targetPort: 8000  
+  path: /eqtl/api(/|$)(.*)
   gunicornCmd: '["gunicorn", "-b", "0.0.0.0:8000", "sumstats.server.app:app","--log-level=debug","--access-logfile=logs/ss_access.log","--error-logfile=logs/ss_error.log"]'
 
 staticService:
-  replicaCount: 2
+  replicaCount: 1
   name: api-docs
-  path: "/api/docs"
+  path: /*
   type: NodePort
   targetPort: 80  
   port: 80  
@@ -63,9 +64,8 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
-      paths: "/eqtl/api(/|$)(.*)"
-
-  tls: []
+      paths: /eqtl/api(/|$)
+      tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
