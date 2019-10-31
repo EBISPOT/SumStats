@@ -1,0 +1,91 @@
+# Default values for sumstats-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+replicaCount: 1
+
+image:
+  repository: ebispot/eqtl-sumstats-api
+  tag: latest
+  pullPolicy: Always
+  containerPort: 8000
+  logMountPath: "/logs"
+  dataMountPath: "/files/output"
+  uid: 1000
+  gid: 1000
+  user: virtual_user
+
+volume:
+  log:
+    ClaimName: eqtl-api-logs
+  data:
+    ClaimName: eqtl-data
+    nfsServer: "<host name or IP>"
+    path: "/path/to/files/"
+    
+    #    VolumeName: eqtl-data
+    #    type: persistentVolumeClaim
+    #    storageClassName: standard
+    #    accessModes:
+    #      - ReadOnlyMany
+    #    hostPath:
+
+#    nfs:
+#      server: <server ip or fqdn>
+#      path: /path/to/ur/mount
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  name: eqtl-rest-api
+  type: NodePort
+  port: 8000
+  path: /eqtl/api(/|$)(.*)
+  gunicornCmd: '["gunicorn", "-b", "0.0.0.0:8000", "sumstats.server.app:app","--log-level=debug","--access-logfile=logs/ss_access.log","--error-logfile=logs/ss_error.log"]'
+
+staticService:
+  replicaCount: 1
+  name: api-docs
+  path: /api-docs
+  type: NodePort
+  port: 80  
+  image:
+    repository: ebispot/eqtl-sumstats-docs
+    tag: latest
+    pullPolicy: Always
+    containerPort: 80
+    
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: /eqtl/api(/|$)
+      tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+k8Namespace: eqtl
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
