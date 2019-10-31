@@ -137,7 +137,7 @@ To explore the contents of the database you can use the following commands:
 
 Note that, if the `output` directory is set by default to `./files/output` in the properties file. If you need to specify the location where it resides, modify the properties.json file and use the `-config <path to properties.json>` flag to specify it.
 
-# Searching
+# Searching 
 To actually retrieve data from the database you can use the following commands:
 - `gwas-search -all` will retrieve all the data from all the studies that are stored
 - `gwas-search -trait <trait>` will retrieve all the data for that trait
