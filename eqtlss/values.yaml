@@ -11,7 +11,7 @@ image:
   pullPolicy: Always
   containerPort: 8000
   logMountPath: "/logs"
-  dataMountPath: "/files"
+  dataMountPath: "/files/output"
   uid: 1000
   gid: 1000
   user: virtual_user
