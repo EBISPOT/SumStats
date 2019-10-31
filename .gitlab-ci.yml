@@ -57,6 +57,6 @@ deploy_staging:
   environment:
     name: dev
   only:
-    - eqtl-dev
+    - eqtls
 
 
