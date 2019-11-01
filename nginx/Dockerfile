@@ -1,3 +1,4 @@
 FROM nginx
-COPY build/html /usr/share/nginx/html
+RUN mkdir -p /usr/share/nginx/html/eqtl/api-docs
+COPY docs/build/html /usr/share/nginx/html/eqtl/api-docs
 EXPOSE 80
