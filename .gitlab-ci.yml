@@ -1,11 +1,8 @@
 image: docker:latest
 
-before_script:
-  - apk add --update make
-
-
 stages:
   - build
+  - docs
   - deploy
 
 services:
@@ -31,7 +28,8 @@ build:
    - eqtls
 
 build_docs:
-  stage: build
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: docs
   script:
    - make clean
    - make html
@@ -62,9 +60,10 @@ build_release:
    - tags
 
 build_docs_release:
+  image: $CI_REGISTRY_IMAGE:latest
   variables:
     GIT_STRATEGY: none
-  stage: build
+  stage: docs
   script:
    - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
    - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt
