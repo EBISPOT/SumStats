@@ -1,5 +1,9 @@
 image: docker:latest
 
+before_script:
+  - apt-get install build-essential
+
+
 stages:
   - build
   - deploy
