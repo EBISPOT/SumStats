@@ -1,7 +1,7 @@
 image: docker:latest
 
 before_script:
-  - apt-get install build-essential
+  - apk add --update make
 
 
 stages:
