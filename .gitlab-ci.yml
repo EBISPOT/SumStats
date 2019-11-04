@@ -31,6 +31,7 @@ build_docs:
   image: $CI_REGISTRY_IMAGE:latest
   stage: docs
   script:
+   - mkdir logs
    - make clean
    - make html
    - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
