@@ -22,6 +22,10 @@ sphinxdocs:
    - mkdir /logs
    - make clean
    - make html
+  artifacts:
+    expire_in: '2 hrs'
+    paths:
+    - docs/build/html
   only:
    - eqtls
   
@@ -46,6 +50,8 @@ build_docs:
    - docker pull $CI_REGISTRY_DOCS_IMAGE:latest
    - docker build -f nginx/Dockerfile --cache-from $CI_REGISTRY_DOCS_IMAGE:latest -t $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA .
    - docker push $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA
+  dependencies: 
+    - sphinxdocs
   only:
    - eqtls
   
