@@ -1,8 +1,8 @@
 image: docker:latest
 
 stages:
-  - build
   - docs
+  - build
   - deploy
 
 services:
@@ -14,6 +14,16 @@ variables:
   CI_REGISTRY_IMAGE: ebispot/eqtl-sumstats-api
   CI_REGISTRY_DOCS_IMAGE: ebispot/eqtl-sumstats-docs
 
+# generate the docs with sphinx
+sphinxdocs:
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: docs
+  script:
+   - mkdir /logs
+   - make clean
+   - make html
+  only:
+   - eqtls
   
 # always build an image tagged with the commit SHA from master
 build:
@@ -27,13 +37,10 @@ build:
   only:
    - eqtls
 
+
 build_docs:
-  image: $CI_REGISTRY_IMAGE:latest
-  stage: docs
+  stage: build
   script:
-   - mkdir logs
-   - make clean
-   - make html
    - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
    - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt docker.io
    - docker pull $CI_REGISTRY_DOCS_IMAGE:latest
@@ -41,7 +48,7 @@ build_docs:
    - docker push $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA
   only:
    - eqtls
-
+  
 
 
 # if a tag is created create an images with the tag and a latest
