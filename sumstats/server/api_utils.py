@@ -314,7 +314,13 @@ def _get_basic_arguments(args):
     p_upper = _retrieve_endpoint_arguments(args, "p_upper")
     pval_interval = _get_interval(lower=p_lower, upper=p_upper, interval=FloatInterval)
     quant_method = _retrieve_endpoint_arguments(args, "quant_method", None)
-    return start, size, p_lower, p_upper, pval_interval, quant_method
+    snp = _retrieve_endpoint_arguments(args, "variant_id", None)
+    tissue = _retrieve_endpoint_arguments(args, "tissue", None)
+    gene = _retrieve_endpoint_arguments(args, "gene", None)
+    study = _retrieve_endpoint_arguments(args, "study", None)
+    #qtl_group = _retrieve_endpoint_arguments(args, "qtl_group", None)
+    
+    return start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study
 
 
 def _get_start_size(args):

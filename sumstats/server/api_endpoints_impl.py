@@ -28,17 +28,17 @@ def root():
 def associations():
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/associations. " + (str(error)))
         raise BadUserRequest(str(error))
 
     searcher = search.Search(apiu.properties)
 
-    datasets, index_marker = searcher.search(start=start, size=size, pval_interval=pval_interval, quant_method=quant_method)
+    datasets, index_marker = searcher.search(start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, snp=snp, tissue=tissue, gene=gene, study=study)
 
     data_dict = apiu._get_array_to_display(datasets=datasets)
-    params = dict(p_lower=p_lower, p_upper=p_upper)
+    params = dict(p_lower=p_lower, p_upper=p_upper, quant_method=quant_method, snp=snp, tissue=tissue, gene=gene, study=study)
     response = apiu._create_response(method_name='api.get_assocs', start=start, size=size, index_marker=index_marker,
                                      data_dict=data_dict, params=params)
 
@@ -84,7 +84,7 @@ def trait(trait):
 def trait_associations(trait):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/traits/" + trait + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -197,7 +197,7 @@ def studies_for_tissue(tissue):
 def tissue_associations(tissue):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/tissues/" + tissue + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -238,7 +238,7 @@ def tissue_study_associations(study, tissue=None):
     args = request.args.to_dict()
     gene = None
     try:
-        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study = apiu._get_basic_arguments(args)
         gene = apiu._retrieve_endpoint_arguments(args, 'gene')
         trait = apiu._retrieve_endpoint_arguments(args, 'molecular_phenotype')
     except ValueError as error:
@@ -306,7 +306,7 @@ def chromosome(chromosome):
 def chromosome_associations(chromosome):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study = apiu._get_basic_arguments(args)
         bp_lower, bp_upper, bp_interval = apiu._get_bp_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, 'study_accession')
     except ValueError as error:
@@ -339,7 +339,7 @@ def chromosome_associations(chromosome):
 def variants(variant, chromosome=None):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
         if study is not None:
             return variant_resource(variant=variant, chromosome=chromosome)
@@ -374,7 +374,7 @@ def variants(variant, chromosome=None):
 def variant_resource(variant, chromosome=None):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
     except ValueError as error:
         logging.debug("/chromosomes/" + chromosome + "/associations/" + variant + ". " + (str(error)))
@@ -455,7 +455,7 @@ def gene(gene):
 def gene_associations(gene):
     args = request.args.to_dict()
     try:
-        start, size, p_lower, p_upper, pval_interval, quant_method = apiu._get_basic_arguments(args)
+        start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study = apiu._get_basic_arguments(args)
     except ValueError as error:
         logging.error("/traits/" + trait + ". " + (str(error)))
         raise BadUserRequest(str(error))
