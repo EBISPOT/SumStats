@@ -18,5 +18,5 @@
     "LOG_LEVEL": "INFO",
     "APPLICATION_ROOT": "/eqtl/api",
     "sumstats_meta": "/files/output/SumStatsMeta.db",
-    "snp_db":"/files/output/SumStatsMeta.db"
+    "snp_db":"/files/output/bysnp/Snp.db"
 }
