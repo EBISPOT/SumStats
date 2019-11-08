@@ -318,9 +318,11 @@ def _get_basic_arguments(args):
     tissue = _retrieve_endpoint_arguments(args, "tissue", None)
     gene = _retrieve_endpoint_arguments(args, "gene", None)
     study = _retrieve_endpoint_arguments(args, "study", None)
+    trait = _retrieve_endpoint_arguments(args, "molecular_phenotype", None)
+
     #qtl_group = _retrieve_endpoint_arguments(args, "qtl_group", None)
     
-    return start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study
+    return start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study, trait
 
 
 def _get_start_size(args):
