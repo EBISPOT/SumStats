@@ -207,7 +207,7 @@ class sqlClient():
 
     def get_studies_for_tissue(self, tissue):
         data = []
-        for row in self.cur.execute("select study from study_info where tissue =?", (tissue,)):
+        for row in self.cur.execute("select study from study_info where tissue_ontology =?", (tissue,)):
             data.append(row[0])
         if data:
             return data
