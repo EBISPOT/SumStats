@@ -22,7 +22,7 @@ register_logger.register(__name__)
 
 class AssociationSearch:
     def __init__(self, start, size, pval_interval=None, config_properties=None, study=None, chromosome=None,
-                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None):
+                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None, qtl_group=None):
         self.starting_point = start
         self.start = start
         self.size = size
@@ -34,6 +34,7 @@ class AssociationSearch:
         self.gene = gene
         self.tissue = tissue
         self.snp = snp
+        self.qtl_group = qtl_group
         self.quant_method = quant_method if quant_method else "ge"
 
         self.properties = properties_handler.get_properties(config_properties)
