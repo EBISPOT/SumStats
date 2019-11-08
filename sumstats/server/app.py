@@ -171,6 +171,11 @@ def get_assocs():
          annotation (0.001 or 1e-3 or 1E-3)
      :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
          annotation (0.001 or 1e-3 or 1E-3)
+     :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+     :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
+     :query study: study identifer; will return only associations related to that study (Alasoo_2018)
+
+     :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
 
      :statuscode 200: no error
 
@@ -304,7 +309,12 @@ def get_variant(variant_id=None, rsid=None):
             annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
             annotation (0.001 or 1e-3 or 1E-3)
-        :query study_accession: the accession of a specific study; will return only associations related to that study
+        :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+        :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
+        :query study: study identifer; will return only associations related to that study (Alasoo_2018)
+
+        :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
+
 
         :statuscode 200: no error
         :statuscode 404: not found error
@@ -424,6 +434,7 @@ def get_trait(molecular_trait_id):
               }
             }
 
+
         :statuscode 200: no error
         :statuscode 404: not found error
     """
@@ -515,6 +526,11 @@ def get_trait_assocs(trait):
              annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
              annotation (0.001 or 1e-3 or 1E-3)
+        :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
+        :query study: study identifer; will return only associations related to that study (Alasoo_2018)
+
+        :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
+        :query variant_id: variant identifier, either rsID (rs577290214) or in the form CHR_BP_REF_ALT (chr7_27916_T_C); will only return associations with this variant
 
         :statuscode 200: no error
         :statuscode 404: not found error

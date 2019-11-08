@@ -316,9 +316,9 @@ def _get_basic_arguments(args):
     quant_method = _retrieve_endpoint_arguments(args, "quant_method", None)
     snp = _retrieve_endpoint_arguments(args, "variant_id", None)
     tissue = _retrieve_endpoint_arguments(args, "tissue", None)
-    gene = _retrieve_endpoint_arguments(args, "gene", None)
+    gene = _retrieve_endpoint_arguments(args, "gene_id", None)
     study = _retrieve_endpoint_arguments(args, "study", None)
-    trait = _retrieve_endpoint_arguments(args, "molecular_phenotype", None)
+    trait = _retrieve_endpoint_arguments(args, "molecular_trait_id", None)
 
     #qtl_group = _retrieve_endpoint_arguments(args, "qtl_group", None)
     
