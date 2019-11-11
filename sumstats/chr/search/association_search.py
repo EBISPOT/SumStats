@@ -25,7 +25,8 @@ class AssociationSearch:
                  bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None, qtl_group=None):
         self.starting_point = start
         self.start = start
-        self.size = size
+        self.max_size = 1000
+        self.size = size if int(size) <= self.max_size else self.max_size 
         self.study = study
         self.pval_interval = pval_interval
         self.chromosome = chromosome
@@ -72,7 +73,6 @@ class AssociationSearch:
             self.chromosome = chromosome
             self.bp_interval = IntInterval().set_string_tuple(bp_interval)
             
-
 
     def chrom_for_trait(self):
         h5file = fsutils.create_h5file_path(self.search_path, self.trait_dir, self.trait_file)
