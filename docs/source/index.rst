@@ -96,6 +96,20 @@ Use the reference to specify the quantification method. For instance, if you wan
 parameter ``quant_method=exon``. By default ``quant_method`` is set to 'ge'. It is not possible to view all the quantification
 methods in one API call. 
 
+Depending on the endpoint, you can filter by the following parameters:
+
+=============== ==================== ======================================
+Parameter       Label                Example
+=============== ==================== ======================================
+Molecular trait 'molecular_trait_id' ``molecular_trait_id=ENSG00000187583``
+Gene            'gene_id'            ``gene_id=ENSG00000073067``
+Variant         'variant_id'         ``variant_id=rs577290214``
+Study           'study'              ``study=Alasoo_2018``
+Tissue ontology 'tissue'             ``tissue=CL_0000235``
+=============== ==================== ======================================
+
+The above parameters can be applied to any endpoint that does not already search/filter by that parameter, e.g. the molecular trait parameter is ignored when applied to the molecular phenotypes endpoint. The parameters can be combined using the ``&`` operator to filter the data as much as needed.
+
 You can also filter all of the association endpoints by p-value. This is done by setting either the lower p-value
 threshold that you want to be cutoff, the upper p-value threshold that you want to be cutoff, or both. This is done by
 passing the query parameters ``p_lower=<lower p-value>`` and/or ``p_upper=<upper p-value>`` to the API call.
@@ -162,7 +176,7 @@ Listing Resources
 -----------------
 
 Requests that return multiple resources will be paginated to 20 items by default. You can change number of items returned
-using the size parameter.
+using the size parameter. The maximum size value is 1000 and any value given greater than 1000 will be converted to 1000.
 
 **Paging resources**
 
