@@ -60,126 +60,124 @@ def get_assocs():
 
      .. :quickref: Associations; Lists all of the available associations.
 
-     Lists all of the available associations that are loaded into the database.
-     Can be specify by p-value cutoff threshold.
-
-     **Example request**:
-
-     .. sourcecode:: http
-
-         GET /associations HTTP/1.1
-         Host: www.ebi.ac.uk
-
-     **Example response**:
-
-     .. sourcecode:: http
-
-         HTTP/1.1 200 OK
-         Content-Type: application/json
-
-         {
-           "_embedded": {
-             "associations": {
-               "0": {
-                 "maf": 0.047619,
-                 "pvalue": 0.19027,
-                 "variant": "chr7_27916_T_C",
-                 "rsid": "rs577290214",
-                 "chromosome": "7",
-                 "ref": "T",
-                 "beta": 0.241138,
-                 "type": "SNP",
-                 "position": 27916,
-                 "ac": 8,
-                 "study_id": "Alasoo_2018",
-                 "alt": "C",
-                 "an": 168,
-                 "molecular_trait_id": "ENSG00000073067",
-                 "gene_id": "ENSG00000073067",
-                 "tissue": "CL_0000235",
-                 "median_tpm": null,
-                 "r2": 0.50944,
-                 "_links": {
-                   "study": {
-                     "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+         Lists all of the available associations that are loaded into the database.
+         Can be specify by p-value cutoff threshold.
+    
+         **Example request**:
+    
+         .. sourcecode:: http
+    
+             GET /associations HTTP/1.1
+             Host: www.ebi.ac.uk
+    
+         **Example response**:
+    
+         .. sourcecode:: http
+    
+             HTTP/1.1 200 OK
+             Content-Type: application/json
+    
+             {
+               "_embedded": {
+                 "associations": {
+                   "0": {
+                     "maf": 0.047619,
+                     "pvalue": 0.19027,
+                     "variant": "chr7_27916_T_C",
+                     "rsid": "rs577290214",
+                     "chromosome": "7",
+                     "ref": "T",
+                     "beta": 0.241138,
+                     "type": "SNP",
+                     "position": 27916,
+                     "ac": 8,
+                     "study_id": "Alasoo_2018",
+                     "alt": "C",
+                     "an": 168,
+                     "molecular_trait_id": "ENSG00000073067",
+                     "gene_id": "ENSG00000073067",
+                     "tissue": "CL_0000235",
+                     "median_tpm": null,
+                     "r2": 0.50944,
+                     "_links": {
+                       "study": {
+                         "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                       },
+                       "tissue": {
+                         "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                       },
+                       "variant": {
+                         "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
+                       },
+                       "self": {
+                         "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
+                       }
+                     }
                    },
-                   "tissue": {
-                     "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
-                   },
-                   "variant": {
-                     "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
-                   },
-                   "self": {
-                     "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
+                   "1": {
+                     "maf": 0.047619,
+                     "pvalue": 0.81198,
+                     "variant": "chr7_27916_T_C",
+                     "rsid": "rs577290214",
+                     "chromosome": "7",
+                     "ref": "T",
+                     "beta": 0.0260822,
+                     "type": "SNP",
+                     "position": 27916,
+                     "ac": 8,
+                     "study_id": "Alasoo_2018",
+                     "alt": "C",
+                     "an": 168,
+                     "molecular_trait_id": "ENSG00000105963",
+                     "gene_id": "ENSG00000105963",
+                     "tissue": "CL_0000235",
+                     "median_tpm": null,
+                     "r2": 0.50944,
+                     "_links": {
+                       "study": {
+                         "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                       },
+                       "tissue": {
+                         "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                       },
+                       "variant": {
+                         "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
+                       },
+                       "self": {
+                         "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
+                       }
+                     }
                    }
                  }
                },
-               "1": {
-                 "maf": 0.047619,
-                 "pvalue": 0.81198,
-                 "variant": "chr7_27916_T_C",
-                 "rsid": "rs577290214",
-                 "chromosome": "7",
-                 "ref": "T",
-                 "beta": 0.0260822,
-                 "type": "SNP",
-                 "position": 27916,
-                 "ac": 8,
-                 "study_id": "Alasoo_2018",
-                 "alt": "C",
-                 "an": 168,
-                 "molecular_trait_id": "ENSG00000105963",
-                 "gene_id": "ENSG00000105963",
-                 "tissue": "CL_0000235",
-                 "median_tpm": null,
-                 "r2": 0.50944,
-                 "_links": {
-                   "study": {
-                     "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
-                   },
-                   "tissue": {
-                     "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
-                   },
-                   "variant": {
-                     "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
-                   },
-                   "self": {
-                     "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
-                   }
+               "_links": {
+                 "self": {
+                   "href": "https://www.ebi.ac.uk/eqtl/api/associations"
+                 },
+                 "first": {
+                   "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=0&size=2"
+                 },
+                 "next": {
+                   "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
                  }
                }
-             }
-           },
-           "_links": {
-             "self": {
-               "href": "https://www.ebi.ac.uk/eqtl/api/associations"
-             },
-             "first": {
-               "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=0&size=2"
-             },
-             "next": {
-               "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
-             }
-           }
-         }
-
-     :query start: offset number. default is 0
-     :query size: number of items returned. default is 20
-     :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
-         different quantification methods. See the API documentation for more details.
-     :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
-         annotation (0.001 or 1e-3 or 1E-3)
-     :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
-         annotation (0.001 or 1e-3 or 1E-3)
-     :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
-     :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
-     :query study: study identifer; will return only associations related to that study (Alasoo_2018)
-
-     :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
-
-     :statuscode 200: no error
-
+            }
+    
+        :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+            different quantification methods. See the API documentation for more details.
+        :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
+            annotation (0.001 or 1e-3 or 1E-3)
+        :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
+            annotation (0.001 or 1e-3 or 1E-3)
+        :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+        :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
+        :query study: study identifer; will return only associations related to that study (Alasoo_2018)
+        :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
+        :query start: offset number. default is 0
+        :query size: number of items returned. default is 20
+        :statuscode 200: no error
     """
+    
     resp = endpoints.associations()
     return Response(response=resp,
                     status=200,
