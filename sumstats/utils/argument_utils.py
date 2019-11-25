@@ -15,6 +15,7 @@ def search_argument_parser():
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')
     parser.add_argument('-tissue', help='The tissue I am looking for')
     parser.add_argument('-quant_method', help='The quantification method')
+    parser.add_argument('-paginate', help='Set paginate to "False" if you would like to fetch all associations for your query')
 
     return parser.parse_args()
 
@@ -31,6 +32,7 @@ def convert_search_args(args):
     snp = args.snp
     tissue = args.tissue
     quant_method = args.quant_method
+    paginate = args.paginate
 
     chromosome = args.chr
     if chromosome is not None:
@@ -42,7 +44,7 @@ def convert_search_args(args):
     bp_interval = args.bp
     bp_interval = IntInterval().set_string_tuple(bp_interval)
 
-    return trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method
+    return trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method, paginate
 
 
 def load_argument_parser():

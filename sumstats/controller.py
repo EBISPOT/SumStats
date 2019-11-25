@@ -15,16 +15,16 @@ class Search(object):
         #self.sqlite_db = properties.sqlite_path
 
     def search(self, start, size, pval_interval=None, study=None, trait=None, gene=None,
-               chromosome=None, bp_interval=None, tissue=None, snp=None, quant_method=None):
+               chromosome=None, bp_interval=None, tissue=None, snp=None, quant_method=None, paginate=True):
         return cr.search_all_assocs(start=start, size=size, pval_interval=pval_interval,
                                     properties=self.config_properties, study=study, trait=trait, gene=gene,
                                     chromosome=chromosome, bp_interval=bp_interval, tissue=tissue, snp=snp,
-                                    quant_method=quant_method)
+                                    quant_method=quant_method, paginate=paginate)
 
 def main():  # pragma: no cover
     args = argument_parser(sys.argv[1:])  # pragma: no cover
 
-    trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method = au.convert_search_args(args)  # pragma: no cover
+    trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method, paginate = au.convert_search_args(args)  # pragma: no cover
 
     find_all = args.all  # pragma: no cover
     start = args.start  # pragma: no cover
@@ -46,7 +46,7 @@ def main():  # pragma: no cover
     elif any([trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method]):
         result, index_marker = search.search(start=start, size=size, pval_interval=pval_interval,
                                              study=study, trait=trait, gene=gene, chromosome=chromosome,
-                                             bp_interval=bp_interval, tissue=tissue, snp=snp, quant_method=quant_method)
+                                             bp_interval=bp_interval, tissue=tissue, snp=snp, quant_method=quant_method, paginate=paginate)
 
     else:
         raise ValueError("Input is wrong!")
@@ -77,6 +77,7 @@ def argument_parser(args):
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')  # pragma: no cover
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')  # pragma: no cover
     parser.add_argument('-quant_method', help='The quantification method', choices=['ge','tx','txrev','microarray','exon'], default='ge', required=False)  # pragma: no cover
+    parser.add_argument('-paginate', help='Set paginate to "False" if you would like to fetch all associations for your query', default=True, choices=[True, False])  # pragma: no cover
 
 
     properties_handler.set_properties()  # pragma: no cover
