@@ -90,20 +90,40 @@ build_docs_release:
    - tags
 
 
-deploy_staging:
+deploy_fallback:
   image: dtzar/helm-kubectl:2.13.1
   stage: deploy
   script:
-    - echo "Deploy to staging server"
+    - echo "Deploy to fallback server"
     - mkdir -p /root/.kube
-    - echo ${DEV_KUBECONF} | base64 -d > /root/.kube/config
+    - echo ${FALLBACK_KUBECONF} | base64 -d > /root/.kube/config
     - helm init
     - helm delete --purge eqtl-sumstats || true
     - sleep 30
     - helm install --name eqtl-sumstats --set k8Namespace=eqtl,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.uid=$UID,image.gid=$GID,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER,volume.data.path=$NFS_PATH ./eqtlss/ --wait
   environment:
-    name: dev
+    name: fallback
+  when: manual
   only:
-    - eqtls
+    - tags
+
+
+deploy_prod:
+  image: dtzar/helm-kubectl:2.13.1
+  stage: deploy
+  script:
+    - echo "Deploy to production server"
+    - mkdir -p /root/.kube
+    - echo ${PROD_KUBECONF} | base64 -d > /root/.kube/config
+    - helm init
+    - helm delete --purge eqtl-sumstats || true
+    - sleep 30
+    - helm install --name eqtl-sumstats --set k8Namespace=eqtl,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.uid=$UID,image.gid=$GID,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER,volume.data.path=$NFS_PATH,replicaCount=3 ./eqtlss/ --wait
+  environment:
+    name: production
+  when: manual
+  only:
+    - tags
+
 
 
