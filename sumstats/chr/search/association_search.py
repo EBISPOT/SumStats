@@ -191,7 +191,7 @@ class AssociationSearch:
             return True
         return False
  
-    def search_associations(self:
+    def search_associations(self):
         """
         Traverses the hdfs breaking if once the required results are retrieved, while
         keeping track of where it got to for the next search. Chunksize is set to 1 so that
@@ -220,7 +220,7 @@ class AssociationSearch:
             self.paginated_request()
 
 
-    def paginated_request(self)
+    def paginated_request(self):
         for hdf in self.hdfs:
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
@@ -283,7 +283,7 @@ class AssociationSearch:
         self.index_marker = self.starting_point + len(self.df.index)
         return self.datasets, self.index_marker
         
-    def unpaginated_request(self)
+    def unpaginated_request(self):
         hdf = self.hdfs[0]
         with pd.HDFStore(hdf, mode='r') as store:
             print('opened {}'.format(hdf))
