@@ -22,7 +22,7 @@ register_logger.register(__name__)
 
 class AssociationSearch:
     def __init__(self, start, size, pval_interval=None, config_properties=None, study=None, chromosome=None,
-                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None, qtl_group=None, return_all=False):
+                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None, qtl_group=None, paginate=True):
         self.starting_point = start
         self.start = start
         self.max_size = 1000
@@ -37,7 +37,7 @@ class AssociationSearch:
         self.snp = snp
         self.qtl_group = qtl_group
         self.quant_method = quant_method if quant_method else "ge"
-        self.return_all = return_all
+        self.paginate = paginate
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
@@ -191,7 +191,7 @@ class AssociationSearch:
             return True
         return False
  
-    def search_associations(self, return_all=False):
+    def search_associations(self:
         """
         Traverses the hdfs breaking if once the required results are retrieved, while
         keeping track of where it got to for the next search. Chunksize is set to 1 so that
@@ -210,9 +210,18 @@ class AssociationSearch:
         #    sql = sq.sqlClient(self.database)
         #    studies.extend(sql.get_studies_for_trait(self.trait))
 
-        if len(self.hdfs) == 1 and return_all:
-            print("fetch everything")
+        if len(self.hdfs) == 1 and not self.paginate and self.condition:
+            print("unpaginated request")
+            self.unpaginated_request()
+        elif len(self.hdfs) > 1 and (not self.paginate or self.condition):
+            print("cannot make an unpaginated request for this resource - only possible for a study + tissue combined with one or more of the following (gene|variant|molecular_trait|chr+pos|pvalue)")
+            self.paginated_request()
+        else:
+            print("paginated request")
+            self.paginated_request()
 
+
+    def paginated_request(self)
         for hdf in self.hdfs:
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
@@ -270,6 +279,49 @@ class AssociationSearch:
                 if len(self.df.index) >= self.size:
                     break
 
+
+        self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
+        self.index_marker = self.starting_point + len(self.df.index)
+        return self.datasets, self.index_marker
+        
+    def unpaginated_request(self)
+        hdf = self.hdfs[0]
+        with pd.HDFStore(hdf, mode='r') as store:
+            print('opened {}'.format(hdf))
+            key = store.keys()[0]
+            identifier = key.strip("/")
+            logger.debug(key)
+            study = self._get_study_metadata(identifier)['study']
+            tissue = self._get_study_metadata(identifier)['tissue_ont']
+            
+            #if self.study:
+            #    study = self._get_study_metadata(identifier)['study']
+            #    if self.study != study:
+            #        # move on to next study if this isn't the one we want
+            #        continue
+
+            #if self.tissue and self.tissue != tissue:
+            #    # move on to next tissue if this isn't the one we want
+            #    continue
+
+            print(self.condition)
+            chunk = store.select(key, where=self.condition) #set pvalue and other conditions
+
+            chunk_size = chunk.coordinates.size
+            n = chunk_size - (self.start + 1)
+
+            for i, chunk in enumerate(chunks):
+            if self.snp: 
+                # filter for correct snp
+                if self._snp_format() == 'rs':
+                    chunk = chunk[chunk[RSID_DSET] == self.snp]
+                elif self._snp_format() == 'chr_bp':
+                    chunk = chunk[chunk[SNP_DSET] == self.snp]
+                
+            chunk[STUDY_DSET] = study
+            #chunk[TRAIT_DSET] = str(traits) 
+            chunk[TISSUE_DSET] = tissue
+            self.df = pd.concat([self.df, chunk])
 
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
         self.index_marker = self.starting_point + len(self.df.index)
