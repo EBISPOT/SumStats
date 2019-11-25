@@ -77,7 +77,7 @@ def argument_parser(args):
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')  # pragma: no cover
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')  # pragma: no cover
     parser.add_argument('-quant_method', help='The quantification method', choices=['ge','tx','txrev','microarray','exon'], default='ge', required=False)  # pragma: no cover
-    parser.add_argument('-paginate', help='Set paginate to "False" if you would like to fetch all associations for your query', default=True, choices=[True, False])  # pragma: no cover
+    parser.add_argument('-unpaginate', help='Sets "paginate" to "False" if you would like to fetch all associations for your query', action='store_false')  # pragma: no cover
 
 
     properties_handler.set_properties()  # pragma: no cover
