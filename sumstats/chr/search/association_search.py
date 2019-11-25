@@ -218,6 +218,10 @@ class AssociationSearch:
         else:
             print("paginated request")
             self.paginated_request()
+        
+        self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
+        self.index_marker = self.starting_point + len(self.df.index)
+        return self.datasets, self.index_marker
 
 
     def paginated_request(self):
@@ -278,10 +282,6 @@ class AssociationSearch:
                 if len(self.df.index) >= self.size:
                     break
 
-
-        self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
-        self.index_marker = self.starting_point + len(self.df.index)
-        return self.datasets, self.index_marker
         
     def unpaginated_request(self):
         hdf = self.hdfs[0]
@@ -318,10 +318,6 @@ class AssociationSearch:
             chunk[TISSUE_DSET] = tissue
             self.df = pd.concat([self.df, chunk])
 
-        self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
-        self.index_marker = self.starting_point + len(self.df.index)
-        return self.datasets, self.index_marker
-        
 
     def _construct_conditional_statement(self):
         conditions = []
