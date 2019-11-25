@@ -32,7 +32,7 @@ def convert_search_args(args):
     snp = args.snp
     tissue = args.tissue
     quant_method = args.quant_method
-    paginate = args.unpaginate
+    paginate = args.paginate
 
     chromosome = args.chr
     if chromosome is not None:
