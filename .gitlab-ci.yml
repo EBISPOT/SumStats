@@ -57,8 +57,6 @@ build_docs:
 
 # if a tag is created create an images with the tag and a latest
 build_release:
-  variables:
-    GIT_STRATEGY: none
   stage: build
   script:
    - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
@@ -72,9 +70,6 @@ build_release:
    - tags
 
 build_docs_release:
-  image: $CI_REGISTRY_IMAGE:latest
-  variables:
-    GIT_STRATEGY: none
   stage: build
   script:
    - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
