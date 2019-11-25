@@ -306,10 +306,6 @@ class AssociationSearch:
             print(self.condition)
             chunk = store.select(key, where=self.condition) #set pvalue and other conditions
 
-            chunk_size = chunk.coordinates.size
-            n = chunk_size - (self.start + 1)
-
-            for i, chunk in enumerate(chunks):
             if self.snp: 
                 # filter for correct snp
                 if self._snp_format() == 'rs':
