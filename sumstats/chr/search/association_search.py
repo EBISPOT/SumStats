@@ -202,7 +202,6 @@ class AssociationSearch:
         """
         logger.info("Searching all associations for start %s, size %s, pval_interval %s",
                     str(self.start), str(self.size), str(self.pval_interval))
-        self.iteration_size = self.size
         self._narrow_hdf_pool()
 
         #studies = []
