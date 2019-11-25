@@ -25,7 +25,7 @@ def main():  # pragma: no cover
     args = argument_parser(sys.argv[1:])  # pragma: no cover
 
     trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method, paginate = au.convert_search_args(args)  # pragma: no cover
-
+    
     find_all = args.all  # pragma: no cover
     start = args.start  # pragma: no cover
     if start is None:  # pragma: no cover
@@ -77,7 +77,7 @@ def argument_parser(args):
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')  # pragma: no cover
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')  # pragma: no cover
     parser.add_argument('-quant_method', help='The quantification method', choices=['ge','tx','txrev','microarray','exon'], default='ge', required=False)  # pragma: no cover
-    parser.add_argument('-unpaginate', help='Sets "paginate" to "False" if you would like to fetch all associations for your query', action='store_false')  # pragma: no cover
+    parser.add_argument('-unpaginate', help='Sets "paginate" to "False" if you would like to fetch all associations for your query', action='store_false', default=True)  # pragma: no cover
 
 
     properties_handler.set_properties()  # pragma: no cover
