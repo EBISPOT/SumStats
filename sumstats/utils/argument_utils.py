@@ -15,7 +15,7 @@ def search_argument_parser():
     parser.add_argument('-bp', help='Filter with baise pair location threshold: -bp floor:ceil')
     parser.add_argument('-tissue', help='The tissue I am looking for')
     parser.add_argument('-quant_method', help='The quantification method')
-    parser.add_argument('-umpaginate', help='Set paginate to "False" if you would like to fetch all associations for your query')
+    parser.add_argument('-paginate', help='Set paginate to "False" if you would like to fetch all associations for your query')
 
     return parser.parse_args()
 
@@ -59,3 +59,14 @@ def load_argument_parser():
     parser.add_argument('-h5files_path', help='The path of the output files')
 
     return parser.parse_args()
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
