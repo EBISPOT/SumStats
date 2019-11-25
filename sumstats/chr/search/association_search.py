@@ -22,7 +22,7 @@ register_logger.register(__name__)
 
 class AssociationSearch:
     def __init__(self, start, size, pval_interval=None, config_properties=None, study=None, chromosome=None,
-                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None, qtl_group=None):
+                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None, qtl_group=None, return_all=False):
         self.starting_point = start
         self.start = start
         self.max_size = 1000
@@ -37,6 +37,7 @@ class AssociationSearch:
         self.snp = snp
         self.qtl_group = qtl_group
         self.quant_method = quant_method if quant_method else "ge"
+        self.return_all = return_all
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
@@ -190,7 +191,7 @@ class AssociationSearch:
             return True
         return False
  
-    def search_associations(self):
+    def search_associations(self, return_all=False):
         """
         Traverses the hdfs breaking if once the required results are retrieved, while
         keeping track of where it got to for the next search. Chunksize is set to 1 so that
@@ -208,6 +209,9 @@ class AssociationSearch:
         #if self.trait:
         #    sql = sq.sqlClient(self.database)
         #    studies.extend(sql.get_studies_for_trait(self.trait))
+
+        if len(self.hdfs) == 1 and return_all:
+            print("fetch everything")
 
         for hdf in self.hdfs:
             with pd.HDFStore(hdf, mode='r') as store:
