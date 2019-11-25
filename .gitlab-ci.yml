@@ -54,7 +54,6 @@ build_docs:
    - eqtls
   
 
-
 # if a tag is created create an images with the tag and a latest
 build_release:
   stage: build
@@ -117,7 +116,7 @@ deploy_prod:
     - helm init
     - helm delete --purge eqtl-sumstats || true
     - sleep 30
-    - helm install --name eqtl-sumstats --set k8Namespace=eqtl,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.uid=$UID,image.gid=$GID,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER,volume.data.path=$NFS_PATH,replicaCount=3 ./eqtlss/ --wait
+    - helm install --name eqtl-sumstats --set k8Namespace=eqtl,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.uid=$UID,image.gid=$GID,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_PROD,volume.data.path=$NFS_PATH,replicaCount=3 ./eqtlss/ --wait
   environment:
     name: production
   when: manual
