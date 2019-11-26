@@ -205,19 +205,14 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self._narrow_hdf_pool()
 
-        #studies = []
-        #if self.trait:
-        #    sql = sq.sqlClient(self.database)
-        #    studies.extend(sql.get_studies_for_trait(self.trait))
-
         if len(self.hdfs) == 1 and not self.paginate and self.condition:
-            print("unpaginated request")
+            logger.info("unpaginated request")
             self.unpaginated_request()
         elif len(self.hdfs) > 1 and (not self.paginate or self.condition):
-            print("cannot make an unpaginated request for this resource - only possible for a study + tissue combined with one or more of the following (gene|variant|molecular_trait|chr+pos|pvalue)")
+            logger.info("cannot make an unpaginated request for this resource - only possible for a study + tissue combined with one or more of the following (gene|variant|molecular_trait|chr+pos|pvalue)")
             self.paginated_request()
         else:
-            print("paginated request")
+            logger.info("paginated request")
             self.paginated_request()
         
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
@@ -240,10 +235,6 @@ class AssociationSearch:
                     if self.study != study:
                         # move on to next study if this isn't the one we want
                         continue
-
-                #if self.tissue and self.tissue != tissue:
-                #    # move on to next tissue if this isn't the one we want
-                #    continue
 
                 if self.condition:
                     print(self.condition)
@@ -269,7 +260,6 @@ class AssociationSearch:
                             chunk = chunk[chunk[SNP_DSET] == self.snp]
                     
                     chunk[STUDY_DSET] = study
-                    #chunk[TRAIT_DSET] = str(traits) 
                     chunk[TISSUE_DSET] = tissue
                     self.df = pd.concat([self.df, chunk])
 
@@ -294,16 +284,6 @@ class AssociationSearch:
             study = self._get_study_metadata(identifier)['study']
             tissue = self._get_study_metadata(identifier)['tissue_ont']
             
-            #if self.study:
-            #    study = self._get_study_metadata(identifier)['study']
-            #    if self.study != study:
-            #        # move on to next study if this isn't the one we want
-            #        continue
-
-            #if self.tissue and self.tissue != tissue:
-            #    # move on to next tissue if this isn't the one we want
-            #    continue
-
             print(self.condition)
             chunk = store.select(key, where=self.condition) #set pvalue and other conditions
 
@@ -315,7 +295,6 @@ class AssociationSearch:
                     chunk = chunk[chunk[SNP_DSET] == self.snp]
                 
             chunk[STUDY_DSET] = study
-            #chunk[TRAIT_DSET] = str(traits) 
             chunk[TISSUE_DSET] = tissue
             self.df = pd.concat([self.df, chunk])
 
@@ -350,12 +329,6 @@ class AssociationSearch:
                 conditions.append("{pval} >= {lower}".format(pval = PVAL_DSET, lower = str(self.pval_interval.lower_limit)))
             if self.pval_interval.upper_limit:
                 conditions.append("{pval} <= {upper}".format(pval = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
-
-
-
-        #if self.study:
-        #    study_id = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, ""))
-        #    conditions.append("{study} == {query}".format(study=STUDY_DSET, query=study_id))
 
         if len(conditions) > 0:
             statement = " & ".join(conditions)
