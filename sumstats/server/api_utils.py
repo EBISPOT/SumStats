@@ -134,7 +134,7 @@ def _add_gwas_catalog_href(info_array, study_accession):
     return info_array
 
 
-def _get_array_to_display(datasets, variant=None, chromosome=None):
+def _get_array_to_display(datasets, variant=None, chromosome=None, paginate=True):
     if datasets is None: return {}
     if len(datasets[REFERENCE_DSET]) <= 0: return {}
 
@@ -173,14 +173,15 @@ def _get_array_to_display(datasets, variant=None, chromosome=None):
         element_info['gene_id'] = gene
         element_info['tissue'] = tissue
 
-        element_info['_links'] = {'self': _create_href(method_name='api.get_chromosome_variants',
-                                                   params={'variant_id': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
-                                                           'chromosome': specific_chromosome})}
-        element_info['_links']['variant'] = _create_href(method_name='api.get_chromosome_variants',
-                                                         params={'variant_id': specific_variant, 'chromosome': specific_chromosome})
-        element_info['_links']['study'] = _create_href(method_name='api.get_tissue_study',
-                                                       params={'study': study})
-        element_info['_links']['tissue'] = _create_href(method_name='api.get_tissue', params={'tissue': tissue})
+        if paginate:
+            element_info['_links'] = {'self': _create_href(method_name='api.get_chromosome_variants',
+                                                       params={'variant_id': specific_variant, 'study_accession': datasets[STUDY_DSET][index],
+                                                               'chromosome': specific_chromosome})}
+            element_info['_links']['variant'] = _create_href(method_name='api.get_chromosome_variants',
+                                                             params={'variant_id': specific_variant, 'chromosome': specific_chromosome})
+            element_info['_links']['study'] = _create_href(method_name='api.get_tissue_study',
+                                                           params={'study': study})
+            element_info['_links']['tissue'] = _create_href(method_name='api.get_tissue', params={'tissue': tissue})
 
         data_dict[index] = element_info
     return data_dict
@@ -319,6 +320,7 @@ def _get_basic_arguments(args):
     gene = _retrieve_endpoint_arguments(args, "gene_id", None)
     study = _retrieve_endpoint_arguments(args, "study", None)
     trait = _retrieve_endpoint_arguments(args, "molecular_trait_id", None)
+    paginate = _retrieve_endpoint_arguments(args, "paginate", True)
 
     #qtl_group = _retrieve_endpoint_arguments(args, "qtl_group", None)
     

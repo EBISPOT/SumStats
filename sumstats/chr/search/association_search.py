@@ -22,7 +22,7 @@ register_logger.register(__name__)
 
 class AssociationSearch:
     def __init__(self, start, size, pval_interval=None, config_properties=None, study=None, chromosome=None,
-                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None, qtl_group=None):
+                 bp_interval=None, trait=None, gene=None, tissue=None, snp=None, quant_method=None, qtl_group=None, paginate=True):
         self.starting_point = start
         self.start = start
         self.max_size = 1000
@@ -37,6 +37,7 @@ class AssociationSearch:
         self.snp = snp
         self.qtl_group = qtl_group
         self.quant_method = quant_method if quant_method else "ge"
+        self.paginate = paginate
 
         self.properties = properties_handler.get_properties(config_properties)
         self.search_path = properties_handler.get_search_path(self.properties)
@@ -126,6 +127,7 @@ class AssociationSearch:
         return chromosome, bp_interval
 
     def _narrow_hdf_pool(self):
+        print(self.chromosome)
         if self.tissue and self.study:
             logger.debug("tissue and study")
             sql = sq.sqlClient(self.database)
@@ -162,11 +164,11 @@ class AssociationSearch:
             else:
                 raise NotFoundError("Study :{} with quantification method: {}".format(self.study, self.quant_method))
                 
-        if self.trait:
+        if self.trait and not (self.study or self.tissue):
             logger.debug("phen")
             self.chrom_for_trait()
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
-        if self.gene:
+        if self.gene and not (self.study or self.tissue):
             logger.debug("gene")
             self.chrom_for_gene()
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
@@ -201,7 +203,6 @@ class AssociationSearch:
         """
         logger.info("Searching all associations for start %s, size %s, pval_interval %s",
                     str(self.start), str(self.size), str(self.pval_interval))
-        self.iteration_size = self.size
         self._narrow_hdf_pool()
 
         #studies = []
@@ -209,6 +210,22 @@ class AssociationSearch:
         #    sql = sq.sqlClient(self.database)
         #    studies.extend(sql.get_studies_for_trait(self.trait))
 
+        if len(self.hdfs) == 1 and not self.paginate and self.condition:
+            print("unpaginated request")
+            self.unpaginated_request()
+        elif len(self.hdfs) > 1 and (not self.paginate or self.condition):
+            print("cannot make an unpaginated request for this resource - only possible for a study + tissue combined with one or more of the following (gene|variant|molecular_trait|chr+pos|pvalue)")
+            self.paginated_request()
+        else:
+            print("paginated request")
+            self.paginated_request()
+        
+        self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
+        self.index_marker = self.starting_point + len(self.df.index)
+        return self.datasets, self.index_marker
+
+
+    def paginated_request(self):
         for hdf in self.hdfs:
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
@@ -266,20 +283,53 @@ class AssociationSearch:
                 if len(self.df.index) >= self.size:
                     break
 
-
-        self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
-        self.index_marker = self.starting_point + len(self.df.index)
-        return self.datasets, self.index_marker
         
+    def unpaginated_request(self):
+        hdf = self.hdfs[0]
+        with pd.HDFStore(hdf, mode='r') as store:
+            print('opened {}'.format(hdf))
+            key = store.keys()[0]
+            identifier = key.strip("/")
+            logger.debug(key)
+            study = self._get_study_metadata(identifier)['study']
+            tissue = self._get_study_metadata(identifier)['tissue_ont']
+            
+            #if self.study:
+            #    study = self._get_study_metadata(identifier)['study']
+            #    if self.study != study:
+            #        # move on to next study if this isn't the one we want
+            #        continue
+
+            #if self.tissue and self.tissue != tissue:
+            #    # move on to next tissue if this isn't the one we want
+            #    continue
+
+            print(self.condition)
+            chunk = store.select(key, where=self.condition) #set pvalue and other conditions
+
+            if self.snp: 
+                # filter for correct snp
+                if self._snp_format() == 'rs':
+                    chunk = chunk[chunk[RSID_DSET] == self.snp]
+                elif self._snp_format() == 'chr_bp':
+                    chunk = chunk[chunk[SNP_DSET] == self.snp]
+                
+            chunk[STUDY_DSET] = study
+            #chunk[TRAIT_DSET] = str(traits) 
+            chunk[TISSUE_DSET] = tissue
+            self.df = pd.concat([self.df, chunk])
+
 
     def _construct_conditional_statement(self):
         conditions = []
         statement = None
 
         if self.trait:
+            self.chrom_for_trait()
             conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
 
         if self.gene:
+            self.chrom_for_gene()
             conditions.append("{gene} == {id}".format(gene=GENE_DSET, id=str(self.gene)))
 
         if self.bp_interval:
