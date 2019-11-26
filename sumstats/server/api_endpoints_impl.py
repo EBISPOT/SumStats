@@ -34,8 +34,7 @@ def associations():
         raise BadUserRequest(str(error))
 
     searcher = search.Search(apiu.properties)
-
-    datasets, index_marker = searcher.search(start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, tissue=tissue, gene=gene, study=study, trait=trait, paginate=paginate)
+    datasets, index_marker, paginate = searcher.search(start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, tissue=tissue, gene=gene, study=study, trait=trait, paginate=paginate)
 
     data_dict = apiu._get_array_to_display(datasets=datasets, paginate=paginate)
     params = dict(p_lower=p_lower, p_upper=p_upper, quant_method=quant_method, tissue=tissue, gene=gene, study=study, trait=trait)
@@ -92,7 +91,7 @@ def trait_associations(trait):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search(trait=trait, start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, tissue=tissue, gene=gene, study=study, snp=snp, paginate=paginate)
+        datasets, index_marker, paginate = searcher.search(trait=trait, start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, tissue=tissue, gene=gene, study=study, snp=snp, paginate=paginate)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, paginate=paginate)
         params = dict(p_lower=p_lower, p_upper=p_upper, quant_method=quant_method, tissue=tissue, gene=gene, study=study, snp=snp)
@@ -206,7 +205,7 @@ def tissue_associations(tissue):
         #trait = apiu._find_study_info(study=study, trait=trait)
         searcher = search.Search(apiu.properties)
 
-        datasets, index_marker = searcher.search(tissue=tissue,
+        datasets, index_marker, paginate = searcher.search(tissue=tissue,
                                                        start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, gene=gene, study=study, trait=trait, snp=snp, paginate=paginate)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, paginate=paginate)
@@ -249,7 +248,7 @@ def tissue_study_associations(study, tissue=None):
         #datasets, index_marker = searcher.search_study(trait=trait, study=study,
         #                                               start=start, size=size, pval_interval=pval_interval)
         if tissue:
-            datasets, index_marker = searcher.search(tissue=tissue, study=study, trait=trait, gene=gene, 
+            datasets, index_marker, paginate = searcher.search(tissue=tissue, study=study, trait=trait, gene=gene, 
                                                      start=start, size=size, pval_interval=pval_interval,
                                                      quant_method=quant_method, paginate=paginate)
 
@@ -257,7 +256,7 @@ def tissue_study_associations(study, tissue=None):
 
             params = dict(tissue=tissue, trait=trait, study=study, p_lower=p_lower, p_upper=p_upper, gene=gene, quant_method=quant_method)
         else:
-            datasets, index_marker = searcher.search(study=study, gene=gene, trait=trait, start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, paginate=paginate)
+            datasets, index_marker, paginate = searcher.search(study=study, gene=gene, trait=trait, start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, paginate=paginate)
 
             data_dict = apiu._get_array_to_display(datasets=datasets, paginate=paginate)
 
@@ -313,7 +312,7 @@ def chromosome_associations(chromosome):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search(chromosome=chromosome,
+        datasets, index_marker, paginate = searcher.search(chromosome=chromosome,
                                                             start=start, size=size, study=study,
                                                             pval_interval=pval_interval, bp_interval=bp_interval, 
                                                             quant_method=quant_method, tissue=tissue, gene=gene, trait=trait, paginate=paginate)
@@ -349,7 +348,7 @@ def variants(variant, chromosome=None):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
+        datasets, index_marker, paginate = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study,
                                                       quant_method=quant_method, tissue=tissue, gene=gene, trait=trait, paginate=paginate)
 
@@ -382,7 +381,7 @@ def variant_resource(variant, chromosome=None):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
+        datasets, index_marker, paginate = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
                                                      pval_interval=pval_interval, study=study, quant_method=quant_method, 
                                                      tissue=tissue, gene=gene, trait=trait, paginate=paginate)
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, paginate=paginate)
@@ -464,7 +463,7 @@ def gene_associations(gene):
     searcher = search.Search(apiu.properties)
 
     try:
-        datasets, index_marker = searcher.search(gene=gene, start=start, size=size, pval_interval=pval_interval, 
+        datasets, index_marker, paginate = searcher.search(gene=gene, start=start, size=size, pval_interval=pval_interval, 
                 quant_method=quant_method, tissue=tissue, study=study, trait=trait, paginate=paginate)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, paginate=paginate)

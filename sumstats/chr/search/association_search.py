@@ -210,6 +210,7 @@ class AssociationSearch:
             self.unpaginated_request()
         elif len(self.hdfs) > 1 and (not self.paginate or self.condition):
             logger.info("cannot make an unpaginated request for this resource - only possible for a study + tissue combined with one or more of the following (gene|variant|molecular_trait|chr+pos|pvalue)")
+            self.paginate = True
             self.paginated_request()
         else:
             logger.info("paginated request")
@@ -217,7 +218,7 @@ class AssociationSearch:
         
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
         self.index_marker = self.starting_point + len(self.df.index)
-        return self.datasets, self.index_marker
+        return self.datasets, self.index_marker, self.paginate
 
 
     def paginated_request(self):
