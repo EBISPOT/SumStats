@@ -324,9 +324,11 @@ class AssociationSearch:
         statement = None
 
         if self.trait:
+            self.chrom_for_trait()
             conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
 
         if self.gene:
+            self.chrom_for_gene()
             conditions.append("{gene} == {id}".format(gene=GENE_DSET, id=str(self.gene)))
 
         if self.bp_interval:
