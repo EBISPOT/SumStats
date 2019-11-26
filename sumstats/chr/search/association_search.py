@@ -127,6 +127,7 @@ class AssociationSearch:
         return chromosome, bp_interval
 
     def _narrow_hdf_pool(self):
+        print(self.chromosome)
         if self.tissue and self.study:
             logger.debug("tissue and study")
             sql = sq.sqlClient(self.database)
@@ -163,11 +164,11 @@ class AssociationSearch:
             else:
                 raise NotFoundError("Study :{} with quantification method: {}".format(self.study, self.quant_method))
                 
-        if self.trait:
+        if self.trait and not (self.study or self.tissue):
             logger.debug("phen")
             self.chrom_for_trait()
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
-        if self.gene:
+        if self.gene and not (self.study or self.tissue):
             logger.debug("gene")
             self.chrom_for_gene()
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
