@@ -324,7 +324,7 @@ def _get_basic_arguments(args):
 
     #qtl_group = _retrieve_endpoint_arguments(args, "qtl_group", None)
     
-    return start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study, trait
+    return start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study, trait, paginate
 
 
 def _get_start_size(args):
