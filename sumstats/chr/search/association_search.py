@@ -239,7 +239,8 @@ class AssociationSearch:
 
                 if self.condition:
                     print(self.condition)
-                    chunks = store.select(key, chunksize=1, start=self.start, where=self.condition) #set pvalue and other conditions
+                    #set pvalue and other conditions
+                    chunks = store.select(key, chunksize=1, start=self.start, where=self.condition) 
                 else:
                     logger.debug("No condition")
                     chunks = store.select(key, chunksize=1, start=self.start)
@@ -264,7 +265,8 @@ class AssociationSearch:
                     chunk[TISSUE_DSET] = tissue
                     self.df = pd.concat([self.df, chunk])
 
-                    if len(self.df.index) >= self.size: # break once we have enough
+                    if len(self.df.index) >= self.size: 
+                        # break once we have enough
                         break
 
                     if i == n: # Need to explicitly break loop once complete - not sure why - investigate this
@@ -286,7 +288,8 @@ class AssociationSearch:
             tissue = self._get_study_metadata(identifier)['tissue_ont']
             
             print(self.condition)
-            chunk = store.select(key, where=self.condition) #set pvalue and other conditions
+            #set pvalue and other conditions
+            chunk = store.select(key, where=self.condition) 
 
             if self.snp: 
                 # filter for correct snp
