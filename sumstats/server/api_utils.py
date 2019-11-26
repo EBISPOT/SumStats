@@ -4,6 +4,7 @@ from sumstats.common_constants import *
 from flask import url_for
 from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler as set_p
+import sumstats.utils.argument_utils as argu
 from sumstats.utils.interval import *
 import sumstats.explorer as ex
 from collections import OrderedDict
@@ -320,7 +321,7 @@ def _get_basic_arguments(args):
     gene = _retrieve_endpoint_arguments(args, "gene_id", None)
     study = _retrieve_endpoint_arguments(args, "study", None)
     trait = _retrieve_endpoint_arguments(args, "molecular_trait_id", None)
-    paginate = _retrieve_endpoint_arguments(args, "paginate", True)
+    paginate = argu.str2bool(_retrieve_endpoint_arguments(args, "paginate", True))
 
     #qtl_group = _retrieve_endpoint_arguments(args, "qtl_group", None)
     
