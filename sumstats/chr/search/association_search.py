@@ -127,9 +127,6 @@ class AssociationSearch:
         return chromosome, bp_interval
 
     def _narrow_hdf_pool(self):
-        print(self.chromosome)
-        print(self.qtl_group)
-        print(self.tissue)
 
         # narrow by tissue
         
@@ -176,6 +173,7 @@ class AssociationSearch:
             logger.debug("qtl_group")
             sql = sq.sqlClient(self.database)
             file_ids = []
+            print('qtl_group')
             resp = sql.get_file_ids_for_qtl_group(self.qtl_group, self.quant_method)
             if resp:
                 file_ids.extend(resp)
@@ -241,7 +239,7 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self._narrow_hdf_pool()
 
-        logger.info(self.hdfs)
+        print(self.hdfs)
         
 
         if len(self.hdfs) == 1 and not self.paginate and self.condition:
