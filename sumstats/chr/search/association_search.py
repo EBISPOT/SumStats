@@ -205,6 +205,9 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self._narrow_hdf_pool()
 
+        logger.info(self.hdfs)
+        
+
         if len(self.hdfs) == 1 and not self.paginate and self.condition:
             logger.info("unpaginated request")
             self.unpaginated_request()
