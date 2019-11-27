@@ -82,14 +82,21 @@ class sqlClient():
                      "phen": None,
                      "tissue_ont": None,
                      "treatment": None,
-                     "treatment_ont": None,
-                     "quant_method": None
+                     "quant_method": None,
+                     "condition_label": None
                      }
 
-        self.cur.execute("SELECT * FROM study_info where identifier =?", (identifier,))
+        #self.cur.execute("SELECT * FROM study_info where identifier =?", (identifier,))
+
+        self.cur.execute("SELECT s.study, s.identifier, q.qtl_group, q.cell_type, s.trait_file, q.ontology_term, q.condition, q.condition_label 
+                          FROM qtl_context_mapping AS q 
+                          JOIN study_info AS s 
+                          ON q.study = s.study AND q.qtl_group = s.qtl_group 
+                          WHERE s.identifier =?", (identifier,))
+
         data = self.cur.fetchone()
         if data:
-            data_dict["study"], data_dict["identifier"], data_dict["qtl_group"], data_dict["tissue"], data_dict["phen"], data_dict["tissue_ont"], data_dict["treatment"], data_dict["treatment_ont"], data_dict["quant_method"] = data
+            data_dict["study"], data_dict["identifier"], data_dict["qtl_group"], data_dict["tissue"], data_dict["phen"], data_dict["tissue_ont"], data_dict["treatment"], data_dict["condition_label"] = data
         return data_dict
 
     def get_traits(self):
@@ -149,6 +156,24 @@ class sqlClient():
     def get_file_ids_for_study_tissue(self, study, tissue, quant):
         data = []
         for row in self.cur.execute("select identifier from study_info where study =? and tissue_ontology =? and quant_method =?", (study, tissue, quant)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
+    def get_file_ids_for_qtl_group(self, qtl_group, quant):
+        data = []
+        for row in self.cur.execute("select identifier from study_info where qtl_group =? and quant_method =?", (qtl_group, quant)):
+            data.append(row[0])
+        if data:
+            return data
+        else:
+            return False
+
+    def get_file_ids_for_study_qtl_group(self, study, qtl_group, quant):
+        data = []
+        for row in self.cur.execute("select identifier from study_info where study =? and qtl_group =? and quant_method =?", (study, qtl_group, quant)):
             data.append(row[0])
         if data:
             return data

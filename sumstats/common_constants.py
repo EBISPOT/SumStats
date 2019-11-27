@@ -3,7 +3,7 @@ MANTISSA_DSET = 'mantissa'
 EXP_DSET = 'exponent'
 PVAL_DSET = 'pvalue'
 STUDY_DSET = 'study_id'
-TISSUE_DSET = 'tissue'
+TISSUE_DSET = 'tissue' # ontology term
 CHR_DSET = 'chromosome'
 BP_DSET = 'position'
 BETA_DSET = 'beta'
@@ -29,18 +29,25 @@ HM_OTHER_DSET = 'hm_other_allele'
 HM_FREQ_DSET = 'hm_effect_allele_frequency'
 HM_VAR_ID = 'hm_variant_id'
 HM_CODE = 'hm_code'
+QTL_GROUP_DSET = 'qtl_group'
+CONDITION_DSET = 'condition'
+CONDITION_LABEL_DSET = 'condition_label'
+TISSUE_LABEL_DSET = 'tissue_label'
+
+#qtl_group, condition, condition_label, cell_type, ontology_term, ontology_label
 
 
 DSET_TYPES = {SNP_DSET: str, RSID_DSET: str, MUTATION_DSET: str, AC_DSET: int, AN_DSET: int, PVAL_DSET: str, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: str,
               CHR_DSET: int, BP_DSET: int, R2_DSET: float, BETA_DSET: float, SE_DSET: float,
-              EFFECT_DSET: str, OTHER_DSET: str, FREQ_DSET: float, EXPR_DSET: float, TISSUE_DSET: str}
+              EFFECT_DSET: str, OTHER_DSET: str, FREQ_DSET: float, EXPR_DSET: float, TISSUE_DSET: str,
+              QTL_GROUP_DSET = str, CONDITION_DSET = str, CONDITION_LABEL_DSET = str, TISSUE_LABEL_DSET = str}
               
 
 REFERENCE_DSET = SNP_DSET
 HARMONISATION_PREFIX = 'hm_'
 GWAS_CATALOG_STUDY_PREFIX = 'GCST'
 
-TO_DISPLAY_DEFAULT = {SNP_DSET, PVAL_DSET, STUDY_DSET, CHR_DSET, BP_DSET, EFFECT_DSET, OTHER_DSET, BETA_DSET, RSID_DSET, MUTATION_DSET, AC_DSET, AN_DSET, FREQ_DSET, R2_DSET, EXPR_DSET}
+TO_DISPLAY_DEFAULT = {SNP_DSET, PVAL_DSET, STUDY_DSET, CHR_DSET, BP_DSET, EFFECT_DSET, OTHER_DSET, BETA_DSET, RSID_DSET, MUTATION_DSET, AC_DSET, AN_DSET, FREQ_DSET, R2_DSET, EXPR_DSET, QTL_GROUP_DSET, CONDITION_DSET, CONDITION_LABEL_DSET, TISSUE_LABEL_DSET}
 
 TO_DISPLAY_RAW = {SNP_DSET, PVAL_DSET, STUDY_DSET, CHR_DSET, BP_DSET, BETA_DSET,
                   EFFECT_DSET, OTHER_DSET}

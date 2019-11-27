@@ -231,15 +231,8 @@ class AssociationSearch:
                 key = store.keys()[0]
                 identifier = key.strip("/")
                 logger.debug(key)
-                study = self._get_study_metadata(identifier)['study']
-                tissue = self._get_study_metadata(identifier)['tissue_ont']
+                meta_dict = self._get_study_metadata(identifier) 
                 
-                if self.study:
-                    study = self._get_study_metadata(identifier)['study']
-                    if self.study != study:
-                        # move on to next study if this isn't the one we want
-                        continue
-
                 if self.condition:
                     print(self.condition)
                     #set pvalue and other conditions
@@ -264,8 +257,12 @@ class AssociationSearch:
                         elif self._snp_format() == 'chr_bp':
                             chunk = chunk[chunk[SNP_DSET] == self.snp]
                     
-                    chunk[STUDY_DSET] = study
-                    chunk[TISSUE_DSET] = tissue
+                    chunk[STUDY_DSET] = meta_dict['study']
+                    chunk[TISSUE_DSET] = meta_dict['tissue_ont']
+                    chunk[QTL_GROUP_DSET] = meta_dict['qtl_group']
+                    chunk[CONDITION_DSET] = meta_dict['condition']
+                    chunk[CONDITION_LABEL_DSET] = meta_dict['condition_label']
+                    chunk[TISSUE_LABEL_DSET] = meta_dict['tissue_label']
                     self.df = pd.concat([self.df, chunk])
 
                     if len(self.df.index) >= self.size: 
@@ -287,8 +284,8 @@ class AssociationSearch:
             key = store.keys()[0]
             identifier = key.strip("/")
             logger.debug(key)
-            study = self._get_study_metadata(identifier)['study']
-            tissue = self._get_study_metadata(identifier)['tissue_ont']
+            meta_dict = self._get_study_metadata(identifier) 
+
             
             print(self.condition)
             #set pvalue and other conditions
@@ -301,8 +298,13 @@ class AssociationSearch:
                 elif self._snp_format() == 'chr_bp':
                     chunk = chunk[chunk[SNP_DSET] == self.snp]
                 
-            chunk[STUDY_DSET] = study
-            chunk[TISSUE_DSET] = tissue
+            chunk[STUDY_DSET] = meta_dict['study']
+            chunk[TISSUE_DSET] = meta_dict['tissue_ont']
+            chunk[QTL_GROUP_DSET] = meta_dict['qtl_group']
+            chunk[CONDITION_DSET] = meta_dict['condition']
+            chunk[CONDITION_LABEL_DSET] = meta_dict['condition_label']
+            chunk[TISSUE_LABEL_DSET] = meta_dict['tissue_label']
+            
             self.df = pd.concat([self.df, chunk])
 
 
