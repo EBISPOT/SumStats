@@ -173,7 +173,6 @@ class AssociationSearch:
             logger.debug("qtl_group")
             sql = sq.sqlClient(self.database)
             file_ids = []
-            print('qtl_group')
             resp = sql.get_file_ids_for_qtl_group(self.qtl_group, self.quant_method)
             if resp:
                 file_ids.extend(resp)
@@ -209,7 +208,7 @@ class AssociationSearch:
         if self.chromosome and all(v is None for v in [self.study, self.trait, self.gene, self.tissue]):
             logger.debug("bp/chr")
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
-        if all(v is None for v in [self.chromosome, self.study, self.gene, self.trait, self.tissue]):
+        if all(v is None for v in [self.chromosome, self.study, self.gene, self.trait, self.tissue, self.qtl_group]):
             logger.debug("all")
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*+" + str(self.quant_method) + ".h5") 
 
@@ -238,9 +237,6 @@ class AssociationSearch:
         logger.info("Searching all associations for start %s, size %s, pval_interval %s",
                     str(self.start), str(self.size), str(self.pval_interval))
         self._narrow_hdf_pool()
-
-        print(self.hdfs)
-        
 
         if len(self.hdfs) == 1 and not self.paginate and self.condition:
             logger.info("unpaginated request")
