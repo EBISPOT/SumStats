@@ -26,6 +26,8 @@ sphinxdocs:
     expire_in: '2 hrs'
     paths:
     - docs/build/html
+  only:
+   - eqtls
   
 # always build an image tagged with the commit SHA from master
 build:

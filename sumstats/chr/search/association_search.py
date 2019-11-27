@@ -33,7 +33,7 @@ class AssociationSearch:
         self.bp_interval = bp_interval
         self.trait = trait
         self.gene = gene
-        self.tissue = tissue
+        self.tissue = tissue if qtl_group is None else None # doesn't make sense to allow tissue and qtl group to be specified
         self.snp = snp
         self.qtl_group = qtl_group
         self.quant_method = quant_method if quant_method else "ge"
@@ -127,7 +127,9 @@ class AssociationSearch:
         return chromosome, bp_interval
 
     def _narrow_hdf_pool(self):
-        print(self.chromosome)
+
+        # narrow by tissue
+        
         if self.tissue and self.study:
             logger.debug("tissue and study")
             sql = sq.sqlClient(self.database)
@@ -152,7 +154,37 @@ class AssociationSearch:
             else:
                 raise NotFoundError("Tissue: {} with quantification method: {}".format(self.tissue, self.quant_method))
 
-        if self.study and not self.tissue:
+
+        # narrow by qtl group
+
+        if self.qtl_group and self.study:
+            logger.debug("qtl_group and study")
+            sql = sq.sqlClient(self.database)
+            file_ids = []
+            resp = sql.get_file_ids_for_study_qtl_group(self.study, self.qtl_group, self.quant_method)
+            if resp:
+                file_ids.extend(resp)
+                if not self._narrow_by_chromosome(file_ids):
+                    raise NotFoundError("Study :{} with qtl_group: {} and chr {}".format(self.study, self.qtl_group, self.chromosome))
+            else:
+                raise NotFoundError("Study :{} with qtl_group: {} and quantification method: {}".format(self.study, self.qtl_group, self.quant_method))
+
+        if self.qtl_group and not self.study:
+            logger.debug("qtl_group")
+            sql = sq.sqlClient(self.database)
+            file_ids = []
+            resp = sql.get_file_ids_for_qtl_group(self.qtl_group, self.quant_method)
+            if resp:
+                file_ids.extend(resp)
+                if not self._narrow_by_chromosome(file_ids):
+                    raise NotFoundError("QTL group: {} with chr {}".format(self.qtl_group, self.chromosome))
+            else:
+                raise NotFoundError("QTL group: {} with quantification method: {}".format(self.qtl_group, self.quant_method))
+
+                
+        # narrow by anything else
+
+        if self.study and not (self.qtl_group or self.tissue):
             logger.debug("study")
             sql = sq.sqlClient(self.database)
             file_ids = []
@@ -163,7 +195,8 @@ class AssociationSearch:
                     raise NotFoundError("Study :{} with chr {}".format(self.study, self.chromosome))
             else:
                 raise NotFoundError("Study :{} with quantification method: {}".format(self.study, self.quant_method))
-                
+
+
         if self.trait and not (self.study or self.tissue):
             logger.debug("phen")
             self.chrom_for_trait()
@@ -175,7 +208,7 @@ class AssociationSearch:
         if self.chromosome and all(v is None for v in [self.study, self.trait, self.gene, self.tissue]):
             logger.debug("bp/chr")
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_*+" + str(self.quant_method) + ".h5")
-        if all(v is None for v in [self.chromosome, self.study, self.gene, self.trait, self.tissue]):
+        if all(v is None for v in [self.chromosome, self.study, self.gene, self.trait, self.tissue, self.qtl_group]):
             logger.debug("all")
             self.hdfs = glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_*+" + str(self.quant_method) + ".h5") 
 
@@ -205,9 +238,6 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self._narrow_hdf_pool()
 
-        logger.info(self.hdfs)
-        
-
         if len(self.hdfs) == 1 and not self.paginate and self.condition:
             logger.info("unpaginated request")
             self.unpaginated_request()
@@ -231,15 +261,8 @@ class AssociationSearch:
                 key = store.keys()[0]
                 identifier = key.strip("/")
                 logger.debug(key)
-                study = self._get_study_metadata(identifier)['study']
-                tissue = self._get_study_metadata(identifier)['tissue_ont']
+                meta_dict = self._get_study_metadata(identifier) 
                 
-                if self.study:
-                    study = self._get_study_metadata(identifier)['study']
-                    if self.study != study:
-                        # move on to next study if this isn't the one we want
-                        continue
-
                 if self.condition:
                     print(self.condition)
                     #set pvalue and other conditions
@@ -263,9 +286,8 @@ class AssociationSearch:
                             chunk = chunk[chunk[RSID_DSET] == self.snp]
                         elif self._snp_format() == 'chr_bp':
                             chunk = chunk[chunk[SNP_DSET] == self.snp]
-                    
-                    chunk[STUDY_DSET] = study
-                    chunk[TISSUE_DSET] = tissue
+
+                    chunk = self._update_df_with_metadata(chunk, meta_dict)
                     self.df = pd.concat([self.df, chunk])
 
                     if len(self.df.index) >= self.size: 
@@ -278,7 +300,6 @@ class AssociationSearch:
 
                 if len(self.df.index) >= self.size:
                     break
-
         
     def unpaginated_request(self):
         hdf = self.hdfs[0]
@@ -287,8 +308,8 @@ class AssociationSearch:
             key = store.keys()[0]
             identifier = key.strip("/")
             logger.debug(key)
-            study = self._get_study_metadata(identifier)['study']
-            tissue = self._get_study_metadata(identifier)['tissue_ont']
+            meta_dict = self._get_study_metadata(identifier) 
+
             
             print(self.condition)
             #set pvalue and other conditions
@@ -301,11 +322,20 @@ class AssociationSearch:
                 elif self._snp_format() == 'chr_bp':
                     chunk = chunk[chunk[SNP_DSET] == self.snp]
                 
-            chunk[STUDY_DSET] = study
-            chunk[TISSUE_DSET] = tissue
+            chunk = self._update_df_with_metadata(chunk, meta_dict)
             self.df = pd.concat([self.df, chunk])
 
+    @staticmethod
+    def _update_df_with_metadata(df, meta_dict):
+        df[STUDY_DSET] = meta_dict['study']
+        df[TISSUE_DSET] = meta_dict['tissue_ont']
+        df[QTL_GROUP_DSET] = meta_dict['qtl_group']
+        df[CONDITION_DSET] = meta_dict['condition']
+        df[CONDITION_LABEL_DSET] = meta_dict['condition_label']
+        df[TISSUE_LABEL_DSET] = meta_dict['tissue_label']
+        return df
 
+        
     def _construct_conditional_statement(self):
         conditions = []
         statement = None
