@@ -128,6 +128,8 @@ class AssociationSearch:
 
     def _narrow_hdf_pool(self):
         print(self.chromosome)
+        print(self.qtl_group)
+        print(self.tissue)
 
         # narrow by tissue
         
@@ -290,13 +292,8 @@ class AssociationSearch:
                             chunk = chunk[chunk[RSID_DSET] == self.snp]
                         elif self._snp_format() == 'chr_bp':
                             chunk = chunk[chunk[SNP_DSET] == self.snp]
-                    
-                    chunk[STUDY_DSET] = meta_dict['study']
-                    chunk[TISSUE_DSET] = meta_dict['tissue_ont']
-                    chunk[QTL_GROUP_DSET] = meta_dict['qtl_group']
-                    chunk[CONDITION_DSET] = meta_dict['condition']
-                    chunk[CONDITION_LABEL_DSET] = meta_dict['condition_label']
-                    chunk[TISSUE_LABEL_DSET] = meta_dict['tissue_label']
+
+                    chunk = _update_df_with_metadata(chunk, meta_dict)
                     self.df = pd.concat([self.df, chunk])
 
                     if len(self.df.index) >= self.size: 
@@ -309,7 +306,6 @@ class AssociationSearch:
 
                 if len(self.df.index) >= self.size:
                     break
-
         
     def unpaginated_request(self):
         hdf = self.hdfs[0]
@@ -332,16 +328,20 @@ class AssociationSearch:
                 elif self._snp_format() == 'chr_bp':
                     chunk = chunk[chunk[SNP_DSET] == self.snp]
                 
-            chunk[STUDY_DSET] = meta_dict['study']
-            chunk[TISSUE_DSET] = meta_dict['tissue_ont']
-            chunk[QTL_GROUP_DSET] = meta_dict['qtl_group']
-            chunk[CONDITION_DSET] = meta_dict['condition']
-            chunk[CONDITION_LABEL_DSET] = meta_dict['condition_label']
-            chunk[TISSUE_LABEL_DSET] = meta_dict['tissue_label']
-            
+            chunk = _update_df_with_metadata(chunk, meta_dict)
             self.df = pd.concat([self.df, chunk])
 
+    @staticmethod
+    def _update_df_with_metadata(df, meta_dict):
+        df[STUDY_DSET] = meta_dict['study']
+        df[TISSUE_DSET] = meta_dict['tissue_ont']
+        df[QTL_GROUP_DSET] = meta_dict['qtl_group']
+        df[CONDITION_DSET] = meta_dict['condition']
+        df[CONDITION_LABEL_DSET] = meta_dict['condition_label']
+        df[TISSUE_LABEL_DSET] = meta_dict['tissue_label']
+        return df
 
+        
     def _construct_conditional_statement(self):
         conditions = []
         statement = None
