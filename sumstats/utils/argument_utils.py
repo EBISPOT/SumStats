@@ -9,6 +9,7 @@ def search_argument_parser():
     parser.add_argument('-trait', help='The trait I am looking for')
     parser.add_argument('-gene', help='The gene I am looking for')
     parser.add_argument('-study', help='The study I am looking for')
+    parser.add_argument('-qtl_group', help='The QTL group/context I am looking for')
     parser.add_argument('-snp', help='Filter by SNP')
     parser.add_argument('-chr', help='Filter by chromosome')
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')
@@ -31,6 +32,7 @@ def convert_search_args(args):
     study = args.study
     snp = args.snp
     tissue = args.tissue
+    qtl_group = args.qtl_group
     quant_method = args.quant_method
     paginate = args.paginate
 
@@ -44,7 +46,7 @@ def convert_search_args(args):
     bp_interval = args.bp
     bp_interval = IntInterval().set_string_tuple(bp_interval)
 
-    return trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method, paginate
+    return trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method, paginate, qtl_group
 
 
 def load_argument_parser():

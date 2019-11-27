@@ -33,7 +33,7 @@ class AssociationSearch:
         self.bp_interval = bp_interval
         self.trait = trait
         self.gene = gene
-        self.tissue = tissue
+        self.tissue = tissue if qtl_group is None else None # doesn't make sense to allow tissue and qtl group to be specified
         self.snp = snp
         self.qtl_group = qtl_group
         self.quant_method = quant_method if quant_method else "ge"
@@ -128,6 +128,9 @@ class AssociationSearch:
 
     def _narrow_hdf_pool(self):
         print(self.chromosome)
+
+        # narrow by tissue
+        
         if self.tissue and self.study:
             logger.debug("tissue and study")
             sql = sq.sqlClient(self.database)
@@ -152,7 +155,37 @@ class AssociationSearch:
             else:
                 raise NotFoundError("Tissue: {} with quantification method: {}".format(self.tissue, self.quant_method))
 
-        if self.study and not self.tissue:
+
+        # narrow by qtl group
+
+        if self.qtl_group and self.study:
+            logger.debug("qtl_group and study")
+            sql = sq.sqlClient(self.database)
+            file_ids = []
+            resp = sql.get_file_ids_for_study_qtl_group(self.study, self.qtl_group, self.quant_method)
+            if resp:
+                file_ids.extend(resp)
+                if not self._narrow_by_chromosome(file_ids):
+                    raise NotFoundError("Study :{} with qtl_group: {} and chr {}".format(self.study, self.qtl_group, self.chromosome))
+            else:
+                raise NotFoundError("Study :{} with qtl_group: {} and quantification method: {}".format(self.study, self.qtl_group, self.quant_method))
+
+        if self.qtl_group and not self.study:
+            logger.debug("qtl_group")
+            sql = sq.sqlClient(self.database)
+            file_ids = []
+            resp = sql.get_file_ids_for_qtl_group(self.qtl_group, self.quant_method)
+            if resp:
+                file_ids.extend(resp)
+                if not self._narrow_by_chromosome(file_ids):
+                    raise NotFoundError("QTL group: {} with chr {}".format(self.qtl_group, self.chromosome))
+            else:
+                raise NotFoundError("QTL group: {} with quantification method: {}".format(self.qtl_group, self.quant_method))
+
+                
+        # narrow by anything else
+
+        if self.study and not (self.qtl_group or self.tissue):
             logger.debug("study")
             sql = sq.sqlClient(self.database)
             file_ids = []
@@ -163,7 +196,8 @@ class AssociationSearch:
                     raise NotFoundError("Study :{} with chr {}".format(self.study, self.chromosome))
             else:
                 raise NotFoundError("Study :{} with quantification method: {}".format(self.study, self.quant_method))
-                
+
+
         if self.trait and not (self.study or self.tissue):
             logger.debug("phen")
             self.chrom_for_trait()

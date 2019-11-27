@@ -15,16 +15,17 @@ class Search(object):
         #self.sqlite_db = properties.sqlite_path
 
     def search(self, start, size, pval_interval=None, study=None, trait=None, gene=None,
-               chromosome=None, bp_interval=None, tissue=None, snp=None, quant_method=None, paginate=True):
+               chromosome=None, bp_interval=None, tissue=None, snp=None, quant_method=None, 
+               paginate=True, qtl_group=None):
         return cr.search_all_assocs(start=start, size=size, pval_interval=pval_interval,
                                     properties=self.config_properties, study=study, trait=trait, gene=gene,
                                     chromosome=chromosome, bp_interval=bp_interval, tissue=tissue, snp=snp,
-                                    quant_method=quant_method, paginate=paginate)
+                                    quant_method=quant_method, paginate=paginate, qtl_group=qtl_group)
 
 def main():  # pragma: no cover
     args = argument_parser(sys.argv[1:])  # pragma: no cover
 
-    trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method, paginate = au.convert_search_args(args)  # pragma: no cover
+    trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method, paginate, qtl_group = au.convert_search_args(args)  # pragma: no cover
     
     find_all = args.all  # pragma: no cover
     start = args.start  # pragma: no cover
@@ -43,10 +44,11 @@ def main():  # pragma: no cover
     if find_all:  # pragma: no cover
         result, index_marker = search.search(start=start, size=size, pval_interval=pval_interval)
 
-    elif any([trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method]):
+    elif any([trait, gene, study, chromosome, bp_interval, snp, pval_interval, tissue, quant_method, qtl_group]):
         result, index_marker, paginate = search.search(start=start, size=size, pval_interval=pval_interval,
                                              study=study, trait=trait, gene=gene, chromosome=chromosome,
-                                             bp_interval=bp_interval, tissue=tissue, snp=snp, quant_method=quant_method, paginate=paginate)
+                                             bp_interval=bp_interval, tissue=tissue, snp=snp, quant_method=quant_method, 
+                                             paginate=paginate, qtl_group=qtl_group)
 
     else:
         raise ValueError("Input is wrong!")
@@ -72,6 +74,7 @@ def argument_parser(args):
     parser.add_argument('-gene', help='The gene I am looking for')  # pragma: no cover
     parser.add_argument('-study', help='The study I am looking for')  # pragma: no cover
     parser.add_argument('-tissue', help='The tissue I am looking for')  # pragma: no cover
+    parser.add_argument('-qtl_group', help='The QTL group/context I am looking for')  # pragma: no cover
     parser.add_argument('-snp', help='The SNP I am looking for')  # pragma: no cover
     parser.add_argument('-chr', help='The chromosome I am looking for')  # pragma: no cover
     parser.add_argument('-pval', help='Filter by pval threshold: -pval floor:ceil')  # pragma: no cover
