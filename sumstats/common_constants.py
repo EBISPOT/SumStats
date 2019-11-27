@@ -40,7 +40,7 @@ TISSUE_LABEL_DSET = 'tissue_label'
 DSET_TYPES = {SNP_DSET: str, RSID_DSET: str, MUTATION_DSET: str, AC_DSET: int, AN_DSET: int, PVAL_DSET: str, MANTISSA_DSET: float, EXP_DSET: int, STUDY_DSET: str,
               CHR_DSET: int, BP_DSET: int, R2_DSET: float, BETA_DSET: float, SE_DSET: float,
               EFFECT_DSET: str, OTHER_DSET: str, FREQ_DSET: float, EXPR_DSET: float, TISSUE_DSET: str,
-              QTL_GROUP_DSET = str, CONDITION_DSET = str, CONDITION_LABEL_DSET = str, TISSUE_LABEL_DSET = str}
+              QTL_GROUP_DSET: str, CONDITION_DSET: str, CONDITION_LABEL_DSET: str, TISSUE_LABEL_DSET: str}
               
 
 REFERENCE_DSET = SNP_DSET
