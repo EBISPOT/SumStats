@@ -293,7 +293,7 @@ class AssociationSearch:
                         elif self._snp_format() == 'chr_bp':
                             chunk = chunk[chunk[SNP_DSET] == self.snp]
 
-                    chunk = _update_df_with_metadata(chunk, meta_dict)
+                    chunk = self._update_df_with_metadata(chunk, meta_dict)
                     self.df = pd.concat([self.df, chunk])
 
                     if len(self.df.index) >= self.size: 
@@ -328,7 +328,7 @@ class AssociationSearch:
                 elif self._snp_format() == 'chr_bp':
                     chunk = chunk[chunk[SNP_DSET] == self.snp]
                 
-            chunk = _update_df_with_metadata(chunk, meta_dict)
+            chunk = self._update_df_with_metadata(chunk, meta_dict)
             self.df = pd.concat([self.df, chunk])
 
     @staticmethod
