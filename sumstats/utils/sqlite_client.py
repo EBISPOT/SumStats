@@ -78,7 +78,7 @@ class sqlClient():
         data_dict = {"study": None, 
                      "identifier": None,
                      "qtl_group": None,
-                     "tissue": None,
+                     "tissue_label": None,
                      "phen": None,
                      "tissue_ont": None,
                      "condition": None,
@@ -98,7 +98,7 @@ class sqlClient():
 
         data = self.cur.fetchone()
         if data:
-            data_dict["study"], data_dict["identifier"], data_dict["qtl_group"], data_dict["tissue"], data_dict["phen"], data_dict["tissue_ont"], data_dict["condition"], data_dict["condition_label"] = data
+            data_dict["study"], data_dict["identifier"], data_dict["qtl_group"], data_dict["tissue_label"], data_dict["phen"], data_dict["tissue_ont"], data_dict["condition"], data_dict["condition_label"] = data
         return data_dict
 
     def get_traits(self):
