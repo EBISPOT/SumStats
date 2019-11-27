@@ -88,11 +88,13 @@ class sqlClient():
 
         #self.cur.execute("SELECT * FROM study_info where identifier =?", (identifier,))
 
-        self.cur.execute("SELECT s.study, s.identifier, q.qtl_group, q.cell_type, s.trait_file, q.ontology_term, q.condition, q.condition_label 
+        self.cur.execute("""
+                          SELECT s.study, s.identifier, q.qtl_group, q.cell_type, s.trait_file, q.ontology_term, q.condition, q.condition_label 
                           FROM qtl_context_mapping AS q 
                           JOIN study_info AS s 
                           ON q.study = s.study AND q.qtl_group = s.qtl_group 
-                          WHERE s.identifier =?", (identifier,))
+                          WHERE s.identifier =?
+                          """, (identifier,))
 
         data = self.cur.fetchone()
         if data:
