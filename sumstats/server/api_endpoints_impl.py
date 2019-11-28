@@ -35,10 +35,10 @@ def associations():
 
     searcher = search.Search(apiu.properties)
     datasets, index_marker, paginate = searcher.search(start=start, size=size, pval_interval=pval_interval, quant_method=quant_method, 
-            tissue=tissue, gene=gene, study=study, trait=trait, paginate=paginate, qtl_group=qtl_group)
+            tissue=tissue, gene=gene, study=study, trait=trait, paginate=paginate, qtl_group=qtl_group, snp=snp)
 
     data_dict = apiu._get_array_to_display(datasets=datasets, paginate=paginate)
-    params = dict(p_lower=p_lower, p_upper=p_upper, quant_method=quant_method, tissue=tissue, gene_id=gene, study=study, molecular_trait_id=trait, qtl_group=qtl_group)
+    params = dict(p_lower=p_lower, p_upper=p_upper, quant_method=quant_method, tissue=tissue, gene_id=gene, study=study, molecular_trait_id=trait, qtl_group=qtl_group, snp=snp)
     response = apiu._create_response(method_name='api.get_assocs', start=start, size=size, index_marker=index_marker,
                                      data_dict=data_dict, params=params)
 
