@@ -322,10 +322,9 @@ def _get_basic_arguments(args):
     study = _retrieve_endpoint_arguments(args, "study", None)
     trait = _retrieve_endpoint_arguments(args, "molecular_trait_id", None)
     paginate = argu.str2bool(_retrieve_endpoint_arguments(args, "paginate", True))
-
-    #qtl_group = _retrieve_endpoint_arguments(args, "qtl_group", None)
+    qtl_group = _retrieve_endpoint_arguments(args, "qtl_group", None)
     
-    return start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study, trait, paginate
+    return start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study, trait, paginate, qtl_group
 
 
 def _get_start_size(args):
