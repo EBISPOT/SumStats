@@ -480,7 +480,7 @@ def get_trait_assocs(trait):
 
         .. sourcecode:: http
 
-            GET /molecular_phenotypes/ENSG00000105963/associations HTTP/1.1
+            GET /molecular_phenotypes/ENSG00000011304/associations HTTP/1.1
             Host: www.ebi.ac.uk
 
         **Example response**:
@@ -491,53 +491,55 @@ def get_trait_assocs(trait):
             Content-Type: application/json
 
             {
-              "_embedded": {
-                "associations": {
-                  "0": {
-                    "an": 168,
-                    "type": "SNP",
-                    "r2": 0.50944,
-                    "variant": "chr7_27916_T_C",
-                    "alt": "C",
-                    "pvalue": 0.142001,
-                    "position": 27916,
-                    "maf": 0.047619,
-                    "study_id": "Alasoo_2018",
-                    "rsid": "rs577290214",
-                    "ac": 8,
-                    "chromosome": "7",
-                    "ref": "T",
-                    "beta": -0.127039,
-                    "median_tpm": null,
-                    "molecular_trait_id": "ENSG00000105963",
-                    "gene_id": "ENSG00000105963",
-                    "tissue": "CL_0000235",
-                    "_links": {
-                      "tissue": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
-                      },
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
-                      },
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
-                      }
-                    }
-                  }
-                }
-              },
-              "_links": {
+               "_embedded": {
+                 "associations": {
+                   "0": {
+                     "alt": "G",
+                     "condition": "naive",
+                     "rsid": "rs200141179",
+                     "condition_label": "naive",
+                     "ac": 240,
+                     "position": 230130,
+                     "chromosome": "19",
+                     "an": 972,
+                     "qtl_group": "brain",
+                     "beta": -0.0529243,
+                     "r2": 0.48226,
+                     "variant": "chr19_230130_GATC_G",
+                     "study_id": "BrainSeq",
+                     "ref": "GATC",
+                     "tissue_label": "brain",
+                     "type": "INDEL",
+                     "maf": 0.246914,
+                     "median_tpm": 12.272,
+                     "pvalue": 0.0166984,
+                     "molecular_trait_id": "ENSG00000011304",
+                     "gene_id": "ENSG00000011304",
+                     "tissue": "UBERON_0009834",
+                     "_links": {
+                       "self": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G?study_accession=BrainSeq"
+                       },
+                       "tissue": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
+                       },
+                       "variant": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G"
+                       },
+                       "study": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
+                       }
+                     }
+                   },
+               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000105963/associations"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000105963/associations?start=0&size=1"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations?start=0&size=1"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000105963/associations?start=1&size=1"
+                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations?start=1&size=1"
                 }
               }
             }
@@ -552,7 +554,8 @@ def get_trait_assocs(trait):
              annotation (0.001 or 1e-3 or 1E-3)
         :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
         :query study: study identifer; will return only associations related to that study (Alasoo_2018)
-
+        :query qtl_group: QTL group/context
+        :query paginate: Flag whether the response should be paginated or not. Boolean `True` (default) or `False`
         :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
         :query variant_id: variant identifier, either rsID (rs577290214) or in the form CHR_BP_REF_ALT (chr7_27916_T_C); will only return associations with this variant
 
@@ -715,6 +718,74 @@ def get_studies():
 
 @api.route('/tissues/<string:tissue>/studies')
 def get_studies_for_tissue(tissue):
+    """Studies for tissues
+
+        .. :quickref: Studies for tissues; List all existing study resources for a given tissue ontology
+
+        Lists all of the existing study resources.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /tissues/CL_0000235/studies HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "_embedded": {
+                "studies": [
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies/Alasoo_2018"
+                      },
+                      "associations": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies/Alasoo_2018/associations"
+                      },
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues?study_accession=Alasoo_2018"
+                      }
+                    },
+                    "study_accession": "Alasoo_2018"
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies/Nedelec_2016"
+                      },
+                      "associations": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies/Nedelec_2016/associations"
+                      },
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues?study_accession=Nedelec_2016"
+                      }
+                    },
+                    "study_accession": "Nedelec_2016"
+                  }
+                ]
+              },
+              "_links": {
+                "self": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies"
+                },
+                "first": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies?size=20&start=0"
+                }
+              }
+            }
+
+        :query start: offset number. default is 0
+        :query size: number of items returned. default is 20
+
+        :statuscode 200: no error
+    """
     resp = endpoints.studies_for_tissue(tissue)
     return Response(response=resp,
                     status=200,
@@ -723,15 +794,186 @@ def get_studies_for_tissue(tissue):
 
 @api.route('/tissues/<string:tissue>/associations')
 def get_tissue_assocs(tissue):
+    """Search Tissue for Associations
+
+        .. :quickref: Search Tissue/Cell type for Associations; Lists associations for a specific tissue ontology.
+
+        Lists associations for a specific tissue ontology
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /tissues/CL_0000235/associations HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "_embedded": {
+                "associations": {
+                  "0": {
+                    "condition_label": "IFNg_18h+Salmonella_5h",
+                    "alt": "A",
+                    "condition": "IFNg+Salmonella",
+                    "rsid": "rs201551942",
+                    "r2": 0.44038,
+                    "ac": 64,
+                    "position": 229783,
+                    "chromosome": "19",
+                    "an": 168,
+                    "qtl_group": "macrophage_IFNg+Salmonella",
+                    "beta": 0.0245131,
+                    "median_tpm": null,
+                    "variant": "chr19_229783_G_A",
+                    "study_id": "Alasoo_2018",
+                    "ref": "G",
+                    "tissue_label": "macrophage",
+                    "type": "SNP",
+                    "maf": 0.380952,
+                    "pvalue": 0.5004,
+                    "molecular_trait_id": "ENSG00000011304",
+                    "gene_id": "ENSG00000011304",
+                    "tissue": "CL_0000235",
+                    "_links": {
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_229783_G_A?study_accession=Alasoo_2018"
+                      },
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                      },
+                      "variant": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_229783_G_A"
+                      },
+                      "study": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                      }
+                    }
+                  },
+                  "1": {
+                    "condition_label": "IFNg_18h+Salmonella_5h",
+                    "alt": "A",
+                    "condition": "IFNg+Salmonella",
+                    "rsid": "rs201551942",
+                    "r2": 0.44038,
+                    "ac": 64,
+                    "position": 229783,
+                    "chromosome": "19",
+                    "an": 168,
+                    "qtl_group": "macrophage_IFNg+Salmonella",
+                    "beta": -0.0685795,
+                    "median_tpm": null,
+                    "variant": "chr19_229783_G_A",
+                    "study_id": "Alasoo_2018",
+                    "ref": "G",
+                    "tissue_label": "macrophage",
+                    "type": "SNP",
+                    "maf": 0.380952,
+                    "pvalue": 0.0528997,
+                    "molecular_trait_id": "ENSG00000099817",
+                    "gene_id": "ENSG00000099817",
+                    "tissue": "CL_0000235",
+                    "_links": {
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_229783_G_A?study_accession=Alasoo_2018"
+                      },
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                      },
+                      "variant": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_229783_G_A"
+                      },
+                      "study": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                      }
+                    }
+                  }
+                }
+              },
+              "_links": {
+                "self": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/associations"
+                },
+                "first": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/associations?size=2&start=0"
+                },
+                "next": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/associations?size=2&start=2"
+                }
+              }
+            }
+
+        :query start: offset number. default is 0
+        :query size: number of items returned. default is 20
+        :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+         different quantification methods. See the API documentation for more details.
+        :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
+             annotation (0.001 or 1e-3 or 1E-3)
+        :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
+             annotation (0.001 or 1e-3 or 1E-3)
+        :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
+        :query study: study identifer; will return only associations related to that study (Alasoo_2018)
+        :query qtl_group: QTL group/context
+        :query paginate: Flag whether the response should be paginated or not. Boolean `True` (default) or `False`
+        :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+        :query variant_id: variant identifier, either rsID (rs577290214) or in the form CHR_BP_REF_ALT (chr7_27916_T_C); will only return associations with this variant
+
+        :statuscode 200: no error
+        :statuscode 404: not found error
+
+    """
     resp = endpoints.tissue_associations(tissue)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
 
 
-@api.route('/studies/<study>')
+@api.route('/studies/<string:study>')
 @api.route('/tissues/<string:tissue>/studies/<string:study>')
 def get_tissue_study(study, tissue=None):
+    """Study
+
+        .. :quickref: Study; Lists a specific study resource
+
+         Lists a specific study or tissue/study resource.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /studies/Alasoo_2018 HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+            
+            {
+              "study_accession": "Alasoo_2018",
+              "_links": {
+                "associations": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018/associations"
+                },
+                "tissue": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues?study_accession=Alasoo_2018"
+                },
+                "self": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                }
+              }
+            }
+
+        :statuscode 200: no error
+        :statuscode 404: not found error
+    """
     resp = endpoints.tissue_study(study, tissue)
     return Response(response=resp,
                     status=200,
@@ -741,6 +983,139 @@ def get_tissue_study(study, tissue=None):
 @api.route('/studies/<study>/associations')
 @api.route('/tissues/<string:tissue>/studies/<string:study>/associations')
 def get_tissue_study_assocs(study, tissue=None):
+    """Search Study for Associations
+
+        .. :quickref: Search Study for Associations; Lists associations for a specific study.
+
+        Lists associations for a specific study.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /studies/Alasoo_2018/associations HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "_embedded": {
+                "associations": {
+                  "0": {
+                    "study_id": "Alasoo_2018",
+                    "r2": 0.44038,
+                    "median_tpm": null,
+                    "type": "SNP",
+                    "condition_label": "IFNg_18h+Salmonella_5h",
+                    "chromosome": "19",
+                    "maf": 0.380952,
+                    "beta": 0.0245131,
+                    "condition": "IFNg+Salmonella",
+                    "alt": "A",
+                    "ac": 64,
+                    "an": 168,
+                    "qtl_group": "macrophage_IFNg+Salmonella",
+                    "ref": "G",
+                    "pvalue": 0.5004,
+                    "position": 229783,
+                    "variant": "chr19_229783_G_A",
+                    "tissue_label": "macrophage",
+                    "rsid": "rs201551942",
+                    "molecular_trait_id": "ENSG00000011304",
+                    "gene_id": "ENSG00000011304",
+                    "tissue": "CL_0000235",
+                    "_links": {
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_229783_G_A?study_accession=Alasoo_2018"
+                      },
+                      "study": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                      },
+                      "variant": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_229783_G_A"
+                      }
+                    }
+                  },
+                  "1": {
+                    "study_id": "Alasoo_2018",
+                    "r2": 0.44038,
+                    "median_tpm": null,
+                    "type": "SNP",
+                    "condition_label": "IFNg_18h+Salmonella_5h",
+                    "chromosome": "19",
+                    "maf": 0.380952,
+                    "beta": -0.0685795,
+                    "condition": "IFNg+Salmonella",
+                    "alt": "A",
+                    "ac": 64,
+                    "an": 168,
+                    "qtl_group": "macrophage_IFNg+Salmonella",
+                    "ref": "G",
+                    "pvalue": 0.0528997,
+                    "position": 229783,
+                    "variant": "chr19_229783_G_A",
+                    "tissue_label": "macrophage",
+                    "rsid": "rs201551942",
+                    "molecular_trait_id": "ENSG00000099817",
+                    "gene_id": "ENSG00000099817",
+                    "tissue": "CL_0000235",
+                    "_links": {
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_229783_G_A?study_accession=Alasoo_2018"
+                      },
+                      "study": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                      },
+                      "variant": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_229783_G_A"
+                      }
+                    }
+                  }
+                }
+              },
+              "_links": {
+                "self": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies/Alasoo_2018/associations"
+                },
+                "first": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies/Alasoo_2018/associations?start=0&size=2"
+                },
+                "next": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235/studies/Alasoo_2018/associations?start=2&size=2"
+                }
+              }
+            }
+
+        :query start: offset number. default is 0
+        :query size: number of items returned. default is 20
+        :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+         different quantification methods. See the API documentation for more details.
+        :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
+             annotation (0.001 or 1e-3 or 1E-3)
+        :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
+             annotation (0.001 or 1e-3 or 1E-3)
+        :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
+        :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+        :query qtl_group: QTL group/context
+        :query paginate: Flag whether the response should be paginated or not. Boolean `True` (default) or `False`
+        :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
+        :query variant_id: variant identifier, either rsID (rs577290214) or in the form CHR_BP_REF_ALT (chr7_27916_T_C); will only return associations with this variant
+
+        :statuscode 200: no error
+        :statuscode 404: not found error
+            
+    """
     resp = endpoints.tissue_study_associations(study, tissue)
     return Response(response=resp,
                     status=200,
@@ -1018,70 +1393,78 @@ def get_chromosome_assocs(chromosome):
               "_embedded": {
                 "associations": {
                   "0": {
-                    "an": 168,
+                    "an": 972,
+                    "beta": 0.0866221,
+                    "median_tpm": 0.991,
+                    "qtl_group": "brain",
+                    "r2": 0.9107,
+                    "condition": "naive",
+                    "variant": "chr1_1053768_G_A",
+                    "tissue_label": "brain",
+                    "study_id": "BrainSeq",
+                    "condition_label": "naive",
+                    "ref": "G",
+                    "alt": "A",
+                    "position": 1053768,
+                    "pvalue": 0.483624,
+                    "maf": 0.0123457,
+                    "type": "SNP",
+                    "ac": 12,
+                    "rsid": "rs115061121",
                     "chromosome": 1,
-                    "type": "INDEL",
-                    "r2": 0.50127,
-                    "alt": "TAA",
-                    "pvalue": 0.183417,
-                    "rsid": "rs529266287",
-                    "maf": 0.172619,
-                    "study_id": "Alasoo_2018",
-                    "position": 814583,
-                    "ac": 139,
-                    "ref": "T",
-                    "variant": "chr1_814583_T_TAA",
-                    "median_tpm": null,
-                    "beta": 0.116925,
                     "molecular_trait_id": "ENSG00000008128",
                     "gene_id": "ENSG00000008128",
-                    "tissue": "CL_0000235",
+                    "tissue": "UBERON_0009834",
                     "_links": {
-                      "tissue": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
-                      },
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_814583_T_TAA?study_accession=Alasoo_2018"
-                      },
                       "variant": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_814583_T_TAA"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_1053768_G_A"
                       },
                       "study": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
+                      },
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_1053768_G_A?study_accession=BrainSeq"
                       }
                     }
                   },
                   "1": {
-                    "an": 168,
+                    "an": 972,
+                    "beta": 0.0304911,
+                    "median_tpm": 21.145,
+                    "qtl_group": "brain",
+                    "r2": 0.9107,
+                    "condition": "naive",
+                    "variant": "chr1_1053768_G_A",
+                    "tissue_label": "brain",
+                    "study_id": "BrainSeq",
+                    "condition_label": "naive",
+                    "ref": "G",
+                    "alt": "A",
+                    "position": 1053768,
+                    "pvalue": 0.468078,
+                    "maf": 0.0123457,
+                    "type": "SNP",
+                    "ac": 12,
+                    "rsid": "rs115061121",
                     "chromosome": 1,
-                    "type": "INDEL",
-                    "r2": 0.50127,
-                    "alt": "TAA",
-                    "pvalue": 0.183417,
-                    "rsid": "rs56197012",
-                    "maf": 0.172619,
-                    "study_id": "Alasoo_2018",
-                    "position": 814583,
-                    "ac": 139,
-                    "ref": "T",
-                    "variant": "chr1_814583_T_TAA",
-                    "median_tpm": null,
-                    "beta": 0.116925,
-                    "molecular_trait_id": "ENSG00000008128",
-                    "gene_id": "ENSG00000008128",
-                    "tissue": "CL_0000235",
+                    "molecular_trait_id": "ENSG00000197530",
+                    "gene_id": "ENSG00000197530",
+                    "tissue": "UBERON_0009834",
                     "_links": {
-                      "tissue": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
-                      },
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_814583_T_TAA?study_accession=Alasoo_2018"
-                      },
                       "variant": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_814583_T_TAA"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_1053768_G_A"
                       },
                       "study": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
+                      },
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/chr1_1053768_G_A?study_accession=BrainSeq"
                       }
                     }
                   }
@@ -1089,18 +1472,16 @@ def get_chromosome_assocs(chromosome):
               },
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations?start=0&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations?size=2&start=0"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations?start=2&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations?size=2&start=2"
                 }
               }
             }
-
-
 
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
@@ -1112,6 +1493,12 @@ def get_chromosome_assocs(chromosome):
              annotation (0.001 or 1e-3 or 1E-3)
         :query bp_lower: lower base pair location threshold, expressed as an integer
         :query bp_upper: upper base pair location threshold, expressed as an integer
+        :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+        :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
+        :query study: study identifer; will return only associations related to that study (Alasoo_2018)
+        :query qtl_group: QTL group/context
+        :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
+        :query paginate: Flag whether the response should be paginated or not. Boolean `True` (default) or `False`
 
         :statuscode 200: no error
         :statuscode 404: not found error
@@ -1152,70 +1539,78 @@ def get_chromosome_variants(chromosome, variant_id):
               "_embedded": {
                 "associations": {
                   "0": {
-                    "an": 168,
-                    "chromosome": "1",
+                    "study_id": "Nedelec_2016",
+                    "r2": 0.7364,
+                    "median_tpm": 148.732,
                     "type": "INDEL",
-                    "r2": 0.50127,
+                    "condition_label": "naive",
+                    "chromosome": "1",
+                    "maf": 0.190184,
+                    "beta": -0.0255253,
+                    "condition": "naive",
                     "alt": "TAA",
-                    "pvalue": 0.183417,
-                    "rsid": "rs56197012",
-                    "maf": 0.172619,
-                    "study_id": "Alasoo_2018",
-                    "position": 814583,
-                    "ac": 139,
+                    "ac": 264,
+                    "an": 326,
+                    "qtl_group": "macrophage_naive",
                     "ref": "T",
+                    "pvalue": 0.24666,
+                    "position": 814583,
                     "variant": "rs56197012",
-                    "median_tpm": null,
-                    "beta": 0.116925,
-                    "molecular_trait_id": "ENSG00000008128",
-                    "gene_id": "ENSG00000008128",
+                    "tissue_label": "macrophage",
+                    "rsid": "rs56197012",
+                    "molecular_trait_id": "ENSG00000078808",
+                    "gene_id": "ENSG00000078808",
                     "tissue": "CL_0000235",
                     "_links": {
                       "tissue": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
                       },
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012?study_accession=Alasoo_2018"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012?study_accession=Nedelec_2016"
                       },
                       "study": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/Nedelec_2016"
+                      },
+                      "variant": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012"
                       }
                     }
                   },
                   "1": {
-                    "an": 168,
-                    "chromosome": "1",
+                    "study_id": "Nedelec_2016",
+                    "r2": 0.7364,
+                    "median_tpm": 39.017,
                     "type": "INDEL",
-                    "r2": 0.50127,
+                    "condition_label": "naive",
+                    "chromosome": "1",
+                    "maf": 0.190184,
+                    "beta": 0.018958,
+                    "condition": "naive",
                     "alt": "TAA",
-                    "pvalue": 0.472417,
-                    "rsid": "rs56197012",
-                    "maf": 0.172619,
-                    "study_id": "Alasoo_2018",
-                    "position": 814583,
-                    "ac": 139,
+                    "ac": 264,
+                    "an": 326,
+                    "qtl_group": "macrophage_naive",
                     "ref": "T",
+                    "pvalue": 0.711897,
+                    "position": 814583,
                     "variant": "rs56197012",
-                    "median_tpm": null,
-                    "beta": -0.0268522,
+                    "tissue_label": "macrophage",
+                    "rsid": "rs56197012",
                     "molecular_trait_id": "ENSG00000008130",
                     "gene_id": "ENSG00000008130",
                     "tissue": "CL_0000235",
                     "_links": {
                       "tissue": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
                       },
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012?study_accession=Alasoo_2018"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012?study_accession=Nedelec_2016"
                       },
                       "study": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/Nedelec_2016"
+                      },
+                      "variant": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012"
                       }
                     }
                   }
@@ -1223,18 +1618,16 @@ def get_chromosome_variants(chromosome, variant_id):
               },
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/associations/rs56197012"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/associations/rs56197012?start=0&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012?start=0&size=2"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/associations/rs56197012?start=2&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations/rs56197012?start=2&size=2"
                 }
               }
             }
-
-
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
         :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
@@ -1243,6 +1636,14 @@ def get_chromosome_variants(chromosome, variant_id):
              annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
              annotation (0.001 or 1e-3 or 1E-3)
+        :query bp_lower: lower base pair location threshold, expressed as an integer
+        :query bp_upper: upper base pair location threshold, expressed as an integer
+        :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+        :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
+        :query study: study identifer; will return only associations related to that study (Alasoo_2018)
+        :query qtl_group: QTL group/context
+        :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
+        :query paginate: Flag whether the response should be paginated or not. Boolean `True` (default) or `False`
 
         :statuscode 200: no error
         :statuscode 404: not found error
@@ -1255,6 +1656,78 @@ def get_chromosome_variants(chromosome, variant_id):
 
 @api.route('/tissues')
 def get_tissues():
+    """Tissues
+
+        .. :quickref: Tissues; List all existing tissue/cell type resources
+
+        Lists all of the existing tissue resources.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /tissues HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "_embedded": {
+                "tissues": [
+                  {
+                    "_links": {
+                      "associations": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000057/associations"
+                      },
+                      "studies": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000057/studies"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000057"
+                      }
+                    },
+                    "tissue": "CL_0000057"
+                  },
+                  {
+                    "_links": {
+                      "associations": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000101/associations"
+                      },
+                      "studies": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000101/studies"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000101"
+                      }
+                    },
+                    "tissue": "CL_0000101"
+                  }
+                ]
+              },
+              "_links": {
+                "self": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues"
+                },
+                "first": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues?size=2&start=0"
+                },
+                "next": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues?size=2&start=2"
+                }
+              }
+            }
+
+        :query start: offset number. default is 0
+        :query size: number of items returned. default is 20
+
+        :statuscode 200: no error
+
+    """
     resp = endpoints.tissues()
     return Response(response=resp,
                     status=200,
@@ -1263,6 +1736,47 @@ def get_tissues():
 
 @api.route('/tissues/<string:tissue>')
 def get_tissue(tissue):
+    """Tissue
+
+        .. :quickref: Tissue; Lists a specific tissue/cell type ontology resource
+
+         Lists a specific tissue/cell type resource.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /tissues/CL_0000057 HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "_links": {
+                "associations": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000057/associations"
+                },
+                "studies": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000057/studies"
+                },
+                "self": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/tissues/CL_0000057"
+                }
+              },
+              "tissue": "CL_0000057"
+            }
+        
+        :query start: offset number. default is 0
+        :query size: number of items returned. default is 20
+
+        :statuscode 200: no error
+        :statuscode 404: not found error
+    """
     resp = endpoints.tissue(tissue=tissue)
     return Response(response=resp,
                     status=200,
@@ -1271,6 +1785,72 @@ def get_tissue(tissue):
 
 @api.route('/genes')
 def get_genes():
+    """Genes
+
+        .. :quickref: Genes; List all existing gene resources
+
+        Lists all of the existing gene resources.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /genes HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "_embedded": {
+                "gene": [
+                  {
+                    "gene": "ENSG00000223972",
+                    "_links": {
+                      "associations": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000223972/associations"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000223972"
+                      }
+                    }
+                  },
+                  {
+                    "gene": "ENSG00000227232",
+                    "_links": {
+                      "associations": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000227232/associations"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000227232"
+                      }
+                    }
+                  }
+                ]
+              },
+              "_links": {
+                "self": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/genes"
+                },
+                "first": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/genes?start=0&size=2"
+                },
+                "next": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/genes?start=2&size=2"
+                }
+              }
+            }
+
+        :query start: offset number. default is 0
+        :query size: number of items returned. default is 20
+
+        :statuscode 200: no error
+
+    """
     resp = endpoints.genes()
     return Response(response=resp,
                     status=200,
@@ -1279,6 +1859,42 @@ def get_genes():
 
 @api.route('/genes/<string:gene>')
 def get_gene(gene):
+    """Gene Resource
+
+        .. :quickref: Gene Resource; Lists a specific gene resource.
+
+        Lists a specific gene resource
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /genes/ENSG00000223972 HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "gene": "ENSG00000223972",
+              "_links": {
+                "associations": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000223972/associations"
+                },
+                "self": {
+                  "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000223972"
+                }
+              }
+            }
+
+        :statuscode 200: no error
+        :statuscode 404: not found error
+
+    """
     resp = endpoints.gene(gene=gene)
     return Response(response=resp,
                     status=200,
@@ -1286,6 +1902,136 @@ def get_gene(gene):
 
 @api.route('/genes/<string:gene>/associations')
 def get_gene_assocs(gene):
+    """Search Gene for Associations
+
+        .. :quickref: Search Gene for Associations; Lists associations for a specific gene id.
+
+        Lists associations for a specific gene id.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /genes/ENSG00000070031/associations HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "_embedded": {
+                "associations": {
+                  "0": {
+                    "an": 972,
+                    "beta": -0.116221,
+                    "median_tpm": 0.561,
+                    "qtl_group": "brain",
+                    "r2": 0.5648,
+                    "study_id": "BrainSeq",
+                    "condition": "naive",
+                    "tissue_label": "brain",
+                    "variant": "chr11_192658_T_C",
+                    "condition_label": "naive",
+                    "ref": "T",
+                    "alt": "C",
+                    "position": 192658,
+                    "pvalue": 0.644378,
+                    "maf": 0.00925926,
+                    "type": "SNP",
+                    "ac": 9,
+                    "rsid": "rs373952992",
+                    "chromosome": "11",
+                    "molecular_trait_id": "ENSG00000070031",
+                    "gene_id": "ENSG00000070031",
+                    "tissue": "UBERON_0009834",
+                    "_links": {
+                      "variant": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations/chr11_192658_T_C"
+                      },
+                      "study": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
+                      },
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations/chr11_192658_T_C?study_accession=BrainSeq"
+                      }
+                    }
+                  },
+                  "1": {
+                    "an": 972,
+                    "beta": -0.19745,
+                    "median_tpm": 0.561,
+                    "qtl_group": "brain",
+                    "r2": 0.77945,
+                    "study_id": "BrainSeq",
+                    "condition": "naive",
+                    "tissue_label": "brain",
+                    "variant": "chr11_193051_G_A",
+                    "condition_label": "naive",
+                    "ref": "G",
+                    "alt": "A",
+                    "position": 193051,
+                    "pvalue": 0.166599,
+                    "maf": 0.0277778,
+                    "type": "SNP",
+                    "ac": 27,
+                    "rsid": "rs144999256",
+                    "chromosome": "11",
+                    "molecular_trait_id": "ENSG00000070031",
+                    "gene_id": "ENSG00000070031",
+                    "tissue": "UBERON_0009834",
+                    "_links": {
+                      "variant": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations/chr11_193051_G_A"
+                      },
+                      "study": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
+                      },
+                      "tissue": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
+                      },
+                      "self": {
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations/chr11_193051_G_A?study_accession=BrainSeq"
+                      }
+                    }
+                  },
+               "_links": {
+                "self": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations"
+                },
+                "first": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations?start=0&size=2"
+                },
+                "next": {
+                  "href": "https://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations?start=1&size=2"
+                }
+              }
+            }
+        :query start: offset number. default is 0
+        :query size: number of items returned. default is 20
+        :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
+         different quantification methods. See the API documentation for more details.
+        :query p_lower: lower p-value threshold, can be expressed as a float or using mantissa and exponent
+             annotation (0.001 or 1e-3 or 1E-3)
+        :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
+             annotation (0.001 or 1e-3 or 1E-3)
+        :query study: study identifer; will return only associations related to that study (Alasoo_2018)
+        :query qtl_group: QTL group/context
+        :query paginate: Flag whether the response should be paginated or not. Boolean `True` (default) or `False`
+        :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
+        :query variant_id: variant identifier, either rsID (rs577290214) or in the form CHR_BP_REF_ALT (chr7_27916_T_C); will only return associations with this variant
+        :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+
+        :statuscode 200: no error
+        :statuscode 404: not found error
+
+    """
     resp = endpoints.gene_associations(gene=gene)
     return Response(response=resp,
                     status=200,

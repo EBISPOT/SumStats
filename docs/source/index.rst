@@ -67,6 +67,8 @@ themselves, instead they should use the above-described links to navigate from r
 API quick reference
 ===================
 
+With the exception of genomic region requests, all requests for associations can all be made using the ``/associations`` endpoint, adding and combining parameters as needed for filtering. 
+
 .. qrefflask:: sumstats.server.app:app
    :undoc-static:
    :order: path
@@ -109,7 +111,7 @@ Tissue ontology   'tissue'             ``tissue=CL_0000235``
 QTL group/context 'qtl_group'          ``qtl_group=macrophage_IFNg``
 ================= ==================== ======================================
 
-The above parameters can be applied to any endpoint that does not already search/filter by that parameter, e.g. the molecular trait parameter is ignored when applied to the molecular phenotypes endpoint. The parameters can be combined using the ``&`` operator to filter the data as much as needed but any single parameter can only be called once i.e. it is not possible to filter for multiple genes, for that you must make separate queries. In the case a combination of ``tissue`` and ``qtl_group``, any QTL group will supercede the tissue filter, effectively nullifying the tissue filter. This is because a QTL context refers to a tissue and condition e.g. if the tissue/cell type is 'macrophage' and the condition/treatment is 'Salmonella', the corresponding QTL group is 'macrophage_Salmonella'.
+The above parameters can be applied to any endpoint that does not already search/filter by that parameter, e.g. the molecular trait parameter is ignored when applied to the molecular phenotypes endpoint. The parameters can be combined using the ``&`` operator to filter the data as much as needed but any single parameter can only be called once i.e. it is not possible to filter for multiple genes, for that you must make separate queries. In the case a combination of ``tissue`` and ``qtl_group``, any QTL group will supersede the tissue filter, effectively nullifying the tissue filter. This is because a QTL context refers to a tissue and condition e.g. if the tissue/cell type is 'macrophage' and the condition/treatment is 'Salmonella', the corresponding QTL group is 'macrophage_Salmonella'.
 
 You can also filter all of the association endpoints by p-value. This is done by setting either the lower p-value
 threshold that you want to be cutoff, the upper p-value threshold that you want to be cutoff, or both. This is done by
@@ -122,12 +124,13 @@ Note: base-pair location limit filtering will only work via the /chromosomes/(in
 
 Response format
 ---------------
-The paginate parameter, ``paginate``, allows you to flag whether the response should be paginated (using the ``size`` and ``start`` parameters) or not. By default it is set to 'True', but if set to 'False' the ``size`` and ``start`` parameters are ignored and the response will contain every hit. When using the un-paginated format none of the links seen in the paginated format will be present. Note that ``paginate=False`` can only be used on suffiently filter (to avoid transmitting huge payloads). A sufficiently filtered request adheres to the following: ``study`` & ``qtl_group`` & (``gene_id`` or ``molecular_trait_id`` or ``variant_id``) i.e. requests for genes, molecular traits or variants for a specific study and QTL group can be returned as one single payload rather than paged responses.
+The paginate parameter, ``paginate``, allows you to flag whether the response should be paginated (using the ``size`` and ``start`` parameters) or not. By default it is set to 'True', but if set to 'False' the ``size`` and ``start`` parameters are ignored and the response will contain every hit. When using the un-paginated format none of the links seen in the paginated format will be present. Note that ``paginate=False`` can only be used on sufficiently filtered payloads (to avoid transmitting huge payloads). A sufficiently filtered request adheres to the following: ``study`` & ``qtl_group`` & (``gene_id`` or ``molecular_trait_id`` or ``variant_id``) i.e. requests for genes, molecular traits or variants for a specific study and QTL group can be returned as one single payload rather than paged responses.
+
 
 Requesting associations for variant
 -----------------------------------
 
-You can query the associations of a specific variant by variant id or rsid. This can be done either via the
+You can query the associations of a specific variant by variant id or rsID. This can be done either via the
 ``/associations/(string: variant_id)`` or ``/associations/(string: rsid)`` endpoint, or it can be done as a parameter query like ``/associations/?variant_id=(string: variant_id/rsid)``.
 
 
@@ -215,6 +218,46 @@ Links will be provided in the response to navigate the resources.
 
    {
      "_embedded": {
+       "associations": {
+         "0": {
+           "alt": "G",
+           "condition": "naive",
+           "rsid": "rs200141179",
+           "condition_label": "naive",
+           "ac": 240,
+           "position": 230130,
+           "chromosome": "19",
+           "an": 972,
+           "qtl_group": "brain",
+           "beta": -0.0529243,
+           "r2": 0.48226,
+           "variant": "chr19_230130_GATC_G",
+           "study_id": "BrainSeq",
+           "ref": "GATC",
+           "tissue_label": "brain",
+           "type": "INDEL",
+           "maf": 0.246914,
+           "median_tpm": 12.272,
+           "pvalue": 0.0166984,
+           "molecular_trait_id": "ENSG00000011304",
+           "gene_id": "ENSG00000011304",
+           "tissue": "UBERON_0009834",
+           "_links": {
+             "self": {
+               "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G?study_accession=BrainSeq"
+             },
+             "tissue": {
+               "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
+             },
+             "variant": {
+               "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G"
+             },
+             "study": {
+               "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
+             }
+           }
+         }
+       }  
      },
      "_links": {
        "self": {
@@ -251,11 +294,9 @@ Links will be provided in the response to navigate the resources.
 | next       | The next page in the resource list  |
 +------------+-------------------------------------+
 
-It must be noted that ``next`` link offset will not always be start + size (previous offset + size of resources
-returned). When filtering by p-value or by base pair location, the ``start`` query parameter in the ``next`` link will
-indicate the index_marker of the database traversal. When paging through results, the next link should always be used,
-and incrementing the search ``start`` parameter based on the ``size`` should be avoided.
-
+When paging through results, the next link should always be used,
+and incrementing the search ``start`` parameter based on the ``size`` should be avoided. 
+If you would like to return an un-paginated payload containing all the results, see :ref:`Response format`.
 
 Accessing the API
 =================
