@@ -98,17 +98,18 @@ methods in one API call.
 
 Depending on the endpoint, you can filter by the following parameters:
 
-=============== ==================== ======================================
-Parameter       Label                Example
-=============== ==================== ======================================
-Molecular trait 'molecular_trait_id' ``molecular_trait_id=ENSG00000187583``
-Gene            'gene_id'            ``gene_id=ENSG00000073067``
-Variant         'variant_id'         ``variant_id=rs577290214``
-Study           'study'              ``study=Alasoo_2018``
-Tissue ontology 'tissue'             ``tissue=CL_0000235``
-=============== ==================== ======================================
+================= ==================== ======================================
+Parameter         Label                Example
+================= ==================== ======================================
+Molecular trait   'molecular_trait_id' ``molecular_trait_id=ENSG00000187583``
+Gene              'gene_id'            ``gene_id=ENSG00000073067``
+Variant           'variant_id'         ``variant_id=rs577290214``
+Study             'study'              ``study=Alasoo_2018``
+Tissue ontology   'tissue'             ``tissue=CL_0000235``
+QTL group/context 'qtl_group'          ``qtl_group=macrophage_IFNg``
+================= ==================== ======================================
 
-The above parameters can be applied to any endpoint that does not already search/filter by that parameter, e.g. the molecular trait parameter is ignored when applied to the molecular phenotypes endpoint. The parameters can be combined using the ``&`` operator to filter the data as much as needed.
+The above parameters can be applied to any endpoint that does not already search/filter by that parameter, e.g. the molecular trait parameter is ignored when applied to the molecular phenotypes endpoint. The parameters can be combined using the ``&`` operator to filter the data as much as needed but any single parameter can only be called once i.e. it is not possible to filter for multiple genes, for that you must make separate queries. In the case a combination of ``tissue`` and ``qtl_group``, any QTL group will supercede the tissue filter, effectively nullifying the tissue filter. This is because a QTL context refers to a tissue and condition e.g. if the tissue/cell type is 'macrophage' and the condition/treatment is 'Salmonella', the corresponding QTL group is 'macrophage_Salmonella'.
 
 You can also filter all of the association endpoints by p-value. This is done by setting either the lower p-value
 threshold that you want to be cutoff, the upper p-value threshold that you want to be cutoff, or both. This is done by
@@ -119,11 +120,15 @@ in one or both of the following parameters, ``bp_lower=<lower base-pair limit>``
 Note: base-pair location limit filtering will only work via the /chromosomes/(int: chromosome)/associations endpoint.
 
 
+Response format
+---------------
+The paginate parameter, ``paginate``, allows you to flag whether the response should be paginated (using the ``size`` and ``start`` parameters) or not. By default it is set to 'True', but if set to 'False' the ``size`` and ``start`` parameters are ignored and the response will contain every hit. When using the un-paginated format none of the links seen in the paginated format will be present. Note that ``paginate=False`` can only be used on suffiently filter (to avoid transmitting huge payloads). A sufficiently filtered request adheres to the following: ``study`` & ``qtl_group`` & (``gene_id`` or ``molecular_trait_id`` or ``variant_id``) i.e. requests for genes, molecular traits or variants for a specific study and QTL group can be returned as one single payload rather than paged responses.
+
 Requesting associations for variant
 -----------------------------------
 
 You can query the associations of a specific variant by variant id or rsid. This can be done either via the
-/associations/(string: variant_id) or /associations/(string: rsid) endpoint.
+``/associations/(string: variant_id)`` or ``/associations/(string: rsid)`` endpoint, or it can be done as a parameter query like ``/associations/?variant_id=(string: variant_id/rsid)``.
 
 
 Available data fields
@@ -133,7 +138,7 @@ Available data fields
 +-------------------------+--------+--------------------------------------------------------------+
 | Name                    | Type   | Description                                                  |
 +=========================+========+==============================================================+
-| variant_id              | String | The variant ID (CHR_BP_REF_ALT) e.g. chr19_226776_C_T        |
+| variant                 | String | The variant ID (CHR_BP_REF_ALT) e.g. chr19_226776_C_T        |
 +-------------------------+--------+--------------------------------------------------------------+
 | rsid                    | String | The rsID, if given, for the variant                          |
 +-------------------------+--------+--------------------------------------------------------------+
@@ -168,6 +173,16 @@ Available data fields
 | gene_id                 | String | Ensembl gene ID                                              |
 +-------------------------+--------+--------------------------------------------------------------+
 | r2                      | Number | Imputation quality score from the imputation software        |
++-------------------------+--------+--------------------------------------------------------------+
+| qtl_group               | String | Controlled vocabulary for the QTL group (tissue & condition) |
++-------------------------+--------+--------------------------------------------------------------+
+| tissue                  | String | Ontology term for the tissue/cell type                       |
++-------------------------+--------+--------------------------------------------------------------+
+| tissue_label            | String | Controlled vocabulary for the tissue/cell type               |
++-------------------------+--------+--------------------------------------------------------------+
+| condition               | String | Controlled vocabulary for the condition/treatment            |
++-------------------------+--------+--------------------------------------------------------------+
+| condition_label         | String | More verbose condition description                           |
 +-------------------------+--------+--------------------------------------------------------------+
 
 

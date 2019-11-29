@@ -58,7 +58,7 @@ def root():
 def get_assocs():
     """Associations
 
-     .. :quickref: Associations; Lists all of the available associations.
+         .. :quickref: Associations; Lists all of the available associations.
 
          Lists all of the available associations that are loaded into the database.
          Can be specify by p-value cutoff threshold.
@@ -76,75 +76,83 @@ def get_assocs():
     
              HTTP/1.1 200 OK
              Content-Type: application/json
-    
+
              {
                "_embedded": {
                  "associations": {
                    "0": {
-                     "maf": 0.047619,
-                     "pvalue": 0.19027,
-                     "variant": "chr7_27916_T_C",
-                     "rsid": "rs577290214",
-                     "chromosome": "7",
-                     "ref": "T",
-                     "beta": 0.241138,
-                     "type": "SNP",
-                     "position": 27916,
-                     "ac": 8,
-                     "study_id": "Alasoo_2018",
-                     "alt": "C",
-                     "an": 168,
-                     "molecular_trait_id": "ENSG00000073067",
-                     "gene_id": "ENSG00000073067",
-                     "tissue": "CL_0000235",
-                     "median_tpm": null,
-                     "r2": 0.50944,
+                     "alt": "G",
+                     "condition": "naive",
+                     "rsid": "rs200141179",
+                     "condition_label": "naive",
+                     "ac": 240,
+                     "position": 230130,
+                     "chromosome": "19",
+                     "an": 972,
+                     "qtl_group": "brain",
+                     "beta": -0.0529243,
+                     "r2": 0.48226,
+                     "variant": "chr19_230130_GATC_G",
+                     "study_id": "BrainSeq",
+                     "ref": "GATC",
+                     "tissue_label": "brain",
+                     "type": "INDEL",
+                     "maf": 0.246914,
+                     "median_tpm": 12.272,
+                     "pvalue": 0.0166984,
+                     "molecular_trait_id": "ENSG00000011304",
+                     "gene_id": "ENSG00000011304",
+                     "tissue": "UBERON_0009834",
                      "_links": {
-                       "study": {
-                         "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                       "self": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G?study_accession=BrainSeq"
                        },
                        "tissue": {
-                         "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                         "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
                        },
                        "variant": {
-                         "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G"
                        },
-                       "self": {
-                         "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
+                       "study": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
                        }
                      }
                    },
                    "1": {
-                     "maf": 0.047619,
-                     "pvalue": 0.81198,
-                     "variant": "chr7_27916_T_C",
-                     "rsid": "rs577290214",
-                     "chromosome": "7",
-                     "ref": "T",
-                     "beta": 0.0260822,
-                     "type": "SNP",
-                     "position": 27916,
-                     "ac": 8,
-                     "study_id": "Alasoo_2018",
-                     "alt": "C",
-                     "an": 168,
-                     "molecular_trait_id": "ENSG00000105963",
-                     "gene_id": "ENSG00000105963",
-                     "tissue": "CL_0000235",
-                     "median_tpm": null,
-                     "r2": 0.50944,
+                     "alt": "G",
+                     "condition": "naive",
+                     "rsid": "rs200141179",
+                     "condition_label": "naive",
+                     "ac": 240,
+                     "position": 230130,
+                     "chromosome": "19",
+                     "an": 972,
+                     "qtl_group": "brain",
+                     "beta": 0.0340718,
+                     "r2": 0.48226,
+                     "variant": "chr19_230130_GATC_G",
+                     "study_id": "BrainSeq",
+                     "ref": "GATC",
+                     "tissue_label": "brain",
+                     "type": "INDEL",
+                     "maf": 0.246914,
+                     "median_tpm": 27.623,
+                     "pvalue": 0.424836,
+                     "molecular_trait_id": "ENSG00000129951",
+                     "gene_id": "ENSG00000129951",
+                     "tissue": "UBERON_0009834",
                      "_links": {
-                       "study": {
-                         "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                       "self": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G?study_accession=BrainSeq"
                        },
                        "tissue": {
-                         "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
+                         "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
                        },
                        "variant": {
-                         "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G"
                        },
-                       "self": {
-                         "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
+                       "study": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
                        }
                      }
                    }
@@ -161,7 +169,7 @@ def get_assocs():
                    "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
                  }
                }
-            }
+             }
     
         :query quant_method: ``ge`` (default), ``exon``, ``microarray``, ``tx`` or ``txrev`` will show you the association data for
             different quantification methods. See the API documentation for more details.
@@ -170,12 +178,17 @@ def get_assocs():
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
             annotation (0.001 or 1e-3 or 1E-3)
         :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
+        :query variant_id: variant identifier, either rsID (rs577290214) or in the form CHR_BP_REF_ALT (chr7_27916_T_C); will only return associations with this variant
+        :query qtl_group: QTL group/context
+            so for any study, you can also specify a ``qtl_group``, which will filter to only return data from this context
         :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
         :query study: study identifer; will return only associations related to that study (Alasoo_2018)
         :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
         :query start: offset number. default is 0
-        :query size: number of items returned. default is 20
+        :query size: number of items returned. default is 20, max is 1000.
+        :query paginate: Flag whether the response should be paginated or not. Boolean `True` (default) or `False`
         :statuscode 200: no error
+        :statuscode 404: not found error
     """
     
     resp = endpoints.associations()
@@ -202,7 +215,12 @@ def get_variant(variant_id=None, rsid=None):
 
         .. sourcecode:: http
 
-            GET /associations/rs577290214 HTTP/1.1
+            GET /associations/rs200141179 HTTP/1.1
+            Host: www.ebi.ac.uk
+
+        .. sourcecode:: http
+
+            GET /associations/chr19_230130_GATC_G HTTP/1.1
             Host: www.ebi.ac.uk
 
         **Example response**:
@@ -213,91 +231,98 @@ def get_variant(variant_id=None, rsid=None):
             Content-Type: application/json
 
             {
-              "_embedded": {
-                "associations": {
-                  "0": {
-                    "maf": 0.047619,
-                    "pvalue": 0.19027,
-                    "variant": "chr7_27916_T_C",
-                    "rsid": "rs577290214",
-                    "chromosome": "7",
-                    "ref": "T",
-                    "beta": 0.241138,
-                    "type": "SNP",
-                    "position": 27916,
-                    "ac": 8,
-                    "study_id": "Alasoo_2018",
-                    "alt": "C",
-                    "an": 168,
-                    "molecular_trait_id": "ENSG00000073067",
-                    "gene_id": "ENSG00000073067",
-                    "tissue": "CL_0000235",
-                    "median_tpm": null,
-                    "r2": 0.50944,
-                    "_links": {
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
-                      },
-                      "tissue": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
-                      },
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
-                      }
-                    }
-                  },
-                  "1": {
-                    "maf": 0.047619,
-                    "pvalue": 0.81198,
-                    "variant": "chr7_27916_T_C",
-                    "rsid": "rs577290214",
-                    "chromosome": "7",
-                    "ref": "T",
-                    "beta": 0.0260822,
-                    "type": "SNP",
-                    "position": 27916,
-                    "ac": 8,
-                    "study_id": "Alasoo_2018",
-                    "alt": "C",
-                    "an": 168,
-                    "molecular_trait_id": "ENSG00000105963",
-                    "gene_id": "ENSG00000105963",
-                    "tissue": "CL_0000235",
-                    "median_tpm": null,
-                    "r2": 0.50944,
-                    "_links": {
-                      "study": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
-                      },
-                      "tissue": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/tissues/CL_0000235"
-                      },
-                      "variant": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C"
-                      },
-                      "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/7/associations/chr7_27916_T_C?study_accession=Alasoo_2018"
-                      }
-                    }
-                  }
-                }
-              },
-              "_links": {
-                "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/associations"
-                },
-                "first": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=0&size=2"
-                },
-                "next": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
-                }
-              }
-            }
-
+               "_embedded": {
+                 "associations": {
+                   "0": {
+                     "alt": "G",
+                     "condition": "naive",
+                     "rsid": "rs200141179",
+                     "condition_label": "naive",
+                     "ac": 240,
+                     "position": 230130,
+                     "chromosome": "19",
+                     "an": 972,
+                     "qtl_group": "brain",
+                     "beta": -0.0529243,
+                     "r2": 0.48226,
+                     "variant": "chr19_230130_GATC_G",
+                     "study_id": "BrainSeq",
+                     "ref": "GATC",
+                     "tissue_label": "brain",
+                     "type": "INDEL",
+                     "maf": 0.246914,
+                     "median_tpm": 12.272,
+                     "pvalue": 0.0166984,
+                     "molecular_trait_id": "ENSG00000011304",
+                     "gene_id": "ENSG00000011304",
+                     "tissue": "UBERON_0009834",
+                     "_links": {
+                       "self": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G?study_accession=BrainSeq"
+                       },
+                       "tissue": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
+                       },
+                       "variant": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G"
+                       },
+                       "study": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
+                       }
+                     }
+                   },
+                   "1": {
+                     "alt": "G",
+                     "condition": "naive",
+                     "rsid": "rs200141179",
+                     "condition_label": "naive",
+                     "ac": 240,
+                     "position": 230130,
+                     "chromosome": "19",
+                     "an": 972,
+                     "qtl_group": "brain",
+                     "beta": 0.0340718,
+                     "r2": 0.48226,
+                     "variant": "chr19_230130_GATC_G",
+                     "study_id": "BrainSeq",
+                     "ref": "GATC",
+                     "tissue_label": "brain",
+                     "type": "INDEL",
+                     "maf": 0.246914,
+                     "median_tpm": 27.623,
+                     "pvalue": 0.424836,
+                     "molecular_trait_id": "ENSG00000129951",
+                     "gene_id": "ENSG00000129951",
+                     "tissue": "UBERON_0009834",
+                     "_links": {
+                       "self": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G?study_accession=BrainSeq"
+                       },
+                       "tissue": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/tissues/UBERON_0009834"
+                       },
+                       "variant": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations/chr19_230130_GATC_G"
+                       },
+                       "study": {
+                         "href": "http://www.ebi.ac.uk/eqtl/api/studies/BrainSeq"
+                       }
+                     }
+                   }
+                 }
+               },
+               "_links": {
+                 "self": {
+                   "href": "https://www.ebi.ac.uk/eqtl/api/associations"
+                 },
+                 "first": {
+                   "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=0&size=2"
+                 },
+                 "next": {
+                   "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
+                 }
+               }
+             }
 
         :query start: offset number. default is 0
         :query size: number of items returned. default is 20
@@ -310,8 +335,9 @@ def get_variant(variant_id=None, rsid=None):
         :query molecular_trait_id: molecular phenotype identifier; will return only associations from this molecular phenotype (ENSG00000187583)
         :query gene_id: gene identifier; will return only associations with this gene id (ENSG00000073067)
         :query study: study identifer; will return only associations related to that study (Alasoo_2018)
-
+        :query qtl_group: QTL group/context
         :query tissue: tissue ontology identifier; will return only associations from this tissue/cell type (CL_0000235)
+        :query paginate: Flag whether the response should be paginated or not. Boolean `True` (default) or `False`
 
 
         :statuscode 200: no error
