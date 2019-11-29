@@ -52,7 +52,7 @@ def traits():
         start, size = apiu._get_start_size(args)
         study = apiu._retrieve_endpoint_arguments(args, "study")
     except ValueError as error:
-        logging.error("/traits. " + (str(error)))
+        logging.error("/molecular_phenotypes. " + (str(error)))
         raise BadUserRequest(str(error))
     explorer = ex.Explorer(apiu.properties)
     if study:
@@ -77,7 +77,7 @@ def trait(trait):
             response = apiu._create_info_for_trait(trait)
             return simplejson.dumps(response, ignore_nan=True)
     except NotFoundError as error:
-        logging.error("/traits/" + trait + ". " + (str(error)))
+        logging.error("/molecular_phenotypes/" + trait + ". " + (str(error)))
         raise RequestedNotFound(str(error))
 
 
@@ -86,7 +86,7 @@ def trait_associations(trait):
     try:
         start, size, p_lower, p_upper, pval_interval, quant_method, snp, tissue, gene, study, _ , paginate, qtl_group = apiu._get_basic_arguments(args)
     except ValueError as error:
-        logging.error("/traits/" + trait + ". " + (str(error)))
+        logging.error("/molecular_phenotypes/" + trait + ". " + (str(error)))
         raise BadUserRequest(str(error))
 
     searcher = search.Search(apiu.properties)
@@ -104,7 +104,7 @@ def trait_associations(trait):
         return simplejson.dumps(response, ignore_nan=True)
 
     except NotFoundError as error:
-        logging.error("/traits/" + trait + ". " + (str(error)))
+        logging.error("/molecular_phenotypes/" + trait + ". " + (str(error)))
         raise RequestedNotFound(str(error))
 
 
@@ -155,7 +155,7 @@ def studies_for_trait(trait):
     try:
         start, size = apiu._get_start_size(args)
     except ValueError as error:
-        logging.error("/traits/" + trait + "/studies. " + (str(error)))
+        logging.error("/molecular_phenotypes/" + trait + "/studies. " + (str(error)))
         raise BadUserRequest(str(error))
 
     try:
@@ -169,7 +169,7 @@ def studies_for_trait(trait):
 
         return simplejson.dumps(response)
     except NotFoundError as error:
-        logging.error("/traits/" + trait + "/studies. " + (str(error)))
+        logging.error("/molecular_phenotypes/" + trait + "/studies. " + (str(error)))
         raise RequestedNotFound(str(error))
 
 
@@ -220,7 +220,7 @@ def tissue_associations(tissue):
         return simplejson.dumps(response, ignore_nan=True)
 
     except (NotFoundError, SubgroupError) as error:
-        logging.error("/studies/" + study + ". " + (str(error)))
+        logging.error("/tissues/" + tissue + ". " + (str(error)))
         raise RequestedNotFound(str(error))
 
 

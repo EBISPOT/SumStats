@@ -469,7 +469,7 @@ def get_trait(molecular_trait_id):
 
 
 @api.route('/molecular_phenotypes/<string:molecular_trait_id>/associations')
-def get_trait_assocs(trait):
+def get_trait_assocs(molecular_trait_id):
     """Search Molecular phenotype for Associations
 
         .. :quickref: Search Molecular phenotype for Associations; Lists associations for a specific molecular trait id.
@@ -562,7 +562,7 @@ def get_trait_assocs(trait):
         :statuscode 200: no error
         :statuscode 404: not found error
     """
-    resp = endpoints.trait_associations(trait)
+    resp = endpoints.trait_associations(trait=molecular_trait_id)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
@@ -1857,8 +1857,8 @@ def get_genes():
                     mimetype="application/json")
 
 
-@api.route('/genes/<string:gene>')
-def get_gene(gene):
+@api.route('/genes/<string:gene_id>')
+def get_gene(gene_id):
     """Gene Resource
 
         .. :quickref: Gene Resource; Lists a specific gene resource.
@@ -1895,13 +1895,13 @@ def get_gene(gene):
         :statuscode 404: not found error
 
     """
-    resp = endpoints.gene(gene=gene)
+    resp = endpoints.gene(gene=gene_id)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
 
-@api.route('/genes/<string:gene>/associations')
-def get_gene_assocs(gene):
+@api.route('/genes/<string:gene_id>/associations')
+def get_gene_assocs(gene_id):
     """Search Gene for Associations
 
         .. :quickref: Search Gene for Associations; Lists associations for a specific gene id.
@@ -2032,7 +2032,7 @@ def get_gene_assocs(gene):
         :statuscode 404: not found error
 
     """
-    resp = endpoints.gene_associations(gene=gene)
+    resp = endpoints.gene_associations(gene=gene_id)
     return Response(response=resp,
                     status=200,
                     mimetype="application/json")
