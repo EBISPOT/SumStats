@@ -101,7 +101,7 @@ class Loader():
         
         """Read in the trait file"""
         # set the column order
-        dftrait = pd.read_csv(self.trait_file, sep="\t", usecols=['phenotype_id', 'gene_id', 'group_id'])['phenotype_id', 'gene_id', 'group_id']
+        dftrait = pd.read_csv(self.trait_file, sep="\t", usecols=['phenotype_id', 'gene_id', 'group_id'])[['phenotype_id', 'gene_id', 'group_id']]
         dftrait.columns = ['phenotype_id', 'gene_id', 'molecular_trait_object_id']
         
         if self.expr_file:
