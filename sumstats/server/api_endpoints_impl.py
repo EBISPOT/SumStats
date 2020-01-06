@@ -260,7 +260,7 @@ def tissue_study_associations(study, tissue=None):
 
             params = dict(tissue=tissue, molecular_trait_id=trait, study=study, p_lower=p_lower, p_upper=p_upper, gene_id=gene, quant_method=quant_method, qtl_group=qtl_group)
         else:
-            datasets, index_marker, paginate = searcher.search(study=study, gene_id=gene, molecular_trait_id=trait, start=start, size=size, 
+            datasets, index_marker, paginate = searcher.search(study=study, gene=gene, molecular_trait_id=trait, start=start, size=size, 
                     pval_interval=pval_interval, quant_method=quant_method, paginate=paginate, qtl_group=qtl_group)
 
             data_dict = apiu._get_array_to_display(datasets=datasets, paginate=paginate)
