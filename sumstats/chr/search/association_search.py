@@ -3,7 +3,7 @@ import re
 import glob
 import itertools
 import os
-from sumstats.errors.error_classes import *
+from sumstats.server.error_classes import *
 import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.search.access.trait_service as ts

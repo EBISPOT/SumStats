@@ -227,8 +227,8 @@ def tissue_associations(tissue):
 
 def tissue_study(study, tissue=None):
     try:
-        sql = sq.sqlClient(self.database)
-        if sql.get_uuid_from_study(study): #if study exists
+        explorer = ex.Explorer(apiu.properties)
+        if explorer.check_study(study):
             response = apiu._create_info_for_study(study=study, tissue=tissue)
             return simplejson.dumps(response, ignore_nan=True)
         else:

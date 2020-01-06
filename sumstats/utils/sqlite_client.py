@@ -241,6 +241,16 @@ class sqlClient():
         else:
             return False
 
+    def check_study(self, study):
+        data = []
+        for row in self.cur.execute("SELECT study FROM study_info where study =?", (study,)):
+            data.append(row[0])
+        if data:
+            return True
+        else:
+            return False
+
+
     """ OTHER STATEMENTS """
 
     def commit(self):

@@ -84,6 +84,13 @@ class Explorer:
             return True
         raise NotFoundError("Gene " + gene)
 
+    def check_study(self, study):
+        sq = sql_client.sqlClient(self.sqlite_db)
+        if sq.check_study(study):
+            return True
+        raise NotFoundError("Study " + study)
+
+
 
     def get_list_of_chroms(self):
         #return CHROMOSOMES
