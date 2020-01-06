@@ -9,6 +9,7 @@ from sumstats.utils.properties_handler import properties
 from sumstats.server.error_classes import *
 from sumstats.errors.error_classes import *
 import sumstats.server.api_utils as apiu
+import sumstats.utils.sqlite_client as sq
 
 
 def root():
@@ -226,8 +227,8 @@ def tissue_associations(tissue):
 
 def tissue_study(study, tissue=None):
     try:
-        explorer = ex.Explorer(apiu.properties)
-        if explorer.get_trait_of_study(study_to_find=study): #if study exists
+        sql = sq.sqlClient(self.database)
+        if sql.get_uuid_from_study(study): #if study exists
             response = apiu._create_info_for_study(study=study, tissue=tissue)
             return simplejson.dumps(response, ignore_nan=True)
         else:

@@ -70,6 +70,8 @@ class AssociationSearch:
         elif self._snp_format() is 'chr_bp':
             print('chr_bp_style')
             chromosome, bp_interval = self._chr_bp_from_name(self.snp)
+        else:
+            raise BadUserRequest("Could not interpret variant ID format from the value provided: {}".format(self.snp))
         if chromosome and bp_interval:
             self.chromosome = chromosome
             self.bp_interval = IntInterval().set_string_tuple(bp_interval)
@@ -287,6 +289,8 @@ class AssociationSearch:
                             chunk = chunk[chunk[RSID_DSET] == self.snp]
                         elif self._snp_format() == 'chr_bp':
                             chunk = chunk[chunk[SNP_DSET] == self.snp]
+                        else:
+                            raise BadUserRequest("Could not interpret variant ID format from the value provided: {}".format(self.snp))
 
                     chunk = self._update_df_with_metadata(chunk, meta_dict)
                     self.df = pd.concat([self.df, chunk])
