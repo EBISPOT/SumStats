@@ -160,13 +160,13 @@ def get_assocs():
                },
                "_links": {
                  "self": {
-                   "href": "https://www.ebi.ac.uk/eqtl/api/associations"
+                   "href": "http://www.ebi.ac.uk/eqtl/api/associations"
                  },
                  "first": {
-                   "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=0&size=2"
+                   "href": "http://www.ebi.ac.uk/eqtl/api/associations?start=0&size=2"
                  },
                  "next": {
-                   "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
+                   "href": "http://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
                  }
                }
              }
@@ -313,13 +313,13 @@ def get_variant(variant_id=None, rsid=None):
                },
                "_links": {
                  "self": {
-                   "href": "https://www.ebi.ac.uk/eqtl/api/associations"
+                   "href": "http://www.ebi.ac.uk/eqtl/api/associations"
                  },
                  "first": {
-                   "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=0&size=2"
+                   "href": "http://www.ebi.ac.uk/eqtl/api/associations?start=0&size=2"
                  },
                  "next": {
-                   "href": "https://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
+                   "href": "http://www.ebi.ac.uk/eqtl/api/associations?start=2&size=2"
                  }
                }
              }
@@ -379,10 +379,10 @@ def get_traits():
                     "molecular_trait_id": "ENSG00000187583",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583/associations"
                       }
                     }
                   },
@@ -390,10 +390,10 @@ def get_traits():
                     "molecular_trait_id": "ENSG00000227232",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000227232"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000227232"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000227232/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000227232/associations"
                       }
                     }
                   }
@@ -401,13 +401,13 @@ def get_traits():
               },
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes?start=0&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes?start=0&size=2"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes?start=2&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes?start=2&size=2"
                 }
               }
             }
@@ -450,10 +450,10 @@ def get_trait(molecular_trait_id):
               "molecular_trait_id": "ENSG00000187583",
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583"
                 },
                 "associations": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583/associations"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000187583/associations"
                 }
               }
             }
@@ -533,13 +533,13 @@ def get_trait_assocs(molecular_trait_id):
                    },
                "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations?start=0&size=1"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations?start=0&size=1"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations?start=1&size=1"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/molecular_phenotypes/ENSG00000011304/associations?start=1&size=1"
                 }
               }
             }
@@ -597,13 +597,13 @@ def get_studies():
                     {
                       "_links": {
                         "self": {
-                          "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
+                          "href": "http://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018"
                         },
                         "associations": {
-                          "href": "https://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018/associations"
+                          "href": "http://www.ebi.ac.uk/eqtl/api/studies/Alasoo_2018/associations"
                         },
                         "tissue": {
-                          "href": "https://www.ebi.ac.uk/eqtl/api/tissues?study_accession=Alasoo_2018"
+                          "href": "http://www.ebi.ac.uk/eqtl/api/tissues?study_accession=Alasoo_2018"
                         }
                       },
                       "study_accession": "Alasoo_2018"
@@ -613,13 +613,13 @@ def get_studies():
                     {
                       "_links": {
                         "self": {
-                          "href": "https://www.ebi.ac.uk/eqtl/api/studies/BLUEPRINT"
+                          "href": "http://www.ebi.ac.uk/eqtl/api/studies/BLUEPRINT"
                         },
                         "associations": {
-                          "href": "https://www.ebi.ac.uk/eqtl/api/studies/BLUEPRINT/associations"
+                          "href": "http://www.ebi.ac.uk/eqtl/api/studies/BLUEPRINT/associations"
                         },
                         "tissue": {
-                          "href": "https://www.ebi.ac.uk/eqtl/api/tissues?study_accession=BLUEPRINT"
+                          "href": "http://www.ebi.ac.uk/eqtl/api/tissues?study_accession=BLUEPRINT"
                         }
                       },
                       "study_accession": "BLUEPRINT"
@@ -629,13 +629,13 @@ def get_studies():
               },
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/studies"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/studies"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/studies?start=0&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/studies?start=0&size=2"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/studies?start=2&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/studies?start=2&size=2"
                 }
               }
             }
@@ -679,16 +679,16 @@ def get_studies():
 #                    "study_accession": "GCST005038",
 #                    "_links": {
 #                      "associations": {
-#                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
+#                        "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations"
 #                      },
 #                      "self": {
-#                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
+#                        "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038"
 #                      },
 #                      "trait": {
-#                        "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
+#                        "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785"
 #                      },
 #                      "gwas_catalog": {
-#                        "href": "https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
+#                        "href": "http://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038"
 #                      }
 #                    }
 #                  }
@@ -696,10 +696,10 @@ def get_studies():
 #              },
 #              "_links": {
 #                "self": {
-#                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies"
+#                  "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies"
 #                },
 #                "first": {
-#                  "href": "https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies?start=0&size=20"
+#                  "href": "http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies?start=0&size=20"
 #                }
 #              }
 #            }
@@ -1151,10 +1151,10 @@ def get_chromosomes():
                     "chromosome": "1",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/1/associations"
                       }
                     }
                   },
@@ -1162,10 +1162,10 @@ def get_chromosomes():
                     "chromosome": "10",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/10"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/10"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/10/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/10/associations"
                       }
                     }
                   },
@@ -1173,10 +1173,10 @@ def get_chromosomes():
                     "chromosome": "11",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/11"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/11"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations"
                       }
                     }
                   },
@@ -1184,10 +1184,10 @@ def get_chromosomes():
                     "chromosome": "12",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/12"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/12"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/12/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/12/associations"
                       }
                     }
                   },
@@ -1195,10 +1195,10 @@ def get_chromosomes():
                     "chromosome": "13",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/13"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/13"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/13/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/13/associations"
                       }
                     }
                   },
@@ -1206,10 +1206,10 @@ def get_chromosomes():
                     "chromosome": "14",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/14"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/14"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/14/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/14/associations"
                       }
                     }
                   },
@@ -1217,10 +1217,10 @@ def get_chromosomes():
                     "chromosome": "15",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/15"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/15"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/15/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/15/associations"
                       }
                     }
                   },
@@ -1228,10 +1228,10 @@ def get_chromosomes():
                     "chromosome": "16",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/16"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/16"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/16/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/16/associations"
                       }
                     }
                   },
@@ -1239,10 +1239,10 @@ def get_chromosomes():
                     "chromosome": "17",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/17"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/17"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/17/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/17/associations"
                       }
                     }
                   },
@@ -1250,10 +1250,10 @@ def get_chromosomes():
                     "chromosome": "18",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/18"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/18"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/18/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/18/associations"
                       }
                     }
                   },
@@ -1261,10 +1261,10 @@ def get_chromosomes():
                     "chromosome": "19",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/19"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/19/associations"
                       }
                     }
                   },
@@ -1272,10 +1272,10 @@ def get_chromosomes():
                     "chromosome": "2",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/2"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/2"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/2/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/2/associations"
                       }
                     }
                   },
@@ -1283,10 +1283,10 @@ def get_chromosomes():
                     "chromosome": "20",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/20"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/20"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/20/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/20/associations"
                       }
                     }
                   },
@@ -1294,10 +1294,10 @@ def get_chromosomes():
                     "chromosome": "21",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/21"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/21"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/21/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/21/associations"
                       }
                     }
                   },
@@ -1305,10 +1305,10 @@ def get_chromosomes():
                     "chromosome": "22",
                     "_links": {
                       "self": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/22"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/22"
                       },
                       "associations": {
-                        "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/22/associations"
+                        "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/22/associations"
                       }
                     }
                   }
@@ -1349,10 +1349,10 @@ def get_chromosome(chromosome):
             {
               "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/11"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/11"
                 },
                 "associations": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/chromosomes/11/associations"
                 }
               },
               "chromosome": "11"
@@ -2003,13 +2003,13 @@ def get_gene_assocs(gene_id):
                   },
                "_links": {
                 "self": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations"
                 },
                 "first": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations?start=0&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations?start=0&size=2"
                 },
                 "next": {
-                  "href": "https://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations?start=1&size=2"
+                  "href": "http://www.ebi.ac.uk/eqtl/api/genes/ENSG00000070031/associations?start=1&size=2"
                 }
               }
             }

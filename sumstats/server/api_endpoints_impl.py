@@ -226,10 +226,12 @@ def tissue_associations(tissue):
 
 def tissue_study(study, tissue=None):
     try:
-
-        response = apiu._create_info_for_study(study=study, tissue=tissue)
-        return simplejson.dumps(response, ignore_nan=True)
-
+        explorer = ex.Explorer(apiu.properties)
+        if explorer.get_trait_of_study(study_to_find=study): #if study exists
+            response = apiu._create_info_for_study(study=study, tissue=tissue)
+            return simplejson.dumps(response, ignore_nan=True)
+        else:
+            raise RequestedNotFound("Study: {}.".format(study))
     except (NotFoundError, SubgroupError) as error:
         logging.error("/studies/" + study + ". " + (str(error)))
         raise RequestedNotFound(str(error))
