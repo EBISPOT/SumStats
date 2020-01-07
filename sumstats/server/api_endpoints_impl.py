@@ -77,6 +77,8 @@ def trait(trait):
         if explorer.has_trait(trait):
             response = apiu._create_info_for_trait(trait)
             return simplejson.dumps(response, ignore_nan=True)
+        else:
+            raise RequestedNotFound("Molecular trait ID: {} not found".format(trait))
     except NotFoundError as error:
         logging.error("/molecular_phenotypes/" + trait + ". " + (str(error)))
         raise RequestedNotFound(str(error))
@@ -427,6 +429,8 @@ def tissue(tissue):
         if explorer.get_studies_of_tissue(tissue):
             response = apiu._create_info_for_tissue(tissue)
             return simplejson.dumps(response, ignore_nan=True)
+        else:
+            raise RequestedNotFound("Tissue: {} not found".format(tissue))
     except NotFoundError as error:
         logging.error("/tissue/" + tissue + ". " + (str(error)))
         raise RequestedNotFound(str(error))
@@ -437,7 +441,7 @@ def genes():
     try:
         start, size = apiu._get_start_size(args)
     except ValueError as error:
-        logging.error("/traits. " + (str(error)))
+        logging.error("/genes. " + (str(error)))
         raise BadUserRequest(str(error))
     explorer = ex.Explorer(apiu.properties)
     genes = explorer.get_list_of_genes()
@@ -454,6 +458,8 @@ def gene(gene):
         if explorer.has_gene(gene):
             response = apiu._create_info_for_gene(gene)
             return simplejson.dumps(response, ignore_nan=True)
+        else:
+            raise RequestedNotFound("Gene: {} not found".format(gene))
     except NotFoundError as error:
         logging.error("/genes/" + gene + ". " + (str(error)))
         raise RequestedNotFound(str(error))
