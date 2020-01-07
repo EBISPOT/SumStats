@@ -140,9 +140,9 @@ class AssociationSearch:
             if resp:
                 file_ids.extend(resp)
                 if not self._narrow_by_chromosome(file_ids):
-                    raise NotFoundError("Study :{} with tissue: {} and chr {}".format(self.study, self.tissue, self.chromosome))
+                    raise RequestedNotFound("Study :{} with tissue: {} and chr {}".format(self.study, self.tissue, self.chromosome))
             else:
-                raise NotFoundError("Study :{} with tissue: {} and quantification method: {}".format(self.study, self.tissue, self.quant_method))
+                raise RequestedNotFound("Study :{} with tissue: {} and quantification method: {}".format(self.study, self.tissue, self.quant_method))
 
         if self.tissue and not self.study:
             logger.debug("tissue")
@@ -152,9 +152,9 @@ class AssociationSearch:
             if resp:
                 file_ids.extend(resp)
                 if not self._narrow_by_chromosome(file_ids):
-                    raise NotFoundError("Tissue: {} with chr {}".format(self.tissue, self.chromosome))
+                    raise RequestedNotFound("Tissue: {} with chr {}".format(self.tissue, self.chromosome))
             else:
-                raise NotFoundError("Tissue: {} with quantification method: {}".format(self.tissue, self.quant_method))
+                raise RequestedNotFound("Tissue: {} with quantification method: {}".format(self.tissue, self.quant_method))
 
 
         # narrow by qtl group
@@ -167,9 +167,9 @@ class AssociationSearch:
             if resp:
                 file_ids.extend(resp)
                 if not self._narrow_by_chromosome(file_ids):
-                    raise NotFoundError("Study :{} with qtl_group: {} and chr {}".format(self.study, self.qtl_group, self.chromosome))
+                    raise RequestedNotFound("Study :{} with qtl_group: {} and chr {}".format(self.study, self.qtl_group, self.chromosome))
             else:
-                raise NotFoundError("Study :{} with qtl_group: {} and quantification method: {}".format(self.study, self.qtl_group, self.quant_method))
+                raise RequestedNotFound("Study :{} with qtl_group: {} and quantification method: {}".format(self.study, self.qtl_group, self.quant_method))
 
         if self.qtl_group and not self.study:
             logger.debug("qtl_group")
@@ -179,9 +179,9 @@ class AssociationSearch:
             if resp:
                 file_ids.extend(resp)
                 if not self._narrow_by_chromosome(file_ids):
-                    raise NotFoundError("QTL group: {} with chr {}".format(self.qtl_group, self.chromosome))
+                    raise RequestedNotFound("QTL group: {} with chr {}".format(self.qtl_group, self.chromosome))
             else:
-                raise NotFoundError("QTL group: {} with quantification method: {}".format(self.qtl_group, self.quant_method))
+                raise RequestedNotFound("QTL group: {} with quantification method: {}".format(self.qtl_group, self.quant_method))
 
                 
         # narrow by anything else
@@ -194,9 +194,9 @@ class AssociationSearch:
             if resp:
                 file_ids.extend(resp)
                 if not self._narrow_by_chromosome(file_ids):
-                    raise NotFoundError("Study :{} with chr {}".format(self.study, self.chromosome))
+                    raise RequestedNotFound("Study :{} with chr {}".format(self.study, self.chromosome))
             else:
-                raise NotFoundError("Study :{} with quantification method: {}".format(self.study, self.quant_method))
+                raise RequestedNotFound("Study :{} with quantification method: {}".format(self.study, self.quant_method))
 
 
         if self.trait and not (self.study or self.tissue):
@@ -254,9 +254,6 @@ class AssociationSearch:
         self.datasets = self.df.to_dict(orient='list') if len(self.df.index) > 0 else self.datasets # return as lists - but could be parameterised to return in a specified format
         #self.index_marker = self.starting_point + len(self.df.index)
         self.index_marker = len(self.df.index)
-        logger.info("datasets: ")
-        logger.info(self.datasets)
-
         return self.datasets, self.index_marker, self.paginate
 
 

@@ -18,7 +18,7 @@ class BadUserRequest(APIException):
     def to_dict(self):
         return {'message': "Bad request. " + self.message, 'error': "Bad User Request"}
 
-
+      
 class RequestedNotFound(APIException):
     status_code = 404
 
