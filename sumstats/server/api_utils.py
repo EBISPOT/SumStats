@@ -119,9 +119,9 @@ def _create_info_for_trait(trait):
 
 def _create_info_for_gene(gene):
     gene_info = {'gene': gene,
-                  '_links': {'self': _create_href(method_name='api.get_gene', params={'gene': gene})}}
+                  '_links': {'self': _create_href(method_name='api.get_gene', params={'gene_id': gene})}}
     #gene_info['_links']['studies'] = _create_href(method_name='api.get_studies_for_gene', params={'gene': gene})
-    gene_info['_links']['associations'] = _create_href(method_name='api.get_gene_assocs', params={'gene': gene})
+    gene_info['_links']['associations'] = _create_href(method_name='api.get_gene_assocs', params={'gene_id': gene})
     return gene_info
 
 def _add_ontology_href(info_array, trait):
