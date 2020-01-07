@@ -347,7 +347,8 @@ class AssociationSearch:
 
         if self.trait:
             self.chrom_for_trait()
-            conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
+            # single quotes here enable values with '.'s in them to be interpretted by pytables
+            conditions.append("{trait} == '{id}'".format(trait=PHEN_DSET, id=str(self.trait)))
 
         if self.gene:
             self.chrom_for_gene()
