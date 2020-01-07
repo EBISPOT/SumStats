@@ -74,7 +74,8 @@ def traits():
 def trait(trait):
     try:
         explorer = ex.Explorer(config_properties=properties)
-        if explorer.has_trait(trait):
+        traits = explorer.get_list_of_traits()
+        if trait in traits:
             response = apiu._create_info_for_trait(trait)
             return simplejson.dumps(response, ignore_nan=True)
         else:
@@ -455,7 +456,8 @@ def genes():
 def gene(gene):
     try:
         explorer = ex.Explorer(config_properties=properties)
-        if explorer.has_gene(gene):
+        genes = explorer.get_list_of_genes()
+        if gene in genes:
             response = apiu._create_info_for_gene(gene)
             return simplejson.dumps(response, ignore_nan=True)
         else:
