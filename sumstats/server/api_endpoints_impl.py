@@ -74,12 +74,9 @@ def traits():
 def trait(trait):
     try:
         explorer = ex.Explorer(config_properties=properties)
-        traits = explorer.get_list_of_traits()
-        if trait in traits:
+        if explorer.has_trait(trait):
             response = apiu._create_info_for_trait(trait)
             return simplejson.dumps(response, ignore_nan=True)
-        else:
-            raise RequestedNotFound("Molecular trait ID: {} not found".format(trait))
     except NotFoundError as error:
         logging.error("/molecular_phenotypes/" + trait + ". " + (str(error)))
         raise RequestedNotFound(str(error))
@@ -456,12 +453,9 @@ def genes():
 def gene(gene):
     try:
         explorer = ex.Explorer(config_properties=properties)
-        genes = explorer.get_list_of_genes()
-        if gene in genes:
+        if explorer.has_gene(gene):
             response = apiu._create_info_for_gene(gene)
             return simplejson.dumps(response, ignore_nan=True)
-        else:
-            raise RequestedNotFound("Gene: {} not found".format(gene))
     except NotFoundError as error:
         logging.error("/genes/" + gene + ". " + (str(error)))
         raise RequestedNotFound(str(error))
