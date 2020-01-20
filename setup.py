@@ -18,6 +18,5 @@ setup(
     license='',
     author='Olga Vrousgou',
     author_email='olgavrou@gmail.com',
-    description='Package for saving and querying large summary statistics',
-    install_requires=['pandas==0.19.2', 'tables==3.4.3', 'flask', 'simplejson', 'gunicorn', 'paste', 'numpy==1.15.4', 'eventlet', 'pytest-cov']
+    description='Package for saving and querying large summary statistics'
 )
