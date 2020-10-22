@@ -313,6 +313,7 @@ def chromosome_associations(chromosome):
         start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
         bp_lower, bp_upper, bp_interval = apiu._get_bp_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, 'study_accession')
+        trait = apiu._retrieve_endpoint_arguments(args, 'trait')
     except ValueError as error:
         logging.error("/chromosomes/" + chromosome + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -321,12 +322,12 @@ def chromosome_associations(chromosome):
 
     try:
         datasets, index_marker = searcher.search(chromosome=chromosome,
-                                                            start=start, size=size, study=study,
+                                                            start=start, size=size, study=study, trait=trait,
                                                             pval_interval=pval_interval, bp_interval=bp_interval)
         data_dict = apiu._get_array_to_display(datasets=datasets, chromosome=chromosome, reveal=reveal)
         return _create_chromosome_response(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
                                                 index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
-                                                p_lower=p_lower, p_upper=p_upper, study=study))
+                                                p_lower=p_lower, p_upper=p_upper, study=study, trait=trait))
 
     except NotFoundError as error:
         logging.error("/chromosomes/" + chromosome + ". " + (str(error)))
@@ -337,7 +338,7 @@ def chromosome_associations(chromosome):
         index_marker = 0
         return _create_chromosome_response(dict(chromosome=chromosome, data_dict=data_dict, start=start, size=size,
                                                 index_marker=index_marker, bp_lower=bp_lower, bp_upper=bp_upper,
-                                                p_lower=p_lower, p_upper=p_upper, study=study))
+                                                p_lower=p_lower, p_upper=p_upper, study=study, trait=trait))
 
 
 def variants(variant, chromosome=None):
@@ -345,8 +346,9 @@ def variants(variant, chromosome=None):
     try:
         start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
-        if study is not None:
-            return variant_resource(variant=variant, chromosome=chromosome)
+        trait = apiu._retrieve_endpoint_arguments(args, 'trait')
+        #if study is not None or trait is not None:
+        #    return variant_resource(variant=variant, chromosome=chromosome)
     except ValueError as error:
         logging.debug("/chromosomes/" + chromosome + "/associations/" + variant + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -355,19 +357,22 @@ def variants(variant, chromosome=None):
 
     try:
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
-                                                     pval_interval=pval_interval, study=study)
+                                                     pval_interval=pval_interval, study=study, trait=trait)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
+        params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study, 'trait': trait}
         if chromosome is None:
             method_name = 'api.get_variant'
         else:
             params['chromosome'] = chromosome
             method_name = 'api.get_chromosome_variants'
 
-        response = apiu._create_response(method_name=method_name, start=start, size=size,
+        if len(data_dict) > 1:
+            response = apiu._create_response(method_name=method_name, start=start, size=size,
                                          index_marker=index_marker,
                                          data_dict=data_dict, params=params)
+        else:
+            response = apiu._create_resource_response(data_dict=data_dict, params=params)
 
         return simplejson.dumps(response, ignore_nan=True)
     except (NotFoundError, SubgroupError) as error:
@@ -380,6 +385,7 @@ def variant_resource(variant, chromosome=None):
     try:
         start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
+        trait = apiu._retrieve_endpoint_arguments(args, 'trait')
     except ValueError as error:
         logging.debug("/chromosomes/" + chromosome + "/associations/" + variant + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -388,9 +394,9 @@ def variant_resource(variant, chromosome=None):
 
     try:
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
-                                                     pval_interval=pval_interval, study=study)
+                                                     pval_interval=pval_interval, study=study, trait=trait)
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        params = {'variant_id': variant, 'study_accession': study}
+        params = {'variant_id': variant, 'study_accession': study, 'trait': trait}
         #params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is not None:
             params['chromosome'] = chromosome
@@ -462,7 +468,7 @@ def _create_chromosome_info(chromosome):
 def _create_chromosome_response(search_info):
     params = dict(chromosome=search_info['chromosome'], p_lower=search_info['p_lower'], p_upper=search_info['p_upper'],
                   bp_lower=search_info['bp_lower'], bp_upper=search_info['bp_upper'],
-                  study_accession=search_info['study'])
+                  study_accession=search_info['study'], trait=search_info['trait'])
     response = apiu._create_response(method_name='api.get_chromosome_assocs', start=search_info['start'], size=search_info['size'],
                                      index_marker=search_info['index_marker'],
                                      data_dict=search_info['data_dict'], params=params)

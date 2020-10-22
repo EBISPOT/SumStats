@@ -87,37 +87,26 @@ class sqlClient():
         data = []
         for row in self.cur.execute("select study from study_trait where trait =?", (trait,)):
             data.append(row[0])
-        if data:
-            return data
-        else:
-            return False
+        return data
 
     def get_traits_for_study(self, study):
         data = []
         for row in self.cur.execute("select trait from study_trait where study =?", (study,)):
             data.append(row[0])
-        if data:
-            return data
-        else:
-            return False
+        return data
+
 
     def get_file_id_for_study(self, study):
         data = []
         for row in self.cur.execute("select file_id from study where study =?", (study,)):
             data.append(row[0])
-        if data:
-            return data
-        else:
-            return False
+        return data
 
     def get_file_id_for_trait(self, trait):
         data = []
         for row in self.cur.execute("select file_id from study join study_trait on study.study = study_trait.study where trait =?", (trait,)):
             data.append(row[0])
-        if data:
-            return data
-        else:
-            return False
+        return data
 
     def get_study_rowid(self, study):
         self.cur.execute("SELECT rowid FROM study where study =?", (study,))
