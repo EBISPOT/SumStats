@@ -367,9 +367,12 @@ def variants(variant, chromosome=None):
             params['chromosome'] = chromosome
             method_name = 'api.get_chromosome_variants'
 
-        response = apiu._create_response(method_name=method_name, start=start, size=size,
+        if len(data_dict) > 1:
+            response = apiu._create_response(method_name=method_name, start=start, size=size,
                                          index_marker=index_marker,
                                          data_dict=data_dict, params=params)
+        else:
+            response = apiu._create_resource_response(data_dict=data_dict, params=params)
 
         return simplejson.dumps(response, ignore_nan=True)
     except (NotFoundError, SubgroupError) as error:

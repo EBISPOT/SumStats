@@ -287,7 +287,6 @@ def get_variant(variant_id):
             annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
             annotation (0.001 or 1e-3 or 1E-3)
-        :query study_accession: the accession of a specific study; will return only associations related to that study
 
         :statuscode 200: no error
         :statuscode 404: not found error
@@ -1316,6 +1315,8 @@ def get_chromosome_assocs(chromosome):
              annotation (0.001 or 1e-3 or 1E-3)
         :query bp_lower: lower base pair location threshold, expressed as an integer
         :query bp_upper: upper base pair location threshold, expressed as an integer
+        :query study_accession: accession ID of the study to query
+        :query trait: trait ID of of the trait to query
 
         :statuscode 200: no error
         :statuscode 404: not found error
@@ -1439,6 +1440,8 @@ def get_chromosome_variants(chromosome, variant_id):
              annotation (0.001 or 1e-3 or 1E-3)
         :query p_upper: upper p-value threshold, can be expressed as a float or using mantissa and exponent
              annotation (0.001 or 1e-3 or 1E-3)
+        :query study_accession: accession ID of the study to query
+        :query trait: trait ID of of the trait to query
 
         :statuscode 200: no error
         :statuscode 404: not found error
