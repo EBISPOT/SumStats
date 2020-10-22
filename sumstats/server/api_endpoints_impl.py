@@ -346,7 +346,8 @@ def variants(variant, chromosome=None):
     try:
         start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
-        if study is not None:
+        trait = apiu._retrieve_endpoint_arguments(args, 'trait')
+        if study is not None or trait is not None:
             return variant_resource(variant=variant, chromosome=chromosome)
     except ValueError as error:
         logging.debug("/chromosomes/" + chromosome + "/associations/" + variant + ". " + (str(error)))
@@ -356,10 +357,10 @@ def variants(variant, chromosome=None):
 
     try:
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
-                                                     pval_interval=pval_interval, study=study)
+                                                     pval_interval=pval_interval, study=study, trait=trait)
 
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
+        params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study, 'trait': trait}
         if chromosome is None:
             method_name = 'api.get_variant'
         else:
@@ -381,6 +382,7 @@ def variant_resource(variant, chromosome=None):
     try:
         start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
+        trait = apiu._retrieve_endpoint_arguments(args, 'trait')
     except ValueError as error:
         logging.debug("/chromosomes/" + chromosome + "/associations/" + variant + ". " + (str(error)))
         raise BadUserRequest(str(error))
@@ -389,9 +391,9 @@ def variant_resource(variant, chromosome=None):
 
     try:
         datasets, index_marker = searcher.search(snp=variant, chromosome=chromosome, start=start, size=size,
-                                                     pval_interval=pval_interval, study=study)
+                                                     pval_interval=pval_interval, study=study, trait=trait)
         data_dict = apiu._get_array_to_display(datasets=datasets, variant=variant, reveal=reveal)
-        params = {'variant_id': variant, 'study_accession': study}
+        params = {'variant_id': variant, 'study_accession': study, 'trait': trait}
         #params = {'variant_id': variant, 'p_lower': p_lower, 'p_upper': p_upper, 'study_accession': study}
         if chromosome is not None:
             params['chromosome'] = chromosome
