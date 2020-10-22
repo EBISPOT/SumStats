@@ -347,8 +347,8 @@ def variants(variant, chromosome=None):
         start, size, p_lower, p_upper, pval_interval, reveal = apiu._get_basic_arguments(args)
         study = apiu._retrieve_endpoint_arguments(args, "study_accession")
         trait = apiu._retrieve_endpoint_arguments(args, 'trait')
-        if study is not None or trait is not None:
-            return variant_resource(variant=variant, chromosome=chromosome)
+        #if study is not None or trait is not None:
+        #    return variant_resource(variant=variant, chromosome=chromosome)
     except ValueError as error:
         logging.debug("/chromosomes/" + chromosome + "/associations/" + variant + ". " + (str(error)))
         raise BadUserRequest(str(error))
