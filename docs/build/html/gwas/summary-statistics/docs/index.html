@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<head>
+
+  <title>Summary Statistics API Documentation</title>
+
+  <link rel="stylesheet" type="text/css" href="_static/css/gwastheme.css">
+  <link rel="stylesheet" type="text/css" href="_static/css/gwastoctitle.css">
+  <!--link rel="stylesheet" type="text/css" href="_static/css/gwastheme.css"-->
+  <!-- Bootstrap core CSS -->
+  <link href="https://www.ebi.ac.uk/gwas/rest/css/bootstrap.css" rel="stylesheet"/>
+  <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"
+        rel="stylesheet"/>
+  <link href="https://www.ebi.ac.uk/gwas/rest/css/bootstrap-table.css" rel="stylesheet"/>
+  <link href="https://www.ebi.ac.uk/gwas/rest/css/bootstrap-theme.css" rel="stylesheet"/>
+
+  <!-- Custom styles for this template -->
+  <!--<link href="http://www.ebi.ac.uk/gwas/rest/css/jumbotron.css" href="@{http://www.ebi.ac.uk/gwas/rest/css/jumbotron.css}" rel="stylesheet"/>-->
+  <link href="https://www.ebi.ac.uk/gwas/rest/css/sticky-footer-navbar.css" rel="stylesheet"/>
+
+  <!-- Additional styling on top of bootstrap -->
+  <link rel="stylesheet" href="https://www.ebi.ac.uk/gwas/rest/css/goci-ui.css"/>
+  <link rel="stylesheet" href="https://www.ebi.ac.uk/gwas/rest//css/icons/flaticon.css"/>
+  <link rel="stylesheet" type="text/css" href="https://www.ebi.ac.uk/gwas/rest/css/goci-color-palette-1.css">
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-inverse navbar-fixed-top" >
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button"
+                    class="navbar-toggle collapsed"
+                    data-toggle="collapse"
+                    data-target="#navbar"
+                    aria-expanded="false"
+                    aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://www.ebi.ac.uk/gwas">GWAS Catalog</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://www.ebi.ac.uk/gwas/">Home
+                    <span class="sr-only">(current)</span>
+                </a></li>
+                <li><a href='http://www.ebi.ac.uk/gwas/search'>Search</a></li>
+                <li><a href='http://www.ebi.ac.uk/gwas/diagram'>Diagram</a></li>
+                <li class="hidden-sm"><a href='http://www.ebi.ac.uk/gwas/downloads'>Download</a></li>
+                <li id="documentation-item"><a href='http://www.ebi.ac.uk/gwas/docs'>Documentation</a></li>
+                <li class="hidden-sm"><a href='http://www.ebi.ac.uk/gwas/docs/about'>About</a></li>
+
+                <li>
+                    <a class="icon" id="ebi-logo" href="http://www.ebi.ac.uk">
+                        <img alt="EBI logo"
+                             src="http://www.ebi.ac.uk/gwas/icons/EMBL_EBI_Logo_white.png">
+                    </a>
+                </li>
+                <li>
+                    <a class="icon" id="nhgri-logo" href="http://www.genome.gov">
+                        <img alt="GWAS logo"
+                             src="http://www.ebi.ac.uk/gwas/icons/NHGRI_NIH%20logo%20all%20verions-02-scaled.png">
+                    </a>
+                </li>
+           </ul>
+        </div>
+        <!--/.navbar-collapse -->
+    </div>
+    <div class="navbar-bottom-banner-1 background-color-complementary">
+    </div>
+    <div class="navbar-bottom-banner-2 background-color-primary-bold">
+    </div>
+    <div class="navbar-bottom-banner-3 background-color-primary">
+    </div>
+</nav>
+
+
+<div class="container">
+
+    <div id="docs-header">
+
+        <div id="header">
+            <h1>&nbsp;</h1>
+                <div id="toc" class="toc2">
+
+                    
+                    
+                        <ul>
+<li><a class="reference internal" href="#">Summary Statistics Database API Documentation</a></li>
+<li><a class="reference internal" href="#overview">Overview</a><ul>
+<li><a class="reference internal" href="#http-verbs">HTTP Verbs</a></li>
+<li><a class="reference internal" href="#http-status-codes">HTTP status codes</a></li>
+<li><a class="reference internal" href="#errors">Errors</a></li>
+<li><a class="reference internal" href="#hypermedia">Hypermedia</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-quick-reference">API quick reference</a></li>
+<li><a class="reference internal" href="#api-general-guidelines">API General Guidelines</a><ul>
+<li><a class="reference internal" href="#association-queries">Association Queries</a></li>
+<li><a class="reference internal" href="#requesting-associations-for-variant">Requesting associations for variant</a></li>
+<li><a class="reference internal" href="#available-data-fields">Available data fields</a></li>
+<li><a class="reference internal" href="#listing-resources">Listing Resources</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#accessing-the-api">Accessing the API</a></li>
+<li><a class="reference internal" href="#api-detailed-reference">API detailed reference</a></li>
+</ul>
+
+                    
+                </div>
+        </div>
+    </div>
+
+
+    <div id="docs-content" style="overflow: hidden;">
+        <div id="content">
+            
+  <div class="section" id="summary-statistics-database-api-documentation">
+<h1>Summary Statistics Database API Documentation</h1>
+</div>
+<div class="section" id="overview">
+<h1>Overview</h1>
+<div class="section" id="http-verbs">
+<h2>HTTP Verbs</h2>
+<p>This API supports the following HTTP verbs.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Verb</th>
+<th class="head">Usage</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">GET</span></code></td>
+<td>Used to retrieve a resource</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="http-status-codes">
+<h2>HTTP status codes</h2>
+<p>This API tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Status code</th>
+<th class="head">Usage</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">200</span> <span class="pre">OK</span></code></td>
+<td>The request completed successfully</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></code></td>
+<td>The request was malformed. The response body will include an error providing further information</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></code></td>
+<td>The requested resource did not exist</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="errors">
+<h2>Errors</h2>
+<p>Whenever an error response (status code &gt;= 400) is returned, the body will contain a JSON object that describes the
+problem. The error object has the following structure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Path</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>error</td>
+<td>String</td>
+<td>The HTTP error that occurred, e.g. <code class="docutils literal notranslate"><span class="pre">Bad</span> <span class="pre">Request</span></code></td>
+</tr>
+<tr class="row-odd"><td>message</td>
+<td>String</td>
+<td>A description of the cause of the error</td>
+</tr>
+<tr class="row-even"><td>status</td>
+<td>Number</td>
+<td>The HTTP status code, e.g. <code class="docutils literal notranslate"><span class="pre">400</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hypermedia">
+<h2>Hypermedia</h2>
+<p>This API uses hypermedia and resources include links to other resources in their responses. Responses are in Hypertext
+Application Language (HAL) format. Links can be found beneath the _links key. Users of the API should not created URIs
+themselves, instead they should use the above-described links to navigate from resource to resource.</p>
+</div>
+</div>
+<div class="section" id="api-quick-reference">
+<h1>API quick reference</h1>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="20%" />
+<col width="45%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Resource</th>
+<th class="head">Operation</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Associations</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-associations">GET /gwas/summary-statistics/api/associations</a></td>
+<td>Lists all of the available associations.</td>
+</tr>
+<tr class="row-odd"><td>Chromosome Resource</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-chromosomes-(string-chromosome)">GET /gwas/summary-statistics/api/chromosomes/(string:chromosome)</a></td>
+<td>List a specific chromosome resource</td>
+</tr>
+<tr class="row-even"><td>Chromosomes</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-chromosomes">GET /gwas/summary-statistics/api/chromosomes</a></td>
+<td>List all chromosome resources</td>
+</tr>
+<tr class="row-odd"><td>Search Chromosome Associations</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-chromosomes-(string-chromosome)-associations">GET /gwas/summary-statistics/api/chromosomes/(string:chromosome)/associations</a></td>
+<td>Returns associations for a specific chromosome. Will return 404 Not Found if the chromosome value does not exist.</td>
+</tr>
+<tr class="row-even"><td>Search Study Associations</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-traits-(string-trait)-studies-(string-study)-associations">GET /gwas/summary-statistics/api/traits/(string:trait)/studies/(string:study)/associations</a></td>
+<td>Returns associations for a specific study. Will return 404 Not Found if the study accession does not exist.</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-studies-(study)-associations">GET /gwas/summary-statistics/api/studies/(study)/associations</a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>Search Trait for Associations</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-traits-(string-trait)-associations">GET /gwas/summary-statistics/api/traits/(string:trait)/associations</a></td>
+<td>Lists associations for a specific trait.</td>
+</tr>
+<tr class="row-odd"><td>Search Trait for Studies</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-traits-(string-trait)-studies">GET /gwas/summary-statistics/api/traits/(string:trait)/studies</a></td>
+<td>Lists studies for a specific trait.</td>
+</tr>
+<tr class="row-even"><td>Search Variant on Chromosome</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-chromosomes-(string-chromosome)-associations-(string-variant_id)">GET /gwas/summary-statistics/api/chromosomes/(string:chromosome)/associations/(string:variant_id)</a></td>
+<td>Lists all of the available associations of a specific variant.</td>
+</tr>
+<tr class="row-odd"><td>Studies</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-studies">GET /gwas/summary-statistics/api/studies</a></td>
+<td>List all existing study resources</td>
+</tr>
+<tr class="row-even"><td>Study Resource</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-traits-(string-trait)-studies-(string-study)">GET /gwas/summary-statistics/api/traits/(string:trait)/studies/(string:study)</a></td>
+<td>Lists resources for a specific study. Will return 404 Not Found if the study accession does not exist.</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-studies-(study)">GET /gwas/summary-statistics/api/studies/(study)</a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>Trait Resource</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-traits-(string-trait)">GET /gwas/summary-statistics/api/traits/(string:trait)</a></td>
+<td>Lists a specific trait resource.</td>
+</tr>
+<tr class="row-odd"><td>Traits</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-traits">GET /gwas/summary-statistics/api/traits</a></td>
+<td>List all existing trait resources</td>
+</tr>
+<tr class="row-even"><td>Variant Associations</td>
+<td><a class="reference external" href="#get--gwas-summary-statistics-api-associations-(string-variant_id)">GET /gwas/summary-statistics/api/associations/(string:variant_id)</a></td>
+<td>Lists all of the available associations of a specific variant.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="api-general-guidelines">
+<h1>API General Guidelines</h1>
+<div class="section" id="association-queries">
+<h2>Association Queries</h2>
+<p>For all endpoints that return associations you can assume the below.</p>
+<p>Default data values displayed are the harmonised values. If the harmonised/default values are null, that means that the
+the specific entries for this study could not be harmonised and you can query for the raw study data if you need to. The
+<code class="docutils literal notranslate"><span class="pre">code</span></code> field indicates the level of harmonisation that the data could go through. Take a look at the harmonisation
+documentation for more details on the harmonisation process and what each <code class="docutils literal notranslate"><span class="pre">code</span></code> value means.</p>
+<p>You can query specifically for the original or ‘raw’ values of the data or you can query for both harmonised and raw
+values to be displayed. Harmonised values will, in the latter case, be prefixed with <code class="docutils literal notranslate"><span class="pre">hm_</span></code>. This is done by passing the
+query parameter <code class="docutils literal notranslate"><span class="pre">reveal=raw</span></code> or <code class="docutils literal notranslate"><span class="pre">reveal=all</span></code> in the API call. If the “raw” and harmonised values are the same, this
+indicates that the original data was already harmonised.</p>
+<p>You can also filter all of the association endpoints by p-value. This is done by setting either the lower p-value
+threshold that you want to be cutoff, the upper p-value threshold that you want to be cutoff, or both. This is done by
+passing the query parameters <code class="docutils literal notranslate"><span class="pre">p_lower=&lt;lower</span> <span class="pre">p-value&gt;</span></code> and/or <code class="docutils literal notranslate"><span class="pre">p_upper=&lt;upper</span> <span class="pre">p-value&gt;</span></code> to the API call.</p>
+<p>Furthermore, if you would like to query associations by a base-pair location range on a specific chromosome, you can pass
+in one or both of the following parameters, <code class="docutils literal notranslate"><span class="pre">bp_lower=&lt;lower</span> <span class="pre">base-pair</span> <span class="pre">limit&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">bp_upper=&lt;upper</span> <span class="pre">base-pair</span> <span class="pre">limit&gt;</span></code>.
+Note: base-pair location limit filtering will only work via the /chromosomes/(int: chromosome)/associations endpoint.</p>
+</div>
+<div class="section" id="requesting-associations-for-variant">
+<h2>Requesting associations for variant</h2>
+<p>You can query the associations of a specific variant by variant id (valid rsid). This can be done either via the
+/associations/(string: variant_id) endpoint or via the /chromosomes/(int: chromosome)/associations/(string: variant_id)
+endpoint. If you know the chromosome that the variant belongs to, the latter query should be faster.</p>
+<p>Querying via the /chromosomes endpoint should return a subset of the resources returned via the /associations endpoint.</p>
+<p>You can request for a single association resource identified by it’s unique variant_id/study_accession combination via
+either of the above endpoints. You can query for a single association resource using the above endpoints and passing the
+query parameter <code class="docutils literal notranslate"><span class="pre">study_accession</span></code>.</p>
+</div>
+<div class="section" id="available-data-fields">
+<h2>Available data fields</h2>
+<p>If the query parameter <code class="docutils literal notranslate"><span class="pre">reveal=all</span></code> is specified, some of the below fields will have the prefix <code class="docutils literal notranslate"><span class="pre">hm_</span></code> to indicate that
+they are the harmonised fields.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="8%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>variant_id</td>
+<td>String</td>
+<td>The rsid of the variant</td>
+</tr>
+<tr class="row-odd"><td>chromosome</td>
+<td>Number</td>
+<td>The chromosome that the variant is located in</td>
+</tr>
+<tr class="row-even"><td>base_pair_location</td>
+<td>Number</td>
+<td>The base pair location that the variant is located in</td>
+</tr>
+<tr class="row-odd"><td>study_accession</td>
+<td>String</td>
+<td>The study accession of the association</td>
+</tr>
+<tr class="row-even"><td>trait</td>
+<td>String</td>
+<td>The EFO trait that the study is associated with</td>
+</tr>
+<tr class="row-odd"><td>p_value</td>
+<td>Number</td>
+<td>The p-value of the variant/study association</td>
+</tr>
+<tr class="row-even"><td>code</td>
+<td>Number</td>
+<td>When displayed, indicates the harmonsiation outcome</td>
+</tr>
+<tr class="row-odd"><td>effect_allele</td>
+<td>String</td>
+<td>The effect allele of the variant</td>
+</tr>
+<tr class="row-even"><td>other_allele</td>
+<td>String</td>
+<td>The effect allele of the variant</td>
+</tr>
+<tr class="row-odd"><td>effect_allele_frequency</td>
+<td>Number</td>
+<td>The effect allele frequency of the variant/study association</td>
+</tr>
+<tr class="row-even"><td>odds_ratio</td>
+<td>Number</td>
+<td>The odds ratio of the variant/study association</td>
+</tr>
+<tr class="row-odd"><td>ci_lower</td>
+<td>Number</td>
+<td>The odds ratio’s confidence interval’s lower range</td>
+</tr>
+<tr class="row-even"><td>ci_upper</td>
+<td>Number</td>
+<td>The odds ratio’s confidence interval’s upper range</td>
+</tr>
+<tr class="row-odd"><td>beta</td>
+<td>Number</td>
+<td>The beta of the variant/study association</td>
+</tr>
+<tr class="row-even"><td>se</td>
+<td>Number</td>
+<td>The beta’s standard error</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="listing-resources">
+<h2>Listing Resources</h2>
+<p>Requests that return multiple resources will be paginated to 20 items by default. You can change number of items returned
+using the size parameter.</p>
+<p><strong>Paging resources</strong></p>
+<p>Links will be provided in the response to navigate the resources.</p>
+<p><em>Example request</em>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/associations?size=1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><em>Example response</em>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations?size=1&amp;start=0&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations?size=1&amp;start=1&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Response structure</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="24%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Path</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>_links</td>
+<td>Object</td>
+<td>Links to other resources</td>
+</tr>
+<tr class="row-odd"><td>_embedded</td>
+<td>Object</td>
+<td>The list of resources</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Links</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Relation</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self</td>
+<td>This resource list</td>
+</tr>
+<tr class="row-odd"><td>first</td>
+<td>The first page in the resource list</td>
+</tr>
+<tr class="row-even"><td>next</td>
+<td>The next page in the resource list</td>
+</tr>
+</tbody>
+</table>
+<p>It must be noted that <code class="docutils literal notranslate"><span class="pre">next</span></code> link offset will not always be start + size (previous offset + size of resources
+returned). When filtering by p-value or by base pair location, the <code class="docutils literal notranslate"><span class="pre">start</span></code> query parameter in the <code class="docutils literal notranslate"><span class="pre">next</span></code> link will
+indicate the index_marker of the database traversal. When paging through results, the next link should always be used,
+and incrementing the search <code class="docutils literal notranslate"><span class="pre">start</span></code> parameter based on the <code class="docutils literal notranslate"><span class="pre">size</span></code> should be avoided.</p>
+</div>
+</div>
+<div class="section" id="accessing-the-api">
+<h1>Accessing the API</h1>
+<p>The api endpoint provides the entry point into the service.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">GET</span></code> request is used to access the API.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;traits&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;studies&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;chromosomes&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Response structure</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="24%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Path</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>_links</td>
+<td>Object</td>
+<td>Links to other resources</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Links</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Relation</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>associations</td>
+<td>Link to the association resources in the database</td>
+</tr>
+<tr class="row-odd"><td>traits</td>
+<td>Link to the trait resources in the database</td>
+</tr>
+<tr class="row-even"><td>studies</td>
+<td>Link to the study resources in the database</td>
+</tr>
+<tr class="row-odd"><td>chromosomes</td>
+<td>Link to the chromosome resources in the database</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="api-detailed-reference">
+<h1>API detailed reference</h1>
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-associations">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/associations</code></dt>
+<dd><p>Associations</p>
+<p>Lists all of the available associations that are loaded into the database.
+Can be specify by p-value cutoff threshold.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/associations</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;2.826e-1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.2449</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">-0.0072</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005038&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs10875231&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99534456</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0003785&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;2.656e-1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.3197</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">-0.006999999999999999</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005038&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs6678176&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99535271</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0003785&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176?study_accession=GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations?size=2&amp;start=0&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations?size=2&amp;start=2&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+<li><strong>reveal</strong> – <code class="docutils literal notranslate"><span class="pre">raw</span></code> or <code class="docutils literal notranslate"><span class="pre">all</span></code> will show you the raw association data or both the harmonised and
+raw association data respectively.</li>
+<li><strong>p_lower</strong> – lower p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+<li><strong>p_upper</strong> – upper p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-associations-(string-variant_id)">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/associations/</code><span class="sig-paren">(</span><em class="property">string: </em><em>variant_id</em><span class="sig-paren">)</span></dt>
+<dd><p>Search Variant Associations</p>
+<p>Lists all of the associations of the variant requested.
+Variant id must be a valid rsid.
+Will return 404 Not Found if the variant id does not exist.
+If study_accession query parameter is specified, you will get
+a single association resource in response.
+Can be specify by p-value cutoff threshold.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/associations/rs10875231</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;5.837561e-1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.28367</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">0.06794</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005353&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99534456</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0008531&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs10875231&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005353&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;5.167e-1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.2665</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">-0.0375</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST001969&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99534456</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0004326&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs10875231&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST001969&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST001969&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations/rs10875231&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations/rs10875231?size=2&amp;start=0&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/associations/rs10875231?size=2&amp;start=2&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+<li><strong>reveal</strong> – <code class="docutils literal notranslate"><span class="pre">raw</span></code> or <code class="docutils literal notranslate"><span class="pre">all</span></code> will show you the raw association data or both the harmonised and
+raw association data respectively.</li>
+<li><strong>p_lower</strong> – lower p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+<li><strong>p_upper</strong> – upper p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-chromosomes">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/chromosomes</code></dt>
+<dd><p>Chromosomes</p>
+<p>Lists all chromosome resources. Note that chromosomes values ‘X’, ‘Y’ and ‘MT’ are mapped to 23, 24 and 25, respectively.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/chromosomes</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;chromosomes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/2&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/2/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">2</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/3&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/3/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">3</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/4&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/4/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">4</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/5&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/5/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">5</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/6&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/6/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">6</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/7&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/7/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">7</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/8&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/8/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">8</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/9&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/9/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">9</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/10&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/10/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">10</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/11&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/11/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">11</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/12&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/12/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">12</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/13&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/13/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">13</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/14&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/14/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">14</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/15&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/15/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">15</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/16&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/16/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">16</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/17&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/17/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">17</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/18&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/18/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">18</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/19&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/19/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">19</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/20&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/20/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">20</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/21&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/21/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">21</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/22&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/22/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">22</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/23&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/23/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">23</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/24&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/24/associations&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">24</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-chromosomes-(string-chromosome)">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/chromosomes/</code><span class="sig-paren">(</span><em class="property">string: </em><em>chromosome</em><span class="sig-paren">)</span></dt>
+<dd><p>Chromosome Resource</p>
+<p>List a specific chromosome resource. Note that chromosomes values ‘X’, ‘Y’ and ‘MT’ are mapped to 23, 24 and 25, respectively.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/chromosomes/11</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/11&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/11/associations&quot;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="s2">&quot;11&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-chromosomes-(string-chromosome)-associations">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/chromosomes/</code><span class="sig-paren">(</span><em class="property">string: </em><em>chromosome</em><span class="sig-paren">)</span><code class="descname">/associations</code></dt>
+<dd><p>Search Chromosome Associations</p>
+<p>Returns associations for a specific chromosome.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/chromosomes/1/associations</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">11820711</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.09228</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;1.86278e-2&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs146777460&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005353&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">0.45443999999999996</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0008531&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs146777460&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs146777460?study_accession=GCST005353&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">11844019</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.24731999999999998</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;2.100256e-2&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs198358&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005353&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">0.2694</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0008531&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs198358&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs198358?study_accession=GCST005353&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?bp_upper=11850510&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?start=0&amp;size=2&amp;bp_upper=11850510&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations?start=2&amp;size=2&amp;bp_upper=11850510&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+<li><strong>reveal</strong> – <code class="docutils literal notranslate"><span class="pre">raw</span></code> or <code class="docutils literal notranslate"><span class="pre">all</span></code> will show you the raw association data or both the harmonised and
+raw association data respectively.</li>
+<li><strong>p_lower</strong> – lower p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+<li><strong>p_upper</strong> – upper p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+<li><strong>bp_lower</strong> – lower base pair location threshold, expressed as an integer</li>
+<li><strong>bp_upper</strong> – upper base pair location threshold, expressed as an integer</li>
+<li><strong>study_accession</strong> – accession ID of the study to query</li>
+<li><strong>trait</strong> – trait ID of of the trait to query</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-chromosomes-(string-chromosome)-associations-(string-variant_id)">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/chromosomes/</code><span class="sig-paren">(</span><em class="property">string: </em><em>chromosome</em><span class="sig-paren">)</span><code class="descname">/associations/</code><span class="sig-paren">(</span><em class="property">string: </em><em>variant_id</em><span class="sig-paren">)</span></dt>
+<dd><p>Search Variant on Chromosome</p>
+<p>Lists all of the associations of the variant requested.
+Variant id must be a valid rsid.
+Will return 404 Not Found if the variant id does not exist.
+Can specify by p-value cutoff threshold.
+The response should be identical to the /associations/&lt;string:variant_id&gt; but the query time may be faster.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/chromosomes/1/associations/rs10875231</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.28367</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;5.837561e-1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99534456</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005353&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">0.06794</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs10875231&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0008531&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005353&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005353&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.2665</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;5.167e-1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99534456</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST001969&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">-0.0375</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs10875231&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0004326&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST001969&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST001969&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?start=0&amp;size=2&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?start=2&amp;size=2&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+<li><strong>reveal</strong> – <code class="docutils literal notranslate"><span class="pre">raw</span></code> or <code class="docutils literal notranslate"><span class="pre">all</span></code> will show you the raw association data or both the harmonised and
+raw association data respectively.</li>
+<li><strong>p_lower</strong> – lower p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+<li><strong>p_upper</strong> – upper p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+<li><strong>study_accession</strong> – accession ID of the study to query</li>
+<li><strong>trait</strong> – trait ID of of the trait to query</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-studies">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/studies</code></dt>
+<dd><p>Studies</p>
+<p>Lists all of the existing study resources.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/studies</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;studies&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST001969&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326/studies/GCST001969/associations&quot;</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326/studies/GCST001969&quot;</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0004326&quot;</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;gwas_catalog&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST001969&quot;</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST004415&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0001075/studies/GCST004415/associations&quot;</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0001075/studies/GCST004415&quot;</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0001075&quot;</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;gwas_catalog&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST004415&quot;</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies?start=0&amp;size=2&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies?start=2&amp;size=2&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-traits">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/traits</code></dt>
+<dd><p>Traits</p>
+<p>Lists all of the existing trait resources.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/traits</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+ <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+   <span class="nt">&quot;traits&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0008531&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531&quot;</span>
+         <span class="p">},</span>
+         <span class="nt">&quot;ols&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/ols/api/terms?id=EFO_0008531&quot;</span>
+         <span class="p">},</span>
+         <span class="nt">&quot;studies&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531/studies&quot;</span>
+         <span class="p">},</span>
+         <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0008531/associations&quot;</span>
+         <span class="p">}</span>
+       <span class="p">}</span>
+     <span class="p">}</span>
+   <span class="p">]</span>
+ <span class="p">},</span>
+ <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+   <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits?size=20&amp;start=0&quot;</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-traits-(string-trait)">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/traits/</code><span class="sig-paren">(</span><em class="property">string: </em><em>trait</em><span class="sig-paren">)</span></dt>
+<dd><p>Trait Resource</p>
+<p>Lists a specific trait resource</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/traits/EFO_0003785</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0003785&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;studies&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/associations&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;ols&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/ols/api/terms?id=EFO_0003785&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-traits-(string-trait)-associations">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/traits/</code><span class="sig-paren">(</span><em class="property">string: </em><em>trait</em><span class="sig-paren">)</span><code class="descname">/associations</code></dt>
+<dd><p>Search Trait for Associations</p>
+<p>Lists associations for a specific trait.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/traits/EFO_0003785/associations</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs10875231&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.2449</span><span class="p">,</span>
+                <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;2.826e-1&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99534456</span><span class="p">,</span>
+                <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005038&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">-0.0072</span><span class="p">,</span>
+                <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0003785&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038&quot;</span>
+                    <span class="p">},</span>
+                    <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231&quot;</span>
+                    <span class="p">},</span>
+                    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005038&quot;</span>
+                    <span class="p">},</span>
+                    <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs6678176&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.3197</span><span class="p">,</span>
+                <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;2.656e-1&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99535271</span><span class="p">,</span>
+                <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005038&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">-0.006999999999999999</span><span class="p">,</span>
+                <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+                <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0003785&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038&quot;</span>
+                    <span class="p">},</span>
+                    <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176&quot;</span>
+                    <span class="p">},</span>
+                    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176?study_accession=GCST005038&quot;</span>
+                    <span class="p">},</span>
+                    <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/associations&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/associations?start=0&amp;size=2&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/associations?start=2&amp;size=2&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+<li><strong>reveal</strong> – <code class="docutils literal notranslate"><span class="pre">raw</span></code> or <code class="docutils literal notranslate"><span class="pre">all</span></code> will show you the raw association data or both the harmonised and
+raw association data respectively.</li>
+<li><strong>p_lower</strong> – lower p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+<li><strong>p_upper</strong> – upper p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-traits-(string-trait)-studies">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/traits/</code><span class="sig-paren">(</span><em class="property">string: </em><em>trait</em><span class="sig-paren">)</span><code class="descname">/studies</code></dt>
+<dd><p>Search Trait for Studies</p>
+<p>Lists studies for a specific trait.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/traits/EFO_0003785/studies</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;studies&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005038&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;gwas_catalog&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies?start=0&amp;size=20&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-traits-(string-trait)-studies-(string-study)">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/traits/</code><span class="sig-paren">(</span><em class="property">string: </em><em>trait</em><span class="sig-paren">)</span><code class="descname">/studies/</code><span class="sig-paren">(</span><em class="property">string: </em><em>study</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-studies-(study)">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/studies/</code><span class="sig-paren">(</span><em>study</em><span class="sig-paren">)</span></dt>
+<dd><p>Study Resource</p>
+<p>Lists resources for a specific study.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/studies/GCST005038</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005038&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;gwas_catalog&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/labs/rest/api/studies/GCST005038&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-traits-(string-trait)-studies-(string-study)-associations">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/traits/</code><span class="sig-paren">(</span><em class="property">string: </em><em>trait</em><span class="sig-paren">)</span><code class="descname">/studies/</code><span class="sig-paren">(</span><em class="property">string: </em><em>study</em><span class="sig-paren">)</span><code class="descname">/associations</code></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--gwas-summary-statistics-api-studies-(study)-associations">
+<code class="descname">GET </code><code class="descname">/gwas/summary-statistics/api/studies/</code><span class="sig-paren">(</span><em>study</em><span class="sig-paren">)</span><code class="descname">/associations</code></dt>
+<dd><p>Search Study Associations</p>
+<p>Returns associations for a specific study.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/studies/GCST005038/associations</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.ebi.ac.uk</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;_embedded&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;associations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs10875231&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.2449</span><span class="p">,</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;2.826e-1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99534456</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005038&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">-0.0072</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0003785&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs10875231?study_accession=GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;ci_lower&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;variant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;rs6678176&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;chromosome&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;other_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;odds_ratio&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele_frequency&quot;</span><span class="p">:</span> <span class="mf">0.3197</span><span class="p">,</span>
+        <span class="nt">&quot;p_value&quot;</span><span class="p">:</span> <span class="s2">&quot;2.656e-1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;base_pair_location&quot;</span><span class="p">:</span> <span class="mi">99535271</span><span class="p">,</span>
+        <span class="nt">&quot;study_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;GCST005038&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;effect_allele&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">-0.006999999999999999</span><span class="p">,</span>
+        <span class="nt">&quot;ci_upper&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="s2">&quot;EFO_0003785&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;study&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;variant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/chromosomes/1/associations/rs6678176?study_accession=GCST005038&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;trait&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;_links&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;self&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations?start=0&amp;size=2&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;href&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.ebi.ac.uk/gwas/summary-statistics/api/traits/EFO_0003785/studies/GCST005038/associations?start=2&amp;size=2&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – offset number. default is 0</li>
+<li><strong>size</strong> – number of items returned. default is 20</li>
+<li><strong>reveal</strong> – <code class="docutils literal notranslate"><span class="pre">raw</span></code> or <code class="docutils literal notranslate"><span class="pre">all</span></code> will show you the raw association data or both the harmonised and
+raw association data respectively.</li>
+<li><strong>p_lower</strong> – lower p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+<li><strong>p_upper</strong> – upper p-value threshold, can be expressed as a float or using mantissa and exponent
+annotation (0.001 or 1e-3 or 1E-3)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – not found error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+        </div>
+        <!--
+
+        #####################################
+        #  Page specific content goes here  #
+        #####################################
+
+        -->
+
+        </div>
+
+        <div id="docs-footer">
+
+        </div>
+
+    <hr/>
+
+</div>
+<!-- /container -->
+  <footer class="footer background-color-primary-accent">
+    <!--<div class="footer-banner background-color-primary"></div>-->
+    <div class="container">
+        <p class="text-muted">Copyright &copy; EMBL-EBI 2018 | EMBL-EBI is an Outstation of the
+            <a href="http://www.embl.org">European Molecular
+                                          Biology
+                                          Laboratory</a> |
+            <a href="//www.ebi.ac.uk/about/privacy">Privacy</a> |
+            <a href="//www.ebi.ac.uk/about/cookies">Cookies</a> |
+            <a href="//www.ebi.ac.uk/about/terms-of-use">Terms of use</a></p>
+    </div>
+</footer>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<script src="https://www.ebi.ac.uk/gwas/rest/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="https://www.ebi.ac.uk/gwas/rest/js/ie10-viewport-bug-workaround.js"></script>
+
+<!-- GOCI JavaScript
+================================================== -->
+<!--script src="https://www.ebi.ac.uk/gwas/rest/static/js/api-documentation.js"></script-->
+
+<!-- Google analytics
+================================================== -->
+<!--script>
+    (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function() {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-60195133-1', 'auto');
+    ga('send', 'pageview');
+
+</script-->
+</body>
+</html>

@@ -1,0 +1,66 @@
+/* toc copied from gwas-rest repo to maintain style with gwas catalog documentation */
+
+#toc {
+    border-bottom: 1px solid #efefed;
+    padding-top: .5em;
+    padding-bottom: .5em;
+}
+
+.sect1+.sect1 {
+    border-top: 1px solid #efefed;
+    padding-bottom: .5em;
+
+}
+
+#toctitle {
+    padding: 0 9px;
+    color: #207a7a;
+    font-size: 277%;
+    line-height: 1.11;
+    font-family: 'HelveticaNeueLT Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+    -webkit-margin-before: 0.83em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+
+#toc a {
+    text-decoration: none;
+    border-bottom-style: none;
+    font-size: medium;
+}
+
+#toc ul {
+    font-family: "Open Sans","DejaVu Sans",sans-serif;
+    list-style-type: none;
+}
+
+#toc>ul {
+    margin-left: .125em;
+}
+
+#footer {
+    padding: 0 9px;
+    color: lightgray;
+}
+
+.imageblock {
+    padding: 9px;
+}
+
+.author {
+    padding-left: 9px;;
+}
+
+
+div.toc2 {
+    float: right;;
+}
+#toctitle {
+    position: fixed;
+}
+
+
+.section0 {
+    position: fixed;
+}
+
