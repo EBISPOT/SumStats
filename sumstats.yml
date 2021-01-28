@@ -147,7 +147,6 @@ dependencies:
     - simplejson==3.17.0
     - six==1.13.0
     - snakemake==5.4.4
-    - sumstats==0.1-SNAPSHOT
     - tables==3.4.3
     - wcwidth==0.1.8
     - werkzeug==0.16.0
