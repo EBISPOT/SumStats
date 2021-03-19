@@ -10,6 +10,7 @@ dnspython==1.16.0
 docutils==0.15.2
 eventlet==0.25.1
 Flask==1.0.4
+Flask-Limiter==1.4
 greenlet==0.4.15
 gunicorn==19.9.0
 idna==2.8
