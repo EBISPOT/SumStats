@@ -62,9 +62,13 @@ class AssociationSearch:
         try:
             snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
             sql = sq.sqlClient(self.database)
-            chromosome, position = sql.get_chr_pos(snp_no_prefix)[0]
-            bp_interval = ':'.join([str(position), str(position)])
-            return (chromosome, bp_interval)
+            snp_mapping = sql.get_chr_pos(snp_no_prefix)
+            if snp_mapping:
+                chromosome, position = snp_mapping[0]
+                bp_interval = ':'.join([str(position), str(position)])
+                return (chromosome, bp_interval)
+            else:
+                return (None, None)
         except AttributeError:
             return (None, None)
 
