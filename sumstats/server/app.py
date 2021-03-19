@@ -10,12 +10,21 @@ import sumstats.server.api_utils as apiu
 from flask import Blueprint
 import sumstats.server.api_endpoints_impl as endpoints
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 api = Blueprint('api', __name__)
 
 logger = logging.getLogger()
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["10 per hour"],
+)
 
 
 @api.errorhandler(APIException)
@@ -733,6 +742,7 @@ def get_trait_study(study, trait=None):
 
 
 @api.route('/study_list')
+@limiter.exempt
 def get_all_studies():
 
     resp = endpoints.study_list()
