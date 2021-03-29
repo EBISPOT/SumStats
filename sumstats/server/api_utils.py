@@ -269,10 +269,11 @@ def _create_response(method_name, start, size, index_marker, data_dict, params=N
 
 
 def _create_resource_response(data_dict, params):
-    if len(data_dict) == 1:
-        return data_dict[0]
-    elif len(data_dict) == 0:
+    if len(data_dict) == 0:
         raise NotFoundError("Request for resource with parameters " + str(params))
+    else:
+        # should be only one if data is not duplicated
+        return data_dict[0]
 
 
 def _create_next_links(method_name, start, size, index_marker, size_retrieved, params=None):
