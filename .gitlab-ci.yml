@@ -1,0 +1,55 @@
+image: docker:latest
+
+stages:
+  - test
+  - build
+  - deploy
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  CI_REGISTRY_IMAGE: ebispot/sumstats
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+    - python -V
+    - mkdir logs
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    - python setup.py -q install
+
+test:
+  image: "python:3.4"
+  stage: test
+  script:
+    - pip install codacy-coverage
+    - pytest --cov-report html --cov sumstats --verbose
+    - coverage xml
+    - python-codacy-coverage -r coverage.xml
+  only:
+    - master
+    - dev
+
+# always build an image tagged with the commit SHA from master
+build:
+  stage: build
+  script:
+   - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
+   - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt docker.io
+   - docker pull $CI_REGISTRY_IMAGE:latest
+   - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+   - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  only:
+   - master
+
