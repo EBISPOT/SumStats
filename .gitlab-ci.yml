@@ -1,7 +1,7 @@
 image: docker:latest
 
 stages:
-  - test
+  - docs
   - build
   - deploy
 
@@ -12,34 +12,24 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
   CI_REGISTRY_IMAGE: ebispot/sumstats
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  CI_REGISTRY_DOCS_IMAGE: ebispot/sumstats-docs
 
-
-cache:
-  paths:
-    - .cache/pip
-    - venv/
-
-before_script:
-    - python -V
-    - mkdir logs
-    - pip install virtualenv
-    - virtualenv venv
-    - source venv/bin/activate
-    - pip install -r requirements.txt
-    - python setup.py -q install
-
-test:
-  image: "python:3.4"
-  stage: test
+# generate the docs with sphinx
+sphinxdocs:
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: docs
   script:
-    - pip install codacy-coverage
-    - pytest --cov-report html --cov sumstats --verbose
-    - coverage xml
-    - python-codacy-coverage -r coverage.xml
+   - mkdir logs
+   - make clean
+   - make html
+  artifacts:
+    expire_in: '2 hrs'
+    paths:
+    - docs/build/html
   only:
-    - master
-    - dev
+   - master
+   - dev
+
 
 # always build an image tagged with the commit SHA from master
 build:
@@ -52,4 +42,36 @@ build:
    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   only:
    - master
+   - dev
+
+build_docs:
+  stage: build
+  script:
+   - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
+   - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt docker.io
+   - docker pull $CI_REGISTRY_DOCS_IMAGE:latest
+   - docker build -f nginx/Dockerfile --cache-from $CI_REGISTRY_DOCS_IMAGE:latest -t $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA .
+   - docker push $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA
+  dependencies:
+    - sphinxdocs
+  only:
+   - master
+
+
+deploy_staging:
+  image: dtzar/helm-kubectl:2.13.1
+  stage: deploy
+  script:
+    - echo "Deploy to staging"
+    - mkdir -p /root/.kube
+    - echo ${FALLBACK_KUBECONF} | base64 -d > /root/.kube/config
+    - RABBITPWD=$(kubectl --namespace rabbitmq get secret rabbitmq -o jsonpath="{.data.rabbitmq-password}" | base64 -d)
+    - helm init --stable-repo-url https://charts.helm.sh/stable
+    - helm delete --purge sumstats-search-api || true
+    - helm install --name sumstats-search-api --set k8Namespace=gwas,service.name=ss-seach-api-dev,staticService.name=ss-search-api-docs-dev,staticService.path=/ss-search-api-docs-dev,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.uid=$UID,image.gid=$GID,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER,volume.data.path=$NFS_PATH,replicaCount=1 ./k8chart/ --wait
+  environment:
+    name: sandbox
+  only:
+    - master
+    - dev
 
