@@ -1,5 +1,9 @@
 from tests.test_constants import *
-import sumstats.utils.group as gu
+#import sumstats.utils.group as gu
+import yaml
+import pathlib
+import shutil
+import os
 
 
 def prepare_dictionary(test_arrays=None):
@@ -18,11 +22,9 @@ def prepare_dictionary(test_arrays=None):
                 HM_EFFECT_DSET: test_arrays.effectarray, HM_OTHER_DSET: test_arrays.otherarray, HM_FREQ_DSET: test_arrays.frequencyarray,
                 HM_VAR_ID: test_arrays.snpsarray, HM_CODE: test_arrays.codearray}
 
-
 def prepare_load_object_with_study(h5file, study, loader, test_arrays=None):
     loader_dictionary = prepare_dictionary(test_arrays)
     return loader.Loader(None, h5file, study, loader_dictionary)
-
 
 def prepare_load_object_with_study_and_trait(h5file, study, loader, trait, test_arrays=None):
     loader_dictionary = prepare_dictionary(test_arrays)
@@ -34,3 +36,26 @@ def save_snps_and_study_in_file(opened_file, list_of_snps, study):
         snp_study = "/".join([snp, study])
         group = gu.Group(opened_file.create_group(snp_study))
         group.generate_dataset(STUDY_DSET, [study])
+
+def get_load_config():
+    with open("tests/test_snakemake_config.yaml") as f:
+        conf = yaml.safe_load(f)
+        return conf
+
+def prepare_load_env_with_test_data():
+    conf = get_load_config()
+    # create dirs
+    pathlib.Path(conf['loaded']).mkdir(parents=True, exist_ok=True)
+    pathlib.Path(conf['to_load']).mkdir(parents=True, exist_ok=True)
+    pathlib.Path(conf['out_dir']).mkdir(parents=True, exist_ok=True)
+    from_path_test_sumstats = os.path.join("tests", "123456-GCST123456-EFO_123456.tsv")
+    to_path_test_sumstats = os.path.join(conf["to_load"], "123456-GCST123456-EFO_123456.tsv")
+    shutil.copyfile(from_path_test_sumstats, to_path_test_sumstats)
+
+
+
+
+
+
+
+
