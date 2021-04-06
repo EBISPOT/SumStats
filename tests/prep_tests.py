@@ -42,8 +42,7 @@ def get_load_config():
         conf = yaml.safe_load(f)
         return conf
 
-def prepare_load_env_with_test_data():
-    conf = get_load_config()
+def prepare_load_env_with_test_data(conf):
     # create dirs
     pathlib.Path(conf['loaded']).mkdir(parents=True, exist_ok=True)
     pathlib.Path(conf['to_load']).mkdir(parents=True, exist_ok=True)
@@ -52,6 +51,20 @@ def prepare_load_env_with_test_data():
     to_path_test_sumstats = os.path.join(conf["to_load"], "123456-GCST123456-EFO_123456.tsv")
     shutil.copyfile(from_path_test_sumstats, to_path_test_sumstats)
 
+def remove_loaded_data():
+    snakemake_conf_dict = get_load_config()
+    rmdir(snakemake_conf_dict['loaded'])
+    rmdir(snakemake_conf_dict['to_load'])
+    rmdir(snakemake_conf_dict['out_dir'])
+
+def rmdir(directory):
+    directory = pathlib.Path(directory)
+    for item in directory.iterdir():
+        if item.is_dir():
+            rmdir(item)
+        else:
+            item.unlink()
+    directory.rmdir()
 
 
 
