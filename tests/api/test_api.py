@@ -1,8 +1,7 @@
 from sumstats.server.app import app
 
 
- TestAPI(object):
-
+class TestAPI(object):
 
     def test_api_root(self):
         test_app = app.test_client()
