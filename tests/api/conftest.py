@@ -2,6 +2,7 @@ from tests.prep_tests import *
 import snakemake
 import pytest
 
+
 @pytest.fixture(scope="session", autouse=True)
 def prep():
     print("START")

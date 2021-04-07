@@ -1,72 +1,39 @@
-import os
-import shutil
 from sumstats.errors.error_classes import *
 import sumstats.explorer as ex
-import sumstats.trait.loader as trait_loader
-import sumstats.chr.loader as chr_loader
-from tests.prep_tests import *
 import pytest
-from config import properties
+from tests.prep_tests import create_tsv_from_test_data_dict, get_load_config, prepare_load_env_with_test_data, remove_loaded_data
+from tests.test_constants import GCST, EFO
+import snakemake
 
 
-@pytest.yield_fixture(scope="class", autouse=True)
-def load_studies(request):
-    os.makedirs('./outputexplorer/bytrait')
-    os.makedirs('./outputexplorer/bychr')
-    trait_output_location = './outputexplorer/bytrait/'
-    chr_output_location = './outputexplorer/bychr/'
+test_metadata = [{'pmid': '123457', 'gcst': 'GCST123457', 'efo': EFO},
+                 {'pmid': '123458', 'gcst': 'GCST123458', 'efo': 'EFO_234567'}]
 
-    h5file = trait_output_location + 'file_t1.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', trait='t1', loader=trait_loader)
-    load.load()
-
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=trait_loader)
-    load.load()
-
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s11', trait='t1', loader=trait_loader)
-    load.load()
-
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s12', trait='t1', loader=trait_loader)
-    load.load()
-
-    h5file = trait_output_location + 'file_t2.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=trait_loader)
-    load.load()
-
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', trait='t2', loader=trait_loader)
-    load.load()
-
-    h5file = trait_output_location + 'file_t3.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s5', trait='t3', loader=trait_loader)
-    load.load()
-
-    # load by chromosome
-    h5file = chr_output_location + 'file_1.h5'
-    load = prepare_load_object_with_study(h5file=h5file, study='s1', loader=chr_loader)
-    load.load()
-
-    request.addfinalizer(remove_dir)
-
-
-def remove_dir():
-    shutil.rmtree('./outputexplorer')
+@pytest.yield_fixture(scope="session", autouse=True)
+def load_data():
+    conf = get_load_config()
+    prepare_load_env_with_test_data(conf)
+    for item in test_metadata:
+        create_tsv_from_test_data_dict(pmid=item['pmid'], gcst=item['gcst'], efo=item['efo'])
+    snakemake.snakemake('Snakefile', config=conf)
+    yield
+    remove_loaded_data()
 
 
 class TestLoader(object):
     def setup_method(self):
-        # initialize explorer with local path
-        properties.h5files_path = "./outputexplorer"
-        self.explorer = ex.Explorer(properties)
-        self.loaded_traits = ['t1', 't2', 't3']
-        self.loaded_studies = ['s1', 's2', 's11', 's12', 's3', 's4', 's5']
-        self.loaded_studies_t1 = ['s1', 's2', 's11', 's12']
-        self.loaded_studies_t3 = ['s5']
+        self.explorer = ex.Explorer()
+        loaded_traits = [item['efo'] for item in test_metadata]
+        loaded_traits.append(EFO)
+        self.loaded_traits = list(set(loaded_traits))
 
     def test_get_list_of_traits(self):
-        list_of_traits = self.explorer.get_list_of_traits()
-        assert len(list_of_traits) == len(self.loaded_traits)
+        explored_list_of_traits = self.explorer.get_list_of_traits()
+        print(explored_list_of_traits)
+        print(self.loaded_traits)
+        assert len(explored_list_of_traits) == len(self.loaded_traits)
         for trait in self.loaded_traits:
-            assert trait in list_of_traits
+            assert trait in explored_list_of_traits
 
     def test_get_list_of_studies_for_trait_t1(self):
         list_of_studies = self.explorer.get_list_of_studies_for_trait('t1')

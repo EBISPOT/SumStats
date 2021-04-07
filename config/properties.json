@@ -9,7 +9,7 @@
     "study_dir":"bystudy",
     "chr_dir":"bychr",
     "trait_dir":"bytrait",
-    "sqlite_path": "./files/SumStatsMeta.db",
+    "sqlite_path": "./files/output/SumStatsMeta.db",
     "bp_step":16,
     "max_bp":300000000,
     "available_chromosomes": 24,
