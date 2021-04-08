@@ -1,9 +1,8 @@
 import sumstats.controller as search
-import sumstats.utils.dataset_utils as utils
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
 from config import properties
-from tests.search.conftest import SINGLE_TRAIT, TEST_METADATA, DEFAULT_TEST_GCST, DEFAULT_TEST_DATA_DICT
+from tests.search.conftest import TEST_METADATA, DEFAULT_TEST_GCST, DEFAULT_TEST_DATA_DICT
 
 
 class TestLoader(object):
@@ -60,5 +59,3 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search(start=new_start, size=size)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, size)
         assert index_marker == start + 2 * (size)
-
-

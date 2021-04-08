@@ -7,11 +7,11 @@ def assert_number_of_times_study_is_in_datasets(datasets, study, size):
 
 
 def assert_datasets_have_size(datasets, TO_QUERY_DSETS, size):
-    if size == 0:
-        assert datasets is None
-    else:
-        for name in TO_QUERY_DSETS:
+    for name in TO_QUERY_DSETS:
+        if datasets:
             assert len(datasets[name]) == size
+        else:
+            assert 0 == size
 
 
 def assert_studies_from_list(datasets, studies):
