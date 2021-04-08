@@ -1,4 +1,4 @@
-from tests.test_constants import data_dict, PMID, GCST, EFO
+from tests.test_constants import DEFAULT_TEST_DATA_DICT, DEFAULT_TEST_PMID, DEFAULT_TEST_GCST, DEFAULT_TEST_EFO
 import pandas as pd
 import yaml
 import pathlib
@@ -42,7 +42,7 @@ def get_load_config():
         conf = yaml.safe_load(f)
         return conf
 
-def create_tsv_from_test_data_dict(test_data_dict=data_dict, conf=get_load_config(), pmid=PMID, gcst=GCST, efo=EFO):
+def create_tsv_from_test_data_dict(test_data_dict=DEFAULT_TEST_DATA_DICT, conf=get_load_config(), pmid=DEFAULT_TEST_PMID, gcst=DEFAULT_TEST_GCST, efo=DEFAULT_TEST_EFO):
     sumstats_filename = '-'.join([pmid, gcst, efo]) + '.tsv'
     sumstats_file_path = os.path.join(conf['to_load'], sumstats_filename)
     df = pd.DataFrame.from_dict(test_data_dict)
@@ -53,7 +53,7 @@ def prepare_load_env_with_test_data(conf):
     pathlib.Path(conf['loaded']).mkdir(parents=True, exist_ok=True)
     pathlib.Path(conf['to_load']).mkdir(parents=True, exist_ok=True)
     pathlib.Path(conf['out_dir']).mkdir(parents=True, exist_ok=True)
-    create_tsv_from_test_data_dict(test_data_dict=data_dict, conf=conf)
+    create_tsv_from_test_data_dict(test_data_dict=DEFAULT_TEST_DATA_DICT, conf=conf)
 
 def remove_loaded_data():
     snakemake_conf_dict = get_load_config()
