@@ -2,7 +2,6 @@ from tests.test_constants import DEFAULT_TEST_DATA_DICT, DEFAULT_TEST_PMID, DEFA
 import pandas as pd
 import yaml
 import pathlib
-import shutil
 import os
 
 
@@ -62,13 +61,16 @@ def remove_loaded_data():
     rmdir(snakemake_conf_dict['out_dir'])
 
 def rmdir(directory):
-    directory = pathlib.Path(directory)
-    for item in directory.iterdir():
-        if item.is_dir():
-            rmdir(item)
-        else:
-            item.unlink()
-    directory.rmdir()
+    if os.path.exists(directory):
+        directory = pathlib.Path(directory)
+        for item in directory.iterdir():
+            if item.is_dir():
+                rmdir(item)
+            else:
+                item.unlink()
+        directory.rmdir()
+    else:
+        pass
 
 
 

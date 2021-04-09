@@ -18,7 +18,7 @@ def load_data():
         create_tsv_from_test_data_dict(test_data_dict=item['data_dict'], pmid=item['pmid'], gcst=item['gcst'], efo=item['efo'])
     # add in default test metadata
     TEST_METADATA.append({'pmid': DEFAULT_TEST_PMID, 'gcst': DEFAULT_TEST_GCST, 'efo': DEFAULT_TEST_EFO})
-    snakemake.snakemake('Snakefile', config=conf)
+    snakemake.snakemake('Snakefile', config=conf, quiet=True)
     # here is where all the tests in this session run
     yield
     # then we tear it all down

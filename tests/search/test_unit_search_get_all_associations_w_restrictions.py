@@ -1,5 +1,4 @@
 import sumstats.controller as search
-import sumstats.utils.dataset_utils as utils
 from sumstats.trait.constants import *
 from tests.search.test_utils import *
 from sumstats.utils.interval import FloatInterval
@@ -25,7 +24,6 @@ class TestLoader(object):
         size = 200
         pval_interval = FloatInterval().set_tuple(0, 0.0001)
         datasets, next_index = self.searcher.search(start=start, size=size, pval_interval=pval_interval)
-        print(datasets['p_value'])
         assert_studies_from_list(datasets, ['GCST123458'])
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, len(SMALL_PVALUE_DATA_DICT['p_value']))
 
