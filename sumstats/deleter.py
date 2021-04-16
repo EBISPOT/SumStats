@@ -1,11 +1,8 @@
 import argparse
 import sys
-from os.path import isfile
-import sumstats.utils.filesystem_utils as fsutils
 import sumstats.trait.study_deleter as trait_deleter
 import sumstats.snp.study_deleter as snp_deleter
 import sumstats.chr.study_deleter as chr_deleter
-from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
 
@@ -36,7 +33,6 @@ def main():
 
     if study is not None:
         deleter.delete_trait_study_group()
-        #deleter.delete_snp_study_group()
         deleter.delete_chr_study_group()
 
 if __name__ == "__main__":

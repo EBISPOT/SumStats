@@ -4,9 +4,7 @@
     datasets within the study group.
 
 """
-import os
 
-from sumstats.common_constants import *
 from sumstats.errors.error_classes import *
 import sumstats.explorer as ex
 import sumstats.utils.properties_handler as properties_handler

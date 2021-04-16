@@ -23,7 +23,6 @@ HM_OTHER_DSET = 'hm_other_allele'
 HM_FREQ_DSET = 'hm_effect_allele_frequency'
 HM_VAR_ID = 'hm_variant_id'
 HM_CODE = 'hm_code'
-STUDY_DSET = 'study_accession'
 
 
 DSET_TYPES = {SNP_DSET: str, STUDY_DSET: int, PVAL_DSET: float, MANTISSA_DSET: float, EXP_DSET: int, TRAIT_DSET: str,

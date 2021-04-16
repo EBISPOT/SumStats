@@ -39,7 +39,7 @@ rule prep_for_load:
          props=config["props"],
          chroms=config["chromosomes"]
     resources:
-         mem_mb = 4000
+         mem_mb = config["mem_mb"]
     shell:
          """
          for chr in {params.chroms}; do
@@ -69,7 +69,7 @@ rule load_study:
          out_dir=config["out_dir"],
          props=config["props"],
     resources:
-         mem_mb = lambda wildcards, attempt: attempt * 8000
+         mem_mb = lambda wildcards, attempt: attempt * (2 * config["mem_mb"])
     shell:
          """
          export SS_LOAD={params.to_load};
@@ -102,7 +102,7 @@ rule repack:
         out_dir=config["out_dir"],
         props=config["props"],
     resources:
-        mem_mb = lambda wildcards, attempt: attempt * 4800
+        mem_mb = lambda wildcards, attempt: attempt * config["mem_mb"]
     shell:
         """
         export SS_LOAD={params.to_load};
