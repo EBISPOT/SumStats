@@ -1,7 +1,8 @@
 image: docker:latest
 
 stages:
-  - docs
+  - test
+  - build-docs
   - build
   - deploy
 
@@ -11,13 +12,34 @@ services:
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   CI_REGISTRY_IMAGE: ebispot/sumstats
   CI_REGISTRY_DOCS_IMAGE: ebispot/sumstats-docs
+
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+test:
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: test
+  script:
+    - python -V
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    - pytest -v
+  only:
+    - master
+    - dev
 
 # generate the docs with sphinx
 sphinxdocs:
   image: $CI_REGISTRY_IMAGE:latest
-  stage: docs
+  stage: build-docs
   script:
    - mkdir logs
    - make clean
