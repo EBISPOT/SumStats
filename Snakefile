@@ -4,7 +4,7 @@ import glob
 
 configfile: "snakemake_conf.yaml"
 
-SSIDS = [os.path.basename(f).replace(".tsv", "") for f in list(pathlib.Path(config["to_load"]).glob("*.tsv"))]
+SSIDS = [os.path.basename(str(f)).replace(".tsv", "") for f in list(pathlib.Path(config["to_load"]).glob("*.tsv"))]
 
 def file_with_ext(wildcards):
     toload =  [f for f in glob.glob(os.path.join(config["to_load"], wildcards.ss_file) + "*.tsv") if os.path.isfile(f)]
@@ -16,7 +16,7 @@ def file_with_ext(wildcards):
 
 def target_files():
     targets = []
-    toload =  [os.path.basename(f) for f in list(pathlib.Path(config["to_load"]).glob("*.tsv"))]
+    toload =  [os.path.basename(str(f)) for f in list(pathlib.Path(config["to_load"]).glob("*.tsv"))]
     for f in toload:
         file_ext = "".join(pathlib.Path(f).suffixes)
         file_no_ext = f.replace(file_ext, "")

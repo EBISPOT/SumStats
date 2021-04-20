@@ -21,6 +21,7 @@ test:
   image: $CI_REGISTRY_IMAGE:dev
   stage: test
   script:
+    - mkdir -p logs
     - pytest -v
   only:
     - master
@@ -32,7 +33,7 @@ sphinxdocs:
   image: $CI_REGISTRY_IMAGE:dev
   stage: build-docs
   script:
-   - mkdir logs
+   - mkdir -p logs
    - make clean
    - make html
   artifacts:

@@ -143,14 +143,16 @@ class Loader():
         for trait in self.traits:
             data = [self.study, trait]
             sql.cur.execute("insert or ignore into study_trait values (?,?)", data)
-            sql.cur.execute('COMMIT')
+            sql.commit()
+            #sql.cur.execute('COMMIT')
 
 
     def load_study_filename(self):
         sql = sq.sqlClient(self.sqldb)
         data = [self.study, self.filename]
         sql.cur.execute("insert or ignore into study values (?,?)", data)
-        sql.cur.execute('COMMIT')
+        sql.commit()
+        #sql.cur.execute('COMMIT')
 
     @staticmethod
     def coerce_floats(value):

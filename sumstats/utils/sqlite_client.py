@@ -158,7 +158,8 @@ class sqlClient():
     """ OTHER STATEMENTS """
 
     def commit(self):
-        self.cur.execute("COMMIT")
+        self.conn.commit()
+        #self.cur.execute("COMMIT")
 
     def drop_rsid_index(self):
         self.cur.execute("DROP INDEX rsid_idx")
