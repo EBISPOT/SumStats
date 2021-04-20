@@ -18,7 +18,7 @@ variables:
 
 #TODO: change dev tag to latest
 test:
-  image: $CI_REGISTRY_IMAGE:dev
+  image: $CI_REGISTRY_IMAGE:a5ff7a7a9a98
   stage: test
   script:
     - mkdir -p logs
@@ -30,7 +30,7 @@ test:
 # generate the docs with sphinx
 #TODO: change dev tag to latest
 sphinxdocs:
-  image: $CI_REGISTRY_IMAGE:dev
+  image: $CI_REGISTRY_IMAGE:a5ff7a7a9a98
   stage: build-docs
   script:
    - mkdir -p logs
@@ -52,8 +52,8 @@ build:
   script:
    - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
    - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt docker.io
-   - docker pull $CI_REGISTRY_IMAGE:dev
-   - docker build --cache-from $CI_REGISTRY_IMAGE:dev -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+   - docker pull $CI_REGISTRY_IMAGE:a5ff7a7a9a98
+   - docker build --cache-from $CI_REGISTRY_IMAGE:a5ff7a7a9a98 -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   only:
    - master
