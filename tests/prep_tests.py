@@ -61,8 +61,8 @@ def remove_loaded_data():
     rmdir(snakemake_conf_dict['out_dir'])
 
 def rmdir(directory):
-    if os.path.exists(directory):
-        directory = pathlib.Path(directory)
+    directory = pathlib.Path(directory)
+    if directory.exists():
         for item in directory.iterdir():
             if item.is_dir():
                 rmdir(item)
