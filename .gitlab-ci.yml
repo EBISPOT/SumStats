@@ -1,4 +1,4 @@
-image: docker:latest
+image: ${DEPENDENCY_PROXY_PREFIX}/docker:latest
 
 stages:
   - test
@@ -16,29 +16,20 @@ variables:
   CI_REGISTRY_IMAGE: ebispot/sumstats
   CI_REGISTRY_DOCS_IMAGE: ebispot/sumstats-docs
 
-
-cache:
-  paths:
-    - .cache/pip
-    - venv/
-
+#TODO: change dev tag to latest
 test:
-  image: $CI_REGISTRY_IMAGE:latest
+  image: $CI_REGISTRY_IMAGE:dev
   stage: test
   script:
-    - python -V
-    - pip install virtualenv
-    - virtualenv venv
-    - source venv/bin/activate
-    - pip install -r requirements.txt
     - pytest -v
   only:
     - master
     - dev
 
 # generate the docs with sphinx
+#TODO: change dev tag to latest
 sphinxdocs:
-  image: $CI_REGISTRY_IMAGE:latest
+  image: $CI_REGISTRY_IMAGE:dev
   stage: build-docs
   script:
    - mkdir logs
@@ -54,13 +45,14 @@ sphinxdocs:
 
 
 # always build an image tagged with the commit SHA from master
+#TODO: change dev tag to latest
 build:
   stage: build
   script:
    - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
    - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt docker.io
-   - docker pull $CI_REGISTRY_IMAGE:latest
-   - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+   - docker pull $CI_REGISTRY_IMAGE:dev
+   - docker build --cache-from $CI_REGISTRY_IMAGE:dev -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   only:
    - master
@@ -79,7 +71,6 @@ build_docs:
   only:
    - master
    - dev
-
 
 deploy_staging:
   image: dtzar/helm-kubectl:2.13.1
