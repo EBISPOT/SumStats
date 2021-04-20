@@ -1,4 +1,4 @@
-image: ${DEPENDENCY_PROXY_PREFIX}/docker:latest
+image: docker:latest
 
 stages:
   - test
