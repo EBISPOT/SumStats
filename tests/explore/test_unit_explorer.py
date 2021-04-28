@@ -1,84 +1,55 @@
-import os
-import shutil
 from sumstats.errors.error_classes import *
+from sumstats.common_constants import *
 import sumstats.explorer as ex
-import sumstats.trait.loader as trait_loader
-import sumstats.chr.loader as chr_loader
-from tests.prep_tests import *
 import pytest
-from config import properties
+from tests.prep_tests import create_tsv_from_test_data_dict, get_load_config, prepare_load_env_with_test_data, remove_loaded_data
+from tests.test_constants import DEFAULT_TEST_DATA_DICT, DEFAULT_TEST_PMID, DEFAULT_TEST_GCST, DEFAULT_TEST_EFO
+import snakemake
 
+SPECIFIC_TRAIT = 'EFO_234567'
+TEST_METADATA = [{'pmid': '123457', 'gcst': 'GCST123457', 'efo': DEFAULT_TEST_EFO},
+                 {'pmid': '123458', 'gcst': 'GCST123458', 'efo': SPECIFIC_TRAIT}]
 
-@pytest.yield_fixture(scope="class", autouse=True)
-def load_studies(request):
-    os.makedirs('./outputexplorer/bytrait')
-    os.makedirs('./outputexplorer/bychr')
-    trait_output_location = './outputexplorer/bytrait/'
-    chr_output_location = './outputexplorer/bychr/'
-
-    h5file = trait_output_location + 'file_t1.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s1', trait='t1', loader=trait_loader)
-    load.load()
-
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s2', trait='t1', loader=trait_loader)
-    load.load()
-
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s11', trait='t1', loader=trait_loader)
-    load.load()
-
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s12', trait='t1', loader=trait_loader)
-    load.load()
-
-    h5file = trait_output_location + 'file_t2.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s3', trait='t2', loader=trait_loader)
-    load.load()
-
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s4', trait='t2', loader=trait_loader)
-    load.load()
-
-    h5file = trait_output_location + 'file_t3.h5'
-    load = prepare_load_object_with_study_and_trait(h5file=h5file, study='s5', trait='t3', loader=trait_loader)
-    load.load()
-
-    # load by chromosome
-    h5file = chr_output_location + 'file_1.h5'
-    load = prepare_load_object_with_study(h5file=h5file, study='s1', loader=chr_loader)
-    load.load()
-
-    request.addfinalizer(remove_dir)
-
-
-def remove_dir():
-    shutil.rmtree('./outputexplorer')
+@pytest.yield_fixture(scope="session", autouse=True)
+def load_data():
+    conf = get_load_config()
+    prepare_load_env_with_test_data(conf)
+    for item in TEST_METADATA:
+        create_tsv_from_test_data_dict(pmid=item['pmid'], gcst=item['gcst'], efo=item['efo'])
+    # add in default test metadata
+    TEST_METADATA.append({'pmid': DEFAULT_TEST_PMID, 'gcst': DEFAULT_TEST_GCST, 'efo': DEFAULT_TEST_EFO})
+    snakemake.snakemake('Snakefile', config=conf)
+    # here is where all the tests in this session run
+    yield
+    # then we tear it all down
+    remove_loaded_data()
 
 
 class TestLoader(object):
     def setup_method(self):
-        # initialize explorer with local path
-        properties.h5files_path = "./outputexplorer"
-        self.explorer = ex.Explorer(properties)
-        self.loaded_traits = ['t1', 't2', 't3']
-        self.loaded_studies = ['s1', 's2', 's11', 's12', 's3', 's4', 's5']
-        self.loaded_studies_t1 = ['s1', 's2', 's11', 's12']
-        self.loaded_studies_t3 = ['s5']
+        self.explorer = ex.Explorer()
+        self.loaded_traits = sorted(list(set([item['efo'] for item in TEST_METADATA])))
+        self.loaded_studies = sorted(list(set([item['gcst'] for item in TEST_METADATA])))
 
     def test_get_list_of_traits(self):
-        list_of_traits = self.explorer.get_list_of_traits()
-        assert len(list_of_traits) == len(self.loaded_traits)
+        explored_list_of_traits = self.explorer.get_list_of_traits()
+        assert len(explored_list_of_traits) == len(self.loaded_traits)
         for trait in self.loaded_traits:
-            assert trait in list_of_traits
+            assert trait in explored_list_of_traits
 
-    def test_get_list_of_studies_for_trait_t1(self):
-        list_of_studies = self.explorer.get_list_of_studies_for_trait('t1')
-        assert len(list_of_studies) == len(self.loaded_studies_t1)
-        for study in self.loaded_studies_t1:
-            assert study in list_of_studies
+    def test_get_list_of_studies_for_default_trait(self):
+        list_of_studies_for_trait = self.explorer.get_list_of_studies_for_trait(DEFAULT_TEST_EFO)
+        studies_for_trait = [item['gcst'] for item in TEST_METADATA if item['efo'] == DEFAULT_TEST_EFO]
+        assert len(list_of_studies_for_trait) == len(studies_for_trait)
+        for study in studies_for_trait:
+            assert study in list_of_studies_for_trait
 
-    def test_get_list_of_studies_for_trait_t3(self):
-        list_of_studies = self.explorer.get_list_of_studies_for_trait('t3')
-        assert len(list_of_studies) == len(self.loaded_studies_t3)
-        for study in self.loaded_studies_t3:
-            assert study in list_of_studies
+    def test_get_list_of_studies_for_specific_trait(self):
+        list_of_studies_for_trait = self.explorer.get_list_of_studies_for_trait(SPECIFIC_TRAIT)
+        studies_for_trait = [item['gcst'] for item in TEST_METADATA if item['efo'] == SPECIFIC_TRAIT]
+        assert len(list_of_studies_for_trait) == len(studies_for_trait)
+        for study in studies_for_trait:
+            assert study in list_of_studies_for_trait
 
     def test_get_list_of_studies_for_non_existing_trait_raises_error(self):
         with pytest.raises(NotFoundError):
@@ -90,9 +61,10 @@ class TestLoader(object):
         for study in self.loaded_studies:
             assert study in list_of_studies
 
-    def test_get_info_from_study_s1(self):
-        trait = self.explorer.get_trait_of_study('s1')
-        assert trait == 't1'
+    def test_get_info_from_default_study(self):
+        traits = self.explorer.get_trait_of_study(DEFAULT_TEST_GCST)
+        for trait in traits:
+            assert trait == DEFAULT_TEST_EFO
 
     def test_get_info_from_non_exising_study_raises_error(self):
         with pytest.raises(NotFoundError):
@@ -105,10 +77,9 @@ class TestLoader(object):
             assert traits1[i] == traits2[i]
 
     def test_studies_return_in_same_order(self):
-        studies1 = self.explorer.get_list_of_studies_for_trait('t1')
-        studies2 = self.explorer.get_list_of_studies_for_trait('t1')
-        for i in range(len(studies1)):
-            assert studies1[i] == studies2[i]
+        studies = self.explorer.get_list_of_studies_for_trait(DEFAULT_TEST_EFO)
+        studies_for_trait = sorted(list(set([item['gcst'] for item in TEST_METADATA if item['efo'] == DEFAULT_TEST_EFO])))
+        assert studies == studies_for_trait
 
     def test_trait_exists(self):
         for trait in self.loaded_traits:
@@ -119,7 +90,8 @@ class TestLoader(object):
             assert not self.explorer.has_trait('foo')
 
     def test_chromosome_exists(self):
-        assert self.explorer.has_chromosome(1)
+        loaded_chrom = DEFAULT_TEST_DATA_DICT[CHR_DSET][0]
+        assert self.explorer.has_chromosome(loaded_chrom)
 
     def test_chromosome_doesnt_exist_raises_error(self):
         with pytest.raises(NotFoundError):

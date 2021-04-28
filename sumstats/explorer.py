@@ -1,19 +1,12 @@
 import argparse
-import os
 import sys
-from os.path import isfile
-import glob
 import sumstats.utils.filesystem_utils as fsutils
-import sumstats.trait.search.access.trait_service as trait_service
 import sumstats.study.search.access.study_service as study_service
-import sumstats.chr.search.access.chromosome_service as chrom_service
-import sumstats.chr.search.chromosome_search as chr_search
 import sumstats.utils.sqlite_client as sql_client
 import sumstats.chr.retriever as cr
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
-from sumstats.common_constants import *
 
 
 class Explorer:
@@ -35,7 +28,7 @@ class Explorer:
     def get_list_of_traits(self): 
         sq = sql_client.sqlClient(self.sqlite_db)
         traits = sq.get_traits()
-        return traits
+        return sorted(list(set(traits)))
 
 
     def get_list_of_studies_for_trait(self, trait): 
@@ -58,7 +51,7 @@ class Explorer:
 
 
     def has_trait(self, trait):
-        search = cr.search_all_assocs(trait=trait, start=0, size=0, properties=self.properties)
+        search = cr.search_all_assocs(trait=trait, start=0, size=1, properties=self.properties)
         if search[-1] > 0:
             return True
         raise NotFoundError("Trait " + trait)
@@ -78,12 +71,7 @@ class Explorer:
         # raises Not Found Error
         """To do: Store the chromosome list as an attribute in the hdf5 file."""
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        #chromosomes = []
-        #for h5file in h5files:
-        #    service = trait_service.StudyService(h5file=h5file)
-        #    traits.extend(service.list_traits())
-        #    service.close_file()
-        search = cr.search_all_assocs(chromosome=chromosome, start=0, size=0, properties=self.properties)
+        search = cr.search_all_assocs(chromosome=chromosome, start=0, size=1, properties=self.properties)
         if search[-1] > 0:
             print('checked')
             return True

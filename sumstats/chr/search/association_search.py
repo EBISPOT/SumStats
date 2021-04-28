@@ -96,8 +96,9 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self.iteration_size = self.size
 
+        if self.size == 0:
+            return self.datasets, self.start
         # Narrow down hdf pool
-
         if self.study or self.trait:
             sql = sq.sqlClient(self.database)
             file_ids = []
@@ -130,11 +131,8 @@ class AssociationSearch:
             sql = sq.sqlClient(self.database)
             studies.extend(sql.get_studies_for_trait(self.trait))
 
-
-        print(hdfs)
         for hdf in hdfs:
             inner_loop_broken = False
-            print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
                 gen = (key for key in dir(store.root) if GWAS_CATALOG_STUDY_PREFIX in key)
@@ -176,9 +174,6 @@ class AssociationSearch:
                         if self.snp and chunk[SNP_DSET].values != self.snp:
                             pass
                         else:
-                            #chunk[STUDY_DSET] = study
-                            #chunk[TRAIT_DSET] = str(traits) 
-                            #chunk[TISSUE_DSET] = tissue
                             self.df = pd.concat([self.df, chunk])
 
                         if len(self.df.index) >= self.size: # break once we have enough

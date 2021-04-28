@@ -1,7 +1,7 @@
 {
     "h5files_path":"./files/output",
     "tsvfiles_path":"./files/toload",
-    "loaded_files_path":"./files/loaded",
+    "loaded_files_path":"./files/loaded_files",
     "local_h5files_path":"./files/output",
     "local_tsvfiles_path":"./files/toload",
     "latest_snapshot_output_path":"/latest/snapshot/output",
@@ -9,6 +9,7 @@
     "study_dir":"bystudy",
     "chr_dir":"bychr",
     "trait_dir":"bytrait",
+    "sqlite_path": "./files/output/SumStatsMeta.db",
     "bp_step":16,
     "max_bp":300000000,
     "available_chromosomes": 24,

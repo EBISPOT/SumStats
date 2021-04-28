@@ -1,0 +1,91 @@
+# Default values for sumstats-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+replicaCount: 3
+
+image:
+  repository: ebispot/sumstats
+  tag: latest
+  pullPolicy: Always
+  containerPort: 8000
+  logMountPath: "logs"
+  dataMountPath: "/files/output"
+  uid: 1000
+  gid: 1000
+  user: virtual_user
+
+volume:
+  log:
+    ClaimName: ss-search-api-logs
+  data:
+    ClaimName: ss-hdf5-data
+    nfsServer: "<host name or IP>"
+    path: "/path/to/files/"
+  
+    #    VolumeName: ss-hdf5-data
+    #    type: persistentVolumeClaim
+    #    storageClassName: standard
+    #    accessModes:
+    #      - ReadOnlyMany
+    #    hostPath:
+
+#    nfs:
+#      server: <server ip or fqdn>
+#      path: /path/to/ur/mount
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  name: ss-seach-api
+  type: NodePort
+  port: 8000
+  path: /gwas/summary-statistics/api(/|$)(.*)
+  gunicornCmd: '["gunicorn", "-b", "0.0.0.0:8000", "sumstats.server.app:app","--log-level=debug","--access-logfile=logs/ss_search_access.log","--error-logfile=logs/ss_search_error.log", "--workers=4"]'
+
+staticService:
+  replicaCount: 1
+  name: ss-search-api-docs
+  path: /ss-search-api-docs
+  type: NodePort
+  port: 80  
+  image:
+    repository: ebispot/sumstats-docs
+    tag: latest
+    pullPolicy: Always
+    containerPort: 80
+    
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: /gwas/summary-statistics/api(/|$)
+      tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+k8Namespace: sumstats-search
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+

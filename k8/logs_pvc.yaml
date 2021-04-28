@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  name: ss-search-api-logs
+  namespace: dev-gwas
+spec:
+  storageClassName: standard-nfs-production
+  accessModes:
+    -  ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

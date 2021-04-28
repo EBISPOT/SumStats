@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.Values.staticService.name}}
+  namespace: {{.Values.k8Namespace}}
+  lables:
+    version: {{.Values.staticService.image.tag}}
+spec:
+  replicas: {{.Values.staticService.replicaCount}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.staticService.name}}
+    spec:
+      containers:
+      - name: {{.Values.staticService.name}}
+        image: "{{.Values.staticService.image.repository}}:{{.Values.staticService.image.tag}}"
+        imagePullPolicy: {{.Values.staticService.image.pullPolicy}}
+        resources:
+          requests:
+            cpu: {{.Values.resources.requests.cpu}}
+            memory: {{.Values.resources.requests.memory}}
+        ports:
+        - name: http
+          containerPort: {{.Values.staticService.image.containerPort}}
+
