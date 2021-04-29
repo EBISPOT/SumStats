@@ -82,9 +82,9 @@ deploy_staging:
     - echo ${FALLBACK_KUBECONF} | base64 -d > /root/.kube/config
     - helm init --stable-repo-url https://charts.helm.sh/stable
     - helm delete --purge sumstats-search-api || true
-    - helm install --name sumstats-search-api --set k8Namespace=dev-gwas,service.name=ss-seach-api-dev,staticService.name=ss-search-api-docs-dev,staticService.path=/ss-search-api-docs-dev,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.uid=$UID,image.gid=$GID,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_STAGING,volume.data.path=$NFS_PATH_STAGING,replicaCount=1 ./sumstats_search/ --wait
+    - helm install --name sumstats-search-api --set k8Namespace=dev-gwas,service.name=ss-seach-api-dev,staticService.name=ss-search-api-docs-dev,staticService.path=/ss-search-api-docs-dev,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.uid=$VIRTUAL_USER,image.uid=$UID,image.gid=$GID,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_STAGING,volume.data.path=$NFS_PATH_STAGING,replicaCount=1 ./sumstats_search/ --wait
   environment:
-    name: sandbox
+    name: staging
   only:
     - master
     - dev
