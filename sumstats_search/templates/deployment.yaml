@@ -37,14 +37,14 @@ spec:
           name: configs
           readOnly: true
         env:
-          - name: UID
-            value: {{.Values.image.uid}}
-          - name: GID
-            value: {{.Values.image.gid}}
-          - name: USER
-            value: {{.Values.image.user}}
-          - name: SS_CONFIG
-            value: {{.Values.image.ss_config}}
+        - name: UID
+          value: {{.Values.image.uid}}
+        - name: GID
+          value: {{.Values.image.gid}}
+        - name: USER
+          value: {{.Values.image.user}}
+        - name: SS_CONFIG
+          value: {{.Values.image.ss_config}}
       volumes:
       - name: log
         persistentVolumeClaim:
