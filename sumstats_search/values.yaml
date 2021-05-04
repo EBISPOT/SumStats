@@ -12,9 +12,11 @@ image:
   containerPort: 8000
   logMountPath: "logs"
   dataMountPath: "/files/output"
+  configMountPath: "/configs"
   uid: 1000
   gid: 1000
   user: virtual_user
+  ss_config: "/application/config/properties.json"
 
 volume:
   log:
@@ -58,6 +60,10 @@ staticService:
     tag: latest
     pullPolicy: Always
     containerPort: 80
+
+secrets:
+  configs: ss-search-api-configs
+
     
 
 ingress:
