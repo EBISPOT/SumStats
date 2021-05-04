@@ -13,9 +13,9 @@ image:
   logMountPath: "logs"
   dataMountPath: "/files/output"
   configMountPath: "/configs"
-  uid: 1000
-  gid: 1000
-  user: virtual_user
+  uid: "1000"
+  gid: "1000"
+  user: "virtual_user"
   ss_config: "/application/config/properties.json"
 
 volume:
