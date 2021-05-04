@@ -27,7 +27,10 @@ class sqlClient():
             CREATE INDEX IF NOT EXISTS rsid_idx on snp (rsid);
             """
         if self.conn:
-            self.create_tables()
+            try:
+                self.create_tables()
+            except sqlite3.OperationalError as e:
+                print(e)
 
     def create_conn(self):
         try:
