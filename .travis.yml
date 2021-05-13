@@ -15,5 +15,6 @@ script:
   - pytest
   - coverage xml
   - python-codacy-coverage -r coverage.xml
+  - sonar-scanner -Dsonar.organization=gwas-ebi -Dsonar.projectKey=SumStats -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=0566d66d0cfe16cd2cb8ba02db7fcd0b6d1e7ee6 -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.exclusions=tests/*,build/**
 notifications:
   slack: ebigwas:zqQ2w5YqIBivAipkzntr5Pg5
