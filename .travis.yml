@@ -11,6 +11,9 @@ install:
   - pip install -r requirements.txt
   - python setup.py -q install
   - pip install codacy-coverage
+addons:
+  sonarcloud:
+    organization: "gwas-ebi"
 script:
   - pytest
   - coverage xml
