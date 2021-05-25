@@ -16,5 +16,6 @@
     "gwas_study_location":"http://www.ebi.ac.uk/gwas/rest/api/studies/",
     "logging_path":"./logs",
     "LOG_LEVEL": "INFO",
-    "APPLICATION_ROOT": "/gwas/summary-statistics/api"
+    "APPLICATION_ROOT": "/gwas/summary-statistics/api",
+    "meta_path": "./files/output/meta.h5"
 }
