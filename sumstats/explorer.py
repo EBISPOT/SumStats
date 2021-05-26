@@ -25,13 +25,14 @@ class Explorer:
         mc = meta_client.metaClient(self.metafile)
         studies = mc.get_studies()
         return sorted(list(set(studies)))
+      
 
     def get_list_of_traits(self):
         mc = meta_client.metaClient(self.metafile)
         traits = mc.get_traits()
         return traits
 
-
+      
     def get_list_of_studies_for_trait(self, trait): 
         mc = meta_client.metaClient(self.metafile)
         studies = mc.get_studies_for_trait(trait)
@@ -52,7 +53,7 @@ class Explorer:
 
 
     def has_trait(self, trait):
-        search = cr.search_all_assocs(trait=trait, start=0, size=0, properties=self.properties)
+        search = cr.search_all_assocs(trait=trait, start=0, size=1, properties=self.properties)
         if search[-1] > 0:
             return True
         raise NotFoundError("Trait " + trait)
@@ -72,12 +73,7 @@ class Explorer:
         # raises Not Found Error
         """To do: Store the chromosome list as an attribute in the hdf5 file."""
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        #chromosomes = []
-        #for h5file in h5files:
-        #    service = trait_service.StudyService(h5file=h5file)
-        #    traits.extend(service.list_traits())
-        #    service.close_file()
-        search = cr.search_all_assocs(chromosome=chromosome, start=0, size=0, properties=self.properties)
+        search = cr.search_all_assocs(chromosome=chromosome, start=0, size=1, properties=self.properties)
         if search[-1] > 0:
             print('checked')
             return True

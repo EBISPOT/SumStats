@@ -42,6 +42,7 @@ Files produced by the sumstats package (.h5 files) should be generated in the fi
 	- `conda env create -f sumstats.yml`
 	- `conda  activate  sumstats`
 - pip install the sumstats package -  this will install pytables, numpy, flask, gunicorn - and sumstats
+  - `pip install -r requirements.txt`
   - `pip install .`
 - Run the setup script that will create the folder structure and prepare the file that you want for loading
   - `python bin/preparation/setup_configuration.py -f <path to file to be processed> -config <path to json config>`

@@ -7,6 +7,7 @@ from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler
 from sumstats.utils import filesystem_utils as fsutils
 import sumstats.utils.meta_client as mc
+import pathlib
 
 
 class Loader():
@@ -32,6 +33,7 @@ class Loader():
     def load_bychr(self):
         group = "chr" + self.chromosome
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=group, dir_name=self.chr_dir)
+        self.make_output_dirs()
         self.append_csv_to_hdf(hdf_store, group)
 
 
@@ -39,6 +41,7 @@ class Loader():
         print(self.ss_file)
         group = "/{study}".format(study=self.study.replace('-','_'))
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=self.filename, dir_name=self.study_dir + "/" + self.chromosome)
+        self.make_output_dirs()
         self.write_csv_to_hdf(hdf_store, group)
 
     
@@ -144,6 +147,7 @@ class Loader():
         meta = mc.metaClient(self.metafile)
         meta.load_study_filename(self.study, self.filename)
 
+
     @staticmethod
     def coerce_floats(value):
         try:
@@ -156,6 +160,10 @@ class Loader():
             return float('NaN')
         return value
 
+
+    def make_output_dirs(self):
+        pathlib.Path(os.path.join(self.hdf_path, self.chr_dir)).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(os.path.join(self.hdf_path, self.study_dir)).mkdir(parents=True, exist_ok=True)
 
 
 def main():

@@ -1,0 +1,6 @@
+loaded: files/loaded_files
+to_load: files/toload
+out_dir: files/output
+props: config/properties.json
+chromosomes: ['10']
+mem_mb: 400

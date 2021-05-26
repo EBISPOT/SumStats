@@ -62,9 +62,13 @@ class AssociationSearch:
         try:
             snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
             meta = mc.metaClient(self.snp_map)
-            chromosome, position = meta.get_chr_pos(snp_no_prefix)[0]
-            bp_interval = ':'.join([str(position), str(position)])
-            return (chromosome, bp_interval)
+            snp_mapping = meta.get_chr_pos(snp_no_prefix)[0]
+            if snp_mapping:
+                chromosome, position = snp_mapping[0]
+                bp_interval = ':'.join([str(position), str(position)])
+                return (chromosome, bp_interval)
+            else:
+                return (None, None)
         except AttributeError:
             return (None, None)
 
@@ -92,8 +96,9 @@ class AssociationSearch:
                     str(self.start), str(self.size), str(self.pval_interval))
         self.iteration_size = self.size
 
+        if self.size == 0:
+            return self.datasets, self.start
         # Narrow down hdf pool
-
         if self.study or self.trait:
             meta = mc.metaClient(self.database)
             file_ids = []
@@ -126,11 +131,8 @@ class AssociationSearch:
             meta = mc.metaClient(self.database)
             studies.extend(meta.get_studies_for_trait(self.trait))
 
-
-        print(hdfs)
         for hdf in hdfs:
             inner_loop_broken = False
-            print(hdf)
             with pd.HDFStore(hdf, mode='r') as store:
                 print('opened {}'.format(hdf))
                 gen = (key for key in dir(store.root) if GWAS_CATALOG_STUDY_PREFIX in key)
@@ -172,9 +174,6 @@ class AssociationSearch:
                         if self.snp and chunk[SNP_DSET].values != self.snp:
                             pass
                         else:
-                            #chunk[STUDY_DSET] = study
-                            #chunk[TRAIT_DSET] = str(traits) 
-                            #chunk[TISSUE_DSET] = tissue
                             self.df = pd.concat([self.df, chunk])
 
                         if len(self.df.index) >= self.size: # break once we have enough

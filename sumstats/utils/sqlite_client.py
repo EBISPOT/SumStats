@@ -6,6 +6,31 @@ class sqlClient():
         self.database = database
         self.conn = self.create_conn()
         self.cur = self.conn.cursor()
+        self.db_schema = """
+            CREATE TABLE IF NOT EXISTS snp (
+            prefix blob not null,
+            rsid integer not null,
+            chr integer not null,
+            position integer not null,
+            UNIQUE (prefix, rsid, chr, position)
+            );
+            CREATE TABLE IF NOT EXISTS study_trait (
+            study blob not null,
+            trait blob not null,
+            UNIQUE (study, trait)
+            );
+            CREATE TABLE IF NOT EXISTS study (
+            study blob not null,
+            file_id blob not null,
+            UNIQUE (study, file_id)
+            );
+            CREATE INDEX IF NOT EXISTS rsid_idx on snp (rsid);
+            """
+        if self.conn:
+            try:
+                self.create_tables()
+            except sqlite3.OperationalError as e:
+                print(e)
 
     def create_conn(self):
         try:
@@ -136,10 +161,15 @@ class sqlClient():
     """ OTHER STATEMENTS """
 
     def commit(self):
-        self.cur.execute("COMMIT")
+        self.conn.commit()
+        #self.cur.execute("COMMIT")
 
     def drop_rsid_index(self):
         self.cur.execute("DROP INDEX rsid_idx")
 
     def create_rsid_index(self):
         self.cur.execute("CREATE INDEX rsid_idx on snp (rsid)")
+
+    def create_tables(self):
+        self.cur.executescript(self.db_schema)
+

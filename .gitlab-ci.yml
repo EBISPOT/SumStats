@@ -1,0 +1,91 @@
+image: docker:latest
+
+stages:
+  - test
+  - build-docs
+  - build
+  - deploy
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  CI_REGISTRY_IMAGE: ebispot/sumstats
+  CI_REGISTRY_DOCS_IMAGE: ebispot/sumstats-docs
+
+#TODO: change dev tag to latest
+test:
+  image: $CI_REGISTRY_IMAGE:dc3c5c43659762dc6a5bed19d28f2167da6ccdd1
+  stage: test
+  script:
+    - mkdir -p logs
+    - pytest -v
+  only:
+    - master
+    - dev
+
+# generate the docs with sphinx
+#TODO: change dev tag to latest
+sphinxdocs:
+  image: $CI_REGISTRY_IMAGE:dc3c5c43659762dc6a5bed19d28f2167da6ccdd1
+  stage: build-docs
+  script:
+   - mkdir -p logs
+   - make clean
+   - make html
+  artifacts:
+    expire_in: '2 hrs'
+    paths:
+    - docs/build/html
+  only:
+   - master
+   - dev
+
+
+# always build an image tagged with the commit SHA from master
+#TODO: change dev tag to latest
+build:
+  stage: build
+  script:
+   - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
+   - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt docker.io
+   - docker pull $CI_REGISTRY_IMAGE:dc3c5c43659762dc6a5bed19d28f2167da6ccdd1
+   - docker build --cache-from $CI_REGISTRY_IMAGE:dc3c5c43659762dc6a5bed19d28f2167da6ccdd1 -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+   - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  only:
+   - master
+   - dev
+
+build_docs:
+  stage: build
+  script:
+   - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
+   - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt docker.io
+   - docker pull $CI_REGISTRY_DOCS_IMAGE:latest
+   - docker build -f nginx/Dockerfile --cache-from $CI_REGISTRY_DOCS_IMAGE:latest -t $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA .
+   - docker push $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA
+  dependencies:
+    - sphinxdocs
+  only:
+   - master
+   - dev
+
+deploy_staging:
+  image: dtzar/helm-kubectl:2.13.1
+  stage: deploy
+  script:
+    - echo "Deploy to staging"
+    - mkdir -p /root/.kube
+    - echo ${FALLBACK_KUBECONF} | base64 -d > /root/.kube/config
+    - helm init --stable-repo-url https://charts.helm.sh/stable
+    - helm delete --purge sumstats-search-api || true
+    - helm install --name sumstats-search-api --set k8Namespace=dev-gwas,service.name=ss-seach-api-dev,staticService.name=ss-search-api-docs-dev,staticService.path=/ss-search-api-docs-dev,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.ss_config=$SS_CONFIG_STAGING,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_STAGING,volume.data.path=$NFS_PATH_STAGING,replicaCount=1 ./sumstats_search/ --wait
+  environment:
+    name: staging
+  only:
+    - master
+    - dev
+

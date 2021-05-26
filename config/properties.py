@@ -1,6 +1,6 @@
-h5files_path="./files/output"
-tsvfiles_path="./files/toload"
-loaded_files_path="./files/loaded"
+h5files_path="/files/output"
+tsvfiles_path="/files/toload"
+loaded_files_path="/files/loaded"
 bp_step=16
 available_chromosomes=24
 max_bp=300000000
@@ -12,9 +12,9 @@ ols_terms_location= "https://www.ebi.ac.uk/ols/api/terms?id="
 gwas_study_location="http://wwwdev.ebi.ac.uk/gwas/beta/rest/api/studies/"
 logging_path="./logs"
 APPLICATION_ROOT="/gwas/summary-statistics/api"
-sqlite_path="./files/output/SumStatsMeta.db"
-meta_path="./files/output/meta.h5"
-snp_path="./files/output/snp.h5"
+sqlite_path="/files/output/SumStatsMeta.db"
+meta_path="/files/output/meta.h5"
+snp_path="/files/output/snp.h5"
 LOG_LEVEL="INFO"
 LOGGER_LOG="logger.log"
 LOGGER_HANDLER="logger"
