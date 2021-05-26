@@ -3,6 +3,7 @@ import sys
 import sumstats.utils.filesystem_utils as fsutils
 import sumstats.study.search.access.study_service as study_service
 import sumstats.utils.sqlite_client as sql_client
+import sumstats.utils.meta_client as meta_client
 import sumstats.chr.retriever as cr
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
@@ -17,23 +18,24 @@ class Explorer:
         self.chr_dir = self.properties.chr_dir
         self.trait_dir = self.properties.trait_dir
         self.sqlite_db = self.properties.sqlite_path
+        self.metafile = self.properties.meta_path
         
 
     def get_list_of_studies(self):
-        sq = sql_client.sqlClient(self.sqlite_db)
-        studies = sq.get_studies()
+        mc = meta_client.metaClient(self.metafile)
+        studies = mc.get_studies()
         return sorted(list(set(studies)))
+      
 
+    def get_list_of_traits(self):
+        mc = meta_client.metaClient(self.metafile)
+        traits = mc.get_traits()
+        return traits
 
-    def get_list_of_traits(self): 
-        sq = sql_client.sqlClient(self.sqlite_db)
-        traits = sq.get_traits()
-        return sorted(list(set(traits)))
-
-
+      
     def get_list_of_studies_for_trait(self, trait): 
-        sq = sql_client.sqlClient(self.sqlite_db)
-        studies = sq.get_studies_for_trait(trait)
+        mc = meta_client.metaClient(self.metafile)
+        studies = mc.get_studies_for_trait(trait)
         if studies:
             return sorted(list(set(studies)))
         else:
@@ -41,8 +43,8 @@ class Explorer:
 
 
     def get_trait_of_study(self, study_to_find):
-        sq = sql_client.sqlClient(self.sqlite_db)
-        traits = sq.get_traits_for_study(study_to_find)
+        mc = meta_client.metaClient(self.metafile)
+        traits = mc.get_traits_for_study(study_to_find)
         if traits:
             return sorted(list(set(traits)))
         else:

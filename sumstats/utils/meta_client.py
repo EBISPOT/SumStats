@@ -1,0 +1,128 @@
+import pandas as pd
+
+
+class metaClient():
+    def __init__(self, metafile):
+        self.metafile = metafile
+
+
+    """ LOAD STATEMENTS """
+
+    def load_study_trait(self, study, trait_list):
+        study_list = [study for _ in trait_list]
+        data_dict = {'study':study_list, 'trait': trait_list}
+        df = pd.DataFrame(data_dict)
+        df.to_hdf("meta.h5",
+                  key="study_trait",
+                  format='table',
+                  append=True,
+                  data_columns=list(df.columns.values),
+                  index=False)
+        with tb.open_file("meta.h5", "a") as hdf:
+            col = hdf.root['study_trait'].table.cols._f_col('study')
+            col.create_index(optlevel=6, kind="medium")
+            col = hdf.root['study_trait'].table.cols._f_col('trait')
+            col.create_index(optlevel=6, kind="medium")
+
+    def load_study_filename(self, study, filename):
+        data_dict = {'study': study, 'trait': filename}
+        df = pd.DataFrame(data_dict)
+        df.to_hdf("meta.h5",
+                  key="study",
+                  format='table',
+                  append=True,
+                  data_columns=list(df.columns.values),
+                  index=False)
+        with tb.open_file("meta.h5", "a") as hdf:
+            col = hdf.root['study'].table.cols._f_col('study')
+            col.create_index(optlevel=6, kind="medium")
+
+
+    """ SELECT STATEMENTS """
+
+
+    def get_chr_pos(self, snp):
+        data = []
+        search_string = "rsid == {snp}".format(snp=snp)
+        with pd.HDFStore(self.metafile) as store:
+            results = store.select('snp', where=search_string)
+            data.append((results['chr'].values[0], results['position'].values[0]))
+        if data:
+            return data
+        else:
+            return False
+
+    def get_studies(self):
+        data = []
+        with pd.HDFStore(self.metafile) as store:
+            results = store.select('study_trait')
+            data.extend(results['study'].tolist())
+        if data:
+            return data
+        else:
+            return False
+
+    def get_traits(self):
+        data = []
+        with pd.HDFStore(self.metafile) as store:
+            results = store.select('study_trait')
+            data.extend(results['trait'].tolist())
+        if data:
+            return data
+        else:
+            return False
+
+    def get_studies_for_trait(self, trait):
+        data = []
+        search_string = "trait == {trait}".format(trait=trait)
+        with pd.HDFStore(self.metafile) as store:
+            results = store.select('study_trait', where=search_string)
+            data.extend(results['study'].tolist())
+        if data:
+            return data
+        else:
+            return False
+
+    def get_traits_for_study(self, study):
+        data = []
+        search_string = "study == {study}".format(study=study)
+        with pd.HDFStore(self.metafile) as store:
+            results = store.select('study_trait', where=search_string)
+            data.extend(results['trait'].tolist())
+        if data:
+            return data
+        else:
+            return False
+
+
+    def get_file_id_for_study(self, study):
+        data = []
+        search_string = "study == {study}".format(study=study)
+        with pd.HDFStore(self.metafile) as store:
+            results = store.select('study', where=search_string)
+            data.extend(results['file_id'].tolist())
+        if data:
+            return data
+        else:
+            return False
+
+    def get_file_id_for_trait(self, trait):
+        data = []
+        search_string = "trait == {trait}".format(trait=trait)
+        with pd.HDFStore(self.metafile) as store:
+            study_list = store.select('study_trait', where=search_string)['study'].tolist()
+            for study in study_list:
+                search_string = "study == {study}".format(study=study)
+                data.extend(store.select('study', where=search_string)['file_id'].tolist())
+        return data
+
+    #""" OTHER STATEMENTS """
+
+    #def commit(self):
+    #    self.cur.execute("COMMIT")
+
+    #def drop_rsid_index(self):
+    #    self.cur.execute("DROP INDEX rsid_idx")
+
+    #def create_rsid_index(self):
+    #    self.cur.execute("CREATE INDEX rsid_idx on snp (rsid)")

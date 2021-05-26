@@ -3,7 +3,6 @@ import re
 import glob
 import itertools
 import os
-import sumstats.utils.dataset_utils as utils
 import sumstats.utils.filesystem_utils as fsutils
 from sumstats.chr.constants import *
 import logging
@@ -11,7 +10,7 @@ from sumstats.utils import register_logger
 from sumstats.utils import properties_handler
 from sumstats.utils.interval import *
 import sumstats.utils.sqlite_client as sq
-from itertools import repeat
+import sumstats.utils.meta_client as mc
 
 logger = logging.getLogger(__name__)
 register_logger.register(__name__)
@@ -37,7 +36,8 @@ class AssociationSearch:
         self.study_dir = self.properties.study_dir
         self.chr_dir = self.properties.chr_dir
         self.database = self.properties.sqlite_path
-        self.snp_map = fsutils.create_h5file_path(self.search_path, self.properties.snp_dir, "snp_map")
+        self.metafile = self.properties.meta_path
+        self.snp_map = self.properties.snp_path
 
         self.datasets = None #utils.create_dictionary_of_empty_dsets(TO_QUERY_DSETS)
         # index marker will be returned along with the datasets
@@ -61,8 +61,8 @@ class AssociationSearch:
     def map_snp_to_location(self):
         try:
             snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
-            sql = sq.sqlClient(self.database)
-            snp_mapping = sql.get_chr_pos(snp_no_prefix)
+            meta = mc.metaClient(self.snp_map)
+            snp_mapping = meta.get_chr_pos(snp_no_prefix)[0]
             if snp_mapping:
                 chromosome, position = snp_mapping[0]
                 bp_interval = ':'.join([str(position), str(position)])
@@ -100,12 +100,12 @@ class AssociationSearch:
             return self.datasets, self.start
         # Narrow down hdf pool
         if self.study or self.trait:
-            sql = sq.sqlClient(self.database)
+            meta = mc.metaClient(self.database)
             file_ids = []
             if self.study:
-                file_ids.extend(sql.get_file_id_for_study(self.study))
+                file_ids.extend(meta.get_file_id_for_study(self.study))
             elif self.trait:
-                file_ids.extend(sql.get_file_id_for_trait(self.trait))
+                file_ids.extend(meta.get_file_id_for_trait(self.trait))
             print("study/trait")
             if self.chromosome:
                 print("chr")
@@ -128,8 +128,8 @@ class AssociationSearch:
     
         studies = []
         if self.trait:
-            sql = sq.sqlClient(self.database)
-            studies.extend(sql.get_studies_for_trait(self.trait))
+            meta = mc.metaClient(self.database)
+            studies.extend(meta.get_studies_for_trait(self.trait))
 
         for hdf in hdfs:
             inner_loop_broken = False

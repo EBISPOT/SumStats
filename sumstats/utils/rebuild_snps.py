@@ -3,14 +3,9 @@ import tables as tb
 import subprocess
 import os
 import glob
-import re
-from collections import defaultdict
 from sumstats.common_constants import *
 from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler
-from sumstats.utils import filesystem_utils as fsutils
-import sumstats.utils.sqlite_client as sq 
-
 
 
 def main():
@@ -19,10 +14,11 @@ def main():
     loaded_files_path = properties.loaded_files_path  # pragma: no cover
     study_dir = properties.study_dir
     snp_dir = properties.snp_dir
-    database = properties.sqlite_path
+    #database = properties.sqlite_path
+    snp_path = properties.snp_path
 
-    temp = fsutils.create_h5file_path(path=h5files_path, file_name="temp", dir_name=snp_dir)
-    snp_map = fsutils.create_h5file_path(path=h5files_path, file_name="snp_map", dir_name=snp_dir)
+    #temp = fsutils.create_h5file_path(path=h5files_path, file_name="temp", dir_name=snp_dir)
+    #snp_map = fsutils.create_h5file_path(path=h5files_path, file_name="snp_map", dir_name=snp_dir)
     print(study_dir)
 
 
@@ -61,14 +57,26 @@ def main():
             chunksize=500000
             )
 
-    sql = sq.sqlClient(database)
-    sql.drop_rsid_index()
-    for chunk in snpdf:
-        chunk = list(chunk.itertuples(index=False, name=None))
-        sql.cur.execute('BEGIN TRANSACTION')
-        sql.cur.executemany("insert or ignore into snp(prefix, rsid, chr, position) values (?, ?, ?, ?)", chunk)
-        sql.cur.execute('COMMIT')
-    sql.create_rsid_index()
+    #build hdf5 and index
+    snpdf.to_hdf(snp_path, key='snp', format='table', append=True, data_columns=list(snpdf.columns.values), index=False)
+    with tb.open_file(snp_path, "a") as hdf:
+        col = hdf.root['snp'].table.cols._f_col('rsid')
+        col.remove_index()
+        col.create_csindex()
+        col = hdf.root['snp'].table.cols._f_col('chr')
+        col.create_index(optlevel=6, kind="medium")
+        col = hdf.root['snp'].table.cols._f_col('position')
+        col.create_index(optlevel=6, kind="medium")
+
+
+    #sql = sq.sqlClient(database)
+    #sql.drop_rsid_index()
+    #for chunk in snpdf:
+    #    chunk = list(chunk.itertuples(index=False, name=None))
+    #    sql.cur.execute('BEGIN TRANSACTION')
+    #    sql.cur.executemany("insert or ignore into snp(prefix, rsid, chr, position) values (?, ?, ?, ?)", chunk)
+    #    sql.cur.execute('COMMIT')
+    #sql.create_rsid_index()
 
 
 
