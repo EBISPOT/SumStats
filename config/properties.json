@@ -17,5 +17,6 @@
     "logging_path":"./logs",
     "LOG_LEVEL": "INFO",
     "APPLICATION_ROOT": "/gwas/summary-statistics/api",
-    "meta_path": "./files/output/meta.h5"
+    "meta_path": "./files/output/meta.h5",
+    "snp_path": "./files/output/snp.h5"
 }

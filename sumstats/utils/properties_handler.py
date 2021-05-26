@@ -28,6 +28,7 @@ def set_config_properties(config):
         properties.APPLICATION_ROOT = props["APPLICATION_ROOT"]
         properties.sqlite_path = props["sqlite_path"]
         properties.meta_path = props["meta_path"]
+        properties.snp_path = props["snp_path"]
 
 
 def get_properties(config_properties=None):
