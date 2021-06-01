@@ -13,6 +13,7 @@ TEST_METADATA = [{'data_dict': DEFAULT_TEST_DATA_DICT, 'pmid': '123457', 'gcst':
 @pytest.yield_fixture(scope="session", autouse=True)
 def load_data():
     conf = get_load_config()
+    remove_loaded_data()
     prepare_load_env_with_test_data(conf)
     for item in TEST_METADATA:
         create_tsv_from_test_data_dict(test_data_dict=item['data_dict'], pmid=item['pmid'], gcst=item['gcst'], efo=item['efo'])

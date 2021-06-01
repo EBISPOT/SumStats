@@ -30,9 +30,9 @@ class Explorer:
     def get_list_of_traits(self):
         mc = meta_client.metaClient(self.metafile)
         traits = mc.get_traits()
-        return traits
+        return sorted(list(set(traits)))
 
-      
+
     def get_list_of_studies_for_trait(self, trait): 
         mc = meta_client.metaClient(self.metafile)
         studies = mc.get_studies_for_trait(trait)

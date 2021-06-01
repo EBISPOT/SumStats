@@ -100,7 +100,7 @@ class AssociationSearch:
             return self.datasets, self.start
         # Narrow down hdf pool
         if self.study or self.trait:
-            meta = mc.metaClient(self.database)
+            meta = mc.metaClient(self.metafile)
             file_ids = []
             if self.study:
                 file_ids.extend(meta.get_file_id_for_study(self.study))
@@ -128,7 +128,7 @@ class AssociationSearch:
     
         studies = []
         if self.trait:
-            meta = mc.metaClient(self.database)
+            meta = mc.metaClient(self.metafile)
             studies.extend(meta.get_studies_for_trait(self.trait))
 
         for hdf in hdfs:

@@ -1,4 +1,5 @@
 import pandas as pd
+import tables as tb
 
 
 class metaClient():
@@ -12,29 +13,34 @@ class metaClient():
         study_list = [study for _ in trait_list]
         data_dict = {'study':study_list, 'trait': trait_list}
         df = pd.DataFrame(data_dict)
-        df.to_hdf("meta.h5",
+        df.to_hdf(self.metafile,
                   key="study_trait",
                   format='table',
+                  mode='a',
                   append=True,
                   data_columns=list(df.columns.values),
                   index=False)
-        with tb.open_file("meta.h5", "a") as hdf:
+        with tb.open_file(self.metafile, "a") as hdf:
             col = hdf.root['study_trait'].table.cols._f_col('study')
+            col.remove_index()
             col.create_index(optlevel=6, kind="medium")
             col = hdf.root['study_trait'].table.cols._f_col('trait')
+            col.remove_index()
             col.create_index(optlevel=6, kind="medium")
 
     def load_study_filename(self, study, filename):
-        data_dict = {'study': study, 'trait': filename}
+        data_dict = {'study': [study], 'file_id': [filename]}
         df = pd.DataFrame(data_dict)
-        df.to_hdf("meta.h5",
+        df.to_hdf(self.metafile,
                   key="study",
                   format='table',
+                  mode='a',
                   append=True,
                   data_columns=list(df.columns.values),
                   index=False)
-        with tb.open_file("meta.h5", "a") as hdf:
+        with tb.open_file(self.metafile, "a") as hdf:
             col = hdf.root['study'].table.cols._f_col('study')
+            col.remove_index()
             col.create_index(optlevel=6, kind="medium")
 
 
@@ -78,10 +84,7 @@ class metaClient():
         with pd.HDFStore(self.metafile) as store:
             results = store.select('study_trait', where=search_string)
             data.extend(results['study'].tolist())
-        if data:
-            return data
-        else:
-            return False
+        return data
 
     def get_traits_for_study(self, study):
         data = []
@@ -89,11 +92,7 @@ class metaClient():
         with pd.HDFStore(self.metafile) as store:
             results = store.select('study_trait', where=search_string)
             data.extend(results['trait'].tolist())
-        if data:
-            return data
-        else:
-            return False
-
+        return data
 
     def get_file_id_for_study(self, study):
         data = []
@@ -101,19 +100,18 @@ class metaClient():
         with pd.HDFStore(self.metafile) as store:
             results = store.select('study', where=search_string)
             data.extend(results['file_id'].tolist())
-        if data:
-            return data
-        else:
-            return False
+        return data
+
 
     def get_file_id_for_trait(self, trait):
         data = []
         search_string = "trait == {trait}".format(trait=trait)
         with pd.HDFStore(self.metafile) as store:
             study_list = store.select('study_trait', where=search_string)['study'].tolist()
-            for study in study_list:
-                search_string = "study == {study}".format(study=study)
-                data.extend(store.select('study', where=search_string)['file_id'].tolist())
+            if study_list:
+                for study in study_list:
+                    search_string = "study == {study}".format(study=study)
+                    data.extend(store.select('study', where=search_string)['file_id'].tolist())
         return data
 
     #""" OTHER STATEMENTS """

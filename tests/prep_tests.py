@@ -45,7 +45,7 @@ def create_tsv_from_test_data_dict(test_data_dict=DEFAULT_TEST_DATA_DICT, conf=g
     sumstats_filename = '-'.join([pmid, gcst, efo]) + '.tsv'
     sumstats_file_path = os.path.join(conf['to_load'], sumstats_filename)
     df = pd.DataFrame.from_dict(test_data_dict)
-    df.to_csv(sumstats_file_path, sep='\t', index=False)
+    df.to_csv(sumstats_file_path, sep='\t', mode='w', index=False)
 
 def prepare_load_env_with_test_data(conf):
     # create dirs
