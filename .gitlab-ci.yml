@@ -16,21 +16,11 @@ variables:
   CI_REGISTRY_IMAGE: ebispot/sumstats
   CI_REGISTRY_DOCS_IMAGE: ebispot/sumstats-docs
 
-#TODO: change dev tag to latest
-test:
-  image: $CI_REGISTRY_IMAGE:dc3c5c43659762dc6a5bed19d28f2167da6ccdd1
-  stage: test
-  script:
-    - mkdir -p logs
-    - pytest -v
-  only:
-    - master
-    - dev
 
 # generate the docs with sphinx
 #TODO: change dev tag to latest
 sphinxdocs:
-  image: $CI_REGISTRY_IMAGE:dc3c5c43659762dc6a5bed19d28f2167da6ccdd1
+  image: $CI_REGISTRY_IMAGE:latest
   stage: build-docs
   script:
    - mkdir -p logs
@@ -52,8 +42,8 @@ build:
   script:
    - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
    - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt docker.io
-   - docker pull $CI_REGISTRY_IMAGE:dc3c5c43659762dc6a5bed19d28f2167da6ccdd1
-   - docker build --cache-from $CI_REGISTRY_IMAGE:dc3c5c43659762dc6a5bed19d28f2167da6ccdd1 -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+   - docker pull $CI_REGISTRY_IMAGE:latest
+   - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   only:
    - master
