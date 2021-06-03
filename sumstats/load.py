@@ -11,7 +11,7 @@ import pathlib
 
 
 class Loader():
-    def __init__(self, tsv, tsv_path, chr_dir, study_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None, loader=None, metafile=None):
+    def __init__(self, tsv, tsv_path, chr_dir, study_dir, snp_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None, loader=None, metafile=None):
         self.tsv = tsv
         self.study = study
         self.traits = trait
@@ -20,6 +20,7 @@ class Loader():
         self.tsv_path = tsv_path
         self.chr_dir = chr_dir
         self.study_dir = study_dir
+        self.snp_dir = snp_dir
         self.max_string = 255
 
         self.filename = self.tsv.split('.')[0]
@@ -164,6 +165,7 @@ class Loader():
     def make_output_dirs(self):
         pathlib.Path(os.path.join(self.hdf_path, self.chr_dir)).mkdir(parents=True, exist_ok=True)
         pathlib.Path(os.path.join(self.hdf_path, self.study_dir)).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(os.path.join(self.hdf_path, self.snp_dir)).mkdir(parents=True, exist_ok=True)
 
 
 def main():
@@ -182,6 +184,7 @@ def main():
     metafile = properties.meta_path
     chr_dir = properties.chr_dir
     study_dir = properties.study_dir
+    snp_dir = properties.snp_dir
 
     filename = args.f
     study = args.study
@@ -194,16 +197,16 @@ def main():
         if chromosome is None:
             print("You must specify the '-chr'...exiting")
         else:    
-            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
+            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, snp_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
             loader.load_bychr()
     elif loader_type == 'bystudy':
         if chromosome is None:
             print("You must specify the '-chr'...exiting")
         else:
-            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
+            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, snp_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
             loader.load_bystudy()
     elif loader_type == "study_info":
-        loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
+        loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, snp_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
         loader.load_study_info()
     else:
         print("You must specify the '-loader'...exiting")

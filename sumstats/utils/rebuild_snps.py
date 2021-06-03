@@ -25,7 +25,7 @@ def main():
     for f in glob.glob("{}/*.tsv".format(loaded_files_path)):
         print(f)
         filename= "temp_" + os.path.basename(f)
-        temp = os.path.abspath(os.path.join(os.sep, h5files_path, snp_dir, filename))
+        temp = os.path.abspath(os.path.join(h5files_path, snp_dir, filename))
         print(temp)
         if not os.path.isfile(temp):
             df = pd.read_csv(f, usecols=[SNP_DSET, CHR_DSET, BP_DSET], chunksize=1000000, sep="\t")
@@ -45,27 +45,28 @@ def main():
         if not os.path.isfile(outfile):
             subprocess.call(["sort", "-u", "-t", ",", "-k2,2n", f, "-o", outfile])
 
-    merge_outfile = os.path.abspath(os.path.join(os.sep, h5files_path, snp_dir, "merge.csv"))
+    merge_outfile = os.path.abspath(os.path.join(h5files_path, snp_dir, "merge.csv"))
     sorted_files = glob.glob("{}/{}/*.sorted".format(h5files_path, snp_dir))
     print(sorted_files)
     subprocess.call("sort -m {}/{}/*.sorted | uniq > {}".format(h5files_path, snp_dir, merge_outfile), shell=True)
             
     print("merged file complete")
 
-    snpdf = pd.read_csv(merge_outfile, header=None, names=['prefix', 'snp_id', CHR_DSET, BP_DSET],
-            dtype={'prefix':str, 'snp_id': str, CHR_DSET: str, BP_DSET: str},
+    snpdf = pd.read_csv(merge_outfile, header=None, names=['prefix', SNP_DSET, CHR_DSET, BP_DSET],
+            dtype={'prefix':str, SNP_DSET: int, CHR_DSET: str, BP_DSET: int},
             chunksize=500000
             )
 
     #build hdf5 and index
-    snpdf.to_hdf(snp_path, key='snp', format='table', append=True, data_columns=list(snpdf.columns.values), index=False)
+    for chunk in snpdf:
+        chunk.to_hdf(snp_path, key='snp', format='table', append=True, data_columns=list(chunk.columns.values), index=False)
     with tb.open_file(snp_path, "a") as hdf:
-        col = hdf.root['snp'].table.cols._f_col('rsid')
+        col = hdf.root['snp'].table.cols._f_col(SNP_DSET)
         col.remove_index()
         col.create_csindex()
-        col = hdf.root['snp'].table.cols._f_col('chr')
+        col = hdf.root['snp'].table.cols._f_col(CHR_DSET)
         col.create_index(optlevel=6, kind="medium")
-        col = hdf.root['snp'].table.cols._f_col('position')
+        col = hdf.root['snp'].table.cols._f_col(BP_DSET)
         col.create_index(optlevel=6, kind="medium")
 
 

@@ -62,7 +62,7 @@ class AssociationSearch:
         try:
             snp_no_prefix = re.search(r"[a-zA-Z]+([0-9]+)", self.snp).group(1)
             meta = mc.metaClient(self.snp_map)
-            snp_mapping = meta.get_chr_pos(snp_no_prefix)[0]
+            snp_mapping = meta.get_chr_pos(snp_no_prefix)
             if snp_mapping:
                 chromosome, position = snp_mapping[0]
                 bp_interval = ':'.join([str(position), str(position)])

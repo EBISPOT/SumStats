@@ -49,14 +49,13 @@ class metaClient():
 
     def get_chr_pos(self, snp):
         data = []
-        search_string = "rsid == {snp}".format(snp=snp)
+        search_string = "variant_id == {snp}".format(snp=snp)
         with pd.HDFStore(self.metafile) as store:
             results = store.select('snp', where=search_string)
-            data.append((results['chr'].values[0], results['position'].values[0]))
-        if data:
-            return data
-        else:
-            return False
+            if not results.empty:
+                data.append((results['chromosome'].values[0], results['base_pair_location'].values[0]))
+        return data
+
 
     def get_studies(self):
         data = []

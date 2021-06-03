@@ -124,7 +124,8 @@ rule repack:
         """
 
 
-rule clean_and_tidy:
+
+rule rebuild_snps_clean_and_tidy:
     input:
         expand("{to_load}/{chromosome}/REPACKED_COMPLETE", chromosome=config["chromosomes"], to_load=config["to_load"]),
         in_ss = expand("{to_load}/{ss_file}.tsv", to_load=config["to_load"], ss_file=SSIDS)
@@ -140,4 +141,5 @@ rule clean_and_tidy:
         """
         for f in {input.in_ss}; do mv -v $f {params.loaded}/; done
         for chrom in {params.chroms}; do rm -v {params.to_load}/$chrom/*; done
+        gwas-rebuild-snps
         """
