@@ -3,13 +3,11 @@ import re
 import glob
 import itertools
 import os
-import sumstats.utils.filesystem_utils as fsutils
 from sumstats.chr.constants import *
 import logging
 from sumstats.utils import register_logger
 from sumstats.utils import properties_handler
 from sumstats.utils.interval import *
-import sumstats.utils.sqlite_client as sq
 import sumstats.utils.meta_client as mc
 
 logger = logging.getLogger(__name__)
@@ -46,7 +44,7 @@ class AssociationSearch:
         self.index_marker = self.search_traversed = 0
         self.df = pd.DataFrame()
         self.condition = self._construct_conditional_statement()
-        print(self.condition)
+        logger.debug(self.condition)
 
 
     def _chr_bp_from_snp(self):
@@ -106,21 +104,24 @@ class AssociationSearch:
                 file_ids.extend(meta.get_file_id_for_study(self.study))
             elif self.trait:
                 file_ids.extend(meta.get_file_id_for_trait(self.trait))
-            print("study/trait")
+            logger.debug("study/trait")
             if self.chromosome:
-                print("chr")
+                logger.debug("chr")
                 hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/" + str(self.chromosome) + "/file_" + f + ".h5") for f in file_ids]
                 hdfs = list(itertools.chain.from_iterable(hdfs))
             else:
-                print("nochr")
+                logger.debug("nochr")
                 hdfs = [glob.glob(os.path.join(self.search_path, self.study_dir) + "/*/file_" + f + ".h5") for f in file_ids]
                 hdfs = list(itertools.chain.from_iterable(hdfs))
         elif self.chromosome and not (self.study or self.trait):
-            print("bp/chr")
-            #hdfs = fsutils.get_h5files_in_dir(self.search_path, self.study_dir + "/" + str(self.chromosome))
+            logger.debug("bp/chr")
             hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir)  + "/file_chr" + str(self.chromosome) + ".h5")
+        elif self.snp and not (self.chromosome and self.bp_interval):
+            logger.debug("snp not mapped")
+            #snp could not be found
+            return self.datasets, self.starting_point
         else:
-            print("all")
+            logger.debug("all")
             hdfs = glob.glob(os.path.join(self.search_path, self.chr_dir) + "/file_chr*.h5")
 
         ## This iterates through files one chunksize at a time.
@@ -134,7 +135,7 @@ class AssociationSearch:
         for hdf in hdfs:
             inner_loop_broken = False
             with pd.HDFStore(hdf, mode='r') as store:
-                print('opened {}'.format(hdf))
+                logger.debug('opened {}'.format(hdf))
                 gen = (key for key in dir(store.root) if GWAS_CATALOG_STUDY_PREFIX in key)
                 for key in gen:
                     if self.trait:
@@ -154,10 +155,10 @@ class AssociationSearch:
                         continue
 
                     if self.condition:
-                        print(self.condition)
+                        logger.debug(self.condition)
                         chunks = store.select(key, chunksize=1, start=self.start, where=self.condition) #set pvalue and other conditions
                     else:
-                        print("No condition")
+                        logger.debug("No condition")
                         chunks = store.select(key, chunksize=1, start=self.start)
 
                     chunk_size = chunks.coordinates.size
@@ -200,9 +201,6 @@ class AssociationSearch:
         conditions = []
         statement = None
 
-        #if self.trait:
-        #    conditions.append("{trait} == {id}".format(trait=PHEN_DSET, id=str(self.trait)))
-
         if self.bp_interval:
             if self.bp_interval.lower_limit:
                 conditions.append("{bp} >= {lower}".format(bp = BP_DSET, lower = self.bp_interval.lower_limit))
@@ -215,18 +213,12 @@ class AssociationSearch:
                 conditions.append("{bp} >= {lower}".format(bp = BP_DSET, lower = self.bp_interval.lower_limit))
             if self.bp_interval:
                 conditions.append("{bp} <= {upper}".format(bp = BP_DSET, upper = self.bp_interval.upper_limit))
-            #conditions.append("{snp} == {id}".format(snp=SNP_DSET, id=str(self.snp)))
 
         if self.pval_interval:
             if self.pval_interval.lower_limit:
                 conditions.append("{pval} >= {lower}".format(pval = PVAL_DSET, lower = str(self.pval_interval.lower_limit)))
             if self.pval_interval.upper_limit:
                 conditions.append("{pval} <= {upper}".format(pval = PVAL_DSET, upper = str(self.pval_interval.upper_limit)))
-
-
-        #if self.study:
-        #    study_id = int(self.study.replace(GWAS_CATALOG_STUDY_PREFIX, ""))
-        #    conditions.append("{study} == {query}".format(study=STUDY_DSET, query=study_id))
 
         if len(conditions) > 0:
             statement = " & ".join(conditions)
@@ -240,14 +232,3 @@ class AssociationSearch:
         for (path, subgroups, subkeys) in store.walk():
             for subkey in subkeys:
                 return '/'.join([path, subkey])
-
-
-def search_hdf_with_condition(hdf, snp, condition):
-    #hdf, snp, condition = args
-    with pd.HDFStore(hdf, mode='r') as store:
-        key = store.keys()[0]
-        results = store.select(key, where=condition) #set pvalue and other conditions
-        if len(results.index) > 0:
-            return hdf
-        return None
-            
