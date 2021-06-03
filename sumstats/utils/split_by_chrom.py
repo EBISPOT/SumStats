@@ -14,10 +14,11 @@ def main():
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
     chr_dir = properties.chr_dir
     study_dir = properties.study_dir
+    snp_dir = properties.snp_dir
 
     filename = args.f
     study = args.study
-    loader = ld.Loader(tsv=filename, tsv_path=tsvfiles_path, chr_dir=chr_dir, study=study, study_dir=study_dir)
+    loader = ld.Loader(tsv=filename, tsv_path=tsvfiles_path, chr_dir=chr_dir, study=study, study_dir=study_dir, snp_dir=snp_dir)
     loader.split_csv_into_chroms()
 
 

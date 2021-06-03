@@ -56,3 +56,18 @@ class TestLoader(object):
         datasets, index_marker = self.searcher.search(start=new_start, size=size, pval_interval=pval_interval)
         assert_datasets_have_size(datasets, TO_QUERY_DSETS, size)
         assert index_marker == start + 2 * (size)
+
+    def test_search_for_snp_exists(self):
+        start = 0
+        size = 200
+        snp = DEFAULT_TEST_DATA_DICT['variant_id'][0]
+        datasets, next_index = self.searcher.search(start=start, size=size, snp=snp)
+        assert_datasets_have_size(datasets, TO_QUERY_DSETS, len(self.loaded_studies))
+
+    def test_search_for_snp_not_exists(self):
+        start = 0
+        size = 200
+        non_existent_snp = 'rs1'
+        datasets, next_index = self.searcher.search(start=start, size=size, snp=non_existent_snp)
+        assert datasets is None
+        assert next_index == start
