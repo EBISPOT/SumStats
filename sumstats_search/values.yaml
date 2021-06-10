@@ -47,7 +47,7 @@ service:
   type: NodePort
   port: 8000
   path: /gwas/summary-statistics/api(/|$)(.*)
-  gunicornCmd: '["gunicorn", "-b", "0.0.0.0:8000", "sumstats.server.app:app","--log-level=debug","--access-logfile=logs/ss_search_access.log","--error-logfile=logs/ss_search_error.log", "--workers=4"]'
+  gunicornCmd: '["gunicorn", "-b", "0.0.0.0:8000", "sumstats.server.app:app","--log-level=debug","--access-logfile=logs/ss_search_access.log","--error-logfile=logs/ss_search_error.log", "--workers=8", "-k=eventlet", "--no-sendfile", "--timeout=120"]'
 
 staticService:
   replicaCount: 1
