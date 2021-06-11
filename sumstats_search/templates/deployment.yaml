@@ -1,0 +1,58 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.Values.service.name}}
+  namespace: {{.Values.k8Namespace}}
+  lables:
+    version: {{.Values.image.tag}}
+spec:
+  replicas: {{.Values.replicaCount}}
+  securityContext:
+    runAsUser: {{.Values.image.uid}}
+    runAsGroup: {{.Values.image.gid}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.service.name}}
+    spec:
+      containers:
+      - name: {{.Values.service.name}}
+        image: "{{.Values.image.repository}}:{{.Values.image.tag}}"
+        command: {{.Values.service.gunicornCmd}}
+        imagePullPolicy: {{.Values.image.pullPolicy}}
+        resources:
+          requests:
+            cpu: {{.Values.resources.requests.cpu}}
+            memory: {{.Values.resources.requests.memory}}
+        ports:
+        - name: http
+          containerPort: {{.Values.image.containerPort}}
+        volumeMounts:
+        - mountPath: {{.Values.image.logMountPath}}
+          name: log
+        - mountPath: {{.Values.image.dataMountPath}}
+          name: data
+          readOnly: true
+        - mountPath: {{.Values.image.configMountPath}}
+          name: configs
+          readOnly: true
+        env:
+        - name: SS_CONFIG
+          value: {{.Values.image.ss_config}}
+      volumes:
+      - name: log
+        persistentVolumeClaim:
+          claimName: {{ .Values.volume.log.ClaimName }}
+      - name: data
+        nfs:
+          server: {{ .Values.volume.data.nfsServer }}
+          path: {{ .Values.volume.data.path }}
+          readOnly: true
+      - name: configs
+        secret:
+          secretName: {{ .Values.secrets.configs }}
+          defaultMode: 0600
+### running locally
+#        hostPath:
+#          path: {{ .Values.volume.data.path }}
+

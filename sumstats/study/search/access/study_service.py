@@ -1,25 +1,4 @@
-"""
-    Data is stored in the hierarchy of /Trait/Study/DATA
-    where DATA:
-    under each directory we store 3 (or more) vectors
-    'snp' list will hold the snp ids
-    'mantissa' list will hold each snp's p-value mantissa for this study
-    'exp' list will hold each snp's p-value exponent for this study
-    'chr' list will hold the chromosome that each snp belongs to
-    e.t.c.
-    You can see the lists that will be loaded in the constants.py module
-
-    the positions in the vectors correspond to each other
-    snp[0], mantissa[0], exp[0], and chr[0] hold the information for SNP 0
-
-    Query : Retrieve all the information for a study: input = and study name and trait name
-"""
-
-import sumstats.trait.search.access.repository as repo
-import sumstats.utils.group as gu
 from sumstats.utils.query import *
-import sumstats.utils.restrictions as rst
-from sumstats.common_constants import *
 import logging
 from sumstats.utils import register_logger
 

@@ -28,9 +28,11 @@ pandas==0.19.2
 Paste==3.2.0
 pathlib2==2.3.4
 pluggy==0.13.0
+psutil==5.6.1
 py==1.8.0
 Pygments==2.3.1
 pyparsing==2.4.2
+pyrsistent==0.15.1
 pytest==4.6.5
 pytest-cov==2.7.1
 python-dateutil==2.8.0
@@ -38,7 +40,7 @@ pytz==2019.2
 requests==2.21.0
 scandir==1.10.0
 simplejson==3.16.0
-six==1.12.0
+snakemake==5.4.4
 snowballstemmer==1.9.1
 Sphinx==1.8.5
 sphinxcontrib-httpdomain==1.7.0

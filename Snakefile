@@ -4,7 +4,7 @@ import glob
 
 configfile: "snakemake_conf.yaml"
 
-SSIDS = [os.path.basename(f).replace(".tsv", "") for f in list(pathlib.Path(config["to_load"]).glob("*.tsv"))]
+SSIDS = [os.path.basename(str(f)).replace(".tsv", "") for f in list(pathlib.Path(config["to_load"]).glob("*.tsv"))]
 
 def file_with_ext(wildcards):
     toload =  [f for f in glob.glob(os.path.join(config["to_load"], wildcards.ss_file) + "*.tsv") if os.path.isfile(f)]
@@ -16,7 +16,7 @@ def file_with_ext(wildcards):
 
 def target_files():
     targets = []
-    toload =  [os.path.basename(f) for f in list(pathlib.Path(config["to_load"]).glob("*.tsv"))]
+    toload =  [os.path.basename(str(f)) for f in list(pathlib.Path(config["to_load"]).glob("*.tsv"))]
     for f in toload:
         file_ext = "".join(pathlib.Path(f).suffixes)
         file_no_ext = f.replace(file_ext, "")
@@ -39,7 +39,7 @@ rule prep_for_load:
          props=config["props"],
          chroms=config["chromosomes"]
     resources:
-         mem_mb = 4000
+         mem_mb = config["mem_mb"]
     shell:
          """
          for chr in {params.chroms}; do
@@ -69,7 +69,7 @@ rule load_study:
          out_dir=config["out_dir"],
          props=config["props"],
     resources:
-         mem_mb = lambda wildcards, attempt: attempt * 8000
+         mem_mb = lambda wildcards, attempt: attempt * (2 * config["mem_mb"])
     shell:
          """
          export SS_LOAD={params.to_load};
@@ -102,7 +102,7 @@ rule repack:
         out_dir=config["out_dir"],
         props=config["props"],
     resources:
-        mem_mb = lambda wildcards, attempt: attempt * 4800
+        mem_mb = lambda wildcards, attempt: attempt * config["mem_mb"]
     shell:
         """
         export SS_LOAD={params.to_load};
@@ -124,7 +124,8 @@ rule repack:
         """
 
 
-rule clean_and_tidy:
+
+rule rebuild_snps_clean_and_tidy:
     input:
         expand("{to_load}/{chromosome}/REPACKED_COMPLETE", chromosome=config["chromosomes"], to_load=config["to_load"]),
         in_ss = expand("{to_load}/{ss_file}.tsv", to_load=config["to_load"], ss_file=SSIDS)
@@ -140,4 +141,5 @@ rule clean_and_tidy:
         """
         for f in {input.in_ss}; do mv -v $f {params.loaded}/; done
         for chrom in {params.chroms}; do rm -v {params.to_load}/$chrom/*; done
+        gwas-rebuild-snps
         """

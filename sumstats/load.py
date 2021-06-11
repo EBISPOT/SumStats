@@ -1,19 +1,17 @@
 import sys
-import subprocess
-import glob
 import os
 import argparse
 import pandas as pd
-import tables as tb
 from sumstats.common_constants import *
 from sumstats.utils.properties_handler import properties
 from sumstats.utils import properties_handler
 from sumstats.utils import filesystem_utils as fsutils
-import sumstats.utils.sqlite_client as sq 
+import sumstats.utils.meta_client as mc
+import pathlib
 
 
 class Loader():
-    def __init__(self, tsv, tsv_path, chr_dir, study_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None, loader=None):
+    def __init__(self, tsv, tsv_path, chr_dir, study_dir, snp_dir, study=None, trait=None, hdf_path=None, chromosome=None, sqldb=None, loader=None, metafile=None):
         self.tsv = tsv
         self.study = study
         self.traits = trait
@@ -22,6 +20,7 @@ class Loader():
         self.tsv_path = tsv_path
         self.chr_dir = chr_dir
         self.study_dir = study_dir
+        self.snp_dir = snp_dir
         self.max_string = 255
 
         self.filename = self.tsv.split('.')[0]
@@ -30,10 +29,12 @@ class Loader():
         self.ss_file = fsutils.get_file_path(path=self.tsv_path + "/{chrom}".format(chrom=self.chromosome), file=self.filename + ".csv") if loader in ['bychr', 'bystudy'] else fsutils.get_file_path(path=self.tsv_path, file=self.tsv)
 
         self.sqldb = sqldb
+        self.metafile = metafile
 
     def load_bychr(self):
         group = "chr" + self.chromosome
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=group, dir_name=self.chr_dir)
+        self.make_output_dirs()
         self.append_csv_to_hdf(hdf_store, group)
 
 
@@ -41,6 +42,7 @@ class Loader():
         print(self.ss_file)
         group = "/{study}".format(study=self.study.replace('-','_'))
         hdf_store = fsutils.create_h5file_path(path=self.hdf_path, file_name=self.filename, dir_name=self.study_dir + "/" + self.chromosome)
+        self.make_output_dirs()
         self.write_csv_to_hdf(hdf_store, group)
 
     
@@ -139,18 +141,13 @@ class Loader():
         self.load_study_filename()
 
     def load_study_and_trait(self):
-        sql = sq.sqlClient(self.sqldb)
-        for trait in self.traits:
-            data = [self.study, trait]
-            sql.cur.execute("insert or ignore into study_trait values (?,?)", data)
-            sql.cur.execute('COMMIT')
-
+        meta = mc.metaClient(self.metafile)
+        meta.load_study_trait(self.study, self.traits)
 
     def load_study_filename(self):
-        sql = sq.sqlClient(self.sqldb)
-        data = [self.study, self.filename]
-        sql.cur.execute("insert or ignore into study values (?,?)", data)
-        sql.cur.execute('COMMIT')
+        meta = mc.metaClient(self.metafile)
+        meta.load_study_filename(self.study, self.filename)
+
 
     @staticmethod
     def coerce_floats(value):
@@ -165,24 +162,10 @@ class Loader():
         return value
 
 
-   # def reindex_files(self):
-   #     hdfs = fsutils.get_h5files_in_dir(path=self.hdfs_path, dir_name=self.chr_dir)
-   #     for f in hdfs:
-   #         with pd.HDFStore(f) as store:
-   #             group = store.keys()[0]
-   #             self.create_index(f, TO_INDEX, group)
-   #             self.create_cs_index(f, BP_DSET, group)
-
-
-   # def create_index(self, hdf, fields, group):
-   #     with pd.HDFStore(hdf) as store:
-   #         store.create_table_index(group, columns=fields, optlevel=6, kind='medium')
-
-
-   # def create_cs_index(self, hdf, fields, group):
-   #     with pd.HDFStore(hdf) as store:
-   #         store.create_table_index(group, columns=fields, optlevel=9, kind='full')
-
+    def make_output_dirs(self):
+        pathlib.Path(os.path.join(self.hdf_path, self.chr_dir)).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(os.path.join(self.hdf_path, self.study_dir)).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(os.path.join(self.hdf_path, self.snp_dir)).mkdir(parents=True, exist_ok=True)
 
 
 def main():
@@ -198,8 +181,10 @@ def main():
     h5files_path = properties.h5files_path # pragma: no cover
     tsvfiles_path = properties.tsvfiles_path  # pragma: no cover
     database = properties.sqlite_path
+    metafile = properties.meta_path
     chr_dir = properties.chr_dir
     study_dir = properties.study_dir
+    snp_dir = properties.snp_dir
 
     filename = args.f
     study = args.study
@@ -212,16 +197,16 @@ def main():
         if chromosome is None:
             print("You must specify the '-chr'...exiting")
         else:    
-            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
+            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, snp_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
             loader.load_bychr()
     elif loader_type == 'bystudy':
         if chromosome is None:
             print("You must specify the '-chr'...exiting")
         else:
-            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
+            loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, snp_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
             loader.load_bystudy()
     elif loader_type == "study_info":
-        loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, study, traits, h5files_path, chromosome, database, loader_type)
+        loader = Loader(filename, tsvfiles_path, chr_dir, study_dir, snp_dir, study, traits, h5files_path, chromosome, database, loader_type, metafile)
         loader.load_study_info()
     else:
         print("You must specify the '-loader'...exiting")

@@ -1,19 +1,13 @@
 import argparse
-import os
 import sys
-from os.path import isfile
-import glob
 import sumstats.utils.filesystem_utils as fsutils
-import sumstats.trait.search.access.trait_service as trait_service
 import sumstats.study.search.access.study_service as study_service
-import sumstats.chr.search.access.chromosome_service as chrom_service
-import sumstats.chr.search.chromosome_search as chr_search
 import sumstats.utils.sqlite_client as sql_client
+import sumstats.utils.meta_client as meta_client
 import sumstats.chr.retriever as cr
 from sumstats.errors.error_classes import *
 from sumstats.utils import properties_handler
 from sumstats.utils.properties_handler import properties
-from sumstats.common_constants import *
 
 
 class Explorer:
@@ -24,23 +18,24 @@ class Explorer:
         self.chr_dir = self.properties.chr_dir
         self.trait_dir = self.properties.trait_dir
         self.sqlite_db = self.properties.sqlite_path
+        self.metafile = self.properties.meta_path
         
 
     def get_list_of_studies(self):
-        sq = sql_client.sqlClient(self.sqlite_db)
-        studies = sq.get_studies()
+        mc = meta_client.metaClient(self.metafile)
+        studies = mc.get_studies()
         return sorted(list(set(studies)))
+      
 
-
-    def get_list_of_traits(self): 
-        sq = sql_client.sqlClient(self.sqlite_db)
-        traits = sq.get_traits()
-        return traits
+    def get_list_of_traits(self):
+        mc = meta_client.metaClient(self.metafile)
+        traits = mc.get_traits()
+        return sorted(list(set(traits)))
 
 
     def get_list_of_studies_for_trait(self, trait): 
-        sq = sql_client.sqlClient(self.sqlite_db)
-        studies = sq.get_studies_for_trait(trait)
+        mc = meta_client.metaClient(self.metafile)
+        studies = mc.get_studies_for_trait(trait)
         if studies:
             return sorted(list(set(studies)))
         else:
@@ -48,8 +43,8 @@ class Explorer:
 
 
     def get_trait_of_study(self, study_to_find):
-        sq = sql_client.sqlClient(self.sqlite_db)
-        traits = sq.get_traits_for_study(study_to_find)
+        mc = meta_client.metaClient(self.metafile)
+        traits = mc.get_traits_for_study(study_to_find)
         if traits:
             return sorted(list(set(traits)))
         else:
@@ -58,7 +53,7 @@ class Explorer:
 
 
     def has_trait(self, trait):
-        search = cr.search_all_assocs(trait=trait, start=0, size=0, properties=self.properties)
+        search = cr.search_all_assocs(trait=trait, start=0, size=1, properties=self.properties)
         if search[-1] > 0:
             return True
         raise NotFoundError("Trait " + trait)
@@ -78,12 +73,7 @@ class Explorer:
         # raises Not Found Error
         """To do: Store the chromosome list as an attribute in the hdf5 file."""
         h5files = fsutils.get_h5files_in_dir(self.search_path, self.study_dir)
-        #chromosomes = []
-        #for h5file in h5files:
-        #    service = trait_service.StudyService(h5file=h5file)
-        #    traits.extend(service.list_traits())
-        #    service.close_file()
-        search = cr.search_all_assocs(chromosome=chromosome, start=0, size=0, properties=self.properties)
+        search = cr.search_all_assocs(chromosome=chromosome, start=0, size=1, properties=self.properties)
         if search[-1] > 0:
             print('checked')
             return True
