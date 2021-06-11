@@ -1,7 +1,6 @@
 image: docker:latest
 
 stages:
-  - test
   - build-docs
   - build
   - deploy
@@ -18,7 +17,6 @@ variables:
 
 
 # generate the docs with sphinx
-#TODO: change dev tag to latest
 sphinxdocs:
   image: $CI_REGISTRY_IMAGE:latest
   stage: build-docs
@@ -36,7 +34,6 @@ sphinxdocs:
 
 
 # always build an image tagged with the commit SHA from master
-#TODO: change dev tag to latest
 build:
   stage: build
   script:
@@ -63,6 +60,39 @@ build_docs:
    - master
    - dev
 
+# if a tag is created create an images with the tag and a latest
+build_release:
+  stage: build
+  variables:
+    GIT_STRATEGY: none
+  script:
+   - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
+   - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt
+   - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+   - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+   - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+   - docker push $CI_REGISTRY_IMAGE:latest
+   - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  only:
+   - tags
+
+build_docs_release:
+  stage: build
+  variables:
+    GIT_STRATEGY: none
+  script:
+   - echo "$DOCKER_HUB_PASSWORD" > dhpw.txt
+   - docker login -u "${DOCKER_HUB_USER}" --password-stdin < dhpw.txt
+   - docker pull $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA
+   - docker tag $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_DOCS_IMAGE:latest
+   - docker tag $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_TAG
+   - docker push $CI_REGISTRY_DOCS_IMAGE:latest
+   - docker push $CI_REGISTRY_DOCS_IMAGE:$CI_COMMIT_TAG
+  dependencies:
+    - sphinxdocs
+  only:
+   - tags
+
 deploy_staging:
   image: dtzar/helm-kubectl:2.13.1
   stage: deploy
@@ -79,3 +109,35 @@ deploy_staging:
     - master
     - dev
 
+deploy_fallback:
+  image: dtzar/helm-kubectl:2.13.1
+  stage: deploy
+  script:
+    - echo "Deploy to fallback server"
+    - mkdir -p /root/.kube
+    - echo ${FALLBACK_KUBECONF} | base64 -d > /root/.kube/config
+    - helm init --stable-repo-url https://charts.helm.sh/stable
+    - helm delete --purge sumstats-search-api || true
+    - helm install --name sumstats-search-api --set k8Namespace=sumstats-search,service.name=ss-seach-api,staticService.name=ss-search-api-docs,staticService.path=/ss-search-api-docs,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.ss_config=$SS_CONFIG_FALLBACK,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_FALLBACK,volume.data.path=$NFS_PATH_FALLBACK,replicaCount=1 ./sumstats_search/ --wait
+  environment:
+    name: fallback
+  when: manual
+  only:
+    - tags
+
+
+deploy_prod:
+  image: dtzar/helm-kubectl:2.13.1
+  stage: deploy
+  script:
+    - echo "Deploy to production server"
+    - mkdir -p /root/.kube
+    - echo ${PROD_KUBECONF} | base64 -d > /root/.kube/config
+    - helm init --stable-repo-url https://charts.helm.sh/stable
+    - helm delete --purge sumstats-search-api || true
+    - helm install --name sumstats-search-api --set k8Namespace=sumstats-search,service.name=ss-seach-api,staticService.name=ss-search-api-docs,staticService.path=/ss-search-api-docs,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.ss_config=$SS_CONFIG_PROD,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_PROD,volume.data.path=$NFS_PATH_PROD,replicaCount=1 ./sumstats_search/ --wait
+  environment:
+    name: production
+  when: manual
+  only:
+    - tags
