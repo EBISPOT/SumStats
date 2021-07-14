@@ -118,7 +118,7 @@ deploy_fallback:
     - echo ${FALLBACK_KUBECONF} | base64 -d > /root/.kube/config
     - helm init --stable-repo-url https://charts.helm.sh/stable
     - helm delete --purge sumstats-search-api || true
-    - helm install --name sumstats-search-api --set k8Namespace=sumstats-search,service.name=ss-seach-api,staticService.name=ss-search-api-docs,staticService.path=/ss-search-api-docs,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.ss_config=$SS_CONFIG_FALLBACK,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_FALLBACK,volume.data.path=$NFS_PATH_FALLBACK,replicaCount=1 ./sumstats_search/ --wait
+    - helm install --name sumstats-search-api --set k8Namespace=sumstats-search,service.name=ss-seach-api,staticService.name=ss-search-api-docs,staticService.path=/ss-search-api-docs,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.ss_config=$SS_CONFIG_FALLBACK,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_FALLBACK,volume.data.path=$NFS_PATH_FALLBACK,replicaCount=3 ./sumstats_search/ --wait
   environment:
     name: fallback
   when: manual
@@ -135,7 +135,7 @@ deploy_prod:
     - echo ${PROD_KUBECONF} | base64 -d > /root/.kube/config
     - helm init --stable-repo-url https://charts.helm.sh/stable
     - helm delete --purge sumstats-search-api || true
-    - helm install --name sumstats-search-api --set k8Namespace=sumstats-search,service.name=ss-seach-api,staticService.name=ss-search-api-docs,staticService.path=/ss-search-api-docs,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.ss_config=$SS_CONFIG_PROD,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_PROD,volume.data.path=$NFS_PATH_PROD,replicaCount=1 ./sumstats_search/ --wait
+    - helm install --name sumstats-search-api --set k8Namespace=sumstats-search,service.name=ss-seach-api,staticService.name=ss-search-api-docs,staticService.path=/ss-search-api-docs,image.repository=$CI_REGISTRY_IMAGE,image.tag=$CI_COMMIT_SHA,image.ss_config=$SS_CONFIG_PROD,staticService.image.repository=$CI_REGISTRY_DOCS_IMAGE,staticService.image.tag=$CI_COMMIT_SHA,volume.data.nfsServer=$NFS_SERVER_PROD,volume.data.path=$NFS_PATH_PROD,replicaCount=3 ./sumstats_search/ --wait
   environment:
     name: production
   when: manual
