@@ -53,3 +53,19 @@ TO_QUERY_DSETS_DEFAULT = {SNP_DSET, MANTISSA_DSET, EXP_DSET, STUDY_DSET, CHR_DSE
                                 HM_EFFECT_DSET, HM_OTHER_DSET, HM_FREQ_DSET, HM_VAR_ID, HM_CODE}
 TO_INDEX = {STUDY_DSET, PVAL_DSET, BP_DSET}
 REQUIRED = {CHR_DSET, PVAL_DSET, SNP_DSET}#, EFFECT_DSET, OTHER_DSET}
+
+
+ES_MAPPINGS = {"mappings": {
+                    "properties": {
+                        "hm_variant_id": {"type": "keyword"},
+                        "hm_rsid": {"type": "keyword"},
+                        "hm_effect_allele": {"type": "keyword",
+                                             "index": "false"},
+                        "hm_other_allele": {"type": "keyword",
+                                            "index": "false"},
+                        "p_value": {"type": "float"},
+                        "hm_chrom": {"type": "keyword"},
+                        "hm_pos": {"type": "integer"}
+                    }
+                }
+            }
