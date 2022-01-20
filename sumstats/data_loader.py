@@ -68,7 +68,7 @@ class DataLoader:
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-f', help='The path to the summary statistics file to be processed', required=True)
-    argparser.add_argument('-es_host', help='The host URL for the ES instance', required=True)
+    argparser.add_argument('-es_host', help='The host URL for the ES instance', required=False, default='http://127.0.0.1:9200/')
     argparser.add_argument('-index', help='The name of the index', required=True)
 
     args = argparser.parse_args()
