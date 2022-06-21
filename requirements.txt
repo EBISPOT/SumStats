@@ -22,7 +22,7 @@ MarkupSafe==1.1.1
 monotonic==1.5
 more-itertools==7.2.0
 numexpr==2.7.0
-numpy==1.15.4
+numpy==1.22.0
 packaging==19.2
 pandas==0.19.2
 Paste==3.2.0
